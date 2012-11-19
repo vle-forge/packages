@@ -1,0 +1,7 @@
+Package: vle.extension.difference-equation
+Version: 0.1.0
+Depends:
+Maintainer: Gauthier Quesnel <quesnel@users.sourceforge.net>
+Description: An extension to build difference equation models
+ .
+Tag: extension

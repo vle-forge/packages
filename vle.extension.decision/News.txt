@@ -1,0 +1,7 @@
+Changes from previous versions of the VLE extension decision
+============================================================
+
+Initial version 0.1.0
+---------------------
+
+- initial packaging.

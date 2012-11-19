@@ -1,0 +1,7 @@
+Changes from previous versions of the extension cellqss
+=======================================================
+
+Initial version 0.1.0
+---------------------
+
+- initial packaging.

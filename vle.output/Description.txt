@@ -1,0 +1,7 @@
+Package: vle.output
+Version: 0.1.0
+Depends:
+Maintainer: Gauthier Quesnel <quesnel@users.sourceforge.net>
+Description: An set of output plugins
+ .
+Tag: output

@@ -1,0 +1,7 @@
+Changes from previous versions of the extension fsa
+===================================================
+
+Initial version 0.1.0
+---------------------
+
+- initial packaging.

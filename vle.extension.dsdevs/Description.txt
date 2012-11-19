@@ -1,0 +1,7 @@
+Package: vle.extension.dsdevs
+Version: 0.1.0
+Depends:
+Maintainer: Gauthier Quesnel <quesnel@users.sourceforge.net>
+Description: A generic dynamic structure model
+ .
+Tag: extension
