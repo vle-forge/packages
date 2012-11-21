@@ -160,9 +160,6 @@ void Mapping::MappingTreeView::onEdit()
 
 Mapping::~Mapping()
 {
-    delete m_RadioButtonName;
-    delete m_RadioButtonPort;
-    delete m_RadioButtonMapping;
 }
 
 void Mapping::assign(vpz::Condition& condition)
