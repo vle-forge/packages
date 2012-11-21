@@ -154,6 +154,7 @@ public:
 
         if (m_headertype == STORAGE_HEADER_TOP) {
             m_matrix->addRow();
+            m_matrix->add(0, 0, new vle::value::String("time"));
         }
     }
 
