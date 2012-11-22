@@ -5,7 +5,7 @@
   <object class="GtkDialog" id="AckFunctionDialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Acknowledge Functions</property>
+    <property name="title" translatable="yes">Acknowledges list</property>
     <property name="modal">True</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
@@ -113,7 +113,7 @@
                     <property name="can_focus">False</property>
                     <property name="left_padding">12</property>
                     <child>
-                      <object class="GtkVBox" id="box16">
+                      <object class="GtkVBox" id="boxA16">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
@@ -157,51 +157,74 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="HeaderAck">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Function header</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkFrame" id="frame16">
+                          <object class="GtkFrame" id="frameAck1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label_xalign">0</property>
                             <property name="shadow_type">etched-out</property>
                             <child>
-                              <object class="GtkAlignment" id="alignment16">
+                              <object class="GtkAlignment" id="alignmentA1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="left_padding">12</property>
                                 <child>
-                                  <object class="GtkScrolledWindow" id="scrolledwindow11">
+                                  <object class="GtkVBox" id="vboxA1">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="shadow_type">in</property>
+                                    <property name="can_focus">False</property>
                                     <child>
-                                      <object class="GtkTextView" id="AckFunction">
-                                        <property name="width_request">400</property>
-                                        <property name="height_request">300</property>
+                                      <object class="GtkLabel" id="HeaderAck">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="label" translatable="yes">Function header</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkScrolledWindow" id="scrolledwindowA1">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <child>
+                                          <object class="GtkTextView" id="AckFunction">
+                                            <property name="width_request">400</property>
+                                            <property name="height_request">300</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                          </object>
+                                        </child>
                                       </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label25">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="label" translatable="yes">}</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
                                     </child>
                                   </object>
                                 </child>
                               </object>
                             </child>
                             <child type="label">
-                              <object class="GtkLabel" id="label23">
+                              <object class="GtkLabel" id="labelA1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Function&lt;/b&gt;</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Acknowledge function&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
                             </child>
@@ -209,20 +232,7 @@
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label25">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">}</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">3</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                       </object>
@@ -1199,7 +1209,7 @@
                         <property name="homogeneous">True</property>
                         <child>
                           <object class="GtkButton" id="IncludeSourceButton">
-                            <property name="label" translatable="yes">User</property>
+                            <property name="label" translatable="yes">Custom</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1214,7 +1224,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="UserFactButton">
-                            <property name="label" translatable="yes">Facts</property>
+                            <property name="label" translatable="yes">KB</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1274,7 +1284,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="AckButton">
-                            <property name="label" translatable="yes">Acknowledge</property>
+                            <property name="label" translatable="yes">Ack</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1310,7 +1320,7 @@
                   <object class="GtkLabel" id="SourceFrameLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Source&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt; Items Editors&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>
@@ -1733,148 +1743,179 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkFrame" id="frame111">
-                            <property name="can_focus">False</property>
-                            <property name="label_xalign">0</property>
-                            <property name="shadow_type">etched-out</property>
-                            <child>
-                              <object class="GtkAlignment" id="alignment111">
-                                <property name="can_focus">False</property>
-                                <property name="top_padding">5</property>
-                                <property name="bottom_padding">5</property>
-                                <property name="left_padding">10</property>
-                                <property name="right_padding">10</property>
-                                <child>
-                                  <object class="GtkTextView" id="factAttributes">
-                                    <property name="width_request">300</property>
-                                    <property name="can_focus">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <child type="label">
-                              <object class="GtkLabel" id="label111">
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Attribute declaration&lt;/b&gt;</property>
-                                <property name="use_markup">True</property>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkFrame" id="frame5">
-                            <property name="can_focus">False</property>
-                            <property name="label_xalign">0</property>
-                            <property name="shadow_type">etched-out</property>
-                            <child>
-                              <object class="GtkAlignment" id="alignment10">
-                                <property name="can_focus">False</property>
-                                <property name="top_padding">5</property>
-                                <property name="bottom_padding">5</property>
-                                <property name="left_padding">10</property>
-                                <property name="right_padding">10</property>
-                                <child>
-                                  <object class="GtkTextView" id="factInit">
-                                    <property name="width_request">300</property>
-                                    <property name="can_focus">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <child type="label">
-                              <object class="GtkLabel" id="label24">
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Attribute initialization&lt;/b&gt;</property>
-                                <property name="use_markup">True</property>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="HeaderFact">
+                          <object class="GtkVPaned" id="vpanedkb1">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Function header</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">3</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkFrame" id="frame7">
-                            <property name="can_focus">False</property>
-                            <property name="label_xalign">0</property>
-                            <property name="shadow_type">etched-out</property>
+                            <property name="can_focus">True</property>
                             <child>
-                              <object class="GtkAlignment" id="alignment31">
+                              <object class="GtkFrame" id="frame111">
                                 <property name="can_focus">False</property>
-                                <property name="top_padding">5</property>
-                                <property name="bottom_padding">5</property>
-                                <property name="left_padding">10</property>
-                                <property name="right_padding">10</property>
+                                <property name="label_xalign">0</property>
+                                <property name="shadow_type">etched-out</property>
                                 <child>
-                                  <object class="GtkVBox" id="vbox7">
+                                  <object class="GtkAlignment" id="alignment111">
                                     <property name="can_focus">False</property>
-                                    <property name="spacing">5</property>
+                                    <property name="top_padding">5</property>
+                                    <property name="bottom_padding">5</property>
+                                    <property name="left_padding">10</property>
+                                    <property name="right_padding">10</property>
                                     <child>
-                                      <object class="GtkScrolledWindow" id="scrolledwindow3">
+                                      <object class="GtkScrolledWindow" id="scrolledwindowkb3">
+                                        <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <child>
-                                          <object class="GtkTextView" id="factFunction">
+                                          <object class="GtkTextView" id="factAttributes">
                                             <property name="width_request">300</property>
-                                            <property name="height_request">300</property>
                                             <property name="can_focus">True</property>
                                           </object>
                                         </child>
                                       </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
                                     </child>
                                   </object>
                                 </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="label111">
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt; KB item declaration&lt;/b&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </object>
+                                </child>
                               </object>
+                              <packing>
+                                <property name="resize">False</property>
+                                <property name="shrink">True</property>
+                              </packing>
                             </child>
-                            <child type="label">
-                              <object class="GtkLabel" id="label17">
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Function&lt;/b&gt;</property>
-                                <property name="use_markup">True</property>
+                            <child>
+                              <object class="GtkVPaned" id="vpanedkb2">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <child>
+                                  <object class="GtkFrame" id="framekb5">
+                                    <property name="can_focus">False</property>
+                                    <property name="label_xalign">0</property>
+                                    <property name="shadow_type">etched-out</property>
+                                    <child>
+                                      <object class="GtkAlignment" id="alignment10">
+                                        <property name="can_focus">False</property>
+                                        <property name="top_padding">5</property>
+                                        <property name="bottom_padding">5</property>
+                                        <property name="left_padding">10</property>
+                                        <property name="right_padding">10</property>
+                                        <child>
+                                          <object class="GtkScrolledWindow" id="scrolledwindowkb2">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <child>
+                                              <object class="GtkTextView" id="factInit">
+                                                <property name="width_request">300</property>
+                                                <property name="can_focus">True</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="label24">
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">&lt;b&gt; KB item initialization&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="resize">False</property>
+                                    <property name="shrink">True</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFrame" id="framekb1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label_xalign">0</property>
+                                    <property name="shadow_type">etched-out</property>
+                                    <child>
+                                      <object class="GtkAlignment" id="alignmentkb1">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="left_padding">12</property>
+                                        <child>
+                                          <object class="GtkVBox" id="vboxkb1">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkLabel" id="HeaderFact">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="xalign">0</property>
+                                                <property name="label" translatable="yes">Function header</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkScrolledWindow" id="scrolledwindowkb1">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <child>
+                                                  <object class="GtkTextView" id="factFunction">
+                                                    <property name="width_request">300</property>
+                                                    <property name="height_request">300</property>
+                                                    <property name="can_focus">True</property>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel" id="FooterFact">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="xalign">0</property>
+                                                <property name="label" translatable="yes">}</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="labelkb1">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Fact Function&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="resize">True</property>
+                                    <property name="shrink">True</property>
+                                  </packing>
+                                </child>
                               </object>
+                              <packing>
+                                <property name="resize">True</property>
+                                <property name="shrink">True</property>
+                              </packing>
                             </child>
                           </object>
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="FooterFact">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">}</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">5</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                       </object>
@@ -2063,51 +2104,74 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="HeaderOutput">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Function header</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkFrame" id="frame9">
+                          <object class="GtkFrame" id="frameO1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label_xalign">0</property>
                             <property name="shadow_type">etched-out</property>
                             <child>
-                              <object class="GtkAlignment" id="alignment8">
+                              <object class="GtkAlignment" id="alignmentO1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="left_padding">12</property>
                                 <child>
-                                  <object class="GtkScrolledWindow" id="scrolledwindow5">
+                                  <object class="GtkVBox" id="vboxO1">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="shadow_type">in</property>
+                                    <property name="can_focus">False</property>
                                     <child>
-                                      <object class="GtkTextView" id="OFFunction">
-                                        <property name="width_request">400</property>
-                                        <property name="height_request">300</property>
+                                      <object class="GtkLabel" id="HeaderOutput">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="label" translatable="yes">Function header</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkScrolledWindow" id="scrolledwindowO1">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <child>
+                                          <object class="GtkTextView" id="OFFunction">
+                                            <property name="width_request">400</property>
+                                            <property name="height_request">300</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                          </object>
+                                        </child>
                                       </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label18">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="label" translatable="yes">}</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
                                     </child>
                                   </object>
                                 </child>
                               </object>
                             </child>
                             <child type="label">
-                              <object class="GtkLabel" id="label10">
+                              <object class="GtkLabel" id="labelo1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Function&lt;/b&gt;</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Output Function&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
                             </child>
@@ -2115,20 +2179,7 @@
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label18">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">}</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">3</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                       </object>
@@ -2573,15 +2624,6 @@
             <property name="position">1</property>
           </packing>
         </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
       </object>
     </child>
     <action-widgets>
@@ -2956,20 +2998,6 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="HeaderPred">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Function header</property>
-                            <property name="wrap">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
                           <object class="GtkFrame" id="frame33">
                             <property name="can_focus">False</property>
                             <property name="label_xalign">0</property>
@@ -2986,20 +3014,58 @@
                                     <property name="can_focus">False</property>
                                     <property name="spacing">5</property>
                                     <child>
-                                      <object class="GtkScrolledWindow" id="scrolledwindow36">
-                                        <property name="can_focus">True</property>
+                                      <object class="GtkVBox" id="vboxP1">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
                                         <child>
-                                          <object class="GtkTextView" id="PredicateFunction">
-                                            <property name="width_request">300</property>
-                                            <property name="height_request">300</property>
-                                            <property name="can_focus">True</property>
+                                          <object class="GtkLabel" id="HeaderPred">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="xalign">0</property>
+                                            <property name="label" translatable="yes">Function header</property>
+                                            <property name="wrap">True</property>
                                           </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkScrolledWindow" id="scrolledwindow36">
+                                            <property name="can_focus">True</property>
+                                            <child>
+                                              <object class="GtkTextView" id="PredicateFunction">
+                                                <property name="width_request">300</property>
+                                                <property name="height_request">300</property>
+                                                <property name="can_focus">True</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="FooterPred">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="xalign">0</property>
+                                            <property name="label" translatable="yes">}</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">2</property>
+                                          </packing>
                                         </child>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
                                         <property name="fill">True</property>
-                                        <property name="position">1</property>
+                                        <property name="position">0</property>
                                       </packing>
                                     </child>
                                   </object>
@@ -3009,7 +3075,7 @@
                             <child type="label">
                               <object class="GtkLabel" id="label37">
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Function&lt;/b&gt;</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Predicate Function&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
                             </child>
@@ -3017,20 +3083,7 @@
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="FooterPred">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">}</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">3</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                       </object>
