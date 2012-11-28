@@ -32,8 +32,8 @@
 #include <vle/value/Map.hpp>
 #include <vle/value/Integer.hpp>
 #include <vle/value/String.hpp>
-#include <libglademm/xml.h>
 #include <cassert>
+#include <gtkmm.h>
 
 namespace vle { namespace gvle { namespace outputs {
 
@@ -46,7 +46,10 @@ File::File(const std::string& package,
     std::string glade =
         utils::Path::path().getExternalPackagePluginGvleOutputFile(
             getPackage(), "file.glade");
-    Glib::RefPtr < Gnome::Glade::Xml > ref = Gnome::Glade::Xml::create(glade);
+
+
+    Glib::RefPtr < Gtk::Builder > ref = Gtk::Builder::create();
+    ref->add_from_file(glade.c_str());
 
     ref->get_widget("dialogFileOutputPlugin", mDialog);
     ref->get_widget("radiobuttonFileFileOutputPlugin", mRadioFile);
