@@ -32,8 +32,8 @@
 #include <vle/value/Integer.hpp>
 #include <vle/utils/Path.hpp>
 #include <gtkmm/filechooserdialog.h>
-#include <libglademm/xml.h>
 #include <cassert>
+#include <gtkmm.h>
 
 namespace vle { namespace gvle { namespace outputs {
 
@@ -55,7 +55,8 @@ bool Storage::start(vpz::Output& output, vpz::View& /* view */)
         utils::Path::path().getExternalPackagePluginGvleOutputFile(
             getPackage(), "storage.glade");
 
-    Glib::RefPtr<Gnome::Glade::Xml> ref = Gnome::Glade::Xml::create(glade);
+    Glib::RefPtr < Gtk::Builder > ref = Gtk::Builder::create();
+    ref->add_from_file(glade.c_str());
 
     ref->get_widget("dialog", m_dialog);
     ref->get_widget("spinbuttonRows", m_rows);
