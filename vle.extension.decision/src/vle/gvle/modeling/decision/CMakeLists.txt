@@ -5,20 +5,21 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${GVLE_LIBRARY_DIRS}
   ${GTKSOURCEVIEWMM_LIBRARY_DIRS})
 
-ADD_LIBRARY(modeling-decision SHARED Plugin.hpp Plugin.cpp SourceDialog.cpp SourceDialog.hpp Decision.hpp Decision.cpp
-DecisionDrawingArea.hpp DecisionDrawingArea.cpp
-ActivityDialog.hpp ActivityDialog.cpp FactDialog.hpp FactDialog.cpp
-PredicateDialog.hpp PredicateDialog.cpp RuleDialog.hpp RuleDialog.cpp PrecedenceConstraintDialog.hpp
-PrecedenceConstraintDialog.cpp
-OutputFunctionDialog.hpp OutputFunctionDialog.cpp
-AckFunctionDialog.hpp AckFunctionDialog.cpp
-EditorDialog.hpp EditorDialog.cpp)
+ADD_LIBRARY(modeling-decision SHARED Plugin.hpp Plugin.cpp
+  SourceDialog.cpp SourceDialog.hpp Decision.hpp Decision.cpp
+  DecisionDrawingArea.hpp DecisionDrawingArea.cpp ActivityDialog.hpp
+  ActivityDialog.cpp FactDialog.hpp FactDialog.cpp PredicateDialog.hpp
+  PredicateDialog.cpp RuleDialog.hpp RuleDialog.cpp
+  PrecedenceConstraintDialog.hpp PrecedenceConstraintDialog.cpp
+  OutputFunctionDialog.hpp OutputFunctionDialog.cpp
+  AckFunctionDialog.hpp AckFunctionDialog.cpp EditorDialog.hpp
+  EditorDialog.cpp Utils.hpp)
 
 SET_TARGET_PROPERTIES(modeling-decision PROPERTIES OUTPUT_NAME
   "Decision")
 
 TARGET_LINK_LIBRARIES(modeling-decision ${VLE_LIBRARIES}
-${GVLE_LIBRARIES} decision)
+  ${GVLE_LIBRARIES} decision)
 
 INSTALL(TARGETS modeling-decision RUNTIME DESTINATION
   plugins/gvle/modeling LIBRARY DESTINATION plugins/gvle/modeling)

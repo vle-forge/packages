@@ -38,6 +38,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
+#include <vle/gvle/modeling/decision/Utils.hpp>
+
 #ifdef VLE_HAVE_GTKSOURCEVIEWMM
 #include <gtksourceviewmm-2.0/gtksourceviewmm.h>
 #endif
@@ -201,35 +203,21 @@ public:
         }
     }
 
-/**
- * @brief This function check if a fact name is valid
- * @param the name of the fact
- */
+    /**
+     * @brief This function check if a fact name is valid
+     * @param the name of the fact
+     */
     bool checkName(std::string name)
     {
-        if (name.empty()) {
+        if (!Utils::isValidName(name)) {
             return false;
         }
-
-        int i = 0;
-        if (isdigit(name[0])) {
-            return false;
-        }
-
-        while (i < name.length()) {
-            if (!isalnum(name[i])) {
-                return false;
-            }
-            i++;
-        }
-
         std::map < std::string, std::string > ::const_iterator it =
-                mParam.find(name);
+            mParam.find(name);
         if (it != mParam.end())
         {
             return false;
         }
-
         return true;
     }
 

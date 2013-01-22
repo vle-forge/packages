@@ -33,6 +33,8 @@
 #include <vle/gvle/Message.hpp>
 #include <gtkmm.h>
 
+#include <vle/gvle/modeling/decision/Utils.hpp>
+
 namespace vle {
 namespace gvle {
 namespace modeling {
@@ -87,31 +89,17 @@ private:
     Glib::RefPtr < Gtk::Builder > mXml;
     Gtk::Dialog* mDialog;
 
-/**
- * @brief This function check if a rule name is valid
- * @param the name of the rule
- */
+    /**
+     * @brief This function check if a rule name is valid
+     * @param the name of the rule
+     */
     bool checkName(std::string name)
     {
-        if (name.empty()) {
+        if (!Utils::isValidName(name)) {
             return false;
         }
-
-        int i = 0;
-        if (isdigit(name[0])) {
-            return false;
-        }
-
-        while (i < name.length()) {
-            if (!isalnum(name[i])) {
-                return false;
-            }
-            i++;
-        }
-
-        for (std::map < std::string, strings_t > ::const_iterator it_rule =
-                mRule.begin();
-                it_rule != mRule.end() ; ++it_rule) {
+        std::map < std::string, strings_t > ::const_iterator it_rule;
+        for (it_rule = mRule.begin(); it_rule != mRule.end(); ++it_rule) {
             if (name == it_rule->first) {
                 return false;
             }

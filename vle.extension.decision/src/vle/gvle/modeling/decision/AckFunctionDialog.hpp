@@ -41,6 +41,8 @@
 #include <iostream>
 #include <vector>
 
+#include <vle/gvle/modeling/decision/Utils.hpp>
+
 #ifdef VLE_HAVE_GTKSOURCEVIEWMM
 #include <gtksourceviewmm-2.0/gtksourceviewmm.h>
 #endif
@@ -121,24 +123,12 @@ private:
  */
     bool checkName(std::string name)
     {
-        if (name.empty()) {
+        if (!Utils::isValidName(name)) {
             return false;
         }
-
-        int i = 0;
-        if (isdigit(name[0])) {
-            return false;
-        }
-
-        while (i < name.length()) {
-            if (!isalnum(name[i])) {
-                return false;
-            }
-            i++;
-        }
-
-        for ( std::vector < std::string > ::const_iterator it = mAckName.begin() ;
-            it != mAckName.end() ; ++it ) {
+        std::vector < std::string > ::const_iterator it;
+        for (it = mAckName.begin();
+             it != mAckName.end() ; ++it ) {
             if (name == *it) {
                 return false;
             }
