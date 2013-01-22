@@ -1,4 +1,4 @@
-Package: decision
+Package: vle.extension.fsa
 Version: 0.1.0
 Depends:
 Maintainer: Gauthier Quesnel <quesnel@users.sourceforge.net>

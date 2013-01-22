@@ -26,6 +26,7 @@
  */
 
 #include <vle/gvle/modeling/decision/ActivityDialog.hpp>
+#include <vle/gvle/modeling/decision/Utils.hpp>
 
 namespace vle {
 namespace gvle {
@@ -192,14 +193,14 @@ void ActivityDialog::onChangeName()
         mOkButton->set_sensitive(false);
     } else {
         if (not(mDecision->existActivityModel(entryName)) &&
-            isValidName(entryName)) {
+            Utils::isValidName(entryName)) {
 
             mStatusName->set(Gtk::StockID(Gtk::Stock::YES),
                              Gtk::IconSize(1));
             mOkButton->set_sensitive(true);
         }
         else if (mDecision->existActivityModel(entryName) &&
-            isValidName(entryName) && mOriginalName == entryName) {
+            Utils::isValidName(entryName) && mOriginalName == entryName) {
 
             mStatusName->set(Gtk::StockID(Gtk::Stock::YES),
                              Gtk::IconSize(1));

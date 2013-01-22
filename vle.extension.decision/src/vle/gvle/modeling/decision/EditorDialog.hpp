@@ -44,6 +44,8 @@
 #include <vector>
 #include <string>
 
+#include <vle/gvle/modeling/decision/Utils.hpp>
+
 #ifdef VLE_HAVE_GTKSOURCEVIEWMM
 #include <gtksourceviewmm-2.0/gtksourceviewmm.h>
 #endif
@@ -100,27 +102,17 @@ private:
 
     void onRenamePred();
 
-/**
- * @brief This function check if a predicate name is valid
- * @param the name of the fact
- */
+    /**
+     * @brief This function check if a predicate name is valid
+     * @param the name of the fact
+     */
     bool checkName(std::string name)
     {
-        if (name.empty()) {
+        if (!Utils::isValidName(name)) {
             return false;
-        }
-        int i = 0;
-        if (isdigit(name[0])) {
-            return false;
-        }
-        while (i < name.length()) {
-            if (!isalnum(name[i])) {
-                return false;
-            }
-            i++;
         }
         if (find(mPredName.begin(), mPredName.end(), name) != mPredName.end()||
-                mPred.find(name) != mPred.end()) {
+            mPred.find(name) != mPred.end()) {
             return false;
         }
         return true;

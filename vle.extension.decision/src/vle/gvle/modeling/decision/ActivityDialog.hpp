@@ -150,27 +150,6 @@ public:
     }
 
 /**
- * @brief Check if the name entered into the mNameEntry is valid
- * @param name entered
- * @return true if the name is valid or false
- */
-    bool isValidName(std::string name)
-    {
-        size_t i = 0;
-        if (isdigit(name[0])) {
-            return false;
-        } else {
-            while (i < name.length()) {
-                if (!isalnum(name[i])) {
-                    return false;
-                }
-                i++;
-            }
-            return true;
-        }
-    }
-
-/**
  * @brief Launch the window
  */
     int run();
