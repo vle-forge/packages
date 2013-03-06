@@ -32,7 +32,7 @@
 #include <vle/utils/i18n.hpp>
 #include <vle/utils/DateTime.hpp>
 #include <string>
-#include <istream>
+#include <sstream>
 
 namespace vle { namespace extension { namespace decision {
 
