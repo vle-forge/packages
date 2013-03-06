@@ -67,7 +67,7 @@ namespace vle { namespace extension {
         CellDevs(const vle::devs::DynamicsInit& model,
                  const vle::devs::InitEventList& events);
 
-        virtual ~CellDevs() { }
+        virtual ~CellDevs();
 
         // get and set sigma
         devs::Time const & getSigma() const;

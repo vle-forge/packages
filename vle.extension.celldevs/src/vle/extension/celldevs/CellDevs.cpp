@@ -33,7 +33,8 @@
 #include <vle/value/String.hpp>
 #include <vle/value/Set.hpp>
 #include <vle/utils/Exception.hpp>
-
+#include <boost/bind.hpp>
+#include <boost/checked_delete.hpp>
 #include <cassert>
 
 using std::map;
@@ -90,6 +91,51 @@ CellDevs::CellDevs(const vle::devs::DynamicsInit& model,
             }
         ++it;
     }
+}
+
+typedef std::map < std::string, std::pair < value::Value* , bool > > State_t;
+typedef std::map < std::string,
+                   std::map < std::string , value::Value* > > NeighbourState_t;
+typedef std::map < std::string, value::Value* > Parameters_t;
+
+struct StateDeleter
+    : std::unary_function < State_t::value_type, void >
+{
+    void operator()(State_t::value_type &value) const
+    {
+        delete value.second.first;
+        value.second.first = 0;
+    }
+};
+
+struct NeighbourStateDeleter
+    : std::unary_function < NeighbourState_t::value_type, void >
+{
+    void operator()(NeighbourState_t::value_type &value) const
+    {
+        typedef std::map < std::string, value::Value* > map_t;
+
+        std::for_each(value.second.begin(), value.second.end(),
+                      boost::bind(
+                          boost::checked_deleter < value::Value >(),
+                          boost::bind(
+                              &map_t::value_type::second, _1)));
+    }
+};
+
+CellDevs::~CellDevs()
+{
+    std::for_each(m_state.begin(), m_state.end(),
+                  StateDeleter());
+
+    std::for_each(m_neighbourState.begin(), m_neighbourState.end(),
+                  NeighbourStateDeleter());
+
+    std::for_each(m_parameters.begin(), m_parameters.end(),
+                  boost::bind(
+                      boost::checked_deleter < value::Value >(),
+                      boost::bind(
+                          &Parameters_t::value_type::second, _1)));
 }
 
 Time const & CellDevs::getSigma() const
@@ -179,9 +225,11 @@ void CellDevs::initNeighbourhood(std::string const & p_stateName,
     vector < string >::const_iterator it = m_neighbourPortList.begin();
 
     while (it != m_neighbourPortList.end()) {
-        initNeighbourState(*it,p_stateName, p_value);
+        initNeighbourState(*it,p_stateName, p_value->clone());
         ++it;
     }
+
+    delete p_value;
 }
 
 void CellDevs::initDoubleNeighbourhood(std::string const & p_stateName,
@@ -217,7 +265,22 @@ void CellDevs::initNeighbourState(std::string const & p_neighbourName,
                                   std::string const & p_stateName,
                                   value::Value* p_value)
 {
-    m_neighbourState[p_neighbourName][p_stateName] = p_value;
+    NeighbourState_t::iterator it = m_neighbourState.find(p_neighbourName);
+    if (it != m_neighbourState.end()) {
+        std::map < std::string , value::Value* >::iterator jt;
+        jt = it->second.find(p_stateName);
+
+        if (jt != it->second.end()) {
+            delete jt->second;
+            jt->second = p_value->clone();
+        } else {
+            it->second[p_stateName] = p_value->clone();
+        }
+    } else {
+        m_neighbourState[p_neighbourName][p_stateName] = p_value->clone();
+    }
+
+    delete p_value;
 }
 
 void CellDevs::initDoubleNeighbourState(std::string const & p_neighbourName,
@@ -391,10 +454,14 @@ void CellDevs::setState(std::string const & p_name,
 
     std::map < string ,  pair < value::Value* , bool > >::iterator it =
         m_state.find(p_name);
+
     bool v_visible = it->second.second;
 
-    m_state[p_name] = pair < value::Value* , bool >(p_value,v_visible);
-    if (v_visible) m_modified = true;
+    delete it->second.first;
+    it->second = std::pair < value::Value* , bool >(p_value, v_visible);
+
+    if (v_visible)
+        m_modified = true;
 }
 
 void CellDevs::setDoubleState(std::string const & p_name,double p_value)
@@ -429,7 +496,8 @@ void CellDevs::setNeighbourState(std::string const & p_neighbourName,
         find(p_neighbourName)->second;
     std::map < string , value::Value* >::iterator it = v_state.find(p_stateName);
 
-    m_neighbourState[p_neighbourName][p_stateName] = p_value->clone();
+    delete it->second;
+    it->second = p_value->clone();
 }
 
 //***********************************************************************
@@ -459,7 +527,7 @@ void CellDevs::output(const Time& /* time */, ExternalEventList& output) const
                 e->putAttribute(it->first,it->second.first->clone());
             ++it;
         }
-        output.addEvent(e);
+        output.push_back(e);
     }
 }
 
