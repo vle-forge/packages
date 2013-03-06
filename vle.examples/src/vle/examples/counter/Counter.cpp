@@ -33,7 +33,7 @@ namespace vle { namespace examples { namespace counter {
 void Counter::output(const devs::Time& /* time */,
                      devs::ExternalEventList& output) const
 {
-    output.addEvent(buildEvent("out"));
+    output.push_back(buildEvent("out"));
 }
 
 devs::Time Counter::timeAdvance() const

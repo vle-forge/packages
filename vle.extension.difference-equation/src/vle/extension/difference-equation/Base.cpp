@@ -827,7 +827,7 @@ vle::devs::ExternalEventList& operator<<(vle::devs::ExternalEventList& output,
 
     ee << vle::devs::attribute("name", vle::value::String::create(var.name));
     ee << vle::devs::attribute("value", vle::value::Double::create(var.value));
-    output.addEvent(ee);
+    output.push_back(ee);
     return output;
 }
 

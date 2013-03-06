@@ -57,12 +57,12 @@ public:
 
     void out1(const vd::Time& /* time */, vd::ExternalEventList& output) const
 	{
-	    output.addEvent(buildEvent("out1"));
+	    output.push_back(buildEvent("out1"));
 	}
 
     void out2(const vd::Time& /* time */, vd::ExternalEventList& output) const
 	{
-	    output.addEvent(buildEvent("out2"));
+	    output.push_back(buildEvent("out2"));
 	}
 
 };

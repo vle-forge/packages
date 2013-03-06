@@ -284,7 +284,7 @@ void Base::output(const Time& time,
         if (mUseGradient) {
             ee << attribute("gradient", mGradient);
         }
-        output.addEvent(ee);
+        output.push_back(ee);
     }
     // threshold outputs
     if (mState == RUN2 or mState == POST2) {
@@ -306,7 +306,7 @@ void Base::output(const Time& time,
             ExternalEvent* ee = new ExternalEvent("out");
 
             ee << attribute("name", name);
-            output.addEvent(ee);
+            output.push_back(ee);
         }
     }
 }
@@ -485,7 +485,7 @@ Value* Base::observation(const ObservationEvent& event) const
     //if (mUseGradient) {
         //ee << attribute("gradient", mGradient);
     //}
-    //output.addEvent(ee);
+    //output.push_back(ee);
 //}
 
 const Base::valueBuffer& Base::externalValueBuffer(

@@ -43,7 +43,7 @@ void Statechart::buildOutputs(int transition,
 	    OutputsIterator ito = mOutputs.find(transition);
 
 	    if (ito != mOutputs.end()) {
-		output.addEvent(buildEvent(ito->second));
+		output.push_back(buildEvent(ito->second));
 	    }
 	}
     }
@@ -399,7 +399,7 @@ void Statechart::externalTransition(
         devs::ExternalEventList::const_iterator it = sortedEvents.begin();
 
         while (it != sortedEvents.end()) {
-            clonedEvents->addEvent(cloneExternalEvent(*it));
+            clonedEvents->push_back(cloneExternalEvent(*it));
             ++it;
         }
         mToProcessEvents.push_back(clonedEvents);
@@ -408,7 +408,7 @@ void Statechart::externalTransition(
         devs::ExternalEventList* clonedEvents =
             new devs::ExternalEventList;
 
-        clonedEvents->addEvent(cloneExternalEvent(*it));
+        clonedEvents->push_back(cloneExternalEvent(*it));
         mToProcessEvents.push_back(clonedEvents);
     }
     updateSigma(time);

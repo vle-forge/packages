@@ -668,7 +668,7 @@ void PetriNet::output(const devs::Time& time,
                     while (itt != itm->second->getTokens().end()) {
                         if (not (*itt)->sent() and
                             (*itt)->getTime() == time) {
-                            output.addEvent(buildEvent(portName));
+                            output.push_back(buildEvent(portName));
                         }
                         ++itt;
                     }
@@ -684,7 +684,7 @@ void PetriNet::output(const devs::Time& time,
             while (it != mOutTransitionMarkings.end()) {
                 if (it->second.second) {
                     const std::string& portName = it->second.first;
-                    output.addEvent(buildEvent(portName));
+                    output.push_back(buildEvent(portName));
                 }
                 ++it;
             }

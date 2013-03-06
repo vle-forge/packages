@@ -64,7 +64,7 @@ public:
     { ++value; }
     void out(const vd::Time& /*time*/,
              vd::ExternalEventList& output) const
-    { output.addEvent(buildEventWithAInteger("out", "counter", value)); }
+    { output.push_back(buildEventWithAInteger("out", "counter", value)); }
 
     virtual ~counter1() { }
 

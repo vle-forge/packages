@@ -85,7 +85,7 @@ public:
     {
         if (activity.isInStartedState()) {
             vd::ExternalEvent* evt = new vd::ExternalEvent("out");
-            out.addEvent(evt);
+            out.push_back(evt);
         }
     }
 

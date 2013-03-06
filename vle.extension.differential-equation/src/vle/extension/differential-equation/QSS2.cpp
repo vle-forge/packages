@@ -409,7 +409,7 @@ void QSS2::output(const Time& /* time */,
             }
             ee << attribute(it->second, getValue(i));
         }
-        output.addEvent(ee);
+        output.push_back(ee);
     }
 }
 

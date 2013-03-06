@@ -64,7 +64,7 @@ public:
         vd::ExternalEvent* ev = new vd::ExternalEvent("y_nosync");
         ev->putAttribute("value", new vv::String("y_nosync"));
         ev->putAttribute("value", new vv::Double(10));
-        output.addEvent(ev);
+        output.push_back(ev);
     }
 };
 

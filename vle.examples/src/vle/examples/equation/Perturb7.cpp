@@ -60,7 +60,7 @@ public:
 	    ee << vd::attribute("name", std::string("a"));
             ee << vd::attribute("value", 2.);
             ee << vd::attribute("type", ve::DifferenceEquation::ADD);
-	    output.addEvent(ee);
+	    output.push_back(ee);
 	}
 
 };

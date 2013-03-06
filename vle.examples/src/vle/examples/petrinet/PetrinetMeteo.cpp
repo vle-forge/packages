@@ -60,9 +60,9 @@ namespace vle { namespace examples { namespace petrinet {
                             devs::ExternalEventList& output) const
         {
             if (mActive) {
-                output.addEvent(buildEvent("yes"));
+                output.push_back(buildEvent("yes"));
             } else {
-                output.addEvent(buildEvent("no"));
+                output.push_back(buildEvent("no"));
             }
         }
 

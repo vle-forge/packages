@@ -54,7 +54,7 @@ public:
     virtual void output(const devs::Time& /* time */,
                         devs::ExternalEventList& output) const
     {
-        output.addEvent(buildEvent("out"));
+        output.push_back(buildEvent("out"));
     }
 
     virtual devs::Time timeAdvance() const

@@ -63,7 +63,7 @@ public:
         if (mVal) {
             vd::ExternalEvent* evt = new vd::ExternalEvent("out");
             evt->putAttribute("value", mVal);
-            output.addEvent(evt);
+            output.push_back(evt);
         }
     }
 

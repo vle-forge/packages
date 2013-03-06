@@ -64,7 +64,7 @@ public:
         vd::ExternalEvent* evt = new vd::ExternalEvent("fsa");
         evt->putAttribute("name", new vv::String("fsa"));
         evt->putAttribute("value", new vv::Double(1.0));
-        output.addEvent(evt);
+        output.push_back(evt);
     }
 };
 

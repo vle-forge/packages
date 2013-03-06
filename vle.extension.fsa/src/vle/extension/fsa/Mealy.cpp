@@ -70,7 +70,7 @@ void Mealy::output(const devs::Time& time,
             if (ito != mOutputs.end() and
                 ito->second.find(event->getPortName()) != ito->second.end()) {
 
-                output.addEvent(
+                output.push_back(
                     buildEvent(ito->second.find(event->getPortName())->second));
             }
         }
@@ -99,7 +99,7 @@ void Mealy::externalTransition(const devs::ExternalEventList& events,
         devs::ExternalEventList::const_iterator it = sortedEvents.begin();
 
         while (it != sortedEvents.end()) {
-            clonedEvents->addEvent(cloneExternalEvent(*it));
+            clonedEvents->push_back(cloneExternalEvent(*it));
             ++it;
         }
         mToProcessEvents.push_back(clonedEvents);
@@ -108,7 +108,7 @@ void Mealy::externalTransition(const devs::ExternalEventList& events,
         devs::ExternalEventList* clonedEvents =
             new devs::ExternalEventList;
 
-        clonedEvents->addEvent(cloneExternalEvent(*it));
+        clonedEvents->push_back(cloneExternalEvent(*it));
         mToProcessEvents.push_back(clonedEvents);
     }
     mPhase = PROCESSING;

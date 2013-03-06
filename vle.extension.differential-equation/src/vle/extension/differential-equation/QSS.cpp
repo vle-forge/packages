@@ -252,7 +252,7 @@ void Multiple::output(const Time& time, ExternalEventList& output) const
         ee << attribute("value", getValue(mCurrentModel) + e
                               * getGradient(mCurrentModel));
         ee << attribute("gradient", getGradient(mCurrentModel));
-        output.addEvent(ee);
+        output.push_back(ee);
     }
 }
 
@@ -462,7 +462,7 @@ Value* Multiple::observation(const ObservationEvent& event) const
 
     //ee << attribute("name", event.getStringAttributeValue("name"));
     //ee << attribute("value", getValue(i)+e*getGradient(i));
-    //output.addEvent(ee);
+    //output.push_back(ee);
 //}
 
 int Multiple::getVariable(const std::string& name) const

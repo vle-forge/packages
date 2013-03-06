@@ -74,7 +74,7 @@ public:
 
             ee << vd::attribute("name", "Tmoy");
             ee << vd::attribute("value", mValue);
-            outputs.addEvent(ee);
+            outputs.push_back(ee);
         }
     }
 

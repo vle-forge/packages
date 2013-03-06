@@ -94,7 +94,7 @@ public:
         int index = boost::lexical_cast < int >(
             std::distance(mSigmas.begin(), it)) + 1;
 
-        outputs.addEvent(
+        outputs.push_back(
             buildEvent((boost::format("out%1%") % index).str()));
     }
 

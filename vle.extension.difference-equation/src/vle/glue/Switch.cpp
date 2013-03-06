@@ -108,7 +108,7 @@ public:
 
                 ee << vle::devs::attribute("name", it->first);
                 ee << vle::devs::attribute("value", it->second->clone());
-                outputs.addEvent(ee);
+                outputs.push_back(ee);
             }
         }
     }

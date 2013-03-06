@@ -168,7 +168,7 @@ void OutputFunctionDialog::onAddOF() {
                 "        evt->putAttribute(\"activity\", new vv::String"\
                 "(name));\n"\
                 "        evt->putAttribute(\"value\", new vv::Double(1.));\n"\
-                "        output.addEvent(evt);\n}";
+                "        output.push_back(evt);\n}";
 
             mTextViewFunction->get_buffer()->set_text(generatedFunc);
 

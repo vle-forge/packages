@@ -113,7 +113,7 @@ public:
 
                 ee << vle::devs::attribute("name", it->second);
                 ee << vle::devs::attribute("value", getValue(it->first));
-                output.addEvent(ee);
+                output.push_back(ee);
                 ++it;
             }
         }

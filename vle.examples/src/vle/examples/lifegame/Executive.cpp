@@ -64,4 +64,3 @@ private:
 }}} // namespace vle examples lifegame
 
 DECLARE_EXECUTIVE(vle::examples::lifegame::Executive)
-

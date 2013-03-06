@@ -175,7 +175,7 @@ void Simple::output(const Time& /* time */,
         }
         ee << attribute("name", mVariableName);
         ee << attribute("init", values);
-        output.addEvent(ee);
+        output.push_back(ee);
     } else {
         if (mActive and (mState == PRE_INIT or mState == PRE_INIT2
                          or mState == POST or mState == POST2)) {
@@ -183,7 +183,7 @@ void Simple::output(const Time& /* time */,
 
             ee << attribute("name", mVariableName);
             ee << attribute("value", val());
-            output.addEvent(ee);
+            output.push_back(ee);
         }
     }
 }

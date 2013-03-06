@@ -92,11 +92,11 @@ void Smartgardener::output(const devs::Time& /*time*/,
         //devs::RequestEvent* e = new
             //devs::RequestEvent("inst_plantlouse");
         //e << devs::attribute("name", std::string("x"));
-        //output.addEvent(e);
+        //output.push_back(e);
 
         //e = new devs::RequestEvent("inst_labybird");
         //e << devs::attribute("name", std::string("y"));
-        //output.addEvent(e);
+        //output.push_back(e);
     //}
 
     // Traitement des plantlouses (et des ladybirds)
@@ -105,12 +105,12 @@ void Smartgardener::output(const devs::Time& /*time*/,
 
         e << devs::attribute("name", std::string("x"))
             << devs::attribute("value", p_p*plantlouseamount);
-        output.addEvent(e);
+        output.push_back(e);
 
         e = new devs::ExternalEvent("out_ladybird");
         e << devs::attribute("name", std::string("y"))
             << devs::attribute("value", p_l*ladybirdamount);
-        output.addEvent(e);
+        output.push_back(e);
     }
 }
 

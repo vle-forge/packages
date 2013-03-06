@@ -54,7 +54,7 @@ namespace vle { namespace examples { namespace petrinet {
 
         virtual void output(const devs::Time& /* time */,
                             devs::ExternalEventList& output) const
-        { output.addEvent(new devs::ExternalEvent("out")); }
+        { output.push_back(new devs::ExternalEvent("out")); }
 
         virtual devs::Time timeAdvance() const
         { return mTimeStep; }

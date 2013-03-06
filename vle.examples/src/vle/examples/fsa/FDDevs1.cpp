@@ -67,7 +67,7 @@ public:
 
     void out(const vd::Time& /*time*/,
              vd::ExternalEventList& output) const
-    { output.addEvent(buildEvent("out")); }
+    { output.push_back(buildEvent("out")); }
 };
 
 DECLARE_DYNAMICS(devs1)

@@ -76,7 +76,7 @@ private:
         vd::ExternalEvent* evt1 = new vd::ExternalEvent("out");
 
         evt1->putAttribute("value", new vv::Double(0));
-        output.addEvent(evt1);
+        output.push_back(evt1);
     }
 
     bool mTransit;

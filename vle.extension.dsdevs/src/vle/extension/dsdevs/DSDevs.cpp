@@ -70,7 +70,7 @@ void DSDevs::output(const devs::Time& /* time */,
             ev = new devs::ExternalEvent("ok");
             ev << devs::attribute("name", *it);
             ev << devs::attribute("ok", *jt);
-            output.addEvent(ev);
+            output.push_back(ev);
         }
 
         if (not m_newName.empty()) {
@@ -81,7 +81,7 @@ void DSDevs::output(const devs::Time& /* time */,
             }
             ev = new devs::ExternalEvent("name");
             ev << devs::attribute("name", eeset);
-            output.addEvent(ev);
+            output.push_back(ev);
         }
     }
 }

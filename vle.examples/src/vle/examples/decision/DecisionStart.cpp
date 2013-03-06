@@ -64,7 +64,7 @@ public:
 	vd::ExternalEvent* ev = new vd::ExternalEvent("out");
 	ev->putAttribute("value", new vv::Boolean(true));
 
-        output.addEvent(ev);
+        output.push_back(ev);
     }
 
 private:

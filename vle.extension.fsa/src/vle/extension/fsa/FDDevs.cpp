@@ -63,7 +63,7 @@ void FDDevs::output(const devs::Time& time,
         OutputsIterator ito = mOutputs.find(currentState());
 
         if (ito != mOutputs.end()) {
-            output.addEvent(buildEvent(ito->second));
+            output.push_back(buildEvent(ito->second));
         }
     }
 }

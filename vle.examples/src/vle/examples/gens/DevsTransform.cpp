@@ -71,7 +71,7 @@ public:
                         devs::ExternalEventList& output) const
     {
         for (int i = 0; i < m_counter; ++i) {
-            output.addEvent(buildEvent("out"));
+            output.push_back(buildEvent("out"));
         }
     }
 

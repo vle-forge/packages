@@ -83,7 +83,7 @@ devs::Time GeneratorWrapper::init(const vle::devs::Time& /* time */)
 void GeneratorWrapper::output(const devs::Time& /* time */,
                               devs::ExternalEventList& output) const
 {
-    output.addEvent(new devs::ExternalEvent("out"));
+    output.push_back(new devs::ExternalEvent("out"));
 }
 
 devs::Time GeneratorWrapper::timeAdvance() const
