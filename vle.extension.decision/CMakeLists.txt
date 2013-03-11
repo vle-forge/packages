@@ -8,6 +8,13 @@ SET(MODEL_PATCH 0)
 SET(MODEL_NAME "${PROJECT_NAME}-${MODEL_MAJOR}.${MODEL_MINOR}.${MODEL_PATCH}")
 SET(VLE_NAME "${PROJECT_NAME}-${MODEL_MAJOR}.${MODEL_MINOR}")
 
+##
+## Options for compilation of package
+##
+
+OPTION(WITH_TEST "will build the test [default: ON]" ON)
+OPTION(WITH_DOC "will compile doc and install it [default: OFF]" OFF)
+
 if (CMAKE_BUILD_TYPE STREQUAL "")
   SET(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build" FORCE)
 endif ()
@@ -61,7 +68,7 @@ ENDIF (Boost_UNIT_TEST_FRAMEWORK_FOUND)
 ##
 
 FIND_PACKAGE(Doxygen)
-IF (DOXYGEN)
+IF (DOXYGEN AND WITH_DOC)
   SET(DOXYGEN_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
   SET(DOXYGEN_OUTPUT_MODELING_DIR "${PROJECT_BINARY_DIR}/doxygen/modeling")
   SET(DOXYGEN_OUTPUT_SOURCE_DIR "${PROJECT_BINARY_DIR}/doxygen/sources")
@@ -96,8 +103,7 @@ IF (DOXYGEN)
     "doc/html/modeling")
   INSTALL(DIRECTORY "${PROJECT_BINARY_DIR}/doxygen/sources/html" DESTINATION
     "doc/html/sources")
-ENDIF (DOXYGEN)
-
+ENDIF (DOXYGEN AND WITH_DOC)
 
 ##
 ## Define function to simplify the definition of simulations plugins.
@@ -189,13 +195,15 @@ ENDFUNCTION(DeclarePetrinetDynamics name sources)
 ##
 
 ADD_SUBDIRECTORY(data)
-ADD_SUBDIRECTORY(doc)
+IF(WITH_DOC)
+  ADD_SUBDIRECTORY(doc)
+ENDIF(WITH_DOC)
 ADD_SUBDIRECTORY(exp)
 ADD_SUBDIRECTORY(src)
 
-##IF (Boost_UNIT_TEST_FRAMEWORK_FOUND)
-##  ADD_SUBDIRECTORY(test)
-##ENDIF (Boost_UNIT_TEST_FRAMEWORK_FOUND)
+IF (Boost_UNIT_TEST_FRAMEWORK_FOUND AND WITH_TEST)
+  ADD_SUBDIRECTORY(test)
+ENDIF (Boost_UNIT_TEST_FRAMEWORK_FOUND AND WITH_TEST)
 
 ##
 ## CPack configuration
