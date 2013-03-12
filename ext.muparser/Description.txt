@@ -1,0 +1,6 @@
+Package: ext.muparser
+Version: 0.1.0
+Depends: vle (>=1.1)
+Maintainer: Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
+Description: A package distribution of the muParser library : http://muparser.beltoforion.de
+Tag: utils

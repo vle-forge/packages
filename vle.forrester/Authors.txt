@@ -1,0 +1,31 @@
+      VLE development team
+      ====================
+
+
+Copyright
+=========
+
+- INRA
+  - Copyright © 2011
+  - French National Institute for Agricultural Research
+  - Institut National de la Recherche Agronomique
+  - http://www.inra.fr
+
+
+Authors
+=======
+
+Integrator / Release manager
+----------------------------
+
+- Ronan Trépos <ronan.trepos@toulouse.inra.fr>
+
+Main programmer and founder
+---------------------------
+
+- Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
+
+Contributors
+------------
+
+- Ronan Trépos <ronan.trepos@toulouse.inra.fr>
