@@ -389,7 +389,7 @@ void on_cellrenderer_choice_edited_pars(
             row[m_modelColumnPred.par] = new_text;
         }
         else {
-            int i = 0;
+            unsigned int i = 0;
             bool valid = true;
             while (i < test.size()) {
                 if (!isdigit(test[i])) {

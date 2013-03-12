@@ -149,7 +149,7 @@ private:
             return false;
         }
 
-        int i = 0;
+        unsigned int i = 0;
         if (isdigit(name[0])) {
             return false;
         }

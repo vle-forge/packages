@@ -816,7 +816,7 @@ public:
     void updatePrecedenceConstraint(PrecedenceConstraintModel
             precedenceConstraint)
     {
-        for (precedenceConstraints_t::iterator it =
+        for (precedenceConstraints_t::iterator
             it = mPrecedenceConstraint.begin();
             it != mPrecedenceConstraint.end(); ) {
             if ((*it)->source() == precedenceConstraint.source() &&
@@ -840,7 +840,7 @@ public:
     void removePrecedenceConstraint(
             PrecedenceConstraintModel precedenceConstraint)
     {
-        for (precedenceConstraints_t::iterator it =
+        for (precedenceConstraints_t::iterator
             it = mPrecedenceConstraint.begin();
             it != mPrecedenceConstraint.end(); ) {
             if ((*it)->source() == precedenceConstraint.source() &&
@@ -869,7 +869,7 @@ public:
     bool getPrecedenceConstraint(std::string source, std::string destination,
             PrecedenceConstraintModel* precCons)
     {
-        for (precedenceConstraints_t::iterator it =
+        for (precedenceConstraints_t::iterator
             it = mPrecedenceConstraint.begin();
             it != mPrecedenceConstraint.end(); ++it) {
             if ((*it)->source() == source &&
