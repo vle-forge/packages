@@ -1,13 +1,11 @@
 /*
- * @file vle/extension/differential-equation/DifferentialEquation.hpp
+ * @file vle/extension/differential_equation/DifferentialEquation.hpp
  *
  * This file is part of VLE, a framework for multi-modeling, simulation
  * and analysis of complex dynamical systems
  * http://www.vle-project.org
  *
- * Copyright (c) 2003-2007 Gauthier Quesnel <quesnel@users.sourceforge.net>
- * Copyright (c) 2003-2011 ULCO http://www.univ-littoral.fr
- * Copyright (c) 2007-2011 INRA http://www.inra.fr
+ * Copyright (c) 2011 INRA http://www.inra.fr
  *
  * See the AUTHORS or Authors.txt file for copyright owners and contributors
  *
@@ -25,329 +23,433 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef VLE_EXTENSION_DIFFERENTIAL_EQUATION_DIFFERENTIAL_EQUATION_HPP
 #define VLE_EXTENSION_DIFFERENTIAL_EQUATION_DIFFERENTIAL_EQUATION_HPP 1
 
+#include <map>
+#include <set>
+
 #include <vle/extension/differential-equation/DllDefines.hpp>
 #include <vle/devs/Dynamics.hpp>
-#include <deque>
+#include <vle/utils/Exception.hpp>
 
-namespace vle { namespace extension { namespace DifferentialEquation {
+namespace vle {
+namespace extension {
+namespace differential_equation {
 
-class VLE_EXTENSION_EXPORT Base : public vle::devs::Dynamics
+namespace vd = vle::devs;
+namespace vv = vle::value;
+namespace vu = vle::utils;
+
+class DifferentialEquationImpl;
+
+class VLE_EXTENSION_EXPORT Variable
 {
-protected:
-    /**
-     * @brief Variable The class represents a variable of
-     * differential equation.
-     */
-    class Variable
+public:
+
+    Variable() :
+            name(""), value(0), gradient(0)
     {
+    }
+
+    Variable(const std::string& n) :
+            name(n), value(0), gradient(0)
+    {
+    }
+
+    inline void setGrad(double g)
+    {
+        gradient = g;
+    }
+
+    inline double getVal() const
+    {
+        return value;
+    }
+
+    inline void setVal(double v)
+    {
+        value = v;
+    }
+
+    inline double getGrad() const
+    {
+        return gradient;
+    }
+
+    inline const std::string& getName() const
+    {
+        return name;
+    }
+
+private:
+    std::string name;
+    double value;
+    double gradient;
+};
+class VLE_EXTENSION_EXPORT ExternVariable
+{
+public:
+
+    ExternVariable() :
+            name(""), value(0)
+    {
+    }
+
+    ExternVariable(const std::string& n) :
+            name(n), value(0)
+    {
+    }
+
+    inline double getVal() const
+    {
+        return value;
+    }
+
+    inline const std::string& getName() const
+    {
+        return name;
+    }
+
+    inline void set(double v)
+    {
+        value = v;
+    }
+
+private:
+    std::string name;
+    double value;
+};
+
+template<class VarType>
+struct VLE_EXTENSION_EXPORT VarsContainer
+{
+    typedef typename std::map<std::string, VarType> Container;
+    typedef typename Container::const_iterator const_iterator;
+    typedef typename Container::iterator iterator;
+    Container cont;
+
+    VarsContainer() :
+            cont()
+    {
+    }
+
+    const_iterator begin() const
+    {
+        return cont.begin();
+    }
+
+    const_iterator end() const
+    {
+        return cont.end();
+    }
+
+    iterator begin()
+    {
+        return cont.begin();
+    }
+
+    iterator end()
+    {
+        return cont.end();
+    }
+
+    iterator find(const std::string& n)
+    {
+        return cont.find(n);
+    }
+
+    const_iterator find(const std::string& n) const
+    {
+        return cont.find(n);
+    }
+
+    unsigned int size() const
+    {
+        return cont.size();
+    }
+
+    VarType& operator[](const std::string& n)
+    {
+        return cont[n];
+    }
+
+    void operator=(const VarsContainer<VarType>& c)
+    {
+        const_iterator itb = c.begin();
+        const_iterator ite = c.end();
+        for (; itb != ite; itb++) {
+            cont[itb->first] = itb->second;
+        }
+    }
+
+    void add(const std::string& name)
+    {
+        cont.insert(std::make_pair(name, VarType(name)));
+    }
+};
+
+typedef VarsContainer<Variable> Variables;
+typedef VarsContainer<ExternVariable> ExternVariables;
+
+class VLE_EXTENSION_EXPORT DifferentialEquation : public vle::devs::Dynamics
+{
+public:
+    class Var
+    {
+    private:
+        std::string name;
+        Variable* itVar;
+        DifferentialEquation* equation;
+
     public:
-        /**
-         * @brief Default constructor
-         */
-        Variable() : mEquation(0)
-        {}
 
-        /**
-         * @brief Returns the name of variable
-         * @return the name of variable
-         */
-        const std::string& name() const
-        { return mName; }
+        Var() :
+                name(""), itVar(0), equation(0)
+        {
+        }
 
-    protected:
-        Variable(const std::string& name, Base* equation) :
-            mName(name), mEquation(equation)
-        {}
+        Var(const std::string& n, DifferentialEquation* eq) :
+                name(n), itVar(0), equation(eq)
+        {
+        }
 
-        std::string mName;
-        Base* mEquation;
+        inline void initPointer()
+        {
+            if (not itVar) {
+                itVar = &(equation->vars().find(name)->second);
+            }
+        }
+
+        inline void setGrad(double g)
+        {
+            initPointer();
+            itVar->setGrad(g);
+        }
+
+        inline double getGrad()
+        {
+            initPointer();
+            return itVar->getGrad();
+        }
+
+        inline double operator()()
+        {
+            initPointer();
+            return itVar->getVal();
+        }
+    };
+
+    class Ext
+    {
+    private:
+        std::string name;
+        ExternVariable* itExt;
+        DifferentialEquation* equation;
+
+    public:
+
+        Ext() :
+                name(""), itExt(0), equation(0)
+        {
+        }
+
+        Ext(const std::string& n, DifferentialEquation* eq) :
+                name(n), itExt(0), equation(eq)
+        {
+        }
+
+        inline void initPointer()
+        {
+            if (not itExt) {
+                itExt = &(equation->extVars().find(name)->second);
+            }
+        }
+
+        inline double operator()()
+        {
+            initPointer();
+            return itExt->getVal();
+        }
     };
 
 public:
 
-    /**
-     * @brief var The class var represents an internal
-     * variable of the equation
-     */
-    class Var : public Variable
+    class gradStructVariable
     {
-    public:
-        /**
-         * @brief Default constructor
-         */
-        Var() {}
-
-        virtual ~Var() {}
-
-        /**
-         * @brief Returns the current value of variable.
-         * @return the current value of variable.
-         */
-        virtual double operator()() const
-        {
-            if (not mEquation) {
-                throw utils::InternalError(
-                    _("DifferentialEquation - variable not create"));
-            }
-            return mEquation->getValue();
-        }
-
-        /**
-         * @brief Returns the value of variable.
-         * @param delay the temporal delay.
-         * @return the value of variable.
-         */
-        virtual double operator()(const vle::devs::Time& time,
-                                  int delay) const
-        {
-            if (not mEquation) {
-                throw utils::InternalError(
-                    _("DifferentialEquation - variable not create"));
-            }
-            return mEquation->getValue(time, delay);
-        }
-
     private:
-        Var(const std::string& name, Base* equation) :
-            Variable(name, equation)
-        {
-            if (name != equation->mVariableName) {
-                throw utils::InternalError(
-                    fmt(_("DifferentialEquation - wrong variable "      \
-                          "name: %1% in %2%")) % name %
-                    equation->mVariableName);
-            }
-        }
+        Var& var;
 
-        friend class Base;
-    };
-
-    /**
-     * @brief ext The class represents an external variable of
-     * difference equation.
-     */
-    class Ext : public Variable
-    {
     public:
-        /**
-         * @brief Default constructor
-         */
-        Ext() {}
 
-        virtual ~Ext() {}
-
-        /**
-         * @brief Returns the value of external variable.
-         * @return the value of external variable.
-         */
-        virtual double operator()() const
+        gradStructVariable(Var& v) :
+                var(v)
         {
-            if (not mEquation) {
-                throw utils::InternalError(
-                    _("DifferentialEquation - variable not create"));
-            }
-            return mEquation->getValue(mName);
         }
 
-        /**
-         * @brief Returns the value of variable.
-         * @param delay the temporal delay.
-         * @return the value of variable.
-         */
-        virtual double operator()(const vle::devs::Time& time,
-                                  int delay) const
+        inline double operator()()
         {
-            if (not mEquation) {
-                throw utils::InternalError(
-                    _("DifferentialEquation - variable not create"));
-            }
-            return mEquation->getValue(mName, time, delay);
+            return var.getGrad();
         }
 
-    protected:
-        Ext(const std::string& name, Base* equation) :
-            Variable(name, equation)
-        { equation->createExternalVariable(name); }
-
-        friend class Base;
+        inline void operator=(double g)
+        {
+            var.setGrad(g);
+        }
     };
 
-    /**
-     * @brief Create an external variable
-     * @param name the name of the external variable
-     * @return the external variable
-     */
-    inline Ext createExt(const std::string& name)
-    { return Ext(name, this); }
-
-    /**
-     * @brief Create the internal variable
-     * @param name the name of the internal variable
-     * @return the internal variable
-     */
-    inline Var createVar(const std::string& name)
-    { return Var(name, this); }
-
-    /**
-     * @brief The function to develop mathematical expression like:
-     * @code
-     * return a * x() - b * x() * y();
-     * @endcode
-     */
-    virtual double compute(const vle::devs::Time& time) const =0;
-
-    /**
-     * @brief Activate the buffering mechanism of external
-     * variable and set the size of value buffer of external
-     * variables. By default, the external variables are not bufferized.
-     * @param size the size of buffer.
-     * @param delay the value of delay quantum.
-     */
-    void size(int size, double delay)
+    class gradStructExternVariable
     {
-        mBuffer = true;
-        mSize = size;
-        mDelay = delay;
+    private:
+        Ext& ext;
+
+    public:
+
+        gradStructExternVariable(Ext& v) :
+                ext(v)
+        {
+        }
+    };
+
+//definition of functions
+public:
+
+    Var createVar(const std::string& name);
+
+    Ext createExt(const std::string& name);
+
+    inline gradStructVariable grad(Var& v)
+    {
+        return gradStructVariable(v);
+    }
+
+    inline gradStructExternVariable grad(Ext& v)
+    {
+        return gradStructExternVariable(v);
+    }
+
+    inline const Variables& vars() const
+    {
+        return mvars;
+    }
+
+    inline Variables& vars()
+    {
+        return mvars;
+    }
+
+    inline const ExternVariables& extVars() const
+    {
+        return mextVars;
+    }
+
+    inline ExternVariables& extVars()
+    {
+        return mextVars;
     }
 
     /**
-     * @brief Activate the buffering mechanism of external
-     * variables with an unlimited size for the buffer.
-     * By default, the external variables are not bufferized.
+     * @brief Computation of gradients, which is defined by the
+     * user
+     * @param time, the current time
      */
-    void buffer()
-    {
-        mBuffer = true;
-        mSize = -1;
-    }
+    virtual void compute(const vle::devs::Time& time) = 0;
+
+    /**
+     * @brief Implementation of the default behavior of reinit function.
+     * If reinitialisation is required on perturbation,
+     * evt is expected to be a map ("name","value") and
+     * has the semantic of reseting the state variable to the value.
+     * @param evt, the evt of perturbation
+     * @param perturb, true if it is a perturbation, false if it is
+     * the propagation of a discontinuity
+     * @param t, the time of perturbation
+     */
+    virtual void reinit(const vv::Set& evt, bool perturb, const vd::Time& t);
 
 protected:
-    Base(const vle::devs::DynamicsInit& model,
-         const vle::devs::InitEventList& events);
 
-    virtual ~Base() {}
+    DifferentialEquation(const vd::DynamicsInit& model,
+            const vd::InitEventList& events);
 
-    /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
+    virtual ~DifferentialEquation();
 
-    virtual double getEstimatedValue(double e) const =0;
-    virtual void reset(const vle::devs::Time& time, double value) =0;
-    virtual void updateGradient(bool external,
-                                const vle::devs::Time& time) =0;
-    virtual void updateSigma(const vle::devs::Time& time) =0;
-    virtual void updateValue(bool external, const vle::devs::Time& time) =0;
+    /************** DEVS functions *****************/
+    vd::Time init(const vd::Time& time);
 
-    /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
+    void output(const vd::Time& time, vd::ExternalEventList& output) const;
 
-    void pushValue(const vle::devs::Time& time,
-                   double value);
+    vd::Time timeAdvance() const;
 
-    enum state { INIT, POST_INIT, RUN, RUN2, POST, POST2, POST3 };
+    void confluentTransitions(const vd::Time& time,
+            const vd::ExternalEventList& extEventlist);
 
-    /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
+    void internalTransition(const vd::Time& event);
 
-    virtual vle::devs::Time init(const devs::Time& time);
+    void externalTransition(const vd::ExternalEventList& event,
+            const vd::Time& time);
 
-private:
-    virtual void output(
-        const vle::devs::Time& time,
-        vle::devs::ExternalEventList& output) const;
+    vv::Value* observation(const vd::ObservationEvent& event) const;
 
-    virtual vle::devs::Time timeAdvance() const;
+    Variables mvars;
+    ExternVariables mextVars;
+    DifferentialEquationImpl* meqImpl;
+    bool mdeclarationOn;
+    vv::Map* minitVariables;
+    vv::Map* mmethParams;
+    std::string mmethod;
 
-    virtual void confluentTransitions(
-        const vle::devs::Time& time,
-        const vle::devs::ExternalEventList& extEventlist);
+    friend std::ostream& operator<<(std::ostream& o, const Variable& v);
 
-    virtual void internalTransition(
-        const vle::devs::Time& event);
+    friend std::ostream& operator<<(std::ostream& o, const ExternVariables& v);
 
-    virtual void externalTransition(
-        const vle::devs::ExternalEventList& event,
-        const vle::devs::Time& time);
+    friend std::ostream& operator<<(std::ostream& o, const ExternVariable& v);
 
-    virtual vle::value::Value* observation(
-        const vle::devs::ObservationEvent& event) const;
+    friend std::ostream& operator<<(std::ostream& o, const Variables& v);
 
-    //virtual void request(const vle::devs::RequestEvent& event,
-                         //const vle::devs::Time& time,
-                         //vle::devs::ExternalEventList& output) const;
-
-    /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
-
-    enum thresholdType { UP, DOWN };
-    typedef std::map < std::string, std::pair < double, thresholdType > >
-        threshold;
-    typedef std::deque < std::pair < devs::Time, double > > valueBuffer;
-
-    void createExternalVariable(const std::string& name)
-    { mExternalVariableValue[name] = 0; }
-
-    const valueBuffer& externalValueBuffer(const std::string& name) const;
-    valueBuffer& externalValueBuffer(const std::string& name);
-
-    inline double getValue() const
-    { return mValue; }
-
-    double getValue(const vle::devs::Time& time, double delay) const;
-
-    double getValue(const std::string& name) const;
-
-    double getValue(const std::string& name,
-                    const vle::devs::Time& time, double delay) const;
-
-    void pushExternalValue(const std::string& name,
-                           const vle::devs::Time& time,
-                           double value);
-
-    inline void setGradient(const std::string& name, double gradient)
-    { mExternalVariableGradient[name] = gradient; }
-
-protected:
-    bool mUseGradient;
-    bool mActive;
-    bool mDependance;
-
-    /** Internal variable */
-    double mInitialValue;
-    std::string mVariableName;
-    double mValue;
-
-    /** External variables */
-    unsigned int mExternalVariableNumber;
-    std::map < std::string , double > mExternalVariableValue;
-    std::map < std::string , double > mExternalVariableGradient;
-    std::map < std::string , bool > mIsGradient;
-    bool mExternalValues;
-
-    /** Thresholds **/
-    double mPreviousValue;
-    threshold mThresholds;
-
-    /** Buffer */
-    bool mBuffer;
-    devs::Time mStartTime;
-    double mDelay;
-    int mSize;
-    valueBuffer mValueBuffer;
-    std::map < std::string, valueBuffer > mExternalValueBuffer;
-
-    /** State */
-    double mGradient;
-    devs::Time mSigma;
-    devs::Time mLastTime;
-    state mState;
-
-private:
-    void updateExternalVariable(const vle::devs::Time& time);
-
-    friend class Var;
-    friend class Ext;
 };
 
-}}} // namespace vle extension DifferentialEquation
+/**** Implementation of operator<< ****/
+
+inline std::ostream& operator<<(std::ostream& o, const Variable& v)
+{
+    o << "[" << v.getName() << "=" << v.getVal() << "; g=" << v.getGrad()
+            << "]";
+    return o;
+}
+
+inline std::ostream& operator<<(std::ostream& o, const ExternVariable& v)
+{
+    o << v.getName() << "=" << v.getVal();
+    return o;
+}
+
+inline std::ostream& operator<<(std::ostream& o, const Variables& vs)
+{
+    Variables::const_iterator itb = vs.begin();
+    Variables::const_iterator ite = vs.end();
+    for (; itb != ite; itb++) {
+        const Variable& v = itb->second;
+        o << "(" << v << "), ";
+    }
+    return o;
+
+}
+
+inline std::ostream& operator<<(std::ostream& o, const ExternVariables& vs)
+{
+    ExternVariables::const_iterator itb = vs.begin();
+    ExternVariables::const_iterator ite = vs.end();
+
+    for (; itb != ite; itb++) {
+        const ExternVariable& v = itb->second;
+        o << "(" << v << "), ";
+    }
+    return o;
+}
+
+}
+}
+} // namespace vle extension differential_equation
 
 #endif

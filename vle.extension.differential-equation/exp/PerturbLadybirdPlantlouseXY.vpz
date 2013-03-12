@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.1.0" date="2011-Dec-13 15:12:33" author="Ronan Trépos">
+<structures>
+<model name="Top model" type="coupled" x="0" y="0" width="738" height="443"  >
+<submodels>
+<model name="PerturbX" type="atomic" conditions="condPerturbX" dynamics="dynPerturb" x="66" y="43" width="100" height="45" >
+<out>
+ <port name="p" />
+</out>
+</model>
+<model name="PerturbY" type="atomic" conditions="condPerturbY" dynamics="dynPerturb" x="52" y="125" width="100" height="45" >
+<out>
+ <port name="p" />
+</out>
+</model>
+<model name="Bio" type="coupled" x="239" y="93" width="100" height="60"  >
+<in>
+ <port name="perturb_X" />
+ <port name="perturb_Y" />
+</in>
+<submodels>
+<model name="ladybird" type="atomic" conditions="condLP_Y,condQSS_Y" dynamics="dynLP_Y" observables="obsY" x="216" y="210" width="100" height="60" >
+<in>
+ <port name="X" />
+ <port name="perturb" />
+</in>
+<out>
+ <port name="Y" />
+</out>
+</model>
+<model name="plantlouse" type="atomic" conditions="condLP_X,condQSS_X" dynamics="dynLP_X" observables="obsX" x="160" y="22" width="100" height="60" >
+<in>
+ <port name="Y" />
+ <port name="perturb" />
+</in>
+<out>
+ <port name="X" />
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="input">
+ <origin model="Bio" port="perturb_X" />
+ <destination model="plantlouse" port="perturb" />
+</connection>
+<connection type="input">
+ <origin model="Bio" port="perturb_Y" />
+ <destination model="ladybird" port="perturb" />
+</connection>
+<connection type="internal">
+ <origin model="ladybird" port="Y" />
+ <destination model="plantlouse" port="Y" />
+</connection>
+<connection type="internal">
+ <origin model="plantlouse" port="X" />
+ <destination model="ladybird" port="X" />
+</connection>
+</connections>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="PerturbX" port="p" />
+ <destination model="Bio" port="perturb_X" />
+</connection>
+<connection type="internal">
+ <origin model="PerturbY" port="p" />
+ <destination model="Bio" port="perturb_Y" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynLP_X" library="LadybirdPlantlouseX" package="vle.extension.differential-equation"  />
+<dynamic name="dynLP_Y" library="LadybirdPlantlouseY" package="vle.extension.differential-equation"  />
+<dynamic name="dynPerturb" library="Perturb" package="vle.extension.differential-equation"  />
+</dynamics>
+<experiment name="PerturbLadybirdPlantlouseXY" duration="25.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="condEuler" >
+ <port name="method" >
+<string>euler</string>
+</port>
+ <port name="method-parameters" >
+<map><key name="timestep"><double>0.001000000000000</double></key></map>
+</port>
+</condition>
+<condition name="condLP_X" >
+ <port name="a" >
+<double>0.500000000000000</double>
+</port>
+ <port name="b" >
+<double>0.010000000000000</double>
+</port>
+ <port name="d" >
+<double>0.010000000000000</double>
+</port>
+ <port name="e" >
+<double>0.200000000000000</double>
+</port>
+ <port name="variables" >
+<map><key name="X"><double>5000.000000000000000</double></key></map>
+</port>
+</condition>
+<condition name="condLP_Y" >
+ <port name="a" >
+<double>0.500000000000000</double>
+</port>
+ <port name="b" >
+<double>0.010000000000000</double>
+</port>
+ <port name="d" >
+<double>0.010000000000000</double>
+</port>
+ <port name="e" >
+<double>0.200000000000000</double>
+</port>
+ <port name="variables" >
+<map><key name="Y"><double>45.000000000000000</double></key></map>
+</port>
+</condition>
+<condition name="condPerturbX" >
+ <port name="message" >
+<map><key name="name"><string>X</string></key><key name="value"><double>1070.709796840960053</double></key></map>
+</port>
+ <port name="sendTime" >
+<double>20.000000000000000</double>
+</port>
+</condition>
+<condition name="condPerturbY" >
+ <port name="message" >
+<map><key name="name"><string>Y</string></key><key name="value"><double>31.811758874372199</double></key></map>
+</port>
+ <port name="sendTime" >
+<double>20.000000000000000</double>
+</port>
+</condition>
+<condition name="condQSS_X" >
+ <port name="method" >
+<string>qss2</string>
+</port>
+ <port name="method-parameters" >
+<map><key name="DeltaQ"><map><key name="X"><double>1.000000000000000</double></key></map></key></map>
+</port>
+</condition>
+<condition name="condQSS_Y" >
+ <port name="method" >
+<string>qss2</string>
+</port>
+ <port name="method-parameters" >
+<map><key name="DeltaQ"><map><key name="Y"><double>0.100000000000000</double></key></map></key></map>
+</port>
+</condition>
+<condition name="condRK4" >
+ <port name="method" >
+<string>rk4</string>
+</port>
+ <port name="method-parameters" >
+<map><key name="timestep"><double>0.001000000000000</double></key></map>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="file" >
+<map><key name="julian-day"><boolean>false</boolean></key><key name="locale"><string>C</string></key><key name="type"><string>csv</string></key></map></output>
+
+</outputs>
+<observables>
+<observable name="obsX" >
+<port name="X" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="obsY" >
+<port name="Y" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="0.050000000000000" />
+
+</views>
+</experiment>
+</vle_project>

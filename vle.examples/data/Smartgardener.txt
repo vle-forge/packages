@@ -1,0 +1,14 @@
+rules {
+    rule {
+       id = "TreatmentRequired";
+       predicates = "TwoManyPlantlouse","NotToSmallLadybirdPopulation";
+    }
+}
+
+activities {
+    activity {
+        id = "PlantlouseTreatment1";
+        rules = "TreatmentRequired";
+        output = "treat";
+    }
+}

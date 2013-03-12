@@ -1,518 +1,178 @@
-/*
- * @file vle/extension/differential-equation/DifferentialEquation.cpp
- *
- * This file is part of VLE, a framework for multi-modeling, simulation
- * and analysis of complex dynamical systems
- * http://www.vle-project.org
- *
- * Copyright (c) 2003-2007 Gauthier Quesnel <quesnel@users.sourceforge.net>
- * Copyright (c) 2003-2011 ULCO http://www.univ-littoral.fr
- * Copyright (c) 2007-2011 INRA http://www.inra.fr
- *
- * See the AUTHORS or Authors.txt file for copyright owners and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-
 #include <vle/extension/differential-equation/DifferentialEquation.hpp>
+#include <vle/extension/differential-equation/TimeSlicingMethod.hpp>
+#include <vle/extension/differential-equation/QSS2.hpp>
 
-namespace vle { namespace extension { namespace DifferentialEquation {
+namespace vle {
+namespace extension {
+namespace differential_equation {
 
-using namespace devs;
-using namespace value;
+namespace vd = vle::devs;
+namespace vv = vle::value;
+namespace vu = vle::utils;
+namespace ts = vle::extension::differential_equation::timeSlicingMethod;
 
-Base::Base(const DynamicsInit& model,
-					   const InitEventList& events) :
-    Dynamics(model, events),
-    mUseGradient(true),
-    mActive(true),
-    mDependance(true),
-    mExternalVariableNumber(0),
-    mExternalValues(false),
-    mBuffer(false)
+DifferentialEquation::DifferentialEquation(const vd::DynamicsInit& model,
+        const vd::InitEventList& events) :
+        vd::Dynamics(model, events), mvars(), mextVars(), meqImpl(0),
+            mdeclarationOn(true), minitVariables(0), mmethParams(0), mmethod()
 {
-    if (events.exist("active")) {
-        mActive = events.getBoolean("active");
+    if (!events.exist("method") || !events.get("method")->isString()) {
+        throw vu::ModellingError("error method");
     }
-
-    if (events.exist("dependance")) {
-        mDependance = events.getBoolean("dependance");
+    if (!events.exist("method-parameters")
+            || !events.get("method-parameters")->isMap()) {
+        throw vu::ModellingError("error method-parameters");
     }
+    minitVariables = new vv::Map(events.getMap("variables"));
+    mmethParams = (vv::Map*) events.get("method-parameters")->clone();
+    mmethod = events.getString("method");
+}
 
-    mInitialValue = events.getDouble("value");
-
-    mVariableName = events.getString("name");
-
-    if (events.exist("thresholds")) {
-        const MapValue& thresholds =
-            toMap(events.get("thresholds"));
-
-        for (MapValue::const_iterator it = thresholds.begin();
-             it != thresholds.end(); it++) {
-            const Set& tab(toSetValue(*it->second));
-            double value = toDouble(tab.get(0));
-            std::string type = toString(tab.get(1));
-
-            if (type == "up") {
-                mThresholds[it->first] = std::make_pair(value, UP);
-            } else if (type == "down") {
-                mThresholds[it->first] = std::make_pair(value, DOWN);
-            }
-        }
+DifferentialEquation::~DifferentialEquation()
+{
+    if (minitVariables) {
+        delete minitVariables;
+    }
+    if (mmethParams) {
+        delete mmethParams;
+    }
+    if (meqImpl) {
+        delete meqImpl;
     }
 }
 
-double Base::getValue(const Time& now,
-                                      double delay) const
+DifferentialEquation::Var DifferentialEquation::createVar(
+        const std::string& name)
 {
-    if (not (delay <= 0 and (mSize < 0 or -delay <= (int)mSize))) {
-        throw utils::InternalError(fmt(_(
-                "DifferentialEquation: invalid delay: %1%")) % delay);
+    if (not mdeclarationOn) {
+        throw vu::InternalError(" TODO mdeclarationOn Var");
+    }
+    mvars.add(name);
+    return Var(name, this);
+}
+
+DifferentialEquation::Ext DifferentialEquation::createExt(
+        const std::string& name)
+{
+    if (not mdeclarationOn) {
+        throw vu::InternalError(" TODO mdeclarationOn Ext");
+    }
+    mextVars.add(name);
+    return Ext(name, this);
+}
+
+void DifferentialEquation::reinit(const vv::Set& evt, bool perturb,
+        const vd::Time& t)
+{
+    if (perturb) {
+        vv::Set::const_iterator itb = evt.begin();
+        vv::Set::const_iterator ite = evt.end();
+        for (; itb != ite; itb++) {
+            const vv::Map& evtMap = (*itb)->toMap();
+            const std::string& varName = evtMap.getString("name");
+            double varVal = evtMap.getDouble("value");
+            Variables::iterator itf = vars().find(varName);
+            if (itf == vars().end()) {
+                throw utils::ModellingError(
+                        vle::fmt("[%1%] State variable '%2%' not found "
+                                "on perturbation") % getModelName() % varName);
+            }
+            itf->second.setVal(varVal);
+        }
+    }
+    compute(t);
+}
+
+/************** DEVS functions *****************/
+vd::Time DifferentialEquation::init(const vd::Time& time)
+{
+    mdeclarationOn = false;
+
+    //initialisation of variables
+    if (minitVariables) {
+        Variables::iterator itb = mvars.begin();
+        Variables::iterator ite = mvars.end();
+        for (; itb != ite; itb++) {
+            Variable& v = itb->second;
+            if (minitVariables->exist(v.getName())) {
+                v.setVal(minitVariables->getDouble(v.getName()));
+            } else {
+                throw vu::ModellingError(
+                        vle::fmt("[%1%] Initilization value "
+                                "of state variable '%2%' missing")
+                                % getModelName() % v.getName());
+            }
+        }
+        if (minitVariables->value().size() != vars().size()) {
+            throw vu::ModellingError(
+                    vle::fmt("[%1%] Initialization map of state variables "
+                            "has size '%2%' (expected : '%3%'). ")
+                            % getModelName() % minitVariables->value().size()
+                            % vars().size());
+        }
     }
 
-    if (delay == 0) {
-        return mValue;
+    //check that external variables ports are present
+    //(required for initialization)
+    ExternVariables::const_iterator ieb = mextVars.begin();
+    ExternVariables::const_iterator iee = mextVars.end();
+    for (; ieb != iee; ieb++) {
+        if (!getModel().existInputPort(ieb->first)) {
+            throw vu::ModellingError(
+                    vle::fmt("[%1%] Input port corresponding to extern variable"
+                            " '%2%' should be present") % getModelName()
+                            % ieb->first);
+        }
+    }
+
+    //initialisation of method
+    if (mmethod == "euler") {
+        meqImpl = new ts::TimeSlicingMethod<ts::Euler>(*this, *mmethParams);
+    } else if (mmethod == "rk4") {
+        meqImpl = new ts::TimeSlicingMethod<ts::RK4>(*this, *mmethParams);
+    } else if (mmethod == "qss2") {
+        meqImpl = new qss2::QSS2(*this, *mmethParams);
     } else {
-        if (mSize > 0) {
-            if ((now - mStartTime) < -delay * mDelay) {
-                return mValueBuffer.back().second;
-            } else {
-                valueBuffer::const_reverse_iterator it = mValueBuffer.rbegin();
-                Time time = now + delay * mDelay;
-                double value = it->second;
-
-                while (it != mValueBuffer.rend() and it->first < time) {
-                    value = it->second;
-                    ++it;
-                }
-                if (it->first == time)
-                    return it->second;
-                else
-                    return value;
-            }
-        } else {
-            if ((now - mStartTime) < -delay) {
-                return mValueBuffer.back().second;
-            } else {
-                valueBuffer::const_iterator it = mValueBuffer.begin();
-                Time time = now + delay;
-                double value = it->second;
-
-                while (it != mValueBuffer.end() and it->first > time) {
-                    value = it->second;
-                    ++it;
-                }
-                if (it->first == time)
-                    return it->second;
-                else
-                    return value;
-            }
-        }
+        throw vu::InternalError(vle::fmt("[%1%] numerical integration method"
+                " not recognized '%1%'") % mmethod);
     }
+    return meqImpl->init(time);
 }
 
-double Base::getValue(const std::string& name) const
+void DifferentialEquation::output(const vd::Time& time,
+        vd::ExternalEventList& output) const
 {
-    std::map < std::string, double >::const_iterator it(
-        mExternalVariableValue.find(name));
-
-    if (it == mExternalVariableValue.end()) {
-        throw utils::InternalError(fmt(_(
-                "DifferentialEquation: unknow variable %1%")) % name);
-    }
-
-    return it->second;
+    meqImpl->output(time, output);
 }
 
-
-double Base::getValue(const std::string& name,
-                                      const Time& now,
-                                      double delay) const
+vd::Time DifferentialEquation::timeAdvance() const
 {
-    if (not (delay <= 0 and (mSize < 0 or -delay <= (int)mSize))) {
-        throw utils::InternalError(fmt(_(
-           "DifferentialEquation: invalid delay: %1%")) % delay);
-    }
-
-    if (delay == 0) {
-        return getValue(name);
-    } else {
-        if (mSize > 0) {
-            if ((now - mStartTime) < -delay * mDelay) {
-                return externalValueBuffer(name).back().second;
-            } else {
-                valueBuffer::const_reverse_iterator it =
-                    externalValueBuffer(name).rbegin();
-                Time time = now + delay * mDelay;
-                double value = it->second;
-
-                while (it != externalValueBuffer(name).rend() and
-                       it->first < time) {
-                    value = it->second;
-                    ++it;
-                }
-                if (it->first == time)
-                    return it->second;
-                else
-                    return value;
-            }
-        } else {
-            if ((now - mStartTime) < -delay) {
-                return externalValueBuffer(name).back().second;
-            } else {
-                valueBuffer::const_iterator it =
-                    externalValueBuffer(name).begin();
-                Time time = now + delay;
-                double value = it->second;
-
-                while (it != externalValueBuffer(name).end() and
-                       it->first > time) {
-                    value = it->second;
-                    ++it;
-                }
-                if (it->first == time)
-                    return it->second;
-                else
-                    return value;
-            }
-        }
-    }
+    return meqImpl->timeAdvance();
 }
 
-void Base::pushValue(const Time& now,
-                                     double value)
+void DifferentialEquation::confluentTransitions(const vd::Time& time,
+        const vd::ExternalEventList& extEventlist)
 {
-    mValue = value;
-    if (mBuffer) {
-        if (mSize < 0 or (now - mStartTime) < mSize * mDelay) {
-            mValueBuffer.push_front(std::make_pair(now, mValue));
-        } else {
-            Time last = now - mSize * mDelay;
-            std::pair < Time, double > value;
-            bool remove = false;
-
-            mValueBuffer.push_front(std::make_pair(now, mValue));
-            while (mValueBuffer.back().first < last) {
-                value = mValueBuffer.back();
-                mValueBuffer.pop_back();
-                remove = true;
-            }
-            if (remove)
-                mValueBuffer.push_back(value);
-        }
-    }
+    meqImpl->confluentTransitions(time, extEventlist);
 }
 
-void Base::pushExternalValue(const std::string& name,
-                                             const Time& now,
-                                             double value)
+void DifferentialEquation::internalTransition(const vd::Time& event)
 {
-    mExternalVariableValue[name] = value;
-    if (mBuffer) {
-        if (mSize < 0 or (now - mStartTime) < mSize * mDelay) {
-            externalValueBuffer(name).push_front(
-                std::make_pair(now, getValue(name)));
-        } else {
-            Time last = now - mSize * mDelay;
-            std::pair < Time, double > value2;
-            bool remove = false;
-
-            externalValueBuffer(name).push_front(
-                std::make_pair(now, getValue(name)));
-            while (externalValueBuffer(name).back().first < last) {
-                value2 = externalValueBuffer(name).back();
-                externalValueBuffer(name).pop_back();
-                remove = true;
-            }
-            if (remove)
-                externalValueBuffer(name).push_back(value2);
-        }
-    }
+    meqImpl->internalTransition(event);
 }
 
-void Base::updateExternalVariable(const Time& time)
+void DifferentialEquation::externalTransition(
+        const vd::ExternalEventList& event, const vd::Time& time)
 {
-    if (mExternalVariableNumber > 1) {
-        std::map < std::string , double >::iterator it =
-            mExternalVariableValue.begin();
-
-        while (it != mExternalVariableValue.end()) {
-            mExternalVariableValue[it->first] +=
-                (time - mLastTime) *
-                mExternalVariableGradient[it->first];
-            ++it;
-        }
-    }
+    meqImpl->externalTransition(event, time);
 }
 
-Time Base::init(const Time& time)
+vv::Value* DifferentialEquation::observation(
+        const vd::ObservationEvent& event) const
 {
-    mStartTime = time;
-    mPreviousValue = mInitialValue;
-    pushValue(time, mInitialValue);
-    mGradient = 0.0;
-    mSigma = Time(0);
-    mLastTime = time;
-    mState = INIT;
-    return Time(0);
+    return meqImpl->observation(event);
 }
 
-void Base::output(const Time& time,
-                                  ExternalEventList& output) const
-{
-    // change value outputs
-    if ((mState == INIT and mActive) or
-        ((mState == POST3 and mExternalValues) or
-         (mState == RUN and mActive))) {
-        ExternalEvent* ee = new ExternalEvent("update");
-        double e = (time - mLastTime);
-
-        ee << attribute("name", mVariableName);
-        ee << attribute("value", getEstimatedValue(e));
-        if (mUseGradient) {
-            ee << attribute("gradient", mGradient);
-        }
-        output.push_back(ee);
-    }
-    // threshold outputs
-    if (mState == RUN2 or mState == POST2) {
-        threshold::const_iterator it = mThresholds.begin();
-        bool found = false;
-        std::string name;
-
-        while (it != mThresholds.end() and !found) {
-            double value = it->second.first;
-
-            if (it->second.second == DOWN)
-                found = (mPreviousValue >= value) and (value >= mValue);
-            if (it->second.second == UP)
-                found = (mPreviousValue <= value) and (value <= mValue);
-            if (found) name = it->first;
-            ++it;
-        }
-        if (found) {
-            ExternalEvent* ee = new ExternalEvent("out");
-
-            ee << attribute("name", name);
-            output.push_back(ee);
-        }
-    }
 }
-
-Time Base::timeAdvance() const
-{
-    return mSigma;
 }
-
-void Base::confluentTransitions(
-    const Time& time,
-    const ExternalEventList& ext)
-{
-    externalTransition(ext, time);
-    internalTransition(time);
 }
-
-void Base::internalTransition(const Time& time)
-{
-    switch (mState) {
-    case INIT:
-        if (mDependance) {
-            mState = POST_INIT;
-            mSigma = devs::infinity;
-        } else {
-            mState = RUN;
-            mGradient = compute(time);
-            updateSigma(time);
-        }
-        break;
-    case POST2:
-        // update the gradient after receive of value of external
-        // variable
-        mState = RUN;
-        updateGradient(false, time);
-        break;
-    case POST3:
-        mState = RUN;
-        updateSigma(time);
-        break;
-    case RUN:
-        updateValue(false, time);
-        // broadcast or not the new value
-        if (mActive and mExternalValues) {
-            // then wait the new values of all my external variables
-            mState = POST;
-            mSigma = devs::infinity;
-        } else {
-            mState = RUN2;
-            mSigma = Time(0);
-            // else next step
-        }
-        break;
-    case RUN2:
-        mState = RUN;
-        updateGradient(false, time);
-        break;
-    case POST:
-    case POST_INIT:
-        break;
-    }
-}
-
-void Base::externalTransition(const ExternalEventList& event,
-                                              const Time& time)
-{
-    if (mState == POST_INIT) {
-        ExternalEventList::const_iterator it = event.begin();
-        unsigned int index = 0;
-        unsigned int linear = 0;
-
-        while (it != event.end()) {
-            std::string name = (*it)->getStringAttributeValue("name");
-            double value = (*it)->getDoubleAttributeValue("value");
-
-            mExternalValueBuffer[name] = valueBuffer();
-            pushExternalValue(name, time, value);
-            if ((mIsGradient[name] = (*it)->existAttributeValue("gradient"))) {
-                mExternalVariableGradient[name] =
-                    (*it)->getDoubleAttributeValue("gradient");
-                ++linear;
-            } else {
-                mExternalVariableGradient[name] = 0;
-            }
-            ++index;
-            ++it;
-        }
-        mExternalValues =
-            (mExternalVariableNumber + linear < mExternalVariableValue.size());
-        mExternalVariableNumber += index;
-        if (mExternalVariableValue.size() == mExternalVariableNumber) {
-            mState = RUN;
-            mGradient = compute(time);
-            updateSigma(time);
-        }
-    } else {
-        ExternalEventList::const_iterator it = event.begin();
-        bool _reset = false;
-
-        while (it != event.end()) {
-            std::string name = (*it)->getStringAttributeValue("name");
-            double value = (*it)->getDoubleAttributeValue("value");
-
-            // it is a numerical external variable
-            if ((*it)->onPort("update")) {
-                if (name == mVariableName) {
-                    throw utils::InternalError(
-                        fmt(_("DifferentialEquation update, invalid variable " \
-                              "name: %1%")) % name);
-                }
-
-                pushExternalValue(name, time, value);
-                if (mIsGradient[name]){
-                    setGradient(name,
-                                (*it)->getDoubleAttributeValue("gradient"));
-                }
-            }
-            // it is a perturbation on an internal variable
-            else if ((*it)->onPort("perturb")) {
-                if (name != mVariableName) {
-                    throw utils::InternalError(
-                        fmt(_("DifferentialEquation perturbation, invalid " \
-                              "variable name: %1%")) % name);
-                }
-
-                reset(time, value);
-                _reset = true;
-            } else {
-                throw utils::InternalError(
-                    fmt(_("DifferentialEquation, wrong port name: %1%")) %
-                    (*it)->getPortName());
-            }
-            ++it;
-        }
-        if (mState == POST) {
-            mState = POST2;
-            mSigma = Time(0);
-        } else if (mState == RUN or mState == RUN2) {
-            if (_reset) mSigma = Time(0);
-            else {
-                updateValue(true, time);
-                updateExternalVariable(time);
-                updateGradient(true, time);
-            }
-        }
-    }
-}
-
-Value* Base::observation(const ObservationEvent& event) const
-{
-    if (event.getPortName() != mVariableName) {
-        throw utils::InternalError(fmt(_(
-                "DifferentialEquation model, invalid variable name: %1%")) %
-            event.getStringAttributeValue("name"));
-    }
-
-    double e = (event.getTime() - mLastTime);
-    return Double::create(getEstimatedValue(e));
-}
-
-//void Base::request(const RequestEvent& event,
-                                   //const Time& time,
-                                   //ExternalEventList& output) const
-//{
-    //if (event.getStringAttributeValue("name") != mVariableName) {
-        //throw utils::InternalError(fmt(_(
-                //"DifferentialEquation model, invalid variable name: %1%")) %
-            //event.getStringAttributeValue("name"));
-    //}
-
-    //double e = (time - mLastTime).getValue();
-    //ExternalEvent* ee = new ExternalEvent("response");
-
-    //ee << attribute("name", event.getStringAttributeValue("name"));
-    //ee << attribute("value", getEstimatedValue(e));
-    //if (mUseGradient) {
-        //ee << attribute("gradient", mGradient);
-    //}
-    //output.push_back(ee);
-//}
-
-const Base::valueBuffer& Base::externalValueBuffer(
-    const std::string& name) const
-{
-    std::map < std::string, valueBuffer >::const_iterator it(
-        mExternalValueBuffer.find(name));
-
-    if (it == mExternalValueBuffer.end()) {
-        throw utils::InternalError(fmt(_(
-               "DifferentialEquation: unknow value buffer '%1%'")) % name);
-    }
-
-    return it->second;
-}
-
-Base::valueBuffer& Base::externalValueBuffer(const std::string& name)
-{
-    std::map < std::string, valueBuffer >::iterator it(
-        mExternalValueBuffer.find(name));
-
-    if (it == mExternalValueBuffer.end()) {
-        throw utils::InternalError(fmt(_(
-                "DifferentialEquation: unknow value buffer '%1%'")) % name);
-    }
-
-    return it->second;
-}
-
-}}} // namespace vle extension DifferentialEquation

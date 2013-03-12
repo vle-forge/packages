@@ -9,11 +9,8 @@ install(FILES agentonlyc.vpz agentonly.vpz agentonlywakeup.vpz asynchronous.vpz
   moore2.vpz moore.vpz petrinet-and-timed.vpz petrinet-and.vpz
   petrinet-conflict.vpz petrinet-inout.vpz petrinet-meteo.vpz petrinet-mult.vpz
   petrinet-nand1.vpz petrinet-nand2.vpz petrinet-or-priority.vpz
-  petrinet-or.vpz petrinet-simple.vpz qss_exp1_test.vpz qss_exp1_txt.vpz
-  qss_exp1.vpz qss_exp2_txt.vpz qss_exp2.vpz qss_exp3_test.vpz qss_exp3_txt.vpz
-  qss_exp3.vpz qss_exp4_txt.vpz qss_exp4.vpz qss_exp5.vpz qss_exp6.vpz
-  qss_exp7.vpz recursive.vpz seir2.vpz seir.vpz sir2.vpz sir3.vpz sir4.vpz
-  sir.vpz stage.vpz statechart10.vpz statechart11.vpz statechart2.vpz
-  statechart3.vpz statechart4.vpz statechart5.vpz statechart6.vpz
-  statechart7.vpz statechart8.vpz statechart9.vpz statechartMultipleSend.vpz
-  statechart.vpz twotimesmodel.vpz DESTINATION exp)
+  petrinet-or.vpz petrinet-simple.vpz recursive.vpz stage.vpz smartgardener.vpz
+  statechart10.vpz statechart11.vpz statechart2.vpz statechart3.vpz
+  statechart4.vpz statechart5.vpz statechart6.vpz statechart7.vpz
+  statechart8.vpz statechart9.vpz statechartMultipleSend.vpz statechart.vpz
+  twotimesmodel.vpz DESTINATION exp)

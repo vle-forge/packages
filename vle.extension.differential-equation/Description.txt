@@ -1,7 +1,6 @@
 Package: vle.extension.differential-equation
 Version: 0.1.0
-Depends:
-Maintainer: Gauthier Quesnel <quesnel@users.sourceforge.net>
-Description: An extension to build differential equation models
- .
+Depends: vle (>=1.1)
+Maintainer: Ronan Trépos <rtrepos@toulouse.inra.fr>
+Description: An extension to simulate ordinary differential equations
 Tag: extension

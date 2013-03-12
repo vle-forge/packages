@@ -1,13 +1,11 @@
 /*
- * @file vle/extension/differential-equation/DllDefines.hpp
+ * @file vle/extension/differential_equation/DllDefines.hpp
  *
  * This file is part of VLE, a framework for multi-modeling, simulation
  * and analysis of complex dynamical systems
  * http://www.vle-project.org
  *
- * Copyright (c) 2003-2007 Gauthier Quesnel <quesnel@users.sourceforge.net>
- * Copyright (c) 2003-2011 ULCO http://www.univ-littoral.fr
- * Copyright (c) 2007-2011 INRA http://www.inra.fr
+ * Copyright (c) 2011 INRA http://www.inra.fr
  *
  * See the AUTHORS or Authors.txt file for copyright owners and contributors
  *
@@ -25,18 +23,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef VLE_EXT_DIFFERENTIAL_EQUATION_DLLDEFINES_HPP
 #define VLE_EXT_DIFFERENTIAL_EQUATION_DLLDEFINES_HPP
 
 #if defined(__WIN32__)
-  #if defined(differential-equation_EXPORTS)
-    #define VLE_EXTENSION_EXPORT __declspec(dllexport)
-  #else
-    #define VLE_EXTENSION_EXPORT __declspec(dllimport)
-  #endif
+#if defined(differential_equation_EXPORTS)
+#define VLE_EXTENSION_EXPORT __declspec(dllexport)
 #else
- #define VLE_EXTENSION_EXPORT
+#define VLE_EXTENSION_EXPORT __declspec(dllimport)
+#endif
+#else
+#define VLE_EXTENSION_EXPORT
 #endif
 
 #endif

@@ -3,9 +3,15 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
-ADD_LIBRARY(differential-equation STATIC DESS.cpp DESS.hpp
-  DifferentialEquation.cpp DifferentialEquation.hpp QSS2.cpp QSS2.hpp
-  QSS.cpp QSS.hpp)
+ADD_LIBRARY(differential-equation STATIC
+  DifferentialEquation.cpp
+  DifferentialEquation.hpp
+  TimeSlicingMethod.cpp
+  TimeSlicingMethod.hpp
+  QSS2.hpp
+  PerturbationHandler.cpp
+  PerturbationHandler.hpp
+  DifferentialEquationImpl.hpp)
 
 IF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
