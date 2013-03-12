@@ -1,0 +1,28 @@
+                  VLE development team
+                  ====================
+
+
+Copyright
+=========
+
+see Licence.txt
+
+Authors
+=======
+
+Integrator / Release manager
+----------------------------
+
+- Gauthier Quesnel <quesnel@users.sourceforge.net>
+
+
+Main programmer and founder
+---------------------------
+
+- Ingo Berg <webmaster@beltoforion.de>
+
+Contributors
+------------
+
+- Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
+- Ronan Trépos <rtreposl@toulouse.inra.fr>
