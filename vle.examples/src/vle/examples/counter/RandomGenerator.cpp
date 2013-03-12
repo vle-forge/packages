@@ -31,4 +31,10 @@
 
 namespace vle { namespace examples { namespace generator {
 
+
+RandomGenerator::RandomGenerator(vle::utils::Rand& rnd) :
+        Generator(rnd)
+{
+}
+
 }}} // namespace vle examples generator
