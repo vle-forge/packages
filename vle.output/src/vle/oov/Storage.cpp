@@ -108,11 +108,11 @@ public:
     ////
     ///
 
-    virtual void onParameter(const std::string& plugin,
-                             const std::string& location,
-                             const std::string& file,
+    virtual void onParameter(const std::string& /*plugin*/,
+                             const std::string& /*location*/,
+                             const std::string& /*file*/,
                              value::Value* parameters,
-                             const double& time)
+                             const double& /*time*/)
     {
         if (parameters) {
             if (not parameters->isMap()) {
@@ -145,7 +145,9 @@ public:
                     m_headertype = STORAGE_HEADER_TOP;
                 }
             }
-
+            if (columns > 0 && rows > 0) {
+                m_matrix->resize(columns, rows);
+            }
             m_matrix->setResizeColumn(rzcolumns > 0 ? rzcolumns : 1000);
             m_matrix->setResizeRow(rzrows > 0 ? rzrows : 1000);
 
@@ -161,8 +163,8 @@ public:
     virtual void onNewObservable(const std::string& simulator,
                                  const std::string& parent,
                                  const std::string& port,
-                                 const std::string& view,
-                                 const double& time)
+                                 const std::string& /*view*/,
+                                 const double& /*time*/)
     {
         std::string key = buildKey(parent, simulator, port);
         Index idx = m_matrix->columns();
@@ -179,18 +181,18 @@ public:
         }
     }
 
-    virtual void onDelObservable(const std::string& simulator,
-                                 const std::string& parent,
-                                 const std::string& port,
-                                 const std::string& view,
-                                 const double& time)
+    virtual void onDelObservable(const std::string& /*simulator*/,
+                                 const std::string& /*parent*/,
+                                 const std::string& /*port*/,
+                                 const std::string& /*view*/,
+                                 const double& /*time*/)
     {
     }
 
     virtual void onValue(const std::string& simulator,
                          const std::string& parent,
                          const std::string& port,
-                         const std::string& view,
+                         const std::string& /*view*/,
                          const double& time,
                          value::Value* value)
     {
@@ -215,7 +217,7 @@ public:
         }
     }
 
-    virtual void close(const double& time)
+    virtual void close(const double& /*time*/)
     {
         setLastTime(m_time);
     }

@@ -417,7 +417,7 @@ void DecisionDrawingArea::drawActivitiesModel()
 void DecisionDrawingArea::drawPrecedenceConstraints()
 {
     mContext->set_source_rgb(0., 0., 0.);
-    for (precedenceConstraints_t::const_iterator it =
+    for (precedenceConstraints_t::const_iterator
             it = mDecision->precedenceConstraints().begin();
             it != mDecision->precedenceConstraints().end(); ++it) {
         drawPrecedenceConstraint(*it);

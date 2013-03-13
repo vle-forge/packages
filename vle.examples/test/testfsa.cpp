@@ -720,6 +720,4 @@ BOOST_AUTO_TEST_CASE(test_statechartMultipleSend)
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
-
-    value::Matrix &matrix = out->getMatrix("view");
 }
