@@ -740,6 +740,7 @@ void PetriNet::internalTransition(const devs::Time& time)
         {
             run(time);
             mPhase = VLE_EXTENSION_PETRINE_OUT2;
+            break;
         }
     }
 }
@@ -748,7 +749,6 @@ void PetriNet::externalTransition(const devs::ExternalEventList& event,
                                   const devs::Time& time)
 {
     devs::ExternalEventList::const_iterator it = event.begin();
-    bool ok = false;
 
     disableOutTransition();
     disableOutPlace(time);
@@ -765,14 +765,12 @@ void PetriNet::externalTransition(const devs::ExternalEventList& event,
             for (unsigned int i = 0; i < tokenNumber; i++)
                 putToken(mMarkings[name], time);
             mTokenNumber += tokenNumber;
-            ok = true;
         } else if (mInTransitionMarkings.find(port) !=
                    mInTransitionMarkings.end()) {
             Transition* transition = mTransitions[mInTransitionMarkings[port]];
 
             if (transition->getDelay() == 0) {
                 goOutTransition(transition, time);
-                ok = true;
             } else {
                 mWaitingTransitions.push_back(pairTimeTransition(
                         time + transition->getDelay(), transition));
