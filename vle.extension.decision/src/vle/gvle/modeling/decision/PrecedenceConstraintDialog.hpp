@@ -114,8 +114,7 @@ public:
                 return name;
             }
         }
-        else
-            return "FS";
+        return "FS";
     }
 
     class ModelColumnsPredType : public Gtk::TreeModel::ColumnRecord

@@ -1,10 +1,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(muParser CXX C)
+ENABLE_TESTING()
 
-SET(MODEL_MAJOR 2)
-SET(MODEL_MINOR 2)
-SET(MODEL_PATCH 2)
+SET(MODEL_MAJOR 0)
+SET(MODEL_MINOR 1)
+SET(MODEL_PATCH 0)
 SET(MODEL_NAME "${PROJECT_NAME}-${MODEL_MAJOR}.${MODEL_MINOR}.${MODEL_PATCH}")
+SET(VLE_NAME "${PROJECT_NAME}-${MODEL_MAJOR}.${MODEL_MINOR}")
 
 ##
 ## Options for compilation of package
@@ -27,7 +29,6 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
   endif ()
 endif ()
 
-
 ##
 ## Modules
 ##
@@ -42,3 +43,12 @@ INCLUDE(CMakeDetermineCCompiler)
 ##
 
 ADD_SUBDIRECTORY(src)
+
+##
+## CPack configuration
+##
+
+INSTALL(FILES Authors.txt Description.txt License.txt News.txt Readme.txt
+  DESTINATION .)
+
+INCLUDE(CMakeCPack.cmake)

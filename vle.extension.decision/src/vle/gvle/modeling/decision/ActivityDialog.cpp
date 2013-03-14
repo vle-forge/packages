@@ -39,8 +39,7 @@ ActivityDialog::ActivityDialog(const Glib::RefPtr < Gtk::Builder >& xml,
             strings_t outputFunctionName,
             strings_t ackFunctionName) :
     mXml(xml), mDecision(decision), mActivityModel(activityModel),
-    mOutput(outputFunctionName), mAck(ackFunctionName),
-    mRule(rule)
+    mRule(rule), mOutput(outputFunctionName), mAck(ackFunctionName)
 {
     xml->get_widget("TreeViewActRule", mTreeViewActRules);
     mRefTreeActRules = Gtk::TreeStore::create(mColumnsActRules);

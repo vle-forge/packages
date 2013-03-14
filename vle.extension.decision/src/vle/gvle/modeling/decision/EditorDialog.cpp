@@ -37,8 +37,8 @@ namespace decision {
         std::vector < std::string > pFactName,
         std::vector < std::string > pParam,
         strings_t lPred) :
-    mXml(xml), mPred(pPred), mFactName(pFactName), mParam(pParam),
-            mPredName(lPred)
+    mPred(pPred), mPredName(lPred), mFactName(pFactName),
+    mParam(pParam), mXml(xml)
 {
     mXml->get_widget("EditorDialog", mDialog);
     mXml->get_widget("labelTVPred", mLabelLPred);
