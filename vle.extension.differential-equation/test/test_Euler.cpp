@@ -61,7 +61,7 @@ struct F
 BOOST_GLOBAL_FIXTURE(F)
 
 va::ConstVectorView getColumnFromView(const va::Matrix& view, const std::string& model,
-        const std::string& port)
+                                      const std::string& port)
 {
     for(unsigned int j=1; j < view.columns(); j++){
         if(view.getString(j,0) == (model + std::string(".") + port)){
@@ -80,16 +80,16 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
 {
     std::cout << "  test_Euler_LotkaVolterra " << std::endl;
     vu::Package::package()
-    .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
     vz::Vpz vpz(
-            vu::Path::path().getExternalPackageExpFile(
-                    "vle.extension.differential-equation", "LotkaVolterra.vpz"));
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation", "LotkaVolterra.vpz"));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =
-            vpz.project().experiment().views().outputs().begin();
+        vpz.project().experiment().views().outputs().begin();
     vz::Outputs::iterator ite =
-            vpz.project().experiment().views().outputs().end();
+        vpz.project().experiment().views().outputs().end();
     for(;itb!=ite;itb++) {
         va::Map* configOutput = new va::Map();
         configOutput->addInt("rows",10000);
@@ -129,28 +129,28 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
 
     //gets X,Y
     va::ConstVectorView colX = getColumnFromView(view,
-            "Top model:LotkaVolterra", "X");
+                                                 "Top model:LotkaVolterra", "X");
 
     va::ConstVectorView colY = getColumnFromView(view,
-            "Top model:LotkaVolterra", "Y");
+                                                 "Top model:LotkaVolterra", "Y");
 
     //check X,Y line 10
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[10]),
-            9.677077, 10e-5);
+                        9.677077, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[10]),
-            5.317209, 10e-5);
+                        5.317209, 10e-5);
 
     //check X,Y line 30
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[30]),
-            8.903716, 10e-5);
+                        8.903716, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[30]),
-            6.030680, 10e-5);
+                        6.030680, 10e-5);
 
     //check X,Y line 15000
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[15000]),
-            0.5528446, 10e-5);
+                        0.5528446, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[15000]),
-            0.09330513, 10e-5);
+                        0.09330513, 10e-5);
 
 }
 
@@ -166,17 +166,17 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
 {
     std::cout << "  test_Euler_LotkaVolterraXY " << std::endl;
     vu::Package::package()
-    .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
     vz::Vpz vpz(
-            vu::Path::path().getExternalPackageExpFile(
-                    "vle.extension.differential-equation",
-                    "LotkaVolterraXY.vpz"));
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation",
+            "LotkaVolterraXY.vpz"));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =
-            vpz.project().experiment().views().outputs().begin();
+        vpz.project().experiment().views().outputs().begin();
     vz::Outputs::iterator ite =
-            vpz.project().experiment().views().outputs().end();
+        vpz.project().experiment().views().outputs().end();
     for(;itb!=ite;itb++) {
         va::Map* configOutput = new va::Map();
         configOutput->addInt("rows",10000);
@@ -229,27 +229,27 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
 
     //gets X,Y
     va::ConstVectorView colX = getColumnFromView(view,
-            "Top model:LotkaVolterraX", "X");
+                                                 "Top model:LotkaVolterraX", "X");
     va::ConstVectorView colY = getColumnFromView(view,
-            "Top model:LotkaVolterraY", "Y");
+                                                 "Top model:LotkaVolterraY", "Y");
 
     //check X,Y line 10
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[10]),
-            9.677077, 10e-5);
+                        9.677077, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[10]),
-            5.317209, 10e-5);
+                        5.317209, 10e-5);
 
     //check X,Y line 30
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[30]),
-            8.903716, 10e-5);
+                        8.903716, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[30]),
-            6.030680, 10e-5);
+                        6.030680, 10e-5);
 
     //check X,Y line 15000
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[15000]),
-            0.5528446, 10e-5);
+                        0.5528446, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[15000]),
-            0.09330513, 10e-5);
+                        0.09330513, 10e-5);
 }
 
 /******************
@@ -260,16 +260,16 @@ BOOST_AUTO_TEST_CASE(test_Euler_Seir)
 {
     std::cout << "  test_Euler_Seir " << std::endl;
     vu::Package::package()
-    .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
     vz::Vpz vpz(
-            vu::Path::path().getExternalPackageExpFile(
-                    "vle.extension.differential-equation", "Seir.vpz"));
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation", "Seir.vpz"));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =
-            vpz.project().experiment().views().outputs().begin();
+        vpz.project().experiment().views().outputs().begin();
     vz::Outputs::iterator ite =
-            vpz.project().experiment().views().outputs().end();
+        vpz.project().experiment().views().outputs().end();
     for(;itb!=ite;itb++) {
         va::Map* configOutput = new va::Map();
         configOutput->addInt("rows",10000);
@@ -308,25 +308,25 @@ BOOST_AUTO_TEST_CASE(test_Euler_Seir)
 
     //gets S,E,I,R
     va::ConstVectorView colS = getColumnFromView(view,
-            "Top model:Seir", "S");
+                                                 "Top model:Seir", "S");
     va::ConstVectorView colE = getColumnFromView(view,
-            "Top model:Seir", "E");
+                                                 "Top model:Seir", "E");
     va::ConstVectorView colI = getColumnFromView(view,
-            "Top model:Seir", "I");
+                                                 "Top model:Seir", "I");
     va::ConstVectorView colR = getColumnFromView(view,
-            "Top model:Seir", "R");
+                                                 "Top model:Seir", "R");
 
     //check S,E,I,R line 1501
     BOOST_REQUIRE_CLOSE(va::toDouble(colS[1501]),
-            0.634334231496758, 10e-5);
+                        0.634334231496758, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colE[1501]),
-            0.65430775343564, 10e-5);
+                        0.65430775343564, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colI[1501]),
-            2.97798653683738, 10e-5);
+                        2.97798653683738, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colR[1501]),
-            6.73337147823022, 10e-5);
-//E I R S
-//  0.65430775343564;2.97798653683738;6.73337147823022;0.634334231496758
+                        6.73337147823022, 10e-5);
+    //E I R S
+    //  0.65430775343564;2.97798653683738;6.73337147823022;0.634334231496758
 
 }
 
@@ -342,17 +342,17 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
 {
     std::cout << "  test_Euler_SeirXY " << std::endl;
     vu::Package::package()
-    .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
     vz::Vpz vpz(
-            vu::Path::path().getExternalPackageExpFile(
-                    "vle.extension.differential-equation",
-                    "SeirXY.vpz"));
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation",
+            "SeirXY.vpz"));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =
-            vpz.project().experiment().views().outputs().begin();
+        vpz.project().experiment().views().outputs().begin();
     vz::Outputs::iterator ite =
-            vpz.project().experiment().views().outputs().end();
+        vpz.project().experiment().views().outputs().end();
     for(;itb!=ite;itb++) {
         va::Map* configOutput = new va::Map();
         configOutput->addInt("rows",10000);
@@ -428,22 +428,22 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
 
     //gets S,E,I,R
     va::ConstVectorView colS = getColumnFromView(view,
-            "Top model:Sm", "S");
+                                                 "Top model:Sm", "S");
     va::ConstVectorView colE = getColumnFromView(view,
-            "Top model:Em", "E");
+                                                 "Top model:Em", "E");
     va::ConstVectorView colI = getColumnFromView(view,
-            "Top model:Im", "I");
+                                                 "Top model:Im", "I");
     va::ConstVectorView colR = getColumnFromView(view,
-            "Top model:Rm", "R");
+                                                 "Top model:Rm", "R");
     //check S,E,I,R line 1501
     BOOST_REQUIRE_CLOSE(va::toDouble(colS[1501]),
-            0.634334231496758, 10e-5);
+                        0.634334231496758, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colE[1501]),
-            0.65430775343564, 10e-5);
+                        0.65430775343564, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colI[1501]),
-            2.97798653683738, 10e-5);
+                        2.97798653683738, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colR[1501]),
-            6.73337147823022, 10e-5);
+                        6.73337147823022, 10e-5);
 }
 
 

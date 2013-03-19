@@ -33,10 +33,10 @@ BOOST_AUTO_TEST_CASE(test_RK4_LotkaVolterra)
 {
     std::cout << "  test_RK4_LotkaVolterra " << std::endl;
     vu::Package::package()
-    .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
     vz::Vpz vpz(
-            vu::Path::path().getExternalPackageExpFile(
-                    "vle.extension.differential-equation", "LotkaVolterra.vpz"));
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation", "LotkaVolterra.vpz"));
 
     ttconfOutputPlugins(vpz);
 
@@ -63,27 +63,27 @@ BOOST_AUTO_TEST_CASE(test_RK4_LotkaVolterra)
 
     //gets X,Y
     va::ConstVectorView colX = ttgetColumnFromView(view,
-            "Top model:LotkaVolterra", "X");
+                                                   "Top model:LotkaVolterra", "X");
     va::ConstVectorView colY = ttgetColumnFromView(view,
-            "Top model:LotkaVolterra", "Y");
+                                                   "Top model:LotkaVolterra", "Y");
 
     //check X,Y line 10
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[10]),
-            9.676110, 10e-5);
+                        9.676110, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[10]),
-            5.317448, 10e-5);
+                        5.317448, 10e-5);
 
     //check X,Y line 30
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[30]),
-            8.901151, 10e-5);
+                        8.901151, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[30]),
-            6.030798, 10e-5);
+                        6.030798, 10e-5);
 
     //check X,Y line 15000
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[15000]),
-            0.7127354, 10e-5);
+                        0.7127354, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[15000]),
-            0.07558043, 10e-5);
+                        0.07558043, 10e-5);
 }
 
 /******************
@@ -94,10 +94,10 @@ BOOST_AUTO_TEST_CASE(test_RK4_Seir)
 {
     std::cout << "  test_RK4_Seir " << std::endl;
     vu::Package::package()
-    .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
     vz::Vpz vpz(
-            vu::Path::path().getExternalPackageExpFile(
-                    "vle.extension.differential-equation", "Seir.vpz"));
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation", "Seir.vpz"));
 
     ttconfOutputPlugins(vpz);
 
@@ -124,21 +124,21 @@ BOOST_AUTO_TEST_CASE(test_RK4_Seir)
 
     //gets S,E,I,R
     va::ConstVectorView colS = ttgetColumnFromView(view,
-            "Top model:Seir", "S");
+                                                   "Top model:Seir", "S");
     va::ConstVectorView colE = ttgetColumnFromView(view,
-            "Top model:Seir", "E");
+                                                   "Top model:Seir", "E");
     va::ConstVectorView colI = ttgetColumnFromView(view,
-            "Top model:Seir", "I");
+                                                   "Top model:Seir", "I");
     va::ConstVectorView colR = ttgetColumnFromView(view,
-            "Top model:Seir", "R");
+                                                   "Top model:Seir", "R");
 
     //check S,E,I,R line 1500, TODO 10-3 diff with deSolve
     BOOST_REQUIRE_CLOSE(va::toDouble(colS[1501]),
-            0.635933347641559, 10e-5);
+                        0.635933347641559, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colE[1501]),
-            0.654326066542035, 10e-5);
+                        0.654326066542035, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colI[1501]),
-            2.97469330853422, 10e-5);
+                        2.97469330853422, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colR[1501]),
-            6.73504727728219, 10e-5);
+                        6.73504727728219, 10e-5);
 }

@@ -31,14 +31,14 @@
  ******************/
 BOOST_AUTO_TEST_CASE(test_ExtUpLV)
 {
-	std::cout << "  test_ExtUpLV " << std::endl;
-	vu::Package::package()
-	.select("vle.extension.differential-equation"); //TODO should be managed by meteo
-	vz::Vpz vpz(
-			vu::Path::path().getExternalPackageExpFile(
-					"vle.extension.differential-equation", "ExtUpLV.vpz"));
+    std::cout << "  test_ExtUpLV " << std::endl;
+    vu::Package::package()
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+    vz::Vpz vpz(
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation", "ExtUpLV.vpz"));
 
-	ttconfOutputPlugins(vpz);
+    ttconfOutputPlugins(vpz);
 
     //simulation
     vu::ModuleManager man;
@@ -58,12 +58,12 @@ BOOST_AUTO_TEST_CASE(test_ExtUpLV)
 
     //gets X,Y
     va::ConstVectorView colX = ttgetColumnFromView(view,
-            "Top model:LotkaVolterraY", "X");
+                                                   "Top model:LotkaVolterraY", "X");
 
     //check X at = 0.400 and t=0.41
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[41]),
-            10, 10e-5);
+                        10, 10e-5);
 
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[42]),
-            1.0, 10e-5);
+                        1.0, 10e-5);
 }

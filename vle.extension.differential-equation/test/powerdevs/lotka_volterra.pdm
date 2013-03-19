@@ -1,0 +1,174 @@
+Coupled
+    {
+    Type = Root
+    Name = nl_stiff
+    Ports = 0; 0
+    Description = Model of Power Devs
+    Graphic
+        {
+        Position = 0; 0
+        Dimension = 150; 150
+        Direction = Right
+        Color = 15
+        Icon = None
+        Window = 5000; 5000; 5000; 5000
+        }
+    Parameters
+        {
+        }
+    System
+        {
+        Atomic
+            {
+            Name = grad(X)
+            Ports = 2 ; 1
+            Path = qss/qss_nlfunction.h
+            Description = Nonlinear function. (QSS1 to 4)
+            Graphic
+                {
+                Position = 1095 ; -5085
+                Dimension = 675 ; 720
+                Direction = Right
+                Color = 15
+                Icon = %continuous%nl_function.svg
+                }
+            Parameters
+                {
+                Expression = Str; u0*(1.5-1*u1) ; Expression in terms of u0,u1,....,u9
+                Inputs = Str; %Inputs ; 
+                }
+            }
+        Atomic
+            {
+            Name = grad(Y)
+            Ports = 2 ; 1
+            Path = qss/qss_nlfunction.h
+            Description = Nonlinear function. (QSS1 to 4)
+            Graphic
+                {
+                Position = 1020 ; -2535
+                Dimension = 675 ; 720
+                Direction = Right
+                Color = 15
+                Icon = %continuous%nl_function.svg
+                }
+            Parameters
+                {
+                Expression = Str; u1*(1*u0-3) ; Expression in terms of u0,u1,....,u9
+                Inputs = Str; %Inputs ; 
+                }
+            }
+        Atomic
+            {
+            Name = QSS_prey_X
+            Ports = 1 ; 1
+            Path = qss/qss_integrator.h
+            Description = Quantized Integrator (QSS methods) with logartithmic quantization
+            Graphic
+                {
+                Position = 2895 ; -5055
+                Dimension = 675 ; 675
+                Direction = Right
+                Color = 15
+                Icon = %continuous%integrator.svg
+                }
+            Parameters
+                {
+                Method = Lst; 2%QSS%QSS2%QSS3%QSS4%BQSS%CQSS%LIQSS%LIQSS2%LIQSS3% ; 
+                dqmin = Str; 0.0001 ; minimum quantum (Scilab)
+                dqrel = Str; 0 ; relative quantum (0 : uniform) (Scilab)
+                x0 = Str; 10 ; Initial state (Scilab)
+                }
+            }
+        Atomic
+            {
+            Name = QSS_predator_Y
+            Ports = 1 ; 1
+            Path = qss/qss_integrator.h
+            Description = Quantized Integrator (QSS methods) with logartithmic quantization
+            Graphic
+                {
+                Position = 2895 ; -2505
+                Dimension = 675 ; 675
+                Direction = Right
+                Color = 15
+                Icon = %continuous%integrator.svg
+                }
+            Parameters
+                {
+                Method = Lst; 2%QSS%QSS2%QSS3%QSS4%BQSS%CQSS%LIQSS%LIQSS2%LIQSS3% ; 
+                dqmin = Str; 0.0001 ; minimum quantum (Scilab)
+                dqrel = Str; 0 ; relative quantum (0 : uniform) (Scilab)
+                x0 = Str; 5 ; Initial state (Scilab)
+                }
+            }
+        Point
+            {
+            ConectedLines = 2 ; 5 ; 6
+            ConectedExtrems = Org ; Org ; Org
+            Position = -75 ; -4875
+            }
+        Point
+            {
+            ConectedLines = 4 ; 7 ; 8
+            ConectedExtrems = Org ; Org ; Org
+            Position = 225 ; -3000
+            }
+        Line
+            {
+            Source = Cmp ;  1 ;  1 ; 0
+            Sink = Cmp ;  3 ;  1 ; -1
+            PointX = 1875 ; 1875 ; 2760
+            PointY = -4725 ; -4725 ; -4725
+            }
+        Line
+            {
+            Source = Cmp ;  1 ;  1 ; -1
+            Sink = Pnt ;  1 ; -1 ; 0
+            PointX = 960 ; 960 ; -75
+            PointY = -4875 ; -4875 ; -4875
+            }
+        Line
+            {
+            Source = Cmp ;  2 ;  1 ; 0
+            Sink = Cmp ;  4 ;  1 ; -1
+            PointX = 1800 ; 1800 ; 2760
+            PointY = -2175 ; -2175 ; -2175
+            }
+        Line
+            {
+            Source = Cmp ;  1 ;  2 ; -1
+            Sink = Pnt ;  2 ; -1 ; 0
+            PointX = 960 ; 225 ; 225
+            PointY = -4575 ; -4575 ; -3000
+            }
+        Line
+            {
+            Source = Cmp ;  2 ;  1 ; -1
+            Sink = Pnt ;  1 ; -1 ; 0
+            PointX = 885 ; -75 ; -75
+            PointY = -2325 ; -2325 ; -4875
+            }
+        Line
+            {
+            Source = Pnt ;  1 ; -1 ; 0
+            Sink = Cmp ;  3 ;  1 ; 0
+            PointX = -75 ; -75 ; -75 ; 3900 ; 3900 ; 3675
+            PointY = -4875 ; -4875 ; -5250 ; -5250 ; -4725 ; -4725
+            }
+        Line
+            {
+            Source = Cmp ;  2 ;  2 ; -1
+            Sink = Pnt ;  2 ; -1 ; 0
+            PointX = 885 ; 225 ; 225
+            PointY = -2025 ; -2025 ; -3000
+            }
+        Line
+            {
+            Source = Pnt ;  2 ; -1 ; 0
+            Sink = Cmp ;  4 ;  1 ; 0
+            PointX = 225 ; 225 ; 4350 ; 4350 ; 3675
+            PointY = -3000 ; -3000 ; -3000 ; -2175 ; -2175
+            }
+        }
+    }

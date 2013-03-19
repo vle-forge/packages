@@ -32,11 +32,11 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterra)
 {
     std::cout << "  test_Euler_PerturbLotkaVolterra " << std::endl;
     vu::Package::package()
-    .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
     vz::Vpz vpz(
-            vu::Path::path().getExternalPackageExpFile(
-                    "vle.extension.differential-equation",
-                    "PerturbLotkaVolterra.vpz"));
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation",
+            "PerturbLotkaVolterra.vpz"));
 
     ttconfOutputPlugins(vpz);
 
@@ -62,22 +62,22 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterra)
 
     //gets X,Y
     va::ConstVectorView colX = ttgetColumnFromView(view,
-            "Top model:LotkaVolterra", "X");
+                                                   "Top model:LotkaVolterra", "X");
 
     va::ConstVectorView colY = ttgetColumnFromView(view,
-            "Top model:LotkaVolterra", "Y");
+                                                   "Top model:LotkaVolterra", "Y");
 
     //check X,Y at 4.357
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[4357]) + 1,
-            1, 10e-5);
+                        1, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[4357]),
-            6.62948339477899, 10e-4);//not sure
+                        6.62948339477899, 10e-4);//not sure
 
     //check X,Y line at 15
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[15000]) + 1,
-            1, 10e-5);
+                        1, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[15000]) + 1,
-            1, 10e-5);
+                        1, 10e-5);
 
 }
 
@@ -91,11 +91,11 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterraXY)
 {
     std::cout << "  test_Euler_PerturbLotkaVolterraXY " << std::endl;
     vu::Package::package()
-    .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
     vz::Vpz vpz(
-            vu::Path::path().getExternalPackageExpFile(
-                    "vle.extension.differential-equation",
-                    "PerturbLotkaVolterraXY.vpz"));
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation",
+            "PerturbLotkaVolterraXY.vpz"));
 
     ttconfOutputPlugins(vpz);
 
@@ -128,20 +128,20 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterraXY)
 
     //gets X,Y
     va::ConstVectorView colX = ttgetColumnFromView(view,
-            "Top model:LotkaVolterraX", "X");
+                                                   "Top model:LotkaVolterraX", "X");
 
     va::ConstVectorView colY = ttgetColumnFromView(view,
-            "Top model:LotkaVolterraY", "Y");
+                                                   "Top model:LotkaVolterraY", "Y");
 
     //check X,Y at 4.357
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[4357]) + 1,
-            1, 10e-5);
+                        1, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[4357]),
-            6.62948339477899, 10e-4);//not sure
+                        6.62948339477899, 10e-4);//not sure
 
     //check X,Y line at 15
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[15000]) + 1,
-            1, 10e-5);
+                        1, 10e-5);
     BOOST_REQUIRE_CLOSE(va::toDouble(colY[15000]) + 1,
-            1, 10e-5);
+                        1, 10e-5);
 }

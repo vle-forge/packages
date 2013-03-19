@@ -33,10 +33,10 @@ BOOST_AUTO_TEST_CASE(test_coupling)
 {
     std::cout << "  test_coupling " << std::endl;
     vu::Package::package()
-    .select("vle.extension.differential-equation"); //TODO should be managed by meteo
+        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
     vz::Vpz vpz(
-            vu::Path::path().getExternalPackageExpFile(
-                    "vle.extension.differential-equation", "PerturbSeirXY.vpz"));
+        vu::Path::path().getExternalPackageExpFile(
+            "vle.extension.differential-equation", "PerturbSeirXY.vpz"));
 
 
     ttconfOutputPlugins(vpz);

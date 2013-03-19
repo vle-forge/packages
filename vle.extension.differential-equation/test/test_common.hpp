@@ -65,7 +65,7 @@ BOOST_GLOBAL_FIXTURE(F)
 
 va::ConstVectorView
 ttgetColumnFromView(const va::Matrix& view, const std::string& model,
-        const std::string& port)
+                    const std::string& port)
 {
     for(unsigned int j=1; j < view.columns(); j++){
         if(view.getString(j,0) == (model + std::string(".") + port)){
@@ -81,9 +81,9 @@ ttconfOutputPlugins(vz::Vpz& vpz)
 {
     //set all output plugin to storage
     vz::Outputs::iterator itb =
-            vpz.project().experiment().views().outputs().begin();
+        vpz.project().experiment().views().outputs().begin();
     vz::Outputs::iterator ite =
-            vpz.project().experiment().views().outputs().end();
+        vpz.project().experiment().views().outputs().end();
     for(;itb!=ite;itb++) {
         va::Map* configOutput = new va::Map();
         configOutput->addInt("rows",10000);
@@ -98,7 +98,7 @@ ttconfOutputPlugins(vz::Vpz& vpz)
 
 void
 ttattachConditions(vz::Vpz& vpz, const std::vector<std::string>& conds,
-        const std::string& atomModel)
+                   const std::string& atomModel)
 {
     vz::Model& vpz_mod = vpz.project().model();
     vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath(atomModel);
