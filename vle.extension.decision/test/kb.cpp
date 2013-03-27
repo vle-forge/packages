@@ -37,6 +37,7 @@
 #include <iterator>
 #include <vle/value/Double.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
+#include <vle/vle.hpp>
 
 namespace vmd = vle::extension::decision;
 
@@ -95,7 +96,7 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
 BOOST_AUTO_TEST_CASE(kb)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KnowledgeBase base;
 

@@ -36,14 +36,22 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <iostream>
 #include <iterator>
+#include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/utils/i18n.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 
 struct F
 {
-    F() { vle::value::init(); }
-    ~F() { vle::value::finalize(); }
+    vle::Init app;
+
+    F() : app()
+    {
+    }
+
+    ~F()
+    {
+    }
 };
 
 BOOST_GLOBAL_FIXTURE(F)

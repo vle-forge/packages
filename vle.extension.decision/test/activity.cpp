@@ -37,6 +37,7 @@
 #include <iterator>
 #include <vle/value/Double.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
+#include <vle/vle.hpp>
 
 namespace vmd = vle::extension::decision;
 namespace vd = vle::devs;
@@ -267,7 +268,7 @@ public:
 
 BOOST_AUTO_TEST_CASE(kb)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KnowledgeBase base;
 
@@ -307,7 +308,7 @@ BOOST_AUTO_TEST_CASE(kb)
 
 BOOST_AUTO_TEST_CASE(kb2)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KnowledgeBaseGraph base;
 
@@ -355,7 +356,7 @@ BOOST_AUTO_TEST_CASE(kb2)
 
 BOOST_AUTO_TEST_CASE(kb3)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KnowledgeBaseGraph2 base;
 
@@ -410,7 +411,7 @@ BOOST_AUTO_TEST_CASE(kb3)
 
 BOOST_AUTO_TEST_CASE(Activity4)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KnowledgeBaseGraph3 base;
 
@@ -429,7 +430,7 @@ BOOST_AUTO_TEST_CASE(Activity4)
 
 BOOST_AUTO_TEST_CASE(ActivitiesnextDate1)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KB4 base;
 
@@ -457,7 +458,7 @@ BOOST_AUTO_TEST_CASE(ActivitiesnextDate1)
 
 BOOST_AUTO_TEST_CASE(ActivitiesnextDate2)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KB4 base;
 
@@ -485,7 +486,7 @@ BOOST_AUTO_TEST_CASE(ActivitiesnextDate2)
 
 BOOST_AUTO_TEST_CASE(activitiesExist)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KB4 base;
 
@@ -497,7 +498,7 @@ BOOST_AUTO_TEST_CASE(activitiesExist)
 
 BOOST_AUTO_TEST_CASE(Activities_test_slot_function)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KB5 base;
 

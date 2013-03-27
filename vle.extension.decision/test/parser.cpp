@@ -38,6 +38,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign.hpp>
 #include <vle/version.hpp>
+#include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/devs/Time.hpp>
 #include <vle/extension/Decision.hpp>
@@ -291,7 +292,7 @@ std::string Block(
 
 BOOST_AUTO_TEST_CASE(parser_00)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KnowledgeBase b;
 
@@ -301,7 +302,7 @@ BOOST_AUTO_TEST_CASE(parser_00)
 
 BOOST_AUTO_TEST_CASE(parser)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KnowledgeBase b;
     b.plan().fill(std::string(vmd::ex::Plan1));
@@ -320,7 +321,7 @@ BOOST_AUTO_TEST_CASE(parser)
 
 BOOST_AUTO_TEST_CASE(test_stringdates)
 {
-    vle::value::init();
+    vle::Init app;
 
     vmd::ex::KnowledgeBase b;
     b.plan().fill(std::string(vmd::ex::Plan1));
@@ -336,7 +337,7 @@ BOOST_AUTO_TEST_CASE(test_stringdates)
 
 BOOST_AUTO_TEST_CASE(test_relativedates)
 {
-    vle::value::init();
+    vle::Init app;
     {
         vmd::ex::KnowledgeBase b;
         b.plan().fill(std::string(vmd::ex::Plan1), 0);
