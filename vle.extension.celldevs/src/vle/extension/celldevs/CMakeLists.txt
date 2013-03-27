@@ -21,6 +21,9 @@ INSTALL(TARGETS celldevs ARCHIVE DESTINATION lib)
 CONFIGURE_FILE(Version.hpp.in
   ${CMAKE_BINARY_DIR}/src/vle/extension/celldevs/Version.hpp)
 
+install(FILES CellDevs.hpp DllDefines.hpp
+  DESTINATION src/vle/extension/celldevs)
+
 INSTALL(FILES
   ${CMAKE_BINARY_DIR}/src/vle/extension/celldevs/Version.hpp
   DESTINATION src/vle/extension/celldevs)
