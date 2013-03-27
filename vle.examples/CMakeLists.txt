@@ -50,6 +50,7 @@ PKG_CHECK_MODULES(VLE vle-1.1 REQUIRED)
 ## Check VLE's packages
 ##
 
+set(VleCheckPackage_DIR "${CMAKE_SOURCE_DIR}/cmake")
 FIND_PACKAGE(VleCheckPackage REQUIRED)
 SET(VLE_ABI_VERSION 1.1)
 
