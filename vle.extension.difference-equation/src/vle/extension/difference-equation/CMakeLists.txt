@@ -20,6 +20,10 @@ TARGET_LINK_LIBRARIES(difference-equation ${VLE_LIBRARIES})
 
 INSTALL(TARGETS difference-equation ARCHIVE DESTINATION lib)
 
+install(FILES Base.hpp DllDefines.hpp GenericDbg.hpp Generic.hpp
+  MultipleDbg.hpp Multiple.hpp SimpleDbg.hpp Simple.hpp
+  DESTINATION src/vle/extension/difference-equation)
+
 CONFIGURE_FILE(Version.hpp.in
   ${CMAKE_BINARY_DIR}/src/vle/extension/difference-equation/Version.hpp)
 
