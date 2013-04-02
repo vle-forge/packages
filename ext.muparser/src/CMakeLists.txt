@@ -35,3 +35,9 @@ SET_TARGET_PROPERTIES(muParser PROPERTIES OUTPUT_NAME
 TARGET_LINK_LIBRARIES(muParser ${VLE_LIBRARIES})
 
 INSTALL(TARGETS muParser ARCHIVE DESTINATION lib)
+
+install(FILES muParserBase.h muParserBytecode.h muParserCallback.h
+  muParserDef.h muParserDLL.h muParserError.h muParserFixes.h
+  muParser.h muParserInt.h muParserStack.h muParserTemplateMagic.h
+  muParserTest.h muParserToken.h muParserTokenReader.h
+  DESTINATION src)
