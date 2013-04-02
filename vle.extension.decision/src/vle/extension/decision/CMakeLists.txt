@@ -23,6 +23,14 @@ TARGET_LINK_LIBRARIES(decision ${VLE_LIBRARIES})
 
 INSTALL(TARGETS decision ARCHIVE DESTINATION lib)
 
+install(FILES Activities.cpp Activities.hpp Activity.cpp Activity.hpp
+  Agent.cpp Agent.hpp DllDefines.hpp Facts.hpp KnowledgeBase.cpp
+  KnowledgeBase.hpp Library.cpp Library.hpp Plan.cpp Plan.hpp
+  PrecedenceConstraint.cpp PrecedenceConstraint.hpp
+  PrecedencesGraph.cpp PrecedencesGraph.hpp Predicates.cpp
+  Predicates.hpp Rule.hpp Rules.cpp Rules.hpp Table.hpp
+  DESTINATION src/vle/extension/decision)
+
 CONFIGURE_FILE(Version.hpp.in
   ${CMAKE_BINARY_DIR}/src/vle/extension/decision/Version.hpp)
 
