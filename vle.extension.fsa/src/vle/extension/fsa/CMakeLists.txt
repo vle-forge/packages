@@ -20,6 +20,10 @@ TARGET_LINK_LIBRARIES(fsa ${VLE_LIBRARIES})
 
 INSTALL(TARGETS fsa ARCHIVE DESTINATION lib)
 
+install(FILES DllDefines.hpp FDDevs.hpp FSA.hpp Mealy.hpp Moore.hpp
+  StatechartDbg.hpp Statechart.hpp
+  DESTINATION src/vle/extension/fsa)
+
 CONFIGURE_FILE(Version.hpp.in
   ${CMAKE_BINARY_DIR}/src/vle/extension/fsa/Version.hpp)
 
