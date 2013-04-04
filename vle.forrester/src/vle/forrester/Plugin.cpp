@@ -119,6 +119,9 @@ const std::string PluginForrester::TEMPLATE_DEFINITION =
     "{{for i in conditionalFlowVariableCompute}} "                      \
     "       {{conditionalFlowVariableCompute^i}}\n"                     \
     "{{end for}}"                                                       \
+    "{{for i in FlowVariableCompute}} "                                 \
+    "       {{FlowVariableCompute^i}}\n"                                \
+    "{{end for}}"                                                       \
     "{{for i in equations}} "                                           \
     "       {{equations^i}}\n"                                          \
     "{{end for}}"                                                       \
@@ -138,9 +141,24 @@ const std::string PluginForrester::TEMPLATE_DEFINITION =
     "{{for i in variableDeclaration}}"                                  \
     "    {{variableDeclaration^i}}\n"                                   \
     "{{end for}}"                                                       \
+    "{{for i in FlowVariableDeclaration}}"                              \
+    "    {{FlowVariableDeclaration^i}}\n"                               \
+    "{{end for}}"                                                       \
     "{{for i in conditionalFlowVariableDeclaration}}"                   \
     "    {{conditionalFlowVariableDeclaration^i}}\n"                    \
     "{{end for}}"                                                       \
+    "virtual vv::Value* observation(\n"                                 \
+    "    const vd::ObservationEvent& event) const\n"                    \
+    "{\n"                                                               \
+    "   const std::string& port = event.getPortName();\n"               \
+    "{{for i in flowObservation}}"                                      \
+    "    {{flowObservation^i}}\n"                                       \
+    "{{end for}}"                                                       \
+    "{{for i in variableObservation}}"                                  \
+    "    {{variableObservation^i}}\n"                                   \
+    "{{end for}}"                                                       \
+    "   return ve::DifferentialEquation::observation(event);\n"         \
+    "}\n"                                                               \
     "};\n\n"                                                            \
     "} // namespace {{namespace}}\n\n"                                  \
     "DECLARE_DYNAMICS({{namespace}}::{{classname}})\n\n";
@@ -311,11 +329,15 @@ void PluginForrester::generateSource(const std::string& classname,
     tpl_.listSymbol().append("definitionVar");
     tpl_.listSymbol().append("definitionParameters");
     tpl_.listSymbol().append("definitionExoVariables");
+    tpl_.listSymbol().append("FlowVariableDeclaration");
     tpl_.listSymbol().append("conditionalFlowVariableDeclaration");
     tpl_.listSymbol().append("conditionalFlowVariableCompute");
+    tpl_.listSymbol().append("FlowVariableCompute");
     tpl_.listSymbol().append("Variables");
     tpl_.listSymbol().append("variableCompute");
     tpl_.listSymbol().append("variableDeclaration");
+    tpl_.listSymbol().append("flowObservation");
+    tpl_.listSymbol().append("variableObservation");
 
     std::ostringstream out;
     tpl_.process(out);
@@ -339,10 +361,7 @@ std::string PluginForrester::generateEquation(const Compartment * comp)
                 if (negative != "")
                     negative += " + ";
 
-                if(item->isConditionnal())
-                    negative += item->getName() + "ConditionalFlow";
-                else
-                    negative += finalExpression;
+                negative += item->getName();
             }
 
             if ((*it)->getDestination()->getOwner() == comp) {
@@ -354,10 +373,8 @@ std::string PluginForrester::generateEquation(const Compartment * comp)
 
                 if (positive != "")
                     positive += " + ";
-                if(item->isConditionnal())
-                    positive += item->getName() + "ConditionalFlow";
-                else
-                    positive += finalExpression;
+
+                positive += item->getName();
             }
         }
     }

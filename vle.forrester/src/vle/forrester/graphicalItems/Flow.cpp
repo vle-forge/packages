@@ -260,23 +260,39 @@ void Flow::resize(int _width, int _height)
     setWidth(_width);
 }
 
+void Flow::generateObservable (vpz::Observable& obs) const {
+    obs.add(mName);
+}
+
 void Flow::generateSource (utils::Template& tpl_) const {
     std::string finalPredicate(mPredicate);
     std::string finalTrueValue(mTrueValue);
     std::string finalFalseValue(mFalseValue);
+    std::string finalExpression(mValue);
 
     generateParenthesis(finalPredicate);
     generateParenthesis(finalTrueValue);
     generateParenthesis(finalFalseValue);
+    generateParenthesis(finalExpression);
+    generateStdPrefix(finalExpression);
 
     tpl_.listSymbol().append("flows", toString());
     if(mConditionnality) {
         tpl_.listSymbol().append("conditionalFlowVariableDeclaration",
-            "double " + mName + "ConditionalFlow;");
+                                 "double " + mName + ";");
         tpl_.listSymbol().append("conditionalFlowVariableCompute",
-            mName + "ConditionalFlow = ("+ finalPredicate +")? " + finalTrueValue
-            + " : " + finalFalseValue + ";");
+                                 mName + " = ("+ finalPredicate +")? " +
+                                 finalTrueValue + " : " +
+                                 finalFalseValue + ";");
+    } else {
+        tpl_.listSymbol().append("FlowVariableDeclaration",
+                                 "double " + mName + ";");
+        tpl_.listSymbol().append("FlowVariableCompute",
+                                 mName + " = " + finalExpression + ";");
     }
+    tpl_.listSymbol().append("flowObservation", "if (port == \""
+                             + mName +
+                             "\" ) return new vv::Double(" + mName + ");");
 }
 
 std::string Flow::tooltipText() {

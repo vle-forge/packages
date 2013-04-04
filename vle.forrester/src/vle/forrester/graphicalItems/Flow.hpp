@@ -136,8 +136,7 @@ public:
 
     void generatePorts (vpz::AtomicModel&) const
     {}
-    void generateObservable (vpz::Observable&) const
-    {}
+    void generateObservable (vpz::Observable&) const;
     void generateSource (utils::Template& tpl_) const;
     void generateParenthesis(std::string&) const;
     void generateStdPrefix(std::string&)const;
