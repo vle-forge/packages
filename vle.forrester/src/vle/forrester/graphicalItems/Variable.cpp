@@ -176,16 +176,19 @@ void Variable::generatePorts (vpz::AtomicModel&) const
 
 }
 
-void Variable::generateObservable (vpz::Observable&) const
+void Variable::generateObservable (vpz::Observable& obs) const
 {
-
+    obs.add(mName);
 }
 
 void Variable::generateSource (utils::Template& tpl_) const
 {
     tpl_.listSymbol().append("Variables", toString());
-    tpl_.listSymbol().append("variableCompute", mName+" = "+mValue+";");
-    tpl_.listSymbol().append("variableDeclaration", "double "+mName+";");
+    tpl_.listSymbol().append("variableCompute", mName+" = "+ mValue + ";");
+    tpl_.listSymbol().append("variableDeclaration", "double " + mName + ";");
+    tpl_.listSymbol().append("variableObservation", "if (port == \""
+                             + mName +
+                             "\" ) return new vv::Double(" + mName + ");");
 }
 
 std::string Variable::tooltipText()
