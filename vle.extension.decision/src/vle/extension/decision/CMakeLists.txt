@@ -23,12 +23,10 @@ TARGET_LINK_LIBRARIES(decision ${VLE_LIBRARIES})
 
 INSTALL(TARGETS decision ARCHIVE DESTINATION lib)
 
-install(FILES Activities.cpp Activities.hpp Activity.cpp Activity.hpp
-  Agent.cpp Agent.hpp DllDefines.hpp Facts.hpp KnowledgeBase.cpp
-  KnowledgeBase.hpp Library.cpp Library.hpp Plan.cpp Plan.hpp
-  PrecedenceConstraint.cpp PrecedenceConstraint.hpp
-  PrecedencesGraph.cpp PrecedencesGraph.hpp Predicates.cpp
-  Predicates.hpp Rule.hpp Rules.cpp Rules.hpp Table.hpp
+install(FILES Activities.hpp Activity.hpp Agent.hpp DllDefines.hpp
+  Facts.hpp KnowledgeBase.hpp Library.hpp Plan.hpp
+  PrecedenceConstraint.hpp PrecedencesGraph.hpp Predicates.hpp
+  Rule.hpp Rules.hpp Table.hpp
   DESTINATION src/vle/extension/decision)
 
 CONFIGURE_FILE(Version.hpp.in
