@@ -25,3 +25,6 @@ CONFIGURE_FILE(Version.hpp.in
 INSTALL(FILES
   ${CMAKE_BINARY_DIR}/src/vle/extension/cellqss/Version.hpp
   DESTINATION src/vle/extension/cellqss)
+
+INSTALL(FILES CellQSS.hpp DllDefines.hpp
+  DESTINATION src/vle/extension/cellqss)
