@@ -24,3 +24,6 @@ CONFIGURE_FILE(Version.hpp.in
 INSTALL(FILES
   ${CMAKE_BINARY_DIR}/src/vle/extension/dsdevs/Version.hpp
   DESTINATION src/vle/extension/dsdevs)
+
+INSTALL(FILES DSDevs.hpp DllDefines.hpp
+  DESTINATION src/vle/extension/dsdevs)
