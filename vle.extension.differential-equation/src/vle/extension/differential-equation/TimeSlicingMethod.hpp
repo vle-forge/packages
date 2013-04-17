@@ -33,7 +33,6 @@
 
 #include <vle/utils/Exception.hpp>
 
-#include <vle/extension/differential-equation/DllDefines.hpp>
 #include <vle/extension/differential-equation/DifferentialEquationImpl.hpp>
 #include <vle/extension/differential-equation/PerturbationHandler.hpp>
 
@@ -74,7 +73,7 @@ enum TransitionType
  * @brief Guards structure for transition
  * between DEVS states
  */
-struct VLE_EXTENSION_EXPORT TSM_TransitionGuards
+struct TSM_TransitionGuards
 {
     TSM_TransitionGuards() :
             all_ext_init(false), e_eq_0(false), pert_in_evt(false),
@@ -103,7 +102,7 @@ struct VLE_EXTENSION_EXPORT TSM_TransitionGuards
  * @brief Options structure for
  * Time slicing methods
  */
-struct VLE_EXTENSION_EXPORT TSM_Options
+struct TSM_Options
 {
     TSM_Options() :
             synchronization(false)
@@ -122,7 +121,7 @@ struct VLE_EXTENSION_EXPORT TSM_Options
 /**
  * @brief Improver of a state variable
  */
-class VLE_EXTENSION_EXPORT VarImprover
+class VarImprover
 {
 public:
     VarImprover();
@@ -159,7 +158,7 @@ private:
 /**
  * @brief Container of state variables improvers
  */
-class VLE_EXTENSION_EXPORT VarImprovers
+class VarImprovers
 {
 public:
     typedef std::vector<std::pair<de::Variables::const_iterator, VarImprover> >
@@ -182,7 +181,7 @@ public:
  * Runge Kutta 4 or Euler.
  */
 template<class INTEGRATE>
-class VLE_EXTENSION_EXPORT TimeSlicingMethod : public DifferentialEquationImpl
+class TimeSlicingMethod : public DifferentialEquationImpl
 {
 
 private:
@@ -791,7 +790,7 @@ private:
 /**
  * @brief Base class of time-slicing methods
  */
-struct VLE_EXTENSION_EXPORT IntegrationMethod
+struct IntegrationMethod
 {
     /**
      * @brief Differential Equation reference
@@ -811,7 +810,7 @@ struct VLE_EXTENSION_EXPORT IntegrationMethod
             VarImprovers& predictions) = 0;
 };
 
-class VLE_EXTENSION_EXPORT Euler : public IntegrationMethod
+class Euler : public IntegrationMethod
 {
 private:
 
@@ -829,7 +828,7 @@ public:
             VarImprovers& predictions);
 };
 
-class VLE_EXTENSION_EXPORT RK4 : public IntegrationMethod
+class RK4 : public IntegrationMethod
 {
 
 private:

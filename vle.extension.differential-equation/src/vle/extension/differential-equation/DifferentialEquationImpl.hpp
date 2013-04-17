@@ -35,7 +35,6 @@
 #include <vle/devs/Time.hpp>
 #include <vle/utils/Exception.hpp>
 
-#include <vle/extension/differential-equation/DllDefines.hpp>
 #include <vle/extension/differential-equation/DifferentialEquation.hpp>
 
 namespace vle {
@@ -49,7 +48,7 @@ namespace vz = vle::vpz;
 
 class DifferentialEquation;
 
-class VLE_EXTENSION_EXPORT DifferentialEquationImpl
+class DifferentialEquationImpl
 {
 public:
 
