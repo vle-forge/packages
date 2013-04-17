@@ -29,7 +29,6 @@
 #ifndef VLE_EXT_DECISION_TABLE_HPP
 #define VLE_EXT_DECISION_TABLE_HPP
 
-#include <vle/extension/decision/DllDefines.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/i18n.hpp>
 #include <string>

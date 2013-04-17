@@ -29,6 +29,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
   endif ()
 endif ()
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
+
 ##
 ## Modules
 ##
@@ -39,13 +41,13 @@ INCLUDE(CheckLibraryExists)
 INCLUDE(CMakeDetermineCCompiler)
 
 ##
-## Check libraries with pkgconfig
+## Check libraries
 ##
 
-FIND_PACKAGE(PkgConfig REQUIRED)
-PKG_CHECK_MODULES(VLE vle-1.1 REQUIRED)
-PKG_CHECK_MODULES(GVLE gvle-1.1)
-PKG_CHECK_MODULES(GTKMM gtkmm-2.4)
+set(VLE_DEBUG 0)
+set(GVLE_DEBUG 0)
+find_package(VLE REQUIRED)
+find_package(GVLE)
 
 IF (GVLE_FOUND AND NOT WIN32)
   PKG_CHECK_MODULES(GTKSOURCEVIEWMM gtksourceviewmm-2.0)
@@ -57,7 +59,8 @@ ENDIF ()
 
 SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
-FIND_PACKAGE(Boost COMPONENTS unit_test_framework date_time)
+FIND_PACKAGE(Boost COMPONENTS
+  unit_test_framework date_time system regex filesystem)
 
 IF (Boost_UNIT_TEST_FRAMEWORK_FOUND)
   SET(HAVE_UNITTESTFRAMEWORK 1 CACHE INTERNAL "" FORCE)
