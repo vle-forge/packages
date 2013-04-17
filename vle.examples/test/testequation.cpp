@@ -43,6 +43,7 @@
 #include <vle/utils/Path.hpp>
 #include <vle/utils/ModuleManager.hpp>
 #include <vle/vle.hpp>
+#include <iostream>
 
 struct F
 {
