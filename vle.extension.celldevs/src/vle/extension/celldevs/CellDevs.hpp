@@ -29,14 +29,13 @@
 #ifndef VLE_EXTENSION_CELLDEVS_CELLDEVS_HPP
 #define VLE_EXTENSION_CELLDEVS_CELLDEVS_HPP
 
-#include <vle/extension/celldevs/DllDefines.hpp>
 #include <vle/devs/Simulator.hpp>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Value.hpp>
 
 namespace vle { namespace extension {
 
-    class VLE_EXTENSION_EXPORT CellDevs : public devs::Dynamics
+    class CellDevs : public devs::Dynamics
     {
     private:
         // variable utilisée par ta() pour connaître la durée de
