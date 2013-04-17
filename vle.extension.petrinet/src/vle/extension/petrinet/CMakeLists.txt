@@ -18,7 +18,7 @@ TARGET_LINK_LIBRARIES(petrinet ${VLE_LIBRARIES})
 
 INSTALL(TARGETS petrinet ARCHIVE DESTINATION lib)
 
-install(FILES DllDefines.hpp PetriNet.hpp
+install(FILES PetriNet.hpp
   DESTINATION src/vle/extension/petrinet)
 
 CONFIGURE_FILE(Version.hpp.in
