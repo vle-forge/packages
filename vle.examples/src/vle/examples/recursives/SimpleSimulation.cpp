@@ -30,6 +30,7 @@
 #include <vle/vpz/Vpz.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/utils/Path.hpp>
+#include <iostream>
 
 namespace vle { namespace examples { namespace recursives {
 

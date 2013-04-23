@@ -31,7 +31,6 @@
 #include <vle/vpz/AtomicModel.hpp>
 #include <vle/utils/Exception.hpp>
 
-#include <vle/extension/differential-equation/DllDefines.hpp>
 #include <vle/extension/differential-equation/DifferentialEquationImpl.hpp>
 #include <vle/extension/differential-equation/PerturbationHandler.hpp>
 #include <vle/extension/differential-equation/TimeSlicingMethod.hpp>

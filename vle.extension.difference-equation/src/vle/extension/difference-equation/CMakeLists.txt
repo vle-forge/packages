@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
-ADD_LIBRARY(difference-equation STATIC Base.cpp Base.hpp DllDefines.hpp
+ADD_LIBRARY(difference-equation STATIC Base.cpp Base.hpp
   Generic.cpp GenericDbg.hpp Generic.hpp Multiple.cpp MultipleDbg.hpp
   Multiple.hpp Simple.cpp SimpleDbg.hpp Simple.hpp)
 
@@ -16,11 +16,11 @@ ENDIF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
 SET_TARGET_PROPERTIES(difference-equation PROPERTIES OUTPUT_NAME
   "difference-equation-${MODEL_MAJOR}.${MODEL_MINOR}")
 
-TARGET_LINK_LIBRARIES(difference-equation ${VLE_LIBRARIES})
+TARGET_LINK_LIBRARIES(difference-equation ${VLE_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS difference-equation ARCHIVE DESTINATION lib)
 
-install(FILES Base.hpp DllDefines.hpp GenericDbg.hpp Generic.hpp
+install(FILES Base.hpp GenericDbg.hpp Generic.hpp
   MultipleDbg.hpp Multiple.hpp SimpleDbg.hpp Simple.hpp
   DESTINATION src/vle/extension/difference-equation)
 

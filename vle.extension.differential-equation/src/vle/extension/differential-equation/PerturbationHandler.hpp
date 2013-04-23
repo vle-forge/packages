@@ -34,7 +34,6 @@
 #include <vle/vpz/AtomicModel.hpp>
 #include <vle/utils/Exception.hpp>
 
-#include <vle/extension/differential-equation/DllDefines.hpp>
 #include <vle/extension/differential-equation/DifferentialEquationImpl.hpp>
 
 namespace vle {
@@ -46,7 +45,7 @@ namespace vv = vle::value;
 namespace vu = vle::utils;
 namespace vz = vle::vpz;
 
-class VLE_EXTENSION_EXPORT Discontinuities
+class Discontinuities
 {
 
     typedef std::map<std::string, std::set<std::string> > RegisteredDiscs;
@@ -171,7 +170,7 @@ public:
             const Discontinuities& dis);
 };
 
-class VLE_EXTENSION_EXPORT ExtUp
+class ExtUp
 {
 public:
 
@@ -222,7 +221,7 @@ private:
     bool hasgradient;
 };
 
-class VLE_EXTENSION_EXPORT ExtUps
+class ExtUps
 {
 public:
 

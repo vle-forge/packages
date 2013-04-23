@@ -33,11 +33,10 @@
 #include <vle/extension/decision/PrecedenceConstraint.hpp>
 #include <vle/extension/decision/PrecedencesGraph.hpp>
 #include <vle/utils/Exception.hpp>
-#include <vle/extension/decision/DllDefines.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
-class VLE_EXT_EXPORT Activities
+class Activities
 {
 public:
     typedef std::map < std::string, Activity > activities_t;

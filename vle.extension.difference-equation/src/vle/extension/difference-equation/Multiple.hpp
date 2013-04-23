@@ -33,7 +33,7 @@
 
 namespace vle { namespace extension { namespace DifferenceEquation {
 
-class VLE_EXTENSION_EXPORT Multiple : public Base
+class Multiple : public Base
 {
     typedef std::map < std::string, bool > SetValuesMap;
 

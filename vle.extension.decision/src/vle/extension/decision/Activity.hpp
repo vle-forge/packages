@@ -30,7 +30,6 @@
 #define VLE_EXT_DECISION_ACTIVITY_HPP 1
 
 #include <vle/extension/decision/Rules.hpp>
-#include <vle/extension/decision/DllDefines.hpp>
 #include <vle/devs/ExternalEventList.hpp>
 #include <vle/devs/Time.hpp>
 #include <boost/function.hpp>
@@ -38,7 +37,7 @@
 
 namespace vle { namespace extension { namespace decision {
 
-class VLE_EXT_EXPORT Activity
+class Activity
 {
 public:
     typedef boost::function <

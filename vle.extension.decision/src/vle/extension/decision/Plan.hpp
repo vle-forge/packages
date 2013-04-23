@@ -29,7 +29,6 @@
 #ifndef VLE_EXT_DECISION_PLAN_HPP
 #define VLE_EXT_DECISION_PLAN_HPP 1
 
-#include <vle/extension/decision/DllDefines.hpp>
 #include <vle/extension/decision/Activities.hpp>
 #include <vle/extension/decision/Facts.hpp>
 #include <vle/extension/decision/Rules.hpp>
@@ -47,7 +46,7 @@ class KnowledgeBase;
  * functions Facts, Predicates, AcknowledgeFunctions, OutputFunctions and
  * UpdateFunctions must be defined.
  */
-class VLE_EXT_EXPORT Plan
+class Plan
 {
 
     typedef std::pair<bool, devs::Time> DateResult;

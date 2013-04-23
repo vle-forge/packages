@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
-ADD_LIBRARY(dsdevs STATIC DllDefines.hpp DSDevs.cpp DSDevs.hpp)
+ADD_LIBRARY(dsdevs STATIC DSDevs.cpp DSDevs.hpp)
 
 IF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
@@ -25,5 +25,5 @@ INSTALL(FILES
   ${CMAKE_BINARY_DIR}/src/vle/extension/dsdevs/Version.hpp
   DESTINATION src/vle/extension/dsdevs)
 
-INSTALL(FILES DSDevs.hpp DllDefines.hpp
+INSTALL(FILES DSDevs.hpp
   DESTINATION src/vle/extension/dsdevs)
