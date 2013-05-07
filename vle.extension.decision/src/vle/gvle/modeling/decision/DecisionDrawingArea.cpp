@@ -66,6 +66,11 @@ DecisionDrawingArea::DecisionDrawingArea(
     mStartSelectRect.invalid();
     mEndSelectRect.invalid();
     initMenuPopupModels();
+
+    set_has_tooltip();
+
+    m_cntSignalQueryTooltip = signal_query_tooltip().connect(
+        sigc::mem_fun(*this, &DecisionDrawingArea::onQueryTooltip));
 }
 
 void DecisionDrawingArea::initMenuPopupModels()
@@ -799,6 +804,37 @@ bool DecisionDrawingArea::on_expose_event(GdkEventExpose*)
     return true;
 }
 
+bool DecisionDrawingArea::onQueryTooltip(int wx,int wy, bool /* keyboard_tooltip */,
+                                     const Glib::RefPtr<Gtk::Tooltip>& tooltip)
+{
+    Glib::ustring card;
+    bool found = false;
+    activitiesModel_t::const_reverse_iterator it;
+
+    for (it = mDecision->activitiesModel().rbegin();
+                it != mDecision->activitiesModel().rend() && found == false;) {
+        found = it->second->select(wx, wy);
+        if (!found) {
+            ++it;
+        }
+    }
+
+    if (found) {
+        card = it->second->card(mDecision);
+        tooltip->set_markup(card);
+        return true;
+    }
+    else if (selectPrecedenceConstraint(wx, wy)) {
+        card = mCurrentPrecedenceConstraint->card();
+        tooltip->set_markup(card);
+        return true;
+    }
+    else {
+        return false;
+    }
+
+}
+
 bool DecisionDrawingArea::on_motion_notify_event(GdkEventMotion* event)
 {
     int button;
@@ -840,77 +876,6 @@ bool DecisionDrawingArea::on_motion_notify_event(GdkEventMotion* event)
                 else {
                     mStartSelectRect = tmp;
                 }
-            }
-        }
-        else if (button == 0) {
-            bool found = false;
-            activitiesModel_t::const_reverse_iterator it;
-            for (it = mDecision->activitiesModel().rbegin();
-                it != mDecision->activitiesModel().rend() && found == false;) {
-                found = it->second->select(event->x, event->y);
-                if (!found) {
-                    ++it;
-                }
-            }
-            if (found) {
-                // Prepare tooltip text
-                std::string tooltipText = "<b>" + it->second->name() + "</b>";
-                tooltipText += "\n<b>Rules:</b>";
-
-                std::map < std::string, strings_t >*
-                        tmpRules = mDecision->getRule();
-                int j = it->second->getRules().size() - 1;
-                for (int i = 0; i <= j;
-                    i++) {
-                    tooltipText += "\n- " + it->second->getRules().at(i);
-
-                    int k, l;
-                    k = 0;
-                    l = tmpRules->operator[]
-                            (it->second->getRules().at(i)).size() - 1;
-                    for (; k <= l; k++) {
-                        if (k == 0) {
-                            tooltipText += ", <b>pred(s).:</b>\n\t- " +
-                                    tmpRules->operator[]
-                                    (it->second->getRules().at(i)).at(k);
-                        }
-                        else {
-                            tooltipText += "\n\t- " + tmpRules->operator[]
-                                    (it->second->getRules().at(i)).at(k);
-                        }
-                    }
-                }
-
-                if (it->second->getRelativeDate()) {
-                    tooltipText += "\n<b>R. Minstart:</b> " +
-                            it->second->minstart();
-                    tooltipText += "\n<b>R. Maxfinish:</b> " +
-                            it->second->maxfinish();
-                }
-                else {
-                    double x = vle::utils::convert < double >
-                            (it->second->minstart(), true);
-                    tooltipText += "\n<b>Minstart:</b> " +
-                            utils::DateTime::toJulianDayNumber(x);
-                    x = vle::utils::convert < double >
-                            (it->second->maxfinish(), true);
-                    tooltipText += "\n<b>Maxfinish:</b> " +
-                            utils::DateTime::toJulianDayNumber(x);
-                }
-                this->set_tooltip_markup(tooltipText);
-            }
-            else if (selectPrecedenceConstraint(event->x, event->y)) {
-                // Seek precedence constraint
-                std::string tooltipText;
-                tooltipText = "Type: " + mCurrentPrecedenceConstraint->cType();
-                tooltipText += "\n<b>Mintimelag:</b> " +
-                        mCurrentPrecedenceConstraint->actTlMin();
-                tooltipText += "\n<b>Maxtimelag:</b> " +
-                        mCurrentPrecedenceConstraint->actTlMax();
-                this->set_tooltip_markup(tooltipText);
-            }
-            else {
-                this->set_tooltip_text("");
             }
         }
         break;
@@ -969,15 +934,6 @@ bool DecisionDrawingArea::selectActivityModel(guint x, guint y, bool ctrl)
             ++it;
         }
     }
-
-    //~ activitiesModel_t::const_iterator it = mDecision->
-            //~ activitiesModel().begin();
-    //~ while (not found and it != mDecision->activitiesModel().end()) {
-        //~ found = it->second->select(x, y);
-        //~ if (not found) {
-            //~ ++it;
-        //~ }
-    //~ }
 
     if (found) {
         if (not ctrl) {
