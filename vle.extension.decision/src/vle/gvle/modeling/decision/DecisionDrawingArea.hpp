@@ -56,8 +56,7 @@ public:
         SELECT_MODE,
         ADD_ACTIVITY_MODE,
         ADD_CONSTRAINT_MODE,
-        DELETE_MODE
-    };
+        DELETE_MODE};
 
 /**
  * @brief DecisionDrawingArea class constructor
@@ -233,6 +232,15 @@ private:
     bool on_button_release_event(GdkEventButton* event);
 
 /**
+ * @brief If the cursor is above an activity, return the name of the activity,
+ * otherwise return an empty string.
+ * @param The x position of the cursor
+ * @param The y position of the cursor
+ * @return return the name of the activity
+ */
+ //   std::string aboveActivity(int x, int y);
+
+/**
  * @brief This function is called when an event is detected.
  * @param the event
  * @return return a boolean
@@ -246,6 +254,8 @@ private:
  */
     bool on_expose_event(GdkEventExpose* event);
 
+    bool onQueryTooltip(int wx,int wy, bool /* keyboard_tooltip */,
+                const Glib::RefPtr<Gtk::Tooltip>& tooltip);
 /**
  * @brief This function is called when an event is detected.
  * @param the event
@@ -461,6 +471,8 @@ private:
     int mWidth;
     float mMaxHeight;
     float mMaxWidth;
+
+    sigc::connection m_cntSignalQueryTooltip;
 
     std::vector < ActivityModel* > mCurrentActivitiesModel;
     std::vector < PrecedenceConstraintModel* > mCurrentPrecedenceConstraints;

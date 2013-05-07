@@ -88,6 +88,78 @@ std::string ActivityModel::toString() const
             % mName % mX % mY % mWidth % mHeight).str();
 }
 
+ActivityModel* Decision::getActivityByName(string activityName) const
+{
+    for(activitiesModel_t::const_iterator it = mActivitiesModel.begin() ;
+                it!=mActivitiesModel.end() ; ++it)
+    {
+        if (it->first == activityName)
+            return it->second;
+    }
+	return NULL;
+}
+
+const strings_t Decision::getPredicates(string ruleName) const
+{
+    return getRule()->find(ruleName)->second;
+}
+
+const std::string Decision::getActivityCard(string activityName) const
+{
+    std::string card;
+
+    ActivityModel * activity = getActivityByName(activityName);
+
+    if (activity == NULL) {
+        return "";
+    }
+
+    card = "<b>" + activity->name() + "</b>";
+
+    if (activity->getRelativeDate()) {
+        card += "\n<b>R. Minstart:</b> " + activity->minstart();
+        card += "\n<b>R. Maxfinish:</b> " + activity->maxfinish();
+    }
+    else {
+        double x = vle::utils::convert < double > (activity->minstart(), true);
+        card += "\n<b>Minstart:</b> " +
+                    utils::DateTime::toJulianDayNumber(x);
+        x = vle::utils::convert < double > (activity->maxfinish(), true);
+        card += "\n<b>Maxfinish:</b> " +
+                    utils::DateTime::toJulianDayNumber(x);
+    }
+
+    std::vector < std::string > rules = activity->getRules();
+    std::vector < std::string >::const_iterator itR;
+    itR = rules.begin();
+    
+    if (itR == rules.end()) {
+        card += "\nNo rules";
+    } else {
+        card += "\n<b>Rules &amp; Predicates :</b>";
+        for (;itR != rules.end(); itR++) {
+            if(itR == rules.begin()) {
+                card += "\n  " + *itR;
+            } else {
+                card += "\n| " + *itR;
+            }
+            
+            strings_t predicates = getPredicates(*itR);
+            strings_t::const_iterator itP;
+
+            for (itP = predicates.begin(); itP != predicates.end(); itP++) {
+                if(itP == predicates.begin()) {
+                    card += "\n\t    " + *itP;
+                } else {
+                    card += "\n\t&amp; " + *itP;
+                }
+            }
+        }
+    }
+
+    return card;
+}
+
 void Decision::displace(ActivityModel* activityModel, int deltax, int deltay)
 {
     activityModel->displace(deltax, deltay);
