@@ -258,7 +258,8 @@ void FlowDialog::onButtonReleasedCompartmentTreeView() {
     }
 }
 
-void FlowDialog::onButtonReleasedVarParaTreeView() {
+void FlowDialog::onButtonReleasedVarParaTreeView()
+{
     Glib::RefPtr < Gtk::TreeView::Selection > ref = mVarParaTreeView->
             get_selection();
 
@@ -277,62 +278,95 @@ void FlowDialog::onButtonReleasedVarParaTreeView() {
     }
 }
 
-void FlowDialog::initCompartmentList() {
+void FlowDialog::initCompartmentList()
+{
+    std::list<std::string> compartmentList;
+
     mCompartmentModel = Gtk::ListStore::create(m_viewscolumnrecord);
     mCompartmentColumnName = mCompartmentsTreeView->
-                            append_column_editable(("Name"),
-                            m_viewscolumnrecord.name);
+        append_column_editable(("Name"),
+                               m_viewscolumnrecord.name);
     mCompartmentCellRenderer = dynamic_cast<Gtk::CellRendererText*>(
-    mCompartmentsTreeView->get_column_cell_renderer(mCompartmentColumnName - 1));
+        mCompartmentsTreeView->get_column_cell_renderer(mCompartmentColumnName - 1));
     mCompartmentCellRenderer->property_editable() = false;
     mCompartmentsTreeView->set_model(mCompartmentModel);
 
     for(arrows::const_iterator it = mForrester.getArrows().begin();
-    it != mForrester.getArrows().end(); ++it) {
+        it != mForrester.getArrows().end(); ++it) {
         if(dynamic_cast<DependencyArrow*>(*it)) {
             Compartment* tmp = 0;
             if((tmp = dynamic_cast<Compartment*>((*it)->getOrigin()->getOwner()))) {
-                Gtk::TreeIter iter = mCompartmentModel->append();
-                if (iter) {
-                    Gtk::ListStore::Row row = *iter;
-                    row[m_viewscolumnrecord.name] = tmp->getName();
-                    mParser.addVariable(tmp->getName(),
-                        tmp->getInitialValue());
-                    mCompartmentsTreeView->set_cursor(
-                        mCompartmentModel->get_path(iter));
+
+                std::string destinationItem =
+                    (*it)->getDestination()->getOwner()->getName();
+                std::string originItem =
+                    (*it)->getOrigin()->getOwner()->getName();
+                std::string currentItem = mOldName;
+
+                if (destinationItem == currentItem) {
+                    compartmentList.push_front(originItem);
                 }
+
+                mParser.addVariable(tmp->getName(),
+                                    tmp->getInitialValue());
             }
         }
     }
+
+    compartmentList.unique();
+
+    for (std::list<std::string>::iterator it = compartmentList.begin();
+         it != compartmentList.end(); ++it) {
+        Gtk::TreeIter iter = mCompartmentModel->append();
+        Gtk::ListStore::Row row = *iter;
+        row[m_viewscolumnrecord.name] = *it;
+    }
 }
 
-void FlowDialog::initParVarList() {
+void FlowDialog::initParVarList()
+{
+    std::list<std::string> parVarList;
+
     mParVarModel = Gtk::ListStore::create(m_viewscolumnrecord);
     mParVarColumnName = mVarParaTreeView->
-                            append_column_editable(("Name"),
-                            m_viewscolumnrecord.name);
+        append_column_editable(("Name"),
+                               m_viewscolumnrecord.name);
     mParVarCellRenderer = dynamic_cast<Gtk::CellRendererText*>(
-    mVarParaTreeView->get_column_cell_renderer(mParVarColumnName - 1));
+        mVarParaTreeView->get_column_cell_renderer(mParVarColumnName - 1));
     mParVarCellRenderer->property_editable() = false;
     mVarParaTreeView->set_model(mParVarModel);
 
-    for(arrows::const_iterator it = mForrester.getArrows().begin();
-    it != mForrester.getArrows().end(); ++it) {
+    for (arrows::const_iterator it = mForrester.getArrows().begin();
+         it != mForrester.getArrows().end(); ++it) {
         if(dynamic_cast<DependencyArrow*>(*it)) {
             if(not dynamic_cast<Compartment*>((*it)->getOrigin()->getOwner())) {
-                Gtk::TreeIter iter = mParVarModel->append();
-                if (iter) {
-                    Gtk::ListStore::Row row = *iter;
-                    row[m_viewscolumnrecord.name] = (*it)->getOrigin()->getOwner()->getName();
-                    mVarParaTreeView->set_cursor(mParVarModel->get_path(iter));
-                    Parameter* tmp;
-                    if((tmp = dynamic_cast<Parameter*>((*it)->getOrigin()->getOwner())))
-                        mParser.addConstant(tmp->getName(),tmp->getValue());
-                    else
-                        mParser.addVariable((*it)->getOrigin()->getOwner()->getName());
+
+                std::string destinationItem =
+                    (*it)->getDestination()->getOwner()->getName();
+                std::string originItem =
+                    (*it)->getOrigin()->getOwner()->getName();
+                std::string currentItem = mOldName;
+
+                if (destinationItem == currentItem) {
+                    parVarList.push_front(originItem);
                 }
+
+                Parameter* tmp;
+                if((tmp = dynamic_cast<Parameter*>((*it)->getOrigin()->getOwner())))
+                    mParser.addConstant(tmp->getName(),tmp->getValue());
+                else
+                    mParser.addVariable((*it)->getOrigin()->getOwner()->getName());
             }
         }
+    }
+
+    parVarList.unique();
+
+    for (std::list<std::string>::iterator it = parVarList.begin();
+         it != parVarList.end(); ++it) {
+        Gtk::TreeIter iter = mParVarModel->append();
+        Gtk::ListStore::Row row = *iter;
+        row[m_viewscolumnrecord.name] = *it;
     }
 }
 
