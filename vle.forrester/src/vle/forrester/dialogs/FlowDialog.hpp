@@ -30,6 +30,7 @@
 
 #include <vle/forrester/Forrester.hpp>
 #include <vle/forrester/graphicalItems/Flow.hpp>
+#include <vle/forrester/graphicalItems/Variable.hpp>
 #include <vle/forrester/utilities/ComputeParser.hpp>
 
 #include <gtkmm/dialog.h>
@@ -56,10 +57,14 @@ class FlowDialog
 {
 public:
     FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
-       const Forrester& forrester_);
+               const Forrester& forrester_,
+               const std::string title);
 
     FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
-        const Flow& flow, const Forrester& forrester_);
+               const Flow& flow, const Forrester& forrester_);
+
+    FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
+               const Variable& var, const Forrester& forrester_);
 
     virtual ~FlowDialog();
 
@@ -156,6 +161,8 @@ private:
     std::string mOldName;
     const Forrester &mForrester;
     utilities::ComputeParser mParser;
+
+    std::string mTitle;
 };
 
 }

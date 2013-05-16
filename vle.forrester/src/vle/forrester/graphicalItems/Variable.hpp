@@ -75,33 +75,65 @@ public:
 
     std::string toString() const;
 
-
-    void checkSize(const Cairo::RefPtr<Cairo::Context>&){}
-
+    void checkSize(const Cairo::RefPtr<Cairo::Context>&)
+    {}
     void generatePorts (vpz::AtomicModel&) const;
-
     void generateObservable (vpz::Observable&) const;
-
     void generateSource (utils::Template&) const;
+    void generateParenthesis(std::string&) const;
+    void generateStdPrefix(std::string&)const;
+
 
     std::string tooltipText();
 
     std::string getValue() const {
         return mValue;
     }
+    std::string getTrueValue() const
+    {
+        return mTrueValue;
+    }
+
+    std::string getFalseValue() const
+    {
+        return mFalseValue;
+    }
+
+    std::string getPredicate() const
+    {
+        return mPredicate;
+    }
+
+    bool isConditionnal() const
+    { return mConditionnality; }
 
     void setValue(const std::string& val) {
         mValue = val;
     }
 
+    void setTrueValue (const std::string& value)
+    { mTrueValue = value; }
+
+    void setFalseValue(const std::string& value)
+    { mFalseValue = value; }
+
+    void setPredicate(const std::string& value)
+    { mPredicate = value; }
+
     static const int VARIABLE_WIDTH;
     static const int VARIABLE_HEIGHT;
+    static const std::string STL_FUNCTION[];
+    static const int STL_FUNCTION_COUNT;
 
 private:
     void drawName(const Cairo::RefPtr<Cairo::Context>&);
     void computeAnchors();
 
     std::string mValue;
+    std::string mTrueValue;
+    std::string mFalseValue;
+    std::string mPredicate;
+    bool mConditionnality;
 };
 
 
