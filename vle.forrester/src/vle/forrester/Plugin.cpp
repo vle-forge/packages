@@ -47,6 +47,7 @@
 #include <vle/forrester/graphicalItems/ExogenousVariable.hpp>
 #include <vle/forrester/graphicalItems/Variable.hpp>
 
+#include <vle/forrester/utilities/Tools.hpp>
 
 namespace vle {
 namespace gvle {
@@ -355,8 +356,8 @@ std::string PluginForrester::generateEquation(const Compartment * comp)
                 Flow* item = dynamic_cast<Flow*>(
                     (*it)->getDestination()->getOwner());
                 std::string finalExpression(item->getValue());
-                item->generateParenthesis(finalExpression);
-                item->generateStdPrefix(finalExpression);
+                utilities::generateParenthesis(finalExpression, *mForrester);
+                utilities::generateStdPrefix(finalExpression);
 
                 if (negative != "")
                     negative += " + ";
@@ -368,8 +369,8 @@ std::string PluginForrester::generateEquation(const Compartment * comp)
                 Flow* item = dynamic_cast<Flow*>(
                     (*it)->getOrigin()->getOwner());
                 std::string finalExpression(item->getValue());
-                item->generateParenthesis(finalExpression);
-                item->generateStdPrefix(finalExpression);
+                utilities::generateParenthesis(finalExpression, *mForrester);
+                utilities::generateStdPrefix(finalExpression);
 
                 if (positive != "")
                     positive += " + ";

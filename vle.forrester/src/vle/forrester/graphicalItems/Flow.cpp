@@ -26,12 +26,11 @@
  */
 
 #include <vle/forrester/graphicalItems/Flow.hpp>
-#include <vle/forrester/graphicalItems/ExogenousVariable.hpp>
 #include <vle/forrester/graphicalItems/Compartment.hpp>
 #include <vle/forrester/dialogs/FlowDialog.hpp>
 #include <vle/utils/i18n.hpp>
 
-#include <vle/forrester/utilities/Tokenizer.hpp>
+#include <vle/forrester/utilities/Tools.hpp>
 
 namespace vle {
 namespace gvle {
@@ -41,8 +40,6 @@ namespace forrester {
 const int Flow::FLOW_HEIGHT = 20;
 const int Flow::FLOW_WIDTH = 50;
 const int Flow::FLOW_HEADER = 20;
-const std::string Flow::STL_FUNCTION[] = {"sin","cos","tan","exp","abs","sqrt"};
-const int Flow::STL_FUNCTION_COUNT = 6;
 
 Flow::Flow(const std::string& confTag, const Forrester& f):GraphicalItem(f)
 {
@@ -180,7 +177,7 @@ std::string Flow::toString() const
 bool Flow::launchCreationWindow(
     const Glib::RefPtr < Gtk::Builder >& xml)
 {
-    FlowDialog dialog(xml, mForrester);
+    FlowDialog dialog(xml, mForrester, "Flow dialog");
     if (dialog.run() == Gtk::RESPONSE_ACCEPT) {
         mName = dialog.getName();
         mValue = dialog.getValue();
@@ -196,7 +193,7 @@ bool Flow::launchCreationWindow(
 void Flow::launchEditionWindow(
     const Glib::RefPtr < Gtk::Builder >& xml)
 {
-    FlowDialog dialog(xml,*this, mForrester);
+    FlowDialog dialog(xml, *this, mForrester);
     if (dialog.run() == Gtk::RESPONSE_ACCEPT) {
         mName = dialog.getName();
         mValue = dialog.getValue();
@@ -270,11 +267,11 @@ void Flow::generateSource (utils::Template& tpl_) const {
     std::string finalFalseValue(mFalseValue);
     std::string finalExpression(mValue);
 
-    generateParenthesis(finalPredicate);
-    generateParenthesis(finalTrueValue);
-    generateParenthesis(finalFalseValue);
-    generateParenthesis(finalExpression);
-    generateStdPrefix(finalExpression);
+    utilities::generateParenthesis(finalPredicate, mForrester);
+    utilities::generateParenthesis(finalTrueValue, mForrester);
+    utilities::generateParenthesis(finalFalseValue, mForrester);
+    utilities::generateParenthesis(finalExpression, mForrester);
+    utilities::generateStdPrefix(finalExpression);
 
     tpl_.listSymbol().append("flows", toString());
     if(mConditionnality) {
@@ -308,48 +305,6 @@ std::string Flow::tooltipText() {
         tooltip += "<b>Value</b> : "+mValue+"\n";
     }
     return tooltip;
-}
-
-void Flow::generateParenthesis(std::string& equation) const {
-    std::vector<utilities::Tokenizer::token> elements;
-    int insertedCaracters = 0;
-    utilities::Tokenizer tokenizer(equation,"<>=&| +-*/()\t\n\r");
-
-    while(tokenizer.nextToken())
-        elements.push_back(tokenizer.getToken());
-
-    for(std::vector<utilities::Tokenizer::token>::const_iterator it =
-    elements.begin(); it != elements.end(); ++it) {
-
-        if(dynamic_cast<ExogenousVariable*>(mForrester.getItem(it->string))) {
-            equation.insert(it->endPosition + insertedCaracters,"()");
-            insertedCaracters += 2;
-        }
-
-        if(dynamic_cast<Compartment*>(mForrester.getItem(it->string))) {
-            equation.insert(it->endPosition + insertedCaracters,"()");
-            insertedCaracters += 2;
-        }
-    }
-}
-
-void Flow::generateStdPrefix(std::string& equation)const {
-    std::vector<utilities::Tokenizer::token> elements;
-    int insertedCaracters = 0;
-    utilities::Tokenizer tokenizer(equation," +-*/()\t\n\r");
-
-    while(tokenizer.nextToken())
-        elements.push_back(tokenizer.getToken());
-
-    for(std::vector<utilities::Tokenizer::token>::const_iterator it =
-    elements.begin(); it != elements.end(); ++it) {
-        for(int i = 0; i < STL_FUNCTION_COUNT; i++){
-            if(it->string == STL_FUNCTION[i]) {
-                equation.insert(it->beginPosition + insertedCaracters,"std::");
-                insertedCaracters += 5;
-            }
-        }
-    }
 }
 
 }
