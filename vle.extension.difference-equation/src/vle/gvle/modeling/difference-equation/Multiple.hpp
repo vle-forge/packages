@@ -40,7 +40,9 @@ namespace vle { namespace gvle { namespace modeling { namespace de {
 class Multiple : public Plugin
 {
 public:
-    Multiple(const std::string& package, const std::string& library);
+    Multiple(const std::string& package, const std::string& library,
+            const std::string& curr_package);
+
     virtual ~Multiple();
 
     virtual bool create(vpz::AtomicModel& model,

@@ -55,7 +55,6 @@ struct F
 {
     F()
     {
-        vle::utils::Package::package().select("vle.examples");
     }
 
     vle::Init app;

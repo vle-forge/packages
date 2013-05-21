@@ -27,13 +27,14 @@
 
 
 #include <vle/gvle/modeling/difference-equation/Generic.hpp>
-#include <vle/utils/Path.hpp>
+#include <vle/utils/Package.hpp>
 
 namespace vle { namespace gvle { namespace modeling { namespace de {
 
 Generic::Generic(const std::string& package,
-                 const std::string& library) :
-    Plugin(package, library), m_dialog(0), m_buttonSource(0)
+                 const std::string& library,
+                 const std::string& curr_package) :
+    Plugin(package, library, curr_package), m_dialog(0), m_buttonSource(0)
 {
 }
 
@@ -45,9 +46,10 @@ void Generic::build(bool modeling)
 {
     Gtk::VBox* vbox;
 
-    std::string glade =
-        utils::Path::path().getExternalPackagePluginGvleModelingFile(
-            getPackage(), "DifferenceEquation.glade");
+    vle::utils::Package pack(getPackage());
+
+    std::string glade = pack.getPluginGvleModelingFile(
+            "DifferenceEquation.glade", vle::utils::PKG_BINARY);
 
     mXml = Gtk::Builder::create();
     mXml->add_from_file(glade.c_str());

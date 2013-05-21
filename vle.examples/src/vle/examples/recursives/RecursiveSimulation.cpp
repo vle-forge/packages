@@ -29,7 +29,7 @@
 #include <vle/devs/Dynamics.hpp>
 #include <vle/vpz/Vpz.hpp>
 #include <vle/manager/Simulation.hpp>
-#include <vle/utils/Path.hpp>
+#include <vle/utils/Package.hpp>
 #include <boost/lexical_cast.hpp>
 
 namespace vle { namespace examples { namespace recursives {
@@ -58,7 +58,10 @@ public:
         const std::string& myname(getModelName());
         const int nb = boost::lexical_cast < int >(myname);
 
-        vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("recursive.vpz"));
+        vle::utils::Package pack("vle.examples");
+
+        vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("recursive.vpz",
+                vle::utils::PKG_BINARY));
 
         vpz::BaseModel::rename(file->project().model().model(),
                                boost::lexical_cast < std::string >(nb + 1));

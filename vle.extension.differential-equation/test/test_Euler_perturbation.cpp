@@ -31,12 +31,9 @@
 BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterra)
 {
     std::cout << "  test_Euler_PerturbLotkaVolterra " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation",
-            "PerturbLotkaVolterra.vpz"));
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("PerturbLotkaVolterra.vpz",
+            vle::utils::PKG_BINARY));
 
     ttconfOutputPlugins(vpz);
 
@@ -90,12 +87,9 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterra)
 BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterraXY)
 {
     std::cout << "  test_Euler_PerturbLotkaVolterraXY " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation",
-            "PerturbLotkaVolterraXY.vpz"));
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("PerturbLotkaVolterraXY.vpz",
+            vle::utils::PKG_BINARY));
 
     ttconfOutputPlugins(vpz);
 

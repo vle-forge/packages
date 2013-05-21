@@ -30,6 +30,7 @@
 #include <vle/forrester/dialogs/SourceDialog.hpp>
 #include <vle/forrester/dialogs/TimeStepDialog.hpp>
 #include <vle/utils/Template.hpp>
+#include <vle/utils/Package.hpp>
 #include <vle/gvle/Message.hpp>
 #include <gtkmm/radioaction.h>
 #include <gtkmm/stock.h>
@@ -179,15 +180,16 @@ const Glib::ustring PluginForrester::UI_DEFINITION =
     "</ui>";
 
 PluginForrester::PluginForrester(const std::string& package,
-                                 const std::string& library)
-    : ModelingPlugin(package, library),
+                                 const std::string& library,
+                                 const std::string& curr_package)
+    : ModelingPlugin(package, library, curr_package),
       mDialog(0),
       mForrester(0),
       mTimeStep(0.001)
 {
-    std::string glade =
-        utils::Path::path().getExternalPackagePluginGvleModelingFile(
-            getPackage(), "Forrester.glade");
+    vle::utils::Package pack(package);
+    std::string glade = pack.getPluginGvleModelingFile(
+            "Forrester.glade", vle::utils::PKG_BINARY);
     mXml = Gtk::Builder::create();
     mXml->add_from_file(glade.c_str());
     mXml->get_widget("ForresterDialog", mDialog);

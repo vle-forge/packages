@@ -51,7 +51,6 @@ struct F
 
     F()
     {
-        vle::utils::Package::package().select("vle.examples");
     }
 };
 
@@ -61,8 +60,8 @@ using namespace vle;
 
 BOOST_AUTO_TEST_CASE(test_gens)
 {
-    /* load the $PREFIX/usr/share/examples/vle-x.y.z/gens.vpz vpz file. */
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("gens.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("gens.vpz"));
 
     /* change the output text to storage output */
     vpz::Output& o(file->project().experiment().views().outputs().get("o"));
@@ -125,9 +124,9 @@ BOOST_AUTO_TEST_CASE(test_gens)
 
 BOOST_AUTO_TEST_CASE(test_gens_with_class)
 {
-    /* load the $PREFIX/usr/share/examples/vle-x.y.z/gens.vpz vpz file. */
+    vle::utils::Package pack("vle.examples");
     vpz::Vpz* file = new vpz::Vpz(
-        utils::Path::path().getPackageExpFile("genswithclass.vpz"));
+        pack.getExpFile("genswithclass.vpz"));
 
     /* change the output text to storage output */
     vpz::Output& o(file->project().experiment().views().outputs().get("o"));
@@ -186,8 +185,9 @@ BOOST_AUTO_TEST_CASE(test_gens_with_class)
 
 BOOST_AUTO_TEST_CASE(test_gens_with_graph)
 {
+    vle::utils::Package pack("vle.examples");
     vpz::Vpz* file = new vpz::Vpz(
-        utils::Path::path().getPackageExpFile("gensgraph.vpz"));
+        pack.getExpFile("gensgraph.vpz"));
 
     /* change the output text to storage output */
     vpz::Output& o(file->project().experiment().views().outputs().get("o"));
@@ -237,8 +237,9 @@ BOOST_AUTO_TEST_CASE(test_gens_with_graph)
 
 BOOST_AUTO_TEST_CASE(test_gens_delete_connection)
 {
+    vle::utils::Package pack("vle.examples");
     vpz::Vpz* file = new vpz::Vpz(
-        utils::Path::path().getPackageExpFile("gensdelete.vpz"));
+        pack.getExpFile("gensdelete.vpz"));
 
     /* change the output text to storage output */
     vpz::Output& o(file->project().experiment().views().outputs().get("o"));

@@ -31,11 +31,8 @@
 BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterra)
 {
     std::cout << "  test_QSS2_LotkaVolterra " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation", "LotkaVolterra.vpz"));
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("LotkaVolterra.vpz", vle::utils::PKG_BINARY));
 
     ttconfOutputPlugins(vpz);
 
@@ -86,13 +83,8 @@ BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterra)
 BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterraXY)
 {
     std::cout << "  test_QSS2_LotkaVolterraXY " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation",
-            "LotkaVolterraXY.vpz"));
-
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("LotkaVolterraXY.vpz", vle::utils::PKG_BINARY));
     ttconfOutputPlugins(vpz);
 
 
@@ -143,11 +135,8 @@ BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterraXY)
 BOOST_AUTO_TEST_CASE(test_QSS2_Seir)
 {
     std::cout << "  test_QSS2_Seir " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation", "Seir.vpz"));
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("Seir.vpz", vle::utils::PKG_BINARY));
 
     ttconfOutputPlugins(vpz);
 
@@ -204,13 +193,8 @@ BOOST_AUTO_TEST_CASE(test_QSS2_Seir)
 BOOST_AUTO_TEST_CASE(test_QSS2_SeirXY)
 {
     std::cout << "  test_QSS2_SeirXY " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation",
-            "SeirXY.vpz"));
-
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("SeirXY.vpz", vle::utils::PKG_BINARY));
 
     ttconfOutputPlugins(vpz);
 

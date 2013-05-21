@@ -29,7 +29,7 @@
 #include <vle/devs/Dynamics.hpp>
 #include <vle/devs/RootCoordinator.hpp>
 #include <vle/vpz/Vpz.hpp>
-#include <vle/utils/Path.hpp>
+#include <vle/utils/Package.hpp>
 #include <iostream>
 
 namespace vle { namespace examples { namespace recursives {
@@ -49,8 +49,10 @@ public:
 
     virtual devs::Time init(const devs::Time& /* t */)
     {
+        vle::utils::Package pack("vle.examples");
+
         // open a simulation
-        vpz::Vpz file(utils::Path::path().getPackageExpFile("unittest.vpz"));
+        vpz::Vpz file(pack.getExpFile("unittest.vpz", vle::utils::PKG_BINARY));
         m_root.load(file);          // and perform the initialization of
         m_root.init();              // the root coordinator
 

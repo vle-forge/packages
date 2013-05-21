@@ -50,7 +50,6 @@ struct F
 
     F()
     {
-        vle::utils::Package::package().select("vle.examples");
     }
 };
 
@@ -60,7 +59,8 @@ using namespace vle;
 
 BOOST_AUTO_TEST_CASE(test_qss4)
 {
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("smartgardener.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("smartgardener.vpz"));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
