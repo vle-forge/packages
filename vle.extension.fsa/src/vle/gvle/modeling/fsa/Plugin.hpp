@@ -49,7 +49,8 @@ namespace fsa {
 class PluginFSA : public ModelingPlugin
 {
 public:
-    PluginFSA(const std::string& package, const std::string& library);
+    PluginFSA(const std::string& package, const std::string& library,
+            const std::string& curr_package);
     virtual ~PluginFSA();
 
     virtual bool create(vpz::AtomicModel& model,

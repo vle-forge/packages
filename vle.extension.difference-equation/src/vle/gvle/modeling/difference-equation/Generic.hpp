@@ -40,7 +40,9 @@ namespace vle { namespace gvle { namespace modeling { namespace de {
 class Generic : public Plugin
 {
 public:
-    Generic(const std::string& package, const std::string& library);
+    Generic(const std::string& package, const std::string& library,
+            const std::string& curr_package);
+
     virtual ~Generic();
 
     virtual bool create(vpz::AtomicModel& model,

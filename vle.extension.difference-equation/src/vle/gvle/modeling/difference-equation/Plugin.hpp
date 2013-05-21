@@ -46,7 +46,8 @@ namespace de {
 class Plugin : public ModelingPlugin
 {
 public:
-    Plugin(const std::string& package, const std::string& library);
+    Plugin(const std::string& package, const std::string& library,
+            const std::string& curr_package);
     virtual ~Plugin();
 
     void onSource();

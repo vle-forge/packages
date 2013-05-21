@@ -37,8 +37,9 @@
 
 namespace vle { namespace gvle { namespace modeling { namespace de {
 
-Plugin::Plugin(const std::string& package, const std::string& library)
-    : ModelingPlugin(package, library)
+Plugin::Plugin(const std::string& package, const std::string& library,
+        const std::string& curr_package)
+    : ModelingPlugin(package, library, curr_package)
 {
 }
 
@@ -76,7 +77,8 @@ void Plugin::generate(vpz::AtomicModel& model,
 void Plugin::generateDynamic(vpz::Dynamic& dynamic,
                              const std::string& classname)
 {
-    dynamic.setPackage(utils::Package::package().name());
+
+    dynamic.setPackage(getCurrPackage());
     dynamic.setLibrary(classname);
 }
 

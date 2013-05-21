@@ -28,6 +28,7 @@
 
 #include <vle/gvle/modeling/petrinet/Plugin.hpp>
 #include <vle/utils/Template.hpp>
+#include <vle/utils/Package.hpp>
 #include <gtkmm/radioaction.h>
 #include <gtkmm/stock.h>
 #include <boost/regex.hpp>
@@ -126,12 +127,12 @@ const Glib::ustring PluginPetriNet::UI_DEFINITION =
     "</ui>";
 
     PluginPetriNet::PluginPetriNet(const std::string& package,
-                               const std::string& library)
-    : ModelingPlugin(package, library), mDialog(0), mPetriNet(0)
+                               const std::string& library,
+                               const std::string& curr_package)
+    : ModelingPlugin(package, library, curr_package), mDialog(0), mPetriNet(0)
 {
-    std::string glade =
-        utils::Path::path().getExternalPackagePluginGvleModelingFile(
-            getPackage(), "PetriNet.glade");
+    vle::utils::Package pack(package);
+    std::string glade = pack.getPluginGvleModelingFile("PetriNet.glade");
 
     mXml = Gtk::Builder::create();
     mXml->add_from_file(glade.c_str());

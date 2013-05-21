@@ -32,11 +32,9 @@
 BOOST_AUTO_TEST_CASE(test_ExtUpLV)
 {
     std::cout << "  test_ExtUpLV " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation", "ExtUpLV.vpz"));
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("ExtUpLV.vpz", vle::utils::PKG_BINARY));
+
 
     ttconfOutputPlugins(vpz);
 

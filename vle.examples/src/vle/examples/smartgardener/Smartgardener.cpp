@@ -47,7 +47,7 @@
 #include <vle/extension/decision/Agent.hpp>
 #include <vle/extension/decision/Activity.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
-#include <vle/utils/Path.hpp>
+#include <vle/utils/Package.hpp>
 #include <vle/devs/DynamicsDbg.hpp>
 #include <sstream>
 #include <numeric>
@@ -96,8 +96,8 @@ public:
         addOutputFunctions(this) +=
                 O("treat", &Smartgardener::treat);
 
-        std::string filePath =
-        vu::Path::path().getPackageDataFile("Smartgardener.txt");
+        vle::utils::Package pack("vle.examples");
+        std::string filePath = pack.getDataFile("Smartgardener.txt");
         std::ifstream fileStream(filePath.c_str());
         KnowledgeBase::plan().fill(fileStream);
 

@@ -30,6 +30,7 @@
 #include <vle/gvle/modeling/fsa/SourceDialog.hpp>
 #include <vle/gvle/modeling/fsa/TimeStepDialog.hpp>
 #include <vle/utils/Template.hpp>
+#include <vle/utils/Package.hpp>
 #include <vle/gvle/Message.hpp>
 #include <gtkmm/radioaction.h>
 #include <gtkmm/stock.h>
@@ -170,12 +171,14 @@ const Glib::ustring PluginFSA::UI_DEFINITION =
     "    </toolbar>"
     "</ui>";
 
-PluginFSA::PluginFSA(const std::string& package, const std::string& library)
-    : ModelingPlugin(package, library), mDialog(0), mStatechart(0)
+PluginFSA::PluginFSA(const std::string& package, const std::string& library,
+        const std::string& curr_package)
+    : ModelingPlugin(package, library, curr_package), mDialog(0),
+      mStatechart(0)
 {
-    std::string glade =
-        utils::Path::path().getExternalPackagePluginGvleModelingFile(
-            getPackage(), "FSA.glade");
+    vle::utils::Package pack(package);
+    std::string glade = pack.getPluginGvleModelingFile("FSA.glade",
+            vle::utils::PKG_BINARY);
 
     mXml = Gtk::Builder::create();
     mXml->add_from_file(glade.c_str());

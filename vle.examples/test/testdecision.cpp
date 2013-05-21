@@ -49,7 +49,7 @@ struct F
 {
     F()
     {
-        vle::utils::Package::package().select("vle.examples");
+
     }
 
     vle::Init app;
@@ -61,7 +61,8 @@ BOOST_GLOBAL_FIXTURE(F)
 
 BOOST_AUTO_TEST_CASE(test_agentonly)
 {
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("agentonly.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("agentonly.vpz"));
 
     utils::ModuleManager man;
     manager::Error error;
@@ -96,7 +97,8 @@ BOOST_AUTO_TEST_CASE(test_agentonly)
 
 BOOST_AUTO_TEST_CASE(test_agentonlyprecedenceconstraint)
 {
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("agentonlyc.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("agentonlyc.vpz"));
 
     utils::ModuleManager man;
     manager::Error error;
@@ -128,7 +130,8 @@ BOOST_AUTO_TEST_CASE(test_agentonlyprecedenceconstraint)
 
 BOOST_AUTO_TEST_CASE(test_agentonlywakeup)
 {
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("agentonlywakeup.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("agentonlywakeup.vpz"));
 
     utils::ModuleManager man;
     manager::Error error;
