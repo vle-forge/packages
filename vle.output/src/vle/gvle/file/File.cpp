@@ -27,7 +27,7 @@
 
 
 #include <vle/gvle/file/File.hpp>
-#include <vle/utils/Path.hpp>
+#include <vle/utils/Package.hpp>
 #include <vle/value/Value.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/value/Integer.hpp>
@@ -43,10 +43,10 @@ File::File(const std::string& package,
     mRadioStdOut(0), mRadioErrOut(0), mCheckJulianDay(0), mComboType(0),
     mComboFile(0), mHBoxFile(0), mHBoxLocale(0)
 {
-    std::string glade =
-        utils::Path::path().getExternalPackagePluginGvleOutputFile(
-            getPackage(), "file.glade");
+    vle::utils::Package pkg(getPackage());
 
+    std::string glade = pkg.getPluginGvleOutputFile("file.glade",
+            vle::utils::PKG_BINARY);
 
     Glib::RefPtr < Gtk::Builder > ref = Gtk::Builder::create();
     ref->add_from_file(glade.c_str());

@@ -95,8 +95,10 @@ public:
  * @brief PluginDecision parameterized constructor
  * @param package name
  * @param library name
+ * @param current package name
  */
-    PluginDecision(const std::string& package, const std::string& library);
+    PluginDecision(const std::string& package, const std::string& library,
+            const std::string& curr_package);
 
 /**
  * @brief PluginDecision destructor

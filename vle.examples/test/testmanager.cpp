@@ -51,7 +51,6 @@ struct F
 
     F()
     {
-        vle::utils::Package::package().select("vle.examples");
     }
 };
 
@@ -61,7 +60,8 @@ using namespace vle;
 
 BOOST_AUTO_TEST_CASE(build_experimental_frames)
 {
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("unittest.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("unittest.vpz"));
     vpz::Conditions& cnds(file->project().experiment().conditions());
     cnds.get("ca").addValueToPort("x", value::Double::create(1.0));
     cnds.get("ca").addValueToPort("x", value::Double::create(2.0));
@@ -103,7 +103,8 @@ BOOST_AUTO_TEST_CASE(build_experimental_frames)
 
 BOOST_AUTO_TEST_CASE(build_linear_combination_size)
 {
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("unittest.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("unittest.vpz"));
 
     file->project().experiment().setCombination("linear");
 
@@ -133,7 +134,8 @@ BOOST_AUTO_TEST_CASE(build_linear_combination_size)
 
 BOOST_AUTO_TEST_CASE(build_linear_output_matrix_size)
 {
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("unittest.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("unittest.vpz"));
 
     file->project().experiment().setCombination("linear");
 
@@ -189,7 +191,7 @@ BOOST_AUTO_TEST_CASE(build_linear_output_matrix_size)
 //BOOST_AUTO_TEST_CASE(combination_storage_test){
     //using namespace manager;
 
-    //vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("unittest.vpz"));
+    //vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("unittest.vpz"));
 
     //file->project().experiment().setCombination("linear");
 
@@ -260,7 +262,7 @@ BOOST_AUTO_TEST_CASE(build_linear_output_matrix_size)
 //{
     //using namespace manager;
 
-    //vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("petrinet-meteo.vpz"));
+    //vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-meteo.vpz"));
 
     //file->project().experiment().setCombination("linear");
     //vle::vpz::Views& vle_views = file->project().experiment().views();
@@ -356,8 +358,8 @@ BOOST_AUTO_TEST_CASE(build_linear_output_matrix_size)
 BOOST_AUTO_TEST_CASE(manager_thread_result_access)
 {
     using namespace manager;
-
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("unittest.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("unittest.vpz"));
     file->project().experiment().setCombination("linear");
     file->project().experiment().setDuration(1.0);
 
@@ -425,8 +427,8 @@ BOOST_AUTO_TEST_CASE(manager_thread_result_access)
 BOOST_AUTO_TEST_CASE(manager_thread_fast_producer)
 {
     using namespace manager;
-
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("unittest.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("unittest.vpz"));
 
     file->project().experiment().setCombination("total");
     file->project().experiment().setDuration(100.0);
@@ -472,8 +474,8 @@ BOOST_AUTO_TEST_CASE(manager_thread_fast_producer)
 BOOST_AUTO_TEST_CASE(manager_thread_fast_consumer)
 {
     using namespace manager;
-
-    vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("unittest.vpz"));
+    vle::utils::Package pack("vle.examples");
+    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("unittest.vpz"));
 
     file->project().experiment().setCombination("linear");
     file->project().experiment().setDuration(1.0);

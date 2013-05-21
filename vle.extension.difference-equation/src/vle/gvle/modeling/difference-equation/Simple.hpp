@@ -40,7 +40,8 @@ namespace vle { namespace gvle { namespace modeling { namespace de {
 class Simple : public Plugin
 {
 public:
-    Simple(const std::string& package, const std::string& library);
+    Simple(const std::string& package, const std::string& library,
+            const std::string& curr_package);
     virtual ~Simple();
 
     virtual bool create(vpz::AtomicModel& model,

@@ -48,7 +48,8 @@ namespace petrinet {
 class PluginPetriNet : public ModelingPlugin
 {
 public:
-    PluginPetriNet(const std::string& package, const std::string& library);
+    PluginPetriNet(const std::string& package, const std::string& library,
+            const std::string& curr_package);
     virtual ~PluginPetriNet();
 
     virtual bool create(vpz::AtomicModel& model,

@@ -26,6 +26,7 @@
  */
 
 #include <vle/gvle/modeling/decision/Plugin.hpp>
+#include <vle/utils/Package.hpp>
 
 namespace vle {
 namespace gvle {
@@ -107,7 +108,7 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{end for}}\n"                                                     \
     "        //Plan initialisation\n"                                   \
     "        std::string filePath =\n"                                  \
-    "        vu::Path::path().getPackageDataFile(\"{{classname}}.txt\");\n"\
+    "        getPackageDataFile(\"{{classname}}.txt\");\n"              \
     "        std::ifstream fileStream(filePath.c_str());\n"             \
     "        KnowledgeBase::plan().fill(fileStream);\n"                 \
     "    }\n"                                                           \
@@ -202,12 +203,15 @@ const Glib::ustring PluginDecision::UI_DEFINITION =
     "</ui>";
 
 PluginDecision::PluginDecision(const std::string& package,
-                               const std::string& library)
-    : ModelingPlugin(package, library), mDialog(0), mDecision(0)
+                               const std::string& library,
+                               const std::string& curr_package)
+    : ModelingPlugin(package, library, curr_package), mDialog(0), mDecision(0)
 {
+    vle::utils::Package pack(getPackage());
+
     std::string glade =
-        utils::Path::path().getExternalPackagePluginGvleModelingFile(
-        getPackage(), "decision.glade");
+        pack.getPluginGvleModelingFile("decision.glade",
+                vle::utils::PKG_BINARY);
 
     mXml = Gtk::Builder::create();
     mXml->add_from_file(glade.c_str());
@@ -338,7 +342,8 @@ bool PluginDecision::create(vpz::AtomicModel& model,
     const std::string& classname,
     const std::string& namespace_)
 {
-    mPlanFileName = utils::Path::path().getPackageDataDir() + "/" +
+    vle::utils::Package pack(getCurrPackage());
+    mPlanFileName = pack.getDataDir(vle::utils::PKG_SOURCE) + "/" +
             classname + ".txt";
     mPlanFile = classname;
     mClassname = classname;
@@ -833,7 +838,9 @@ bool PluginDecision::modify(vpz::AtomicModel& model,
             "@@end:hierarchicalPreds@@", "hierarchicalPreds");
     decodePredicates(hierP);
 
-    mPlanFileName = utils::Path::path().getPackageDataDir() + "/" +
+    vle::utils::Package pack(getCurrPackage());
+
+    mPlanFileName = pack.getDataDir(vle::utils::PKG_SOURCE) + "/" +
             mPlanFile + ".txt";
 
     mInclude.assign(parseFunction(buffer,
@@ -1839,7 +1846,9 @@ void PluginDecision::onUserOpenMenu()
     //Add response buttons the the dialog:
     fileChooserDial.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     fileChooserDial.add_button("Open", Gtk::RESPONSE_OK);
-    fileChooserDial.set_current_folder(utils::Path::path().getPackageDataDir());
+    fileChooserDial.set_current_folder(
+            vle::utils::Package(getCurrPackage()).getDataDir(
+                    vle::utils::PKG_SOURCE));
     fileChooserDial.set_local_only(true);
     fileChooserDial.show_all_children();
 
@@ -1870,7 +1879,9 @@ void PluginDecision::onUserSaveAsMenu()
     //Add response buttons the the dialog:
     fileChooserDial.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     fileChooserDial.add_button("Save", Gtk::RESPONSE_OK);
-    fileChooserDial.set_current_folder(utils::Path::path().getPackageDataDir());
+    fileChooserDial.set_current_folder(
+            vle::utils::Package(getCurrPackage()).getDataDir(
+                    vle::utils::PKG_SOURCE));
     fileChooserDial.set_do_overwrite_confirmation(true);
     fileChooserDial.set_local_only(true);
     fileChooserDial.set_current_name(mPlanFile + ".txt");
@@ -1905,8 +1916,10 @@ void PluginDecision::onChooseFileName()
     box.resize(400, h);
     std::string name = boost::trim_copy(box.run());
     if (box.valid() and !name.empty()) {
-        mPlanFileName = utils::Path::path().getPackageDataDir() +
-                "/" + name + ".txt";
+        mPlanFileName =
+            vle::utils::Package(getCurrPackage()).getDataDir(
+                    vle::utils::PKG_SOURCE) +
+            "/" + name + ".txt";
         mPlanFile = name;
         mDialog->set_title("Decision - Plugin : " + mPlanFile + ".txt");
     }

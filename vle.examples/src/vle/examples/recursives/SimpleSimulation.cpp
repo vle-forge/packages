@@ -29,7 +29,7 @@
 #include <vle/devs/Dynamics.hpp>
 #include <vle/vpz/Vpz.hpp>
 #include <vle/manager/Simulation.hpp>
-#include <vle/utils/Path.hpp>
+#include <vle/utils/Package.hpp>
 
 namespace vle { namespace examples { namespace recursives {
 
@@ -46,7 +46,10 @@ public:
 
     devs::Time init(const devs::Time& /* time */)
     {
-        vpz::Vpz *file = new vpz::Vpz(utils::Path::path().getPackageExpFile("counter.vpz"));
+        vle::utils::Package pack("vle.examples");
+
+        vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("counter.vpz",
+                vle::utils::PKG_BINARY));
 
         utils::ModuleManager man;
 

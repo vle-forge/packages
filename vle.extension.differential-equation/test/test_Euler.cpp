@@ -39,7 +39,6 @@
 #include <vle/vpz/Model.hpp>
 #include <vle/vpz/AtomicModel.hpp>
 #include <vle/utils/Package.hpp>
-#include <vle/utils/Path.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/manager/Manager.hpp>
 
@@ -53,7 +52,6 @@ struct F
 {
     F()
     {
-        vle::utils::Package::package().select("vle.examples");
     }
 
     vle::Init app;
@@ -79,11 +77,8 @@ va::ConstVectorView getColumnFromView(const va::Matrix& view, const std::string&
 BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
 {
     std::cout << "  test_Euler_LotkaVolterra " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation", "LotkaVolterra.vpz"));
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("LotkaVolterra.vpz", vle::utils::PKG_BINARY));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =
@@ -165,12 +160,8 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
 BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
 {
     std::cout << "  test_Euler_LotkaVolterraXY " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation",
-            "LotkaVolterraXY.vpz"));
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("LotkaVolterraXY.vpz", vle::utils::PKG_BINARY));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =
@@ -259,11 +250,8 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
 BOOST_AUTO_TEST_CASE(test_Euler_Seir)
 {
     std::cout << "  test_Euler_Seir " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation", "Seir.vpz"));
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("Seir.vpz", vle::utils::PKG_BINARY));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =
@@ -341,12 +329,8 @@ BOOST_AUTO_TEST_CASE(test_Euler_Seir)
 BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
 {
     std::cout << "  test_Euler_SeirXY " << std::endl;
-    vu::Package::package()
-        .select("vle.extension.differential-equation"); //TODO should be managed by meteo
-    vz::Vpz vpz(
-        vu::Path::path().getExternalPackageExpFile(
-            "vle.extension.differential-equation",
-            "SeirXY.vpz"));
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("SeirXY.vpz", vle::utils::PKG_BINARY));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =

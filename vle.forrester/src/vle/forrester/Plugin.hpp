@@ -66,11 +66,13 @@ public:
     /**
      * Class constructor.
      *
-     * @param[in] package
+     * @param[in] package containing the plugin
      * @param[in] library
+     * @param[in] name of the current package
      */
     PluginForrester(const std::string& package,
-                    const std::string& library);
+                    const std::string& library,
+                    const std::string& curr_package);
 
     /**
      * Class destructor.
