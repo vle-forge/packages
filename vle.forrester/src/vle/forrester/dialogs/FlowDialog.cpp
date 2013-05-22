@@ -40,9 +40,11 @@ namespace modeling {
 namespace forrester {
 
 FlowDialog::FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
-        const Forrester& forrester_):
+                       const Forrester& forrester_,
+                       const std::string title):
     mOldName(""),
-    mForrester(forrester_)
+    mForrester(forrester_),
+    mTitle(title)
 {
     Flow emptyFlow(forrester_);
     init(xml);
@@ -50,9 +52,10 @@ FlowDialog::FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
 }
 
 FlowDialog::FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
-    const Flow& flow,  const Forrester& _forrester):
+                       const Flow& flow,  const Forrester& _forrester):
     mOldName(flow.getName()),
-    mForrester(_forrester)
+    mForrester(_forrester),
+    mTitle("Flow dialog")
 {
     init(xml);
     mNameEntry->set_text(mOldName);
@@ -60,6 +63,22 @@ FlowDialog::FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
     mPredicateEntry->set_text(flow.getPredicate());
     mValueIfTrue->set_text(flow.getTrueValue());
     mValueIfFalse->set_text(flow.getFalseValue());
+    mParser.addConstant("t");
+    onTextChange();
+}
+
+FlowDialog::FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
+                       const Variable& var,  const Forrester& _forrester):
+    mOldName(var.getName()),
+    mForrester(_forrester),
+    mTitle("Variable dialog")
+{
+    init(xml);
+    mNameEntry->set_text(mOldName);
+    mValueEntry->set_text(var.getValue());
+    mPredicateEntry->set_text(var.getPredicate());
+    mValueIfTrue->set_text(var.getTrueValue());
+    mValueIfFalse->set_text(var.getFalseValue());
     mParser.addConstant("t");
     onTextChange();
 }
@@ -220,6 +239,7 @@ void FlowDialog::init(const Glib::RefPtr < Gtk::Builder >& xml)
     connectionsHandlers.push_back(mTimeButton->signal_released().connect(
       sigc::mem_fun(*this,&FlowDialog::onTimeButtonPressed)));
 
+    mDialog->set_title(mTitle);
 }
 
 void FlowDialog::onConditionnalityChanged() {

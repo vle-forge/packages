@@ -24,12 +24,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <vle/forrester/dialogs/VariableDialog.hpp>
+#include <vle/forrester/dialogs/FlowDialog.hpp>
 #include <vle/forrester/graphicalItems/Variable.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <vle/utils/i18n.hpp>
+
+#include <vle/forrester/utilities/Tools.hpp>
 
 namespace vle {
 namespace gvle {
@@ -39,29 +41,34 @@ namespace forrester {
 const int Variable::VARIABLE_WIDTH = 25;
 const int Variable::VARIABLE_HEIGHT = 25;
 
-Variable::Variable(const Forrester& f)
-    :GraphicalItem(-1,-1,VARIABLE_WIDTH,VARIABLE_HEIGHT,"",f),
-    mValue("")
+Variable::Variable(const Forrester& f) :
+    GraphicalItem(-1,-1,VARIABLE_WIDTH,VARIABLE_HEIGHT,"",f),
+    mValue(""),
+    mConditionnality(false)
 {
     computeAnchors();
 }
 
 Variable::Variable(const std::string& _name,
-    int _x, int _y, int _width, int _height, const Forrester& f)
-    :GraphicalItem(_x,_y,_width,_height,_name,f), mValue("")
+                   int _x, int _y, int _width, int _height, const Forrester& f) :
+    GraphicalItem(_x,_y,_width,_height,_name,f),
+    mValue(""),
+    mConditionnality(false)
 {
     computeAnchors();
 }
 
-Variable::Variable(int _x, int _y, const Forrester& f)
-:GraphicalItem(_x, _y, VARIABLE_WIDTH, VARIABLE_HEIGHT, "",f),
-    mValue("")
+Variable::Variable(int _x, int _y, const Forrester& f) :
+    GraphicalItem(_x, _y, VARIABLE_WIDTH, VARIABLE_HEIGHT, "",f),
+    mValue(""),
+    mConditionnality(false)
 {
     computeAnchors();
 }
 
-Variable::Variable(const std::string& conf, const Forrester& f):
-GraphicalItem(f)
+Variable::Variable(const std::string& conf, const Forrester& f) :
+    GraphicalItem(f),
+    mConditionnality(false)
 {
     std::vector<std::string> variable;
     boost::split(variable,conf,boost::is_any_of(","));
@@ -72,6 +79,10 @@ GraphicalItem(f)
     mWidth = boost::lexical_cast < int > (variable[3]);
     mHeight = boost::lexical_cast < int > (variable[4]);
     mValue = variable[5];
+    mConditionnality = (variable[6] == "true")? true : false;
+    mPredicate = variable[7];
+    mTrueValue = variable[8];
+    mFalseValue = variable[9];
     computeAnchors();
 }
 
@@ -120,16 +131,23 @@ void Variable::drawName(const Cairo::RefPtr<Cairo::Context>& context)
 
 std::string Variable::toString() const
 {
-    return (fmt("%1%,%2%,%3%,%4%,%5%,%6%")
-            % mName % mX % mY % mWidth % mHeight % mValue).str();
+    std::string isConditionnal = (mConditionnality)? "true" : "false";
+    return (fmt("%1%,%2%,%3%,%4%,%5%,%6%,%7%,%8%,%9%,%10%")
+            % mName % mX % mY % mWidth % mHeight % mValue
+            % isConditionnal % mPredicate % mTrueValue
+            % mFalseValue).str();
 }
 bool Variable::launchCreationWindow(
     const Glib::RefPtr < Gtk::Builder >& xml)
 {
-    VariableDialog dialog(xml,mForrester);
+    FlowDialog dialog(xml, mForrester, "Variable Dialog");
     if (dialog.run() == Gtk::RESPONSE_ACCEPT) {
         mName = dialog.getName();
         mValue = dialog.getValue();
+        mTrueValue = dialog.getTrueValue();
+        mFalseValue = dialog.getFalseValue();
+        mPredicate = dialog.getPredicate();
+        mConditionnality = dialog.isConditionnal();
         return true;
     }
     else
@@ -139,10 +157,14 @@ bool Variable::launchCreationWindow(
 void Variable::launchEditionWindow(
     const Glib::RefPtr < Gtk::Builder >& xml)
 {
-    VariableDialog dialog(xml,*this,mForrester);
+    FlowDialog dialog(xml, *this, mForrester);
     if (dialog.run()) {
         mName = dialog.getName();
         mValue = dialog.getValue();
+        mTrueValue = dialog.getTrueValue();
+        mFalseValue = dialog.getFalseValue();
+        mPredicate = dialog.getPredicate();
+        mConditionnality = dialog.isConditionnal();
     }
 }
 
@@ -183,12 +205,34 @@ void Variable::generateObservable (vpz::Observable& obs) const
 
 void Variable::generateSource (utils::Template& tpl_) const
 {
+    std::string finalPredicate(mPredicate);
+    std::string finalTrueValue(mTrueValue);
+    std::string finalFalseValue(mFalseValue);
+    std::string finalExpression(mValue);
+
+    utilities::generateParenthesis(finalPredicate, mForrester);
+    utilities::generateParenthesis(finalTrueValue, mForrester);
+    utilities::generateParenthesis(finalFalseValue, mForrester);
+    utilities::generateParenthesis(finalExpression, mForrester);
+    utilities::generateStdPrefix(finalExpression);
+
     tpl_.listSymbol().append("Variables", toString());
-    tpl_.listSymbol().append("variableCompute", mName+" = "+ mValue + ";");
+
+    if(mConditionnality) {
+        tpl_.listSymbol().append("variableCompute", mName +
+                                 " = ("+ finalPredicate +")? " +
+                                 finalTrueValue + " : " +
+                                 finalFalseValue + ";");
+    } else {
+          tpl_.listSymbol().append("variableCompute",
+                                   mName + " = " + finalExpression + ";");
+    }
+
     tpl_.listSymbol().append("variableDeclaration", "double " + mName + ";");
     tpl_.listSymbol().append("variableObservation", "if (port == \""
                              + mName +
                              "\" ) return new vv::Double(" + mName + ");");
+
 }
 
 std::string Variable::tooltipText()

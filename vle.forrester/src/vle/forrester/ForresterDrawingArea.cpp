@@ -274,7 +274,7 @@ bool ForresterDrawingArea::on_button_release_event(
         if(mCurrentArrow !=0) {
             for (graphical_items::const_iterator it = mForrester->getItems().begin();
             it != mForrester->getItems().end() && !found; ++it) {
-                if(dynamic_cast<Flow*>(*it) != 0) {
+                if(dynamic_cast<Flow*>(*it) || dynamic_cast<Variable*>(*it)) {
                     for(anchors_t::iterator itA = (*it)->getAnchors().begin();
                     itA != (*it)->getAnchors().end() && !found; ++itA) {
                         if((*itA)->select(ev->x,ev->y)) {

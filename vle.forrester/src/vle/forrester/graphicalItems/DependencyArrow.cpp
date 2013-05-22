@@ -25,6 +25,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <vle/forrester/graphicalItems/Flow.hpp>
+#include <vle/forrester/graphicalItems/Variable.hpp>
 #include <vle/forrester/graphicalItems/DependencyArrow.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -130,12 +131,18 @@ void DependencyArrow::computeControlPoint()
     mControlPoint.setY((mOrigin->getY() + mDestination->getY())/2.);
 }
 
-bool DependencyArrow::valid() {
-    if(mOrigin == 0 && mDestination == 0)
+bool DependencyArrow::valid()
+{
+    if(mOrigin == 0 && mDestination == 0) {
         return true;
-    if(dynamic_cast<Flow*>(mOrigin->getOwner()) ||
-    !dynamic_cast<Flow*>(mDestination->getOwner()) )
-            return false;
+    }
+    if(dynamic_cast<Flow*>(mOrigin->getOwner())) {
+        return false;
+    }
+    if (not dynamic_cast<Flow*>(mDestination->getOwner()) &&
+        not dynamic_cast<Variable*>(mDestination->getOwner())) {
+        return false;
+    }
     return true;
 }
 

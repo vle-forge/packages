@@ -35,6 +35,7 @@
 #include <vle/utils/i18n.hpp>
 #include <boost/polygon/polygon.hpp>
 #include <boost/math/special_functions/round.hpp>
+
 namespace vle {
 namespace gvle {
 namespace modeling {
@@ -138,16 +139,12 @@ public:
     {}
     void generateObservable (vpz::Observable&) const;
     void generateSource (utils::Template& tpl_) const;
-    void generateParenthesis(std::string&) const;
-    void generateStdPrefix(std::string&)const;
 
     std::string tooltipText();
 
     static const int FLOW_HEIGHT;
     static const int FLOW_WIDTH;
     static const int FLOW_HEADER;
-    static const std::string STL_FUNCTION[];
-    static const int STL_FUNCTION_COUNT;
 private:
     void drawName(const Cairo::RefPtr<Cairo::Context>&);
     void computeAnchors();

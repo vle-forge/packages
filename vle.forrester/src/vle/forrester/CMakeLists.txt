@@ -17,7 +17,6 @@ ADD_LIBRARY(Forrester SHARED
   dialogs/FlowDialog.hpp dialogs/FlowDialog.cpp
   dialogs/ParameterDialog.hpp dialogs/ParameterDialog.cpp
   dialogs/ExogenousVarDialog.hpp dialogs/ExogenousVarDialog.cpp
-  dialogs/VariableDialog.hpp dialogs/VariableDialog.cpp
   graphicalItems/Parameter.hpp graphicalItems/Parameter.cpp
   graphicalItems/GraphicalItem.hpp graphicalItems/GraphicalItem.cpp
   graphicalItems/ForresterGI.hpp graphicalItems/ForresterGI.cpp
@@ -30,6 +29,7 @@ ADD_LIBRARY(Forrester SHARED
   graphicalItems/ExogenousVariable.hpp graphicalItems/ExogenousVariable.cpp
   graphicalItems/Variable.hpp graphicalItems/Variable.cpp
   utilities/ComputeParser.hpp utilities/ComputeParser.cpp
+  utilities/Tools.hpp utilities/Tools.cpp
   utilities/Tokenizer.hpp utilities/Tokenizer.cpp)
 
 SET_TARGET_PROPERTIES(Forrester PROPERTIES OUTPUT_NAME
