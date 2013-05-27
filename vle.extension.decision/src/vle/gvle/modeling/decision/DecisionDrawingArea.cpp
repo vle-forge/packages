@@ -66,6 +66,11 @@ DecisionDrawingArea::DecisionDrawingArea(
     mStartSelectRect.invalid();
     mEndSelectRect.invalid();
     initMenuPopupModels();
+
+    set_has_tooltip();
+
+    m_cntSignalQueryTooltip = signal_query_tooltip().connect(
+        sigc::mem_fun(*this, &DecisionDrawingArea::onQueryTooltip));
 }
 
 void DecisionDrawingArea::initMenuPopupModels()
@@ -115,6 +120,7 @@ bool DecisionDrawingArea::addActivity(guint x, guint y)
 
         return true;
     }
+
     return false;
 }
 
@@ -444,7 +450,6 @@ void DecisionDrawingArea::drawPrecedenceConstraint(
         }
     }
 
-    // Draw the arrow
     double d = std::sqrt((xd - xs) * (xd - xs) + (yd - ys) * (yd - ys));
     double angle = std::acos((xd - xs) / d);
 
@@ -465,7 +470,6 @@ void DecisionDrawingArea::drawPrecedenceConstraint(
         mContext->set_identity_matrix();
     }
 
-    // Draw the precedence constraint type (middle of the arrow)
     double xmh = (xs + xd) / 2;
     double ymh = (ys + yd) / 2;
 
@@ -658,6 +662,7 @@ bool DecisionDrawingArea::on_button_press_event(GdkEventButton* event)
             break;
         };
     }
+
     return true;
 }
 
@@ -670,10 +675,9 @@ bool DecisionDrawingArea::on_button_release_event(GdkEventButton* event)
         mDecisionResize = false;
 
         if (mStartSelectRect.valid()) {
-            // Remplissage du vecteur avec les éléments selectionnés
+
             mCurrentActivitiesModel.clear();
 
-            // 4 cas
             if (mStartSelectRect.x > mEndSelectRect.x && mStartSelectRect.y
                     < mEndSelectRect.y) {
                 for (activitiesModel_t::const_iterator it = mDecision->
@@ -799,6 +803,39 @@ bool DecisionDrawingArea::on_expose_event(GdkEventExpose*)
     return true;
 }
 
+bool DecisionDrawingArea::onQueryTooltip(int wx,int wy, bool,
+            const Glib::RefPtr<Gtk::Tooltip>& tooltip)
+{
+    std::string card;
+    bool found = false;
+    activitiesModel_t::const_reverse_iterator it;
+    it = mDecision->activitiesModel().rbegin();
+
+    while (it != mDecision->activitiesModel().rend() && found == false) {
+        found = it->second->select(wx, wy);
+        if (!found) {
+            ++it;
+        }
+    }
+
+    if (found) {
+        card = mDecision->getActivityCard(it->second->name());
+        tooltip->set_markup(card);
+        return true;
+    }
+    else if (selectPrecedenceConstraint(wx, wy)) {
+        card = mCurrentPrecedenceConstraint->card();
+        tooltip->set_markup(card);
+        return true;
+    }
+    else {
+        return false;
+    }
+
+}
+
+//std::string DecisionDrawingArea::aboveActivity(int x, int y) {}
+
 bool DecisionDrawingArea::on_motion_notify_event(GdkEventMotion* event)
 {
     int button;
@@ -840,77 +877,6 @@ bool DecisionDrawingArea::on_motion_notify_event(GdkEventMotion* event)
                 else {
                     mStartSelectRect = tmp;
                 }
-            }
-        }
-        else if (button == 0) {
-            bool found = false;
-            activitiesModel_t::const_reverse_iterator it;
-            for (it = mDecision->activitiesModel().rbegin();
-                it != mDecision->activitiesModel().rend() && found == false;) {
-                found = it->second->select(event->x, event->y);
-                if (!found) {
-                    ++it;
-                }
-            }
-            if (found) {
-                // Prepare tooltip text
-                std::string tooltipText = "<b>" + it->second->name() + "</b>";
-                tooltipText += "\n<b>Rules:</b>";
-
-                std::map < std::string, strings_t >*
-                        tmpRules = mDecision->getRule();
-                int j = it->second->getRules().size() - 1;
-                for (int i = 0; i <= j;
-                    i++) {
-                    tooltipText += "\n- " + it->second->getRules().at(i);
-
-                    int k, l;
-                    k = 0;
-                    l = tmpRules->operator[]
-                            (it->second->getRules().at(i)).size() - 1;
-                    for (; k <= l; k++) {
-                        if (k == 0) {
-                            tooltipText += ", <b>pred(s).:</b>\n\t- " +
-                                    tmpRules->operator[]
-                                    (it->second->getRules().at(i)).at(k);
-                        }
-                        else {
-                            tooltipText += "\n\t- " + tmpRules->operator[]
-                                    (it->second->getRules().at(i)).at(k);
-                        }
-                    }
-                }
-
-                if (it->second->getRelativeDate()) {
-                    tooltipText += "\n<b>R. Minstart:</b> " +
-                            it->second->minstart();
-                    tooltipText += "\n<b>R. Maxfinish:</b> " +
-                            it->second->maxfinish();
-                }
-                else {
-                    double x = vle::utils::convert < double >
-                            (it->second->minstart(), true);
-                    tooltipText += "\n<b>Minstart:</b> " +
-                            utils::DateTime::toJulianDayNumber(x);
-                    x = vle::utils::convert < double >
-                            (it->second->maxfinish(), true);
-                    tooltipText += "\n<b>Maxfinish:</b> " +
-                            utils::DateTime::toJulianDayNumber(x);
-                }
-                this->set_tooltip_markup(tooltipText);
-            }
-            else if (selectPrecedenceConstraint(event->x, event->y)) {
-                // Seek precedence constraint
-                std::string tooltipText;
-                tooltipText = "Type: " + mCurrentPrecedenceConstraint->cType();
-                tooltipText += "\n<b>Mintimelag:</b> " +
-                        mCurrentPrecedenceConstraint->actTlMin();
-                tooltipText += "\n<b>Maxtimelag:</b> " +
-                        mCurrentPrecedenceConstraint->actTlMax();
-                this->set_tooltip_markup(tooltipText);
-            }
-            else {
-                this->set_tooltip_text("");
             }
         }
         break;
@@ -969,15 +935,6 @@ bool DecisionDrawingArea::selectActivityModel(guint x, guint y, bool ctrl)
             ++it;
         }
     }
-
-    //~ activitiesModel_t::const_iterator it = mDecision->
-            //~ activitiesModel().begin();
-    //~ while (not found and it != mDecision->activitiesModel().end()) {
-        //~ found = it->second->select(x, y);
-        //~ if (not found) {
-            //~ ++it;
-        //~ }
-    //~ }
 
     if (found) {
         if (not ctrl) {
