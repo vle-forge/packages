@@ -14,8 +14,8 @@ ADD_LIBRARY(modeling-fsa-statechart SHARED Plugin.hpp Plugin.cpp
 SET_TARGET_PROPERTIES(modeling-fsa-statechart PROPERTIES OUTPUT_NAME
   "Statechart")
 
-TARGET_LINK_LIBRARIES(modeling-fsa-statechart ${VLE_LIBRARIES}
-${GVLE_LIBRARIES})
+TARGET_LINK_LIBRARIES(modeling-fsa-statechart
+${GVLE_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS modeling-fsa-statechart RUNTIME DESTINATION
   plugins/gvle/modeling LIBRARY DESTINATION plugins/gvle/modeling)

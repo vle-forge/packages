@@ -29,7 +29,6 @@
 #ifndef VLE_EXTENSION_FSA_MOORE_HPP
 #define VLE_EXTENSION_FSA_MOORE_HPP 1
 
-#include <vle/extension/fsa/DllDefines.hpp>
 #include <vle/extension/fsa/FSA.hpp>
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
@@ -76,7 +75,7 @@ struct MooreOutputFunc_t
     X func;
 };
 
-class VLE_EXT_EXPORT Moore : public Base
+class Moore : public Base
 {
 public:
     Moore(const devs::DynamicsInit& init,
