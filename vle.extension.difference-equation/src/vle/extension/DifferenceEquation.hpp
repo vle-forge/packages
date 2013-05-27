@@ -27,10 +27,6 @@
 #ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_HPP
 #define VLE_EXTENSION_DIFFERENCE_EQUATION_HPP
 
-#ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_DLLDEFINES_HPP
-#include <vle/extension/difference-equation/DllDefines.hpp>
-#endif
-
 #ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_BASE_HPP
 #include <vle/extension/difference-equation/Base.hpp>
 #endif

@@ -29,7 +29,6 @@
 #ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_BASE_HPP
 #define VLE_EXTENSION_DIFFERENCE_EQUATION_BASE_HPP 1
 
-#include <vle/extension/difference-equation/DllDefines.hpp>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/DateTime.hpp>
 #include <deque>
@@ -42,7 +41,7 @@ enum Perturbation_t { ADD, SCALE, SET };
  * @brief Base The class Base encapsules the general
  * mecanisms of DifferenceEquation extension.
  */
-class VLE_EXTENSION_EXPORT Base : public devs::Dynamics
+class Base : public devs::Dynamics
 {
 protected:
     typedef std::deque < double > Values;
@@ -402,7 +401,7 @@ protected:
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-struct VLE_EXTENSION_EXPORT Var
+struct Var
 {
     Var(const std::string& name) : name(name), value(0.0)  { }
 
@@ -416,10 +415,10 @@ struct VLE_EXTENSION_EXPORT Var
     double value;
 };
 
-double VLE_EXTENSION_EXPORT
+double
 operator<<(double& value, const Var& var);
 
-vle::devs::ExternalEventList& VLE_EXTENSION_EXPORT
+vle::devs::ExternalEventList&
 operator<<(vle::devs::ExternalEventList& output, const Var& var);
 
 }}} // namespace vle extension DifferenceEquation
