@@ -50,8 +50,6 @@ namespace decision {
 typedef std::vector < std::string > strings_t;
 typedef std::map < std::string, std::string > buffers_t;
 
-class Decision;
-
 struct point_t
 {
     int x;
@@ -230,18 +228,6 @@ public :
              oy + (mPoints[0].y - oy) * ratioy;
     }
 
-/**
- * @brief Return the PrecedenceConstraintModel card : the description displayed in a tooltip
- * @return the PrecedenceConstraintModel card
- */
-    const Glib::ustring card()
-    {
-        Glib::ustring card = "Type: " + cType();
-        card += "\n<b>Mintimelag:</b> " + actTlMin();
-        card += "\n<b>Maxtimelag:</b> " + actTlMax();
-        return card;
-    }
-
 private :
     std::string mSource;
     std::string mDestination;
@@ -374,13 +360,6 @@ public:
     {
         return mName;
     }
-
-/**
- * @brief Return the ActivityModel card : the description displayed in a tooltip
- * @param decision to display rules
- * @return the ActivityModel card
- */
-    const Glib::ustring card(Decision* decision) const;
 
 /**
  * @brief Set the name of the ActivityModel
@@ -756,22 +735,22 @@ public:
  * mKnowledgeBase or false if an error occured
  */
 
-    bool fillKnowledgeBase(std::string fileName) {
-        if (mActivitiesModel.size() > 0) {
-            std::ifstream fileStream(fileName.c_str(), ios::in);
+ bool fillKnowledgeBase(std::string fileName) {
+    if (mActivitiesModel.size() > 0) {
+        std::ifstream fileStream(fileName.c_str(), ios::in);
 
-            if (fileStream.is_open()) {
-                mKnowledgeBase->plan().fill(fileStream);
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        else {
+        if (fileStream.is_open()) {
+            mKnowledgeBase->plan().fill(fileStream);
             return true;
         }
+        else {
+            return false;
+        }
     }
+    else {
+        return true;
+    }
+}
 
 /**
  * @brief Return the KnowledgeBase of the class decision.

@@ -88,57 +88,6 @@ std::string ActivityModel::toString() const
             % mName % mX % mY % mWidth % mHeight).str();
 }
 
-const Glib::ustring ActivityModel::card(Decision* decision) const
-{
-    Glib::ustring card;
-
-    card = "<b>" + name() + "</b>";
-    card += "\n<b>Rules:</b>";
-
-    std::map < std::string, strings_t >*
-            tmpRules = decision->getRule();
-    int j = getRules().size() - 1;
-    for (int i = 0; i <= j;
-        i++) {
-        card += "\n- " + getRules().at(i);
-
-        int k, l;
-        k = 0;
-        l = tmpRules->operator[]
-                (getRules().at(i)).size() - 1;
-        for (; k <= l; k++) {
-            if (k == 0) {
-                card += ", <b>pred(s).:</b>\n\t- " +
-                        tmpRules->operator[]
-                        (getRules().at(i)).at(k);
-            }
-            else {
-                card += "\n\t- " + tmpRules->operator[]
-                        (getRules().at(i)).at(k);
-            }
-        }
-    }
-
-    if (getRelativeDate()) {
-        card += "\n<b>R. Minstart:</b> " +
-                minstart();
-        card += "\n<b>R. Maxfinish:</b> " +
-                maxfinish();
-    }
-    else {
-        double x = vle::utils::convert < double >
-                (minstart(), true);
-        card += "\n<b>Minstart:</b> " +
-                utils::DateTime::toJulianDayNumber(x);
-        x = vle::utils::convert < double >
-                (maxfinish(), true);
-        card += "\n<b>Maxfinish:</b> " +
-                utils::DateTime::toJulianDayNumber(x);
-    }
-
-    return card;
-}
-
 void Decision::displace(ActivityModel* activityModel, int deltax, int deltay)
 {
     activityModel->displace(deltax, deltay);

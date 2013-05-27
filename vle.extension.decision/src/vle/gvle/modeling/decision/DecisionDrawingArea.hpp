@@ -56,7 +56,8 @@ public:
         SELECT_MODE,
         ADD_ACTIVITY_MODE,
         ADD_CONSTRAINT_MODE,
-        DELETE_MODE};
+        DELETE_MODE
+    };
 
 /**
  * @brief DecisionDrawingArea class constructor
@@ -245,8 +246,6 @@ private:
  */
     bool on_expose_event(GdkEventExpose* event);
 
-bool onQueryTooltip(int wx,int wy, bool /* keyboard_tooltip */,
-                    const Glib::RefPtr<Gtk::Tooltip>& tooltip);
 /**
  * @brief This function is called when an event is detected.
  * @param the event
@@ -462,8 +461,6 @@ bool onQueryTooltip(int wx,int wy, bool /* keyboard_tooltip */,
     int mWidth;
     float mMaxHeight;
     float mMaxWidth;
-
-    sigc::connection m_cntSignalQueryTooltip;
 
     std::vector < ActivityModel* > mCurrentActivitiesModel;
     std::vector < PrecedenceConstraintModel* > mCurrentPrecedenceConstraints;

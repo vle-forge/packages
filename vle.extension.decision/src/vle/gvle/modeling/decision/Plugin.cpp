@@ -397,6 +397,11 @@ void PluginDecision::createActions()
             _("Delete activity (F4)")),
         Gtk::AccelKey("F4"),
         sigc::mem_fun(this, &PluginDecision::onDelete));
+    mActionGroup->add(
+        Gtk::RadioAction::create(toolsGroup, "Help", Gtk::Stock::HELP,
+            _("Help"), _("Help (F5)")),
+        Gtk::AccelKey("F5"),
+        sigc::mem_fun(this, &PluginDecision::onAddActivity));
 }
 
 void PluginDecision::generateSource(const std::string& classname,
