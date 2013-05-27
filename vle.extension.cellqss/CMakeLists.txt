@@ -29,6 +29,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
   endif ()
 endif ()
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
+
 ##
 ## Modules
 ##
@@ -43,8 +45,8 @@ INCLUDE(CMakeDetermineCCompiler)
 ##
 
 FIND_PACKAGE(PkgConfig REQUIRED)
-PKG_CHECK_MODULES(VLE vle-1.1 REQUIRED)
-
+set(VLE_DEBUG 0)
+find_package(VLE REQUIRED)
 
 set(VleCheckPackage_DIR "${CMAKE_SOURCE_DIR}/cmake")
 FIND_PACKAGE(VleCheckPackage REQUIRED)

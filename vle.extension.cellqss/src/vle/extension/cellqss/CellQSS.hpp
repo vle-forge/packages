@@ -29,13 +29,12 @@
 #ifndef VLE_EXTENSION_CELLQSS_CELLQSS_HPP
 #define VLE_EXTENSION_CELLQSS_CELLQSS_HPP
 
-#include <vle/extension/cellqss/DllDefines.hpp>
 #include <vle/extension/celldevs/CellDevs.hpp>
 #include <vle/devs/Dynamics.hpp>
 
 namespace vle { namespace extension {
 
-    class VLE_EXTENSION_EXPORT CellQSS : public CellDevs
+    class CellQSS : public CellDevs
     {
     public:
         CellQSS(const devs::DynamicsInit& model,
