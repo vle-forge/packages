@@ -29,7 +29,6 @@
 #ifndef VLE_EXTENSION_FSA_STATECHART_HPP
 #define VLE_EXTENSION_FSA_STATECHART_HPP
 
-#include <vle/extension/fsa/DllDefines.hpp>
 #include <vle/extension/fsa/FSA.hpp>
 #include <vle/utils/DateTime.hpp>
 #include <boost/bind.hpp>
@@ -163,7 +162,7 @@ struct GuardAction_t
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-class VLE_EXT_EXPORT Statechart : public Base
+class Statechart : public Base
 {
 public:
     Statechart(const devs::DynamicsInit& init,

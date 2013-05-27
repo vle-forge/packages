@@ -29,7 +29,6 @@
 #ifndef VLE_EXTENSION_FSA_FDDEVS_HPP
 #define VLE_EXTENSION_FSA_FDDEVS_HPP 1
 
-#include <vle/extension/fsa/DllDefines.hpp>
 #include <vle/extension/fsa/FSA.hpp>
 #include <vle/utils/i18n.hpp>
 #include <boost/assign.hpp>
@@ -98,7 +97,7 @@ struct FDDevsOutputFunc_t
  * The structure and dynamics of Finite State Automaton are
  * specified with C++ code.
  */
-class VLE_EXT_EXPORT FDDevs : public Base
+class FDDevs : public Base
 {
 public:
     FDDevs(const devs::DynamicsInit& init,
