@@ -32,7 +32,6 @@
 #include <vle/extension/decision/Activities.hpp>
 #include <vle/extension/decision/Activity.hpp>
 #include <vle/extension/decision/Agent.hpp>
-#include <vle/extension/decision/DllDefines.hpp>
 #include <vle/extension/decision/Facts.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/extension/decision/Library.hpp>

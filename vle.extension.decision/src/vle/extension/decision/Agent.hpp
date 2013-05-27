@@ -30,12 +30,11 @@
 #define VLE_EXT_DECISION_AGENT_HPP 1
 
 #include <vle/extension/decision/KnowledgeBase.hpp>
-#include <vle/extension/decision/DllDefines.hpp>
 #include <vle/devs/Dynamics.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
-class VLE_EXT_EXPORT Agent : public devs::Dynamics,
+class Agent : public devs::Dynamics,
                                    public decision::KnowledgeBase
 {
 public:

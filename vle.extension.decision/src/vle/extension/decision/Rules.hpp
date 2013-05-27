@@ -30,13 +30,12 @@
 #define VLE_EXT_DECISION_RULES_HPP
 
 #include <vle/extension/decision/Rule.hpp>
-#include <vle/extension/decision/DllDefines.hpp>
 #include <map>
 #include <string>
 
 namespace vle { namespace extension { namespace decision {
 
-class VLE_EXT_EXPORT Rules
+class Rules
 {
 public:
     typedef std::map < std::string, Rule > rules_t;

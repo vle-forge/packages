@@ -29,7 +29,6 @@
 #ifndef VLE_EXT_DECISION_FACTS_HPP
 #define VLE_EXT_DECISION_FACTS_HPP 1
 
-#include <vle/extension/decision/DllDefines.hpp>
 #include <vle/value/Value.hpp>
 #include <boost/function.hpp>
 
