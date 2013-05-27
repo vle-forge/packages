@@ -33,7 +33,7 @@
 
 #define DECLARE_DIFFERENTIAL_EQUATION_DBG(mdl)                                \
   extern "C" {                                                                \
-    VLE_EXTENSION_EXPORT vle::devs::Dynamics*                                 \
+    vle::devs::Dynamics*                                 \
     vle_make_new_dynamics(const vle::devs::DynamicsInit& init,                \
                               const vle::devs::InitEventList& events)         \
     {                                                                         \
@@ -41,7 +41,7 @@
       < mdl >(init, events);                                                  \
     }                                                                         \
                                                                               \
-    VLE_EXTENSION_EXPORT void                                                 \
+    void                                                 \
     vle_api_level(vle::uint32_t* major,                                       \
                   vle::uint32_t* minor,                                       \
                   vle::uint32_t* patch)                                       \

@@ -38,8 +38,6 @@ namespace differential_equation { namespace test { namespace dynamics {
                             const vle::devs::InitEventList& events) :
             ved::DifferentialEquation(model,events)
         {
-            std::cout << " LadybirdPlantlouseY constructor " << std::endl;
-
             b = (events.exist("b"))
                 ? events.getDouble("b") : 0.5;
             d = (events.exist("d"))
