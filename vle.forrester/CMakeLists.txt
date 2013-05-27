@@ -29,6 +29,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
   endif ()
 endif ()
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
+
 ##
 ## Modules
 ##
@@ -42,8 +44,8 @@ INCLUDE(CMakeDetermineCCompiler)
 ## Check libraries with pkgconfig
 ##
 
-FIND_PACKAGE(PkgConfig REQUIRED)
-PKG_CHECK_MODULES(GVLE gvle-1.1)
+set(GVLE_DEBUG 0)
+find_package(GVLE REQUIRED)
 
 IF (GVLE_FOUND AND NOT WIN32)
   PKG_CHECK_MODULES(GTKSOURCEVIEWMM gtksourceviewmm-2.0)
@@ -64,7 +66,7 @@ VLE_CHECK_PACKAGE(MUPARSER ext.muparser)
 
 SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
-FIND_PACKAGE(Boost COMPONENTS date_time)
+FIND_PACKAGE(Boost COMPONENTS date_time regex)
 
 ##
 ## Generate the doxygen
