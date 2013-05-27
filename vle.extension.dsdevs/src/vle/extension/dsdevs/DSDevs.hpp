@@ -29,7 +29,6 @@
 #ifndef VLE_EXTENSION_DSDEVS_DSDEVS_HPP
 #define VLE_EXTENSION_DSDEVS_DSDEVS_HPP
 
-#include <vle/extension/dsdevs/DllDefines.hpp>
 #include <vle/devs/Simulator.hpp>
 #include <vle/devs/Executive.hpp>
 #include <vle/vpz/CoupledModel.hpp>
@@ -118,7 +117,7 @@ namespace vle { namespace extension {
     *  - complete: (String), complete hierarchy from top model.
     *
     */
-    class VLE_EXTENSION_EXPORT DSDevs : public devs::Executive
+    class DSDevs : public devs::Executive
     {
     public:
         enum state { IDLE, ADD_MODEL, REMOVE_MODEL, CHANGE_MODEL, BUILD_MODEL,
