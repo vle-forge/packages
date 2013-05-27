@@ -30,11 +30,10 @@
 #define VLE_EXT_DECISION_PRECEDENCECONTRAINT_HPP
 
 #include <vle/extension/decision/Activity.hpp>
-#include <vle/extension/decision/DllDefines.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
-class VLE_EXT_EXPORT PrecedenceConstraint
+class PrecedenceConstraint
 {
 public:
     typedef std::map < std::string, Activity >::const_iterator iterator;
@@ -96,7 +95,7 @@ private:
     iterator   m_second;
 };
 
-struct VLE_EXT_EXPORT PrecedenceConstraintCompareFirst
+struct PrecedenceConstraintCompareFirst
 {
     inline bool operator()(const PrecedenceConstraint& x,
                            const PrecedenceConstraint& y) const
@@ -105,7 +104,7 @@ struct VLE_EXT_EXPORT PrecedenceConstraintCompareFirst
     }
 };
 
-struct VLE_EXT_EXPORT PrecedenceConstraintCompareSecond
+struct PrecedenceConstraintCompareSecond
 {
     inline bool operator()(const PrecedenceConstraint& x,
                            const PrecedenceConstraint& y) const

@@ -29,7 +29,6 @@
 #include <map>
 #include <set>
 
-#include <vle/extension/differential-equation/DllDefines.hpp>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/Exception.hpp>
 
@@ -43,7 +42,7 @@ namespace vu = vle::utils;
 
 class DifferentialEquationImpl;
 
-class VLE_EXTENSION_EXPORT Variable
+class Variable
 {
 public:
 
@@ -87,7 +86,7 @@ private:
     double value;
     double gradient;
 };
-class VLE_EXTENSION_EXPORT ExternVariable
+class ExternVariable
 {
 public:
 
@@ -122,7 +121,7 @@ private:
 };
 
 template<class VarType>
-struct VLE_EXTENSION_EXPORT VarsContainer
+struct VarsContainer
 {
     typedef typename std::map<std::string, VarType> Container;
     typedef typename Container::const_iterator const_iterator;
@@ -192,7 +191,7 @@ struct VLE_EXTENSION_EXPORT VarsContainer
 typedef VarsContainer<Variable> Variables;
 typedef VarsContainer<ExternVariable> ExternVariables;
 
-class VLE_EXTENSION_EXPORT DifferentialEquation : public vle::devs::Dynamics
+class DifferentialEquation : public vle::devs::Dynamics
 {
 public:
     class Var

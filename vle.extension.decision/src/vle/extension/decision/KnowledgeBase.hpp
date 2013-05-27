@@ -35,7 +35,6 @@
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/extension/decision/Table.hpp>
 #include <vle/extension/decision/Plan.hpp>
-#include <vle/extension/decision/DllDefines.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -174,7 +173,7 @@ struct AddUpdateFunctions
  * // And use a Parser to fill KnowledgeBase with datas.
  * @endcode
  */
-class VLE_EXT_EXPORT KnowledgeBase
+class KnowledgeBase
 {
 public:
     /**
@@ -655,7 +654,7 @@ inline std::ostream& operator<<(std::ostream& o, const KnowledgeBase& kb)
         << kb.activities() << "\n";
 }
 
-struct VLE_EXT_EXPORT CompareActivities
+struct CompareActivities
 {
     inline bool operator()(Activities::iterator x, Activities::iterator y) const
     {

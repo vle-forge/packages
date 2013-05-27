@@ -29,7 +29,6 @@
 #ifndef VLE_EXTENSION_FSA_FSA_HPP
 #define VLE_EXTENSION_FSA_FSA_HPP 1
 
-#include <vle/extension/fsa/DllDefines.hpp>
 #include <vle/devs/Dynamics.hpp>
 
 namespace vle { namespace extension { namespace fsa {
@@ -51,7 +50,7 @@ struct State2_t
     int state;
 };
 
-struct VLE_EXT_EXPORT Event_t
+struct Event_t
 {
     Event_t(const std::string& event) : event(event)  { }
 
@@ -76,7 +75,7 @@ struct Action_t
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-class VLE_EXT_EXPORT Base : public vle::devs::Dynamics
+class Base : public vle::devs::Dynamics
 {
 public:
     Base(const vle::devs::DynamicsInit& init,

@@ -42,6 +42,7 @@
 #include <vle/utils/Package.hpp>
 #include <vle/utils/ModuleManager.hpp>
 #include <vle/vle.hpp>
+#include <iostream>
 
 struct F
 {

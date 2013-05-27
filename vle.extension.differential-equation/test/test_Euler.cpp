@@ -31,6 +31,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 
 #include <ostream>
+#include <iostream>
 
 #include <vle/vle.hpp>
 #include <vle/value/Map.hpp>

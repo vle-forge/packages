@@ -38,8 +38,6 @@ namespace differential_equation { namespace test { namespace dynamics {
              const vle::devs::InitEventList& events) :
             ved::DifferentialEquation(model,events)
         {
-            std::cout << " Seir constructor " << std::endl;
-
 
             beta = events.getDouble("beta");// = 0.9
             gamma = events.getDouble("gamma"); //= 0.2

@@ -29,7 +29,6 @@
 #ifndef VLE_EXTENSION_FSA_MEALY_HPP
 #define VLE_EXTENSION_FSA_MEALY_HPP 1
 
-#include <vle/extension/fsa/DllDefines.hpp>
 #include <vle/extension/fsa/FSA.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -48,7 +47,7 @@ struct MealyTransition_t
     std::string event;
 };
 
-class VLE_EXT_EXPORT Mealy : public Base
+class Mealy : public Base
 {
 public:
     Mealy(const devs::DynamicsInit& init,

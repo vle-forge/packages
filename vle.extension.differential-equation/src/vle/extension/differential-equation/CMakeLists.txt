@@ -27,8 +27,7 @@ TARGET_LINK_LIBRARIES(differential-equation ${VLE_LIBRARIES})
 INSTALL(TARGETS differential-equation ARCHIVE DESTINATION lib)
 
 install(FILES DifferentialEquation.hpp DifferentialEquationImpl.hpp
-  DllDefines.hpp PerturbationHandler.hpp QSS2.hpp
-  TimeSlicingMethod.hpp
+  PerturbationHandler.hpp QSS2.hpp TimeSlicingMethod.hpp
   DESTINATION src/vle/extension/differential-equation)
 
 CONFIGURE_FILE(Version.hpp.in

@@ -29,6 +29,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
   endif ()
 endif ()
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
+
 ##
 ## Modules
 ##
@@ -42,8 +44,8 @@ INCLUDE(CMakeDetermineCCompiler)
 ## Check libraries with pkgconfig
 ##
 
-FIND_PACKAGE(PkgConfig REQUIRED)
-PKG_CHECK_MODULES(VLE vle-1.1 REQUIRED)
+set(VLE_DEBUG 0)
+find_package(VLE REQUIRED)
 
 
 ##
@@ -148,7 +150,8 @@ ENDIF (DOXYGEN AND WITH_DOC)
 
 FUNCTION(DeclareDevsDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES}
+    ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)
@@ -156,7 +159,8 @@ ENDFUNCTION(DeclareDevsDynamics name sources)
 
 FUNCTION(DeclareCellDevsDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${CELLDEVS_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${CELLDEVS_LIBRARIES}
+    ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)
@@ -164,7 +168,8 @@ ENDFUNCTION(DeclareCellDevsDynamics name sources)
 
 FUNCTION(DeclareCellQssDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${CELLQSS_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${CELLQSS_LIBRARIES}
+    ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)
@@ -172,7 +177,8 @@ ENDFUNCTION(DeclareCellQssDynamics name sources)
 
 FUNCTION(DeclareDecisionDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DECISION_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DECISION_LIBRARIES}
+    ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)
@@ -180,7 +186,8 @@ ENDFUNCTION(DeclareDecisionDynamics name sources)
 
 FUNCTION(DeclareDifferenceEquationDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENCE_EQU_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENCE_EQU_LIBRARIES}
+    ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)
@@ -189,7 +196,7 @@ ENDFUNCTION(DeclareDifferenceEquationDynamics name sources)
 FUNCTION(DeclareFsaDifferenceEquationDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
   TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENCE_EQU_LIBRARIES}
-    ${FSA_LIBRARIES})
+    ${FSA_LIBRARIES} ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)
@@ -197,7 +204,8 @@ ENDFUNCTION(DeclareFsaDifferenceEquationDynamics name sources)
 
 FUNCTION(DeclareDifferentialEquationDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENTIAL_EQU_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENTIAL_EQU_LIBRARIES}
+    ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)
@@ -205,7 +213,8 @@ ENDFUNCTION(DeclareDifferentialEquationDynamics name sources)
 
 FUNCTION(DeclareDsDevsDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DSDEVS_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DSDEVS_LIBRARIES}
+    ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)
@@ -213,7 +222,8 @@ ENDFUNCTION(DeclareDsDevsDynamics name sources)
 
 FUNCTION(DeclareFsaDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${FSA_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${FSA_LIBRARIES}
+    ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)
@@ -221,7 +231,8 @@ ENDFUNCTION(DeclareFsaDynamics name sources)
 
 FUNCTION(DeclarePetrinetDynamics name sources)
   ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${PETRINET_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${PETRINET_LIBRARIES}
+    ${Boost_LIBRARIES})
   INSTALL(TARGETS ${name}
     RUNTIME DESTINATION plugins/simulator
     LIBRARY DESTINATION plugins/simulator)

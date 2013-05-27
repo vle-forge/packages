@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
-ADD_LIBRARY(celldevs STATIC CellDevs.cpp CellDevs.hpp DllDefines.hpp)
+ADD_LIBRARY(celldevs STATIC CellDevs.cpp CellDevs.hpp)
 
 SET_TARGET_PROPERTIES(celldevs PROPERTIES OUTPUT_NAME
   "celldevs-${MODEL_MAJOR}.${MODEL_MINOR}")
@@ -14,14 +14,14 @@ IF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   endif ()
 ENDIF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
 
-TARGET_LINK_LIBRARIES(celldevs ${VLE_LIBRARIES})
+TARGET_LINK_LIBRARIES(celldevs ${VLE_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS celldevs ARCHIVE DESTINATION lib)
 
 CONFIGURE_FILE(Version.hpp.in
   ${CMAKE_BINARY_DIR}/src/vle/extension/celldevs/Version.hpp)
 
-install(FILES CellDevs.hpp DllDefines.hpp
+install(FILES CellDevs.hpp
   DESTINATION src/vle/extension/celldevs)
 
 INSTALL(FILES

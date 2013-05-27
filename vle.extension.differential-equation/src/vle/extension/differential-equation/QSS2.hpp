@@ -32,7 +32,6 @@
 #include <vle/vpz/AtomicModel.hpp>
 #include <vle/utils/Exception.hpp>
 
-#include <vle/extension/differential-equation/DllDefines.hpp>
 #include <vle/extension/differential-equation/DifferentialEquationImpl.hpp>
 #include <vle/extension/differential-equation/PerturbationHandler.hpp>
 
@@ -74,7 +73,7 @@ enum TransitionType
 /**
  * @brief Guards structure for transition between DEVS states
  */
-struct VLE_EXTENSION_EXPORT QSS2_TransitionGuards
+struct QSS2_TransitionGuards
 {
     QSS2_TransitionGuards() :
             all_ext_init(false), pert_in_evt(false), new_disc(false), has_disc(
@@ -101,7 +100,7 @@ struct VLE_EXTENSION_EXPORT QSS2_TransitionGuards
  * @brief Options structure for
  * QSS2 methods
  */
-struct VLE_EXTENSION_EXPORT QSS2_Options
+struct QSS2_Options
 {
     QSS2_Options() :
             expectGradients(false)
@@ -124,7 +123,7 @@ struct VLE_EXTENSION_EXPORT QSS2_Options
  * note: derivatives are shared between all static functions since
  * compute of gradients is common
  */
-class VLE_EXTENSION_EXPORT StaticFunctions
+class StaticFunctions
 {
 public:
 
@@ -440,7 +439,7 @@ inline std::ostream& operator<<(std::ostream& o, const StaticFunctions& sfs)
 /**
  * @brief Improver of a state variable
  */
-class VLE_EXTENSION_EXPORT VarImprover
+class VarImprover
 {
 public:
 
@@ -476,7 +475,7 @@ inline std::ostream& operator<<(std::ostream& o, const VarImprover& vi)
     return o;
 }
 
-class VLE_EXTENSION_EXPORT VarImprovers
+class VarImprovers
 {
 public:
 
@@ -610,7 +609,7 @@ inline std::ostream& operator<<(std::ostream& o, const QSS2_TransitionGuards& g)
  * @brief Differential equation implementation
  * of QSS2
  */
-class VLE_EXTENSION_EXPORT QSS2 : public de::DifferentialEquationImpl
+class QSS2 : public de::DifferentialEquationImpl
 {
 private:
     //definition of DEVS state variables

@@ -30,12 +30,11 @@
 #define VLE_EXT_DECISION_PRECEDENCESGRAPH_HPP
 
 #include <vle/extension/decision/PrecedenceConstraint.hpp>
-#include <vle/extension/decision/DllDefines.hpp>
 #include <set>
 
 namespace vle { namespace extension { namespace decision {
 
-class VLE_EXT_EXPORT PrecedencesGraph
+class PrecedencesGraph
 {
 public:
     typedef std::multiset < PrecedenceConstraint,

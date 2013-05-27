@@ -30,11 +30,10 @@
 #define VLE_EXT_DECISION_RULE_HPP
 
 #include <vle/extension/decision/Predicates.hpp>
-#include <vle/extension/decision/DllDefines.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
-class VLE_EXT_EXPORT Rule
+class Rule
 {
 public:
     void add(const Predicate& pred) { m_predicats.add(pred); }

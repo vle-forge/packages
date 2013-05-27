@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
-ADD_LIBRARY(fsa STATIC DllDefines.hpp FDDevs.cpp FDDevs.hpp FSA.cpp
+ADD_LIBRARY(fsa STATIC FDDevs.cpp FDDevs.hpp FSA.cpp
   FSA.hpp Mealy.cpp Mealy.hpp Moore.cpp Moore.hpp Statechart.cpp
   StatechartDbg.hpp Statechart.hpp)
 
@@ -16,11 +16,11 @@ ENDIF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
 SET_TARGET_PROPERTIES(fsa PROPERTIES OUTPUT_NAME
   "fsa-${MODEL_MAJOR}.${MODEL_MINOR}")
 
-TARGET_LINK_LIBRARIES(fsa ${VLE_LIBRARIES})
+TARGET_LINK_LIBRARIES(fsa ${VLE_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS fsa ARCHIVE DESTINATION lib)
 
-install(FILES DllDefines.hpp FDDevs.hpp FSA.hpp Mealy.hpp Moore.hpp
+install(FILES FDDevs.hpp FSA.hpp Mealy.hpp Moore.hpp
   StatechartDbg.hpp Statechart.hpp
   DESTINATION src/vle/extension/fsa)
 

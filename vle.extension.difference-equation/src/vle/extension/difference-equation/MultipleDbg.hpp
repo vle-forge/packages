@@ -29,14 +29,13 @@
 #ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_MULTIPLE_DBG_HPP
 #define VLE_EXTENSION_DIFFERENCE_EQUATION_MULTIPLE_DBG_HPP 1
 
-#include <vle/extension/difference-equation/DllDefines.hpp>
 #include <vle/extension/difference-equation/Multiple.hpp>
 #include <vle/utils/Trace.hpp>
 #include <vle/version.hpp>
 
 #define DECLARE_DIFFERENCE_EQUATION_MULTIPLE_DBG(mdl)                  \
     extern "C" {                                                       \
-        VLE_EXTENSION_EXPORT vle::devs::Dynamics*                      \
+        vle::devs::Dynamics*                      \
         vle_make_new_dynamics(const vle::devs::DynamicsInit& init,     \
                               const vle::devs::InitEventList& events)  \
         {                                                              \
@@ -44,7 +43,7 @@
                 < mdl >(init, events);                                 \
         }                                                              \
                                                                        \
-        VLE_EXTENSION_EXPORT void                                      \
+        void                                      \
         vle_api_level(vle::uint32_t* major,                            \
                       vle::uint32_t* minor,                            \
                       vle::uint32_t* patch)                            \

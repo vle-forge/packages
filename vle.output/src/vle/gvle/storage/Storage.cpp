@@ -30,7 +30,7 @@
 #include <vle/value/Value.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/value/Integer.hpp>
-#include <vle/utils/Path.hpp>
+#include <vle/utils/Package.hpp>
 #include <gtkmm/filechooserdialog.h>
 #include <cassert>
 #include <gtkmm.h>
@@ -51,9 +51,10 @@ bool Storage::start(vpz::Output& output, vpz::View& /* view */)
 {
     assert(output.plugin() == "storage");
 
-    std::string glade =
-        utils::Path::path().getExternalPackagePluginGvleOutputFile(
-            getPackage(), "storage.glade");
+    vle::utils::Package pkg(getPackage());
+
+    std::string glade = pkg.getPluginGvleOutputFile("storage.glade",
+            vle::utils::PKG_BINARY);
 
     Glib::RefPtr < Gtk::Builder > ref = Gtk::Builder::create();
     ref->add_from_file(glade.c_str());
