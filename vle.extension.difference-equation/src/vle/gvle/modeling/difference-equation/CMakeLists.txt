@@ -13,8 +13,8 @@ ADD_LIBRARY(modeling-DE-simple SHARED Simple.hpp Simple.cpp Plugin.hpp
 SET_TARGET_PROPERTIES(modeling-DE-simple PROPERTIES OUTPUT_NAME
   "DifferenceEquationSimple")
 
-TARGET_LINK_LIBRARIES(modeling-DE-simple ${VLE_LIBRARIES}
-  ${GVLE_LIBRARIES} ${GTKSOURCEVIEWMM_LIBRARIES})
+TARGET_LINK_LIBRARIES(modeling-DE-simple
+  ${GVLE_LIBRARIES} ${GTKSOURCEVIEWMM_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS modeling-DE-simple RUNTIME DESTINATION
   plugins/gvle/modeling LIBRARY DESTINATION plugins/gvle/modeling)
@@ -27,8 +27,8 @@ ADD_LIBRARY(modeling-DE-generic SHARED Generic.hpp Generic.cpp
 SET_TARGET_PROPERTIES(modeling-DE-generic PROPERTIES OUTPUT_NAME
   "DifferenceEquationGeneric")
 
-TARGET_LINK_LIBRARIES(modeling-DE-generic ${VLE_LIBRARIES}
-  ${GVLE_LIBRARIES} ${GTKSOURCEVIEWMM_LIBRARIES})
+TARGET_LINK_LIBRARIES(modeling-DE-generic
+  ${GVLE_LIBRARIES} ${GTKSOURCEVIEWMM_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS modeling-DE-generic RUNTIME DESTINATION
   plugins/gvle/modeling LIBRARY DESTINATION plugins/gvle/modeling)
@@ -41,8 +41,8 @@ ADD_LIBRARY(modeling-DE-multiple SHARED Multiple.hpp Multiple.cpp
 SET_TARGET_PROPERTIES(modeling-DE-multiple PROPERTIES OUTPUT_NAME
   "DifferenceEquationMultiple")
 
-TARGET_LINK_LIBRARIES(modeling-DE-multiple ${VLE_LIBRARIES}
-  ${GVLE_LIBRARIES} ${GTKSOURCEVIEWMM_LIBRARIES})
+TARGET_LINK_LIBRARIES(modeling-DE-multiple
+  ${GVLE_LIBRARIES} ${GTKSOURCEVIEWMM_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS modeling-DE-multiple RUNTIME DESTINATION
   plugins/gvle/modeling LIBRARY DESTINATION plugins/gvle/modeling)

@@ -33,7 +33,7 @@
 
 namespace vle { namespace extension { namespace DifferenceEquation {
 
-class VLE_EXTENSION_EXPORT Simple : public Base
+class Simple : public Base
 {
 public:
     /**
