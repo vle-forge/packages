@@ -26,10 +26,12 @@
  */
 
 
+#include <iostream>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/vpz/Vpz.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/utils/Package.hpp>
+
 
 namespace vle { namespace examples { namespace recursives {
 
