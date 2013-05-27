@@ -4,7 +4,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
 ADD_LIBRARY(decision STATIC Activities.cpp Activities.hpp Activity.cpp
-  Activity.hpp Agent.cpp Agent.hpp DllDefines.hpp Facts.hpp KnowledgeBase.cpp
+  Activity.hpp Agent.cpp Agent.hpp Facts.hpp KnowledgeBase.cpp
   KnowledgeBase.hpp Library.cpp Library.hpp Plan.cpp Plan.hpp
   PrecedenceConstraint.cpp PrecedenceConstraint.hpp PrecedencesGraph.cpp
   PrecedencesGraph.hpp Predicates.cpp Predicates.hpp Rule.hpp Rules.cpp
@@ -19,11 +19,11 @@ ENDIF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
 SET_TARGET_PROPERTIES(decision PROPERTIES OUTPUT_NAME
   "decision-${MODEL_MAJOR}.${MODEL_MINOR}")
 
-TARGET_LINK_LIBRARIES(decision ${VLE_LIBRARIES})
+TARGET_LINK_LIBRARIES(decision ${VLE_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS decision ARCHIVE DESTINATION lib)
 
-install(FILES Activities.hpp Activity.hpp Agent.hpp DllDefines.hpp
+install(FILES Activities.hpp Activity.hpp Agent.hpp
   Facts.hpp KnowledgeBase.hpp Library.hpp Plan.hpp
   PrecedenceConstraint.hpp PrecedencesGraph.hpp Predicates.hpp
   Rule.hpp Rules.hpp Table.hpp

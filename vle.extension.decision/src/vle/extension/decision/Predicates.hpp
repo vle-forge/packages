@@ -29,7 +29,6 @@
 #ifndef VLE_EXT_DECISION_PREDICATES_HPP
 #define VLE_EXT_DECISION_PREDICATES_HPP
 
-#include <vle/extension/decision/DllDefines.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <vector>
@@ -43,7 +42,7 @@ namespace vle { namespace extension { namespace decision {
  */
 typedef boost::function < bool (void) > Predicate;
 
-class VLE_EXT_EXPORT Predicates
+class Predicates
 {
 public:
     typedef std::vector < Predicate > predicates_t;

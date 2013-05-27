@@ -29,7 +29,6 @@
 #ifndef VLE_EXT_DECISION_LIBRARY_HPP
 #define VLE_EXT_DECISION_LIBRARY_HPP 1
 
-#include <vle/extension/decision/DllDefines.hpp>
 #include <vle/extension/decision/Plan.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/i18n.hpp>
@@ -40,7 +39,7 @@ namespace vle { namespace extension { namespace decision {
 
 class KnowledgeBase;
 
-class VLE_EXT_EXPORT Library
+class Library
 {
 public:
     typedef std::map < std::string, Plan > LibraryT;
