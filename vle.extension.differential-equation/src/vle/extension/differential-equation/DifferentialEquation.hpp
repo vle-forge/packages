@@ -213,9 +213,25 @@ public:
         {
         }
 
+        Var(const std::string& n, double value, DifferentialEquation* eq) :
+                name(n), itVar(0), equation(eq)
+        {
+            operator=(value);
+            //note: itVar has to be disabled since we are still in the constr :
+            //other variables could be created and invalidate itVar
+            itVar = 0;
+        }
+
         inline void initPointer()
         {
             if (not itVar) {
+                if (not equation) {
+                    throw vu::ModellingError(
+                            vle::fmt("[%1%] Manipulation  the Var '%2%' "
+                                    "at this stage")
+                                % equation->getModelName() % name );
+
+                }
                 itVar = &(equation->vars().find(name)->second);
             }
         }
@@ -232,9 +248,25 @@ public:
             return itVar->getGrad();
         }
 
+        inline void operator=(double value)
+        {
+            initPointer();
+            itVar->setVal(value);
+        }
+
         inline double operator()()
         {
             initPointer();
+            return itVar->getVal();
+        }
+
+        inline double operator()() const
+        {
+            if (not itVar or not equation) {
+                throw vu::ModellingError(
+                     vle::fmt("[%1%] Error when const accessing value of '%2%'")
+                        % equation->getModelName() % name );
+            }
             return itVar->getVal();
         }
     };
@@ -314,6 +346,8 @@ public:
 public:
 
     Var createVar(const std::string& name);
+
+    Var createVar(const std::string& name, double value);
 
     Ext createExt(const std::string& name);
 

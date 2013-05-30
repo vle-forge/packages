@@ -51,6 +51,16 @@ DifferentialEquation::Var DifferentialEquation::createVar(
     return Var(name, this);
 }
 
+DifferentialEquation::Var DifferentialEquation::createVar(
+        const std::string& name, double value)
+{
+    if (not mdeclarationOn) {
+        throw vu::InternalError(" TODO mdeclarationOn Var");
+    }
+    mvars.add(name);
+    return Var(name, value, this);
+}
+
 DifferentialEquation::Ext DifferentialEquation::createExt(
         const std::string& name)
 {
