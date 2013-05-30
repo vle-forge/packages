@@ -97,18 +97,8 @@ vd::Time DifferentialEquation::init(const vd::Time& time)
             if (minitVariables->exist(v.getName())) {
                 v.setVal(minitVariables->getDouble(v.getName()));
             } else {
-                throw vu::ModellingError(
-                        vle::fmt("[%1%] Initilization value "
-                                "of state variable '%2%' missing")
-                                % getModelName() % v.getName());
+                v.setVal(0);
             }
-        }
-        if (minitVariables->value().size() != vars().size()) {
-            throw vu::ModellingError(
-                    vle::fmt("[%1%] Initialization map of state variables "
-                            "has size '%2%' (expected : '%3%'). ")
-                            % getModelName() % minitVariables->value().size()
-                            % vars().size());
         }
     }
 
