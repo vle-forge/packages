@@ -509,8 +509,8 @@ void PluginForrester::createActions()
 
     mActionGroup->add(
         Gtk::RadioAction::create(toolsGroup, "AddFlow", Gtk::Stock::ADD,
-                                 _("Flow"),
-                                 _("Add a flow (F3)")),
+                                 _("Material Flow"),
+                                 _("Add a material flow (F3)")),
         Gtk::AccelKey("F3"),
         sigc::mem_fun(this, &PluginForrester::onAddFlow));
 
@@ -523,36 +523,36 @@ void PluginForrester::createActions()
     mActionGroup->add(
         Gtk::RadioAction::create(toolsGroup, "AddExogenousVariable", Gtk::Stock::ADD,
                                  _("Exogenous variable"),
-                                 _("Add an exogenous variable (F9)")),
+                                 _("Add a exogenous variable (F9)")),
         Gtk::AccelKey("F9"),
         sigc::mem_fun(this, &PluginForrester::onAddExogenousVariable));
 
     mActionGroup->add(
         Gtk::RadioAction::create(toolsGroup, "AddVariable", Gtk::Stock::ADD,
-                                 _("Variable"),
-                                 _("Add variable (F10)")),
+                                 _("Auxiliary Variable"),
+                                 _("Add a auxiliary variable (F10)")),
         Gtk::AccelKey("F10"),
         sigc::mem_fun(this, &PluginForrester::onAddVariable));
 
     mActionGroup->add(
         Gtk::RadioAction::create(toolsGroup,
                                  "AddFlowArrow", Gtk::Stock::DISCONNECT,
-                                 _("Hardware flow"),
-                                 _("Add a flow arrow (F6)")),
+                                 _("Hardware link"),
+                                 _("Add a harware link (F6)")),
         Gtk::AccelKey("F6"),
         sigc::mem_fun(this, &PluginForrester::onAddFlowArrow));
     mActionGroup->add(
         Gtk::RadioAction::create(toolsGroup,
                                  "AddDependencyArrow", Gtk::Stock::DISCONNECT,
-                                 _("Dependency"),
-                                 _("Add a dependency(F7)")),
+                                 _("Information flow"),
+                                 _("Add a information flow (F7)")),
         Gtk::AccelKey("F7"),
         sigc::mem_fun(this, &PluginForrester::onAddParameterArrow));
 
     mActionGroup->add(
         Gtk::RadioAction::create(toolsGroup, "Delete", Gtk::Stock::DELETE,
                                  _("Remove"),
-                                 _("Remove compartment (F8)")),
+                                 _("Remove a item (F8)")),
         Gtk::AccelKey("F8"),
         sigc::mem_fun(this, &PluginForrester::onRemoveCompartment));
 
