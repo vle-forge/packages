@@ -1,5 +1,5 @@
 add_subdirectory(extension)
 
-if (GVLE_FOUND)
+if (HAVE_GVLE)
   add_subdirectory(gvle)
 endif ()

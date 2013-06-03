@@ -49,10 +49,14 @@ set(GVLE_DEBUG 0)
 find_package(VLE REQUIRED)
 find_package(GVLE)
 
-IF (GVLE_FOUND AND NOT WIN32)
-  PKG_CHECK_MODULES(GTKSOURCEVIEWMM gtksourceviewmm-2.0)
-ENDIF ()
+option(WITH_GVLE "use the GVLE [default: on]" ON)
+if (WITH_GVLE AND GVLE_FOUND)
+  set (HAVE_GVLE 1 CACHE INTERNAL "" FORCE)
+endif ()
 
+IF (NOT WIN32)
+  PKG_CHECK_MODULES(GTKSOURCEVIEWMM gtksourceviewmm-2.0)
+ENDIF (NOT WIN32)
 
 ##
 ## Find boost
