@@ -1021,21 +1021,49 @@ void PluginForrester::generateObservable(
 {
     std::string observableName((fmt("obs_DTE_%1%") % model.getName()).str());
 
-    if (observables.exist(observableName))
-        observables.del(observableName);
+    if (observables.exist(observableName)) {
+        vpz::Observable& observable(observables.get(observableName));
 
-    vpz::Observable observable(observableName);
-    for (graphical_items::const_iterator it =
-    mForrester->getItems().begin();
-    it != mForrester->getItems().end(); ++it) {
+        for (vpz::Observable::iterator it = observable.begin();
+             it != observable.end();
+             ++it) {
+
+            //vpz::Observable observable(observableName);
+            graphical_items::const_iterator jt;
+            for (jt = mForrester->getItems().begin();
+                 jt != mForrester->getItems().end(); ++jt) {
+                if ((*jt)->getName() == it->first)
+                    break;
+            }
+            if (jt == mForrester->getItems().end()) {
+                observable.del(it->first);
+            }
+        }
+
+        for (graphical_items::const_iterator it =
+                 mForrester->getItems().begin();
+             it != mForrester->getItems().end(); ++it) {
+
+            if (!observable.exist((*it)->getName())) {
+                (*it)->generateObservable(observable);
+            }
+        }
+    } else {
+        vpz::Observable observable(observableName);
+
+        for (graphical_items::const_iterator it =
+                 mForrester->getItems().begin();
+             it != mForrester->getItems().end(); ++it) {
             (*it)->generateObservable(observable);
-    }
-    observables.add(observable);
+        }
+        observables.add(observable);
 
-    if (model.observables().empty()) {
-        model.setObservables(observableName);
+        if (model.observables().empty()) {
+            model.setObservables(observableName);
+        }
     }
 }
+
 
 }
 }
