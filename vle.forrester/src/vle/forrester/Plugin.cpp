@@ -768,22 +768,23 @@ void PluginForrester::generateExperimentalConditions(
     vle::value::Map variables;
 
     for (graphical_items::const_iterator it = mForrester->getItems().begin();
-    it != mForrester->getItems().end(); ++it) {
+         it != mForrester->getItems().end(); ++it) {
         if (Compartment* item = dynamic_cast<Compartment*>(*it))
-        variables.add(item->getName(),
-                      vle::value::Double(item->getInitialValue()));
+            variables.add(item->getName(),
+                          vle::value::Double(item->getInitialValue()));
     }
 
     std::string conditionName(generateConditionName(model));
 
-    if (conditions.exist(conditionName)) {
-        vpz::Condition& condition(conditions.get(conditionName));
-        condition.del("variables");
-        condition.addValueToPort("variables", variables);
-    } else {
-        vpz::Condition condition(conditionName);
-        condition.addValueToPort("variables", variables);
-        conditions.add(condition);
+    vpz::Condition& condition(conditions.get(conditionName));
+    condition.del("variables");
+    condition.addValueToPort("variables", variables);
+    for (graphical_items::const_iterator it =
+             mForrester->getItems().begin();
+         it != mForrester->getItems().end(); ++it) {
+        if (Compartment* item = dynamic_cast<Compartment*>(*it))
+            condition.addValueToPort(item->getName(),
+                                     vle::value::Double(item->getInitialValue()));
     }
 
     std::vector < std::string > cond(model.conditions());
