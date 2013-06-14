@@ -86,7 +86,11 @@ public:
     {
         mForrester = forrester_;
         set_size_request(mForrester->getForresterGI().getWidth(),
-            mForrester->getForresterGI().getHeight());
+                         mForrester->getForresterGI().getHeight());
+        if (mIsRealized) {
+            updateBuffer();
+            queueRedraw();
+        }
     }
 
     /*!
