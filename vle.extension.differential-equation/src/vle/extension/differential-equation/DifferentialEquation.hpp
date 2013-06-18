@@ -428,7 +428,7 @@ protected:
     ExternVariables mextVars;
     DifferentialEquationImpl* meqImpl;
     bool mdeclarationOn;
-    vv::Map* minitVariables;
+    vv::Map* minitConditions;
     vv::Map* mmethParams;
     std::string mmethod;
 

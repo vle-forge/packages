@@ -2,7 +2,7 @@
 <!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
 <vle_project version="1.1.0" date="2011-Nov-20 23:42:28" author="Ronan Trépos">
 <structures>
-<model name="Top model" type="coupled" x="0" y="0" width="825" height="484"  >
+<model name="Top model" type="coupled" x="0" y="0" width="947" height="446"  >
 <submodels>
 <model name="LadybirdPlantlouse" type="atomic" conditions="condLP,condQSS" dynamics="dynLadybirdPlantlouse" observables="obs" x="66" y="46" width="100" height="30" >
 </model>
@@ -25,6 +25,12 @@
 </port>
 </condition>
 <condition name="condLP" >
+ <port name="X" >
+<double>5000.000000000000000</double>
+</port>
+ <port name="Y" >
+<double>45.000000000000000</double>
+</port>
  <port name="a" >
 <double>0.500000000000000</double>
 </port>
@@ -36,9 +42,6 @@
 </port>
  <port name="e" >
 <double>0.200000000000000</double>
-</port>
- <port name="variables" >
-<map><key name="X"><double>5000.000000000000000</double></key><key name="Y"><double>45.000000000000000</double></key></map>
 </port>
 </condition>
 <condition name="condQSS" >
