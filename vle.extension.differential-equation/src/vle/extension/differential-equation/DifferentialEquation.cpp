@@ -14,7 +14,7 @@ namespace ts = vle::extension::differential_equation::timeSlicingMethod;
 DifferentialEquation::DifferentialEquation(const vd::DynamicsInit& model,
         const vd::InitEventList& events) :
         vd::Dynamics(model, events), mvars(), mextVars(), meqImpl(0),
-            mdeclarationOn(true), minitVariables(0), mmethParams(0), mmethod()
+            mdeclarationOn(true), minitConditions(0), mmethParams(0), mmethod()
 {
     if (!events.exist("method") || !events.get("method")->isString()) {
         throw vu::ModellingError("error method");
@@ -23,15 +23,15 @@ DifferentialEquation::DifferentialEquation(const vd::DynamicsInit& model,
             || !events.get("method-parameters")->isMap()) {
         throw vu::ModellingError("error method-parameters");
     }
-    minitVariables = new vv::Map(events.getMap("variables"));
+    minitConditions = dynamic_cast<vv::Map*>(events.clone());
     mmethParams = (vv::Map*) events.get("method-parameters")->clone();
     mmethod = events.getString("method");
 }
 
 DifferentialEquation::~DifferentialEquation()
 {
-    if (minitVariables) {
-        delete minitVariables;
+    if (minitConditions) {
+        delete minitConditions;
     }
     if (mmethParams) {
         delete mmethParams;
@@ -49,6 +49,16 @@ DifferentialEquation::Var DifferentialEquation::createVar(
     }
     mvars.add(name);
     return Var(name, this);
+}
+
+DifferentialEquation::Var DifferentialEquation::createVar(
+        const std::string& name, double value)
+{
+    if (not mdeclarationOn) {
+        throw vu::InternalError(" TODO mdeclarationOn Var");
+    }
+    mvars.add(name);
+    return Var(name, value, this);
 }
 
 DifferentialEquation::Ext DifferentialEquation::createExt(
@@ -89,26 +99,30 @@ vd::Time DifferentialEquation::init(const vd::Time& time)
     mdeclarationOn = false;
 
     //initialisation of variables
-    if (minitVariables) {
-        Variables::iterator itb = mvars.begin();
-        Variables::iterator ite = mvars.end();
-        for (; itb != ite; itb++) {
-            Variable& v = itb->second;
-            if (minitVariables->exist(v.getName())) {
-                v.setVal(minitVariables->getDouble(v.getName()));
-            } else {
-                throw vu::ModellingError(
-                        vle::fmt("[%1%] Initilization value "
-                                "of state variable '%2%' missing")
-                                % getModelName() % v.getName());
+   vv::Map* vars_map = 0;
+    if(minitConditions->exist("variables") &&
+            minitConditions->get("variables")->isMap()) {
+        vars_map = dynamic_cast<vv::Map*>(
+                minitConditions->get("variables"));
+    }
+
+    Variables::iterator itb = mvars.begin();
+    Variables::iterator ite = mvars.end();
+    for (; itb != ite; itb++) {
+        Variable& v = itb->second;
+        if (minitConditions) {
+            if (vars_map) {
+                if (minitConditions->exist(v.getName()) &&
+                        minitConditions->get(v.getName())->isDouble()) {
+                    v.setVal(minitConditions->getDouble(v.getName()));
+                } else if (vars_map->exist(v.getName()) &&
+                        vars_map->get(v.getName())->isDouble()) {
+                    v.setVal(vars_map->getDouble(v.getName()));
+                } else {
+                    v.setVal(0);
+                }
             }
-        }
-        if (minitVariables->value().size() != vars().size()) {
-            throw vu::ModellingError(
-                    vle::fmt("[%1%] Initialization map of state variables "
-                            "has size '%2%' (expected : '%3%'). ")
-                            % getModelName() % minitVariables->value().size()
-                            % vars().size());
+
         }
     }
 
