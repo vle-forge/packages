@@ -62,7 +62,7 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "#include <vle/extension/decision/Agent.hpp>\n"                     \
     "#include <vle/extension/decision/Activity.hpp>\n"                  \
     "#include <vle/extension/decision/KnowledgeBase.hpp>\n"             \
-    "#include <vle/utils/Path.hpp>\n"                                   \
+    "#include <vle/utils/Package.hpp>\n"                                \
     "#include <sstream>\n"                                              \
     "#include <numeric>\n"                                              \
     "#include <fstream>\n"                                              \
@@ -107,8 +107,15 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{addAckFunctionList^i}}"                                          \
     "{{end for}}\n"                                                     \
     "        //Plan initialisation\n"                                   \
+    "        std::string dataPackageParam;\n"                           \
+    "        if (evts.exist(\"PackageName\"))\n"                        \
+    "          dataPackageParam = evts.getString(\"PackageName\");\n"   \
+    "        else\n"                                                    \
+    "          throw vle::utils::ModellingError(\n"                     \
+    "             \"Package where to find the data is not set\");\n"    \
+    "        vle::utils::Package mPack(dataPackageParam);\n"            \
     "        std::string filePath =\n"                                  \
-    "        getPackageDataFile(\"{{classname}}.txt\");\n"              \
+    "        mPack.getDataFile(\"{{classname}}.txt\");\n"               \
     "        std::ifstream fileStream(filePath.c_str());\n"             \
     "        KnowledgeBase::plan().fill(fileStream);\n"                 \
     "    }\n"                                                           \
@@ -1268,8 +1275,9 @@ void PluginDecision::generateConditions(vpz::AtomicModel& model,
     // Plan file name
     vpz::Condition planFileName(conditionPlanName);
     value::String planFile(mPlanFile);
+    value::String packageName(getCurrPackage());
     planFileName.addValueToPort("planFile", planFile);
-
+    planFileName.addValueToPort("PackageName", packageName);
     // Parameters
     vpz::Condition parameters(conditionParametersName);
     for (std::map < std::string, std::string > ::const_iterator it =
@@ -1924,7 +1932,6 @@ void PluginDecision::onChooseFileName()
         mDialog->set_title("Decision - Plugin : " + mPlanFile + ".txt");
     }
 }
-
 }
 }
 }
