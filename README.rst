@@ -6,22 +6,24 @@ Packages for VLE
 Requirements
 ------------
 
-vle      1.1  http://www.vle-project.org
-boost    1.49 http://www.boost.org
-cmake    2.8  http://www.cmake.org
-
+* c++ compiler
+* vle      1.1  http://www.vle-project.org
+* boost    1.49 http://www.boost.org
+* cmake    2.8  http://www.cmake.org
 
 ------------
 Installation
 ------------
 
-vle-1.1 --package=vle.output build configure
-vle-1.1 --package=vle.extension.celldevs build configure
-vle-1.1 --package=vle.extension.cellqss build configure
-vle-1.1 --package=vle.extension.decision build configure
-vle-1.1 --package=vle.extension.difference-equation build configure
-vle-1.1 --package=vle.extension.differential-equation build configure
-vle-1.1 --package=vle.extension.dsdevs build configure
-vle-1.1 --package=vle.extension.fsa build configure
-vle-1.1 --package=vle.extension.petrinet build configure
-vle-1.1 --package=vle.examples build configure
+* vle-1.1 --package=vle.output configure build
+* vle-1.1 --package=vle.extension.celldevs configure build
+* vle-1.1 --package=vle.extension.cellqss configure build
+* vle-1.1 --package=vle.extension.decision configure build
+* vle-1.1 --package=vle.extension.difference-equation configure build
+* vle-1.1 --package=vle.extension.differential-equation configure build
+* vle-1.1 --package=vle.extension.dsdevs configure build
+* vle-1.1 --package=vle.extension.fsa configure build
+* vle-1.1 --package=vle.extension.petrinet configure build
+* vle-1.1 --package=vle.examples configure build
+* vle-1.1 --package=vle.examples ext.muparser configure build
+* vle-1.1 --package=vle.examples vle.forrester configure build
