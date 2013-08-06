@@ -343,11 +343,11 @@ void PluginDecision::onAddConstraint()
 }
 
 bool PluginDecision::create(vpz::AtomicModel& model,
-    vpz::Dynamic& /*dynamic*/,
-    vpz::Conditions& conditions,
-    vpz::Observables& observables,
-    const std::string& classname,
-    const std::string& namespace_)
+                            vpz::Dynamic& dynamic,
+                            vpz::Conditions& conditions,
+                            vpz::Observables& observables,
+                            const std::string& classname,
+                            const std::string& namespace_)
 {
     mView->clearSelections();
 
@@ -373,6 +373,7 @@ bool PluginDecision::create(vpz::AtomicModel& model,
         generateObservables(model, observables);
         generateConditions(model, conditions);
         generatePorts(model);
+        model.setDynamics(dynamic.name());
         mDialog->hide();
         destroy();
         return true;
@@ -808,11 +809,11 @@ void PluginDecision::generateSource(const std::string& classname,
 }
 
 bool PluginDecision::modify(vpz::AtomicModel& model,
-    vpz::Dynamic& /*dynamic*/,
-    vpz::Conditions& conditions,
-    vpz::Observables& observables,
-    const std::string& conf,
-    const std::string& buffer)
+                            vpz::Dynamic& dynamic,
+                            vpz::Conditions& conditions,
+                            vpz::Observables& observables,
+                            const std::string& conf,
+                            const std::string& buffer)
 {
     mView->clearSelections();
 
@@ -952,6 +953,7 @@ bool PluginDecision::modify(vpz::AtomicModel& model,
         generateObservables(model, observables);
         generateConditions(model, conditions);
         generatePorts(model);
+        model.setDynamics(dynamic.name());
         writePlanFile(mPlanFileName);
         mDialog->hide();
         destroy();
@@ -1296,6 +1298,9 @@ void PluginDecision::generateConditions(vpz::AtomicModel& model,
 
     pConditions.add(planFileName);
     pConditions.add(parameters);
+
+    model.addCondition(conditionPlanName);
+    model.addCondition(conditionParametersName);
 }
 
 void PluginDecision::generateObservables(vpz::AtomicModel& model,
