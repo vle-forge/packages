@@ -64,7 +64,7 @@ public:
  * @param a reference to the gtk builder
  */
     DecisionDrawingArea(BaseObjectType* cobject,
-            const Glib::RefPtr < Gtk::Builder >& xml);
+                        const Glib::RefPtr < Gtk::Builder >& xml);
 
 /**
  * @brief class destructor
@@ -90,6 +90,17 @@ public:
         mDecision = decision;
         mWidth = mDecision->width() + 2 * OFFSET;
         mHeight = mDecision->height() + 2 * OFFSET;
+        queueRedraw();
+    }
+
+/**
+ * @brief to clear the selection.
+ */
+    void clearSelections()
+    {
+        mCopiedActivitiesModel.clear();
+        mCurrentActivitiesModel.clear();
+        mCurrentPrecedenceConstraints.clear();
         queueRedraw();
     }
 

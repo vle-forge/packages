@@ -349,6 +349,8 @@ bool PluginDecision::create(vpz::AtomicModel& model,
     const std::string& classname,
     const std::string& namespace_)
 {
+    mView->clearSelections();
+
     vle::utils::Package pack(getCurrPackage());
     mPlanFileName = pack.getDataDir(vle::utils::PKG_SOURCE) + "/" +
             classname + ".txt";
@@ -359,6 +361,7 @@ bool PluginDecision::create(vpz::AtomicModel& model,
     mDialog->set_title("Decision - Plugin : " + mPlanFile + ".txt");
 
     mDecision = new Decision(mClassname);
+
     mView->setDecision(mDecision);
     mDecision->setRule(&mRule);
     mDecision->setAckFunc(&mAckFunctionName);
@@ -811,6 +814,7 @@ bool PluginDecision::modify(vpz::AtomicModel& model,
     const std::string& conf,
     const std::string& buffer)
 {
+    mView->clearSelections();
 
     std::string conditionPlanName((fmt("condDecisionPlan_%1%") %
                                    model.getName()).str());
