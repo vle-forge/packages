@@ -1,6 +1,12 @@
 Package: vle.forrester
 Version: 0.1.0
 Depends: ext.muparser (=0.1.0), vle.extension.differential-equation (=0.1.0)
+Build-Depends:
+Conflicts:
 Maintainer: Ronan Trépos <ronan.trepos@toulouse.inra.fr>
 Description: A modelling plugin based on the visual formalism Forrester
-Tag: modelling
+ .
+Tags: modelling
+Url: http://www.vle-project.org/pub/1.1
+Size: 0
+MD5sum: xxxx
