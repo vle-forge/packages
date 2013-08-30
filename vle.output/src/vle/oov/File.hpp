@@ -24,8 +24,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
 #ifndef VLE_OOV_PLUGINS_FILE_HPP
 #define VLE_OOV_PLUGINS_FILE_HPP 1
 
@@ -38,7 +36,8 @@ namespace vle { namespace oov { namespace plugin {
 
 /**
  * @brief File is a virtual class for the csv, text, and rdata
- * plug-in. When simulation is running, File writes information into a
+ * plug-in.
+ * When simulation is running, File writes information into a
  * tempory file localized into the local directory or in the directory
  * specified in the parameter trame.
  * The File accepts a value::Map in parameter with two keys:
@@ -50,6 +49,8 @@ namespace vle { namespace oov { namespace plugin {
  *   is attached to the locale of the user (run locale). Otherwise, the user
  *   can use all locale defines in the environment. Use the 'locale -a'
  *   command to show all locale of your system.
+ * - flush-by-bag: If the value is true, an output is provided for
+ * each bag.
  * <map>
  *  <key name="output">
  *   <string>out</string> <!-- or 'error' -->
@@ -127,6 +128,9 @@ private:
     /** Define the buffer for valid values (model observed). */
     typedef std::vector < bool > ValidElement;
 
+    /** Define a new bag indicator*/
+    typedef std::map < std::string, double> NewBagWatcher;
+
     enum OutputType {
         FILE, /*!< classical file stream (std::ofstream). */
         STANDARD_OUT, /*!< use the standard output (std::cout). */
@@ -137,6 +141,7 @@ private:
     Columns         m_columns;
     Line            m_buffer;
     ValidElement    m_valid;
+    NewBagWatcher   m_newbagwatcher;
     double          m_time;
     std::ofstream   m_file;
     std::string     m_filename;
@@ -145,8 +150,9 @@ private:
     bool            m_havefirstevent;
     bool            m_julian;
     OutputType      m_type;
+    bool            m_flushbybag;
 
-    void flush(double trame_time);
+    void flush();
 
     void finalFlush(double trame_time);
 

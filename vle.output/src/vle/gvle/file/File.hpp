@@ -56,6 +56,7 @@ private:
     Gtk::RadioButton* mRadioStdOut;
     Gtk::RadioButton* mRadioErrOut;
     Gtk::CheckButton* mCheckJulianDay;
+    Gtk::CheckButton* mCheckFlushByBag;
     Gtk::ComboBoxText* mComboType;
     Gtk::ComboBoxEntryText* mComboFile;
     Gtk::HBox* mHBoxFile;
