@@ -46,7 +46,7 @@ File::File(const std::string& package,
     vle::utils::Package pkg(getPackage());
 
     std::string glade = pkg.getPluginGvleOutputFile("file.glade",
-            vle::utils::PKG_BINARY);
+                                                    vle::utils::PKG_BINARY);
 
     Glib::RefPtr < Gtk::Builder > ref = Gtk::Builder::create();
     ref->add_from_file(glade.c_str());
@@ -56,6 +56,7 @@ File::File(const std::string& package,
     ref->get_widget("radiobuttonStdOutFileOutputPlugin", mRadioStdOut);
     ref->get_widget("radiobuttonErrOutFileOutputPlugin", mRadioErrOut);
     ref->get_widget("checkbuttonJulianDay", mCheckJulianDay);
+    ref->get_widget("checkbuttonFlushByBag", mCheckFlushByBag);
 
     Gtk::RadioButton::Group group = mRadioFile->get_group();
     mRadioStdOut->set_group(group);
@@ -155,6 +156,16 @@ void File::init(vpz::Output& output)
                 mCheckJulianDay->set_active(false);
             }
 	}
+
+        if (map->exist("flush-by-bag")) {
+            bool type = map->getBoolean("flush-by-bag");
+
+            if (type) {
+                mCheckFlushByBag->set_active(true);
+            } else {
+                mCheckFlushByBag->set_active(false);
+            }
+	}
     }
 }
 
@@ -170,9 +181,14 @@ void File::assign(vpz::Output& output)
 
     if (mCheckJulianDay->get_active()) {
         map->addBoolean("julian-day", true);
-    }
-    else {
+    } else {
         map->addBoolean("julian-day", false);
+    }
+
+    if (mCheckFlushByBag->get_active()) {
+        map->addBoolean("flush-by-bag", true);
+    } else {
+        map->addBoolean("flush-by-bag", false);
     }
 
     output.setData(map);
