@@ -18,7 +18,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PRTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -38,7 +38,7 @@ namespace vle { namespace oov { namespace plugin {
 
 class Console : public Plugin
 {
-    /** Define a dictionary (model's name, index) */
+    /** Define a dictionary (model's name & port, index) */
     typedef std::map < std::string, int > Columns;
 
     /** Define the buffer of values. */
@@ -47,6 +47,10 @@ class Console : public Plugin
     /** Define the buffer for valid values (model observed). */
     typedef std::vector < bool > ValidElement;
 
+    /** Define a new bag indicator*/
+    typedef std::map < std::string, double> NewBagWatcher;
+
+    bool mFlushByBag;
     bool mJulian;
     bool mIsStart;
     double mTime;
@@ -55,11 +59,13 @@ class Console : public Plugin
     Columns mColumns;
     Line mBuffer;
     ValidElement mValid;
+    NewBagWatcher mNewBagWatcher;
 
 public:
     Console(const std::string& location)
-        : Plugin(location), mJulian(false), mIsStart(false), mTime(-1.0),
-        mHaveFirstEvent(false), mHeader(true)
+        : Plugin(location), mFlushByBag(false), mJulian(false),
+          mIsStart(false), mTime(-1.0), mHaveFirstEvent(false),
+          mHeader(true)
     {}
 
     virtual ~Console()
@@ -89,6 +95,10 @@ public:
                 }
             }
 
+            if (map.exist("flush-by-bag")) {
+                mFlushByBag = map.getBoolean("flush-by-bag");
+            }
+
             if (map.exist("julian-day")) {
                 mJulian = map.getBoolean("julian-day");
             }
@@ -107,13 +117,13 @@ public:
                          const double& time)
     {
         if (mIsStart) {
-            flush(time);
+            flush();
         } else {
             if (not mHaveFirstEvent) {
                 mTime = time;
                 mHaveFirstEvent = true;
             } else {
-                flush(time);
+                flush();
                 mIsStart = true;
             }
         }
@@ -121,11 +131,12 @@ public:
         std::string name(buildname(parent, simulator, portname));
 
         if (mColumns.find(name) != mColumns.end()) {
-            throw utils::InternalError(fmt(
-                    _("Output plug-in: observable '%1%' already exist")) %
+            throw utils::InternalError(
+                fmt(_("Output plug-in: observable '%1%' already exist")) %
                 name);
         }
 
+        mNewBagWatcher[name] = -1.0;
         mColumns[name] = mBuffer.size();
         mBuffer.push_back((value::Value*)0);
         mValid.push_back(false);
@@ -146,31 +157,41 @@ public:
                  const double& time,
                  value::Value* value)
     {
+        std::string name(buildname(parent, simulator, port));
+        Columns::iterator it;
+
+        if (not simulator.empty()) {
+            name = buildname(parent, simulator, port);
+            it = mColumns.find(name);
+
+            if (it == mColumns.end()) {
+                throw utils::InternalError(
+                    fmt(
+                        _("Output plugin: columns '%1%' does not exist. "
+                          "No observable ?")) % name);
+            }
+        }
+
         if (mIsStart) {
-            flush(time);
+            if (time != mTime ||
+                (mFlushByBag &&
+                 mNewBagWatcher[name] == time)) {
+                flush();
+            }
         } else {
             if (not mHaveFirstEvent) {
-                mTime = time;
                 mHaveFirstEvent = true;
             } else {
-                flush(time);
+                flush();
                 mIsStart = true;
             }
         }
 
-        if (not simulator.empty()) {
-            std::string name(buildname(parent, simulator, port));
-            Columns::iterator it = mColumns.find(name);
+        mBuffer[it->second] = value;
+        mValid[it->second] = true;
 
-            if (it == mColumns.end()) {
-                throw utils::InternalError(fmt(
-                        _("Output plugin: columns '%1%' does not exist. "
-                          "No observable ?")) % name);
-            }
-
-            mBuffer[it->second] = value;
-            mValid[it->second] = true;
-        }
+        mTime = time;
+        mNewBagWatcher[name] = time;
     }
 
     void close(const double& time)
@@ -205,49 +226,46 @@ public:
         }
     }
 
-    void flush(double trameTime)
+    void flush()
     {
-        if (trameTime != mTime) {
-            if (mValid.empty() or std::find(mValid.begin(), mValid.end(),
-                                            true) != mValid.end()) {
-                std::cout << mTime;
-                if (mJulian) {
-                    std::cout << '\t';
-                    try {
-                        std::cout << utils::DateTime::toJulianDay(mTime);
-                    } catch (const std::exception& /*e*/) {
-                        throw utils::ModellingError(
-                            _("Output plug-in: Year is out of valid range "
-                              "in julian day: 1400..10000"));
-                    }
-                }
-
+        if (mValid.empty() or std::find(mValid.begin(), mValid.end(),
+                                        true) != mValid.end()) {
+            std::cout << mTime;
+            if (mJulian) {
                 std::cout << '\t';
-
-                const size_t nb(mBuffer.size());
-                for (size_t i = 0; i < nb; ++i) {
-                    if (mBuffer[i]) {
-                        mBuffer[i]->writeFile(std::cout);
-                    } else {
-                        std::cout << "NA";
+                try {
+                    std::cout << utils::DateTime::toJulianDay(mTime);
+                } catch (const std::exception& /*e*/) {
+                    throw utils::ModellingError(
+                        _("Output plug-in: Year is out of valid range "
+                          "in julian day: 1400..10000"));
                     }
-
-                    if (i + 1 < nb) {
-                        std::cout << '\t';
-                    }
-                    delete mBuffer[i];
-                    mBuffer[i] = 0;
-                    mValid[i] = false;
-                }
-                std::cout << "\n";
             }
+
+            std::cout << '\t';
+
+            const size_t nb(mBuffer.size());
+            for (size_t i = 0; i < nb; ++i) {
+                if (mBuffer[i]) {
+                    mBuffer[i]->writeFile(std::cout);
+                } else {
+                    std::cout << "NA";
+                }
+
+                if (i + 1 < nb) {
+                    std::cout << '\t';
+                }
+                delete mBuffer[i];
+                mBuffer[i] = 0;
+                mValid[i] = false;
+            }
+            std::cout << "\n";
         }
-        mTime = trameTime;
     }
 
     void finalFlush(double trameTime)
     {
-        flush(trameTime);
+        flush();
 
         if (mValid.empty() or std::find(mValid.begin(), mValid.end(), true) !=
             mValid.end()) {
