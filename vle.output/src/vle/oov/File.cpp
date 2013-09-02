@@ -39,7 +39,8 @@ namespace vle { namespace oov { namespace plugin {
 
 File::File(const std::string& location)
     : Plugin(location), m_filetype(0), m_time(-1.0), m_isstart(false),
-    m_havefirstevent(false), m_julian(false), m_type(File::FILE)
+      m_havefirstevent(false), m_julian(false), m_type(File::FILE),
+      m_flushbybag(false)
 {
 }
 
@@ -106,6 +107,10 @@ void File::onParameter(const std::string& plugin,
         if (map->exist("julian-day")) {
             m_julian = map->getBoolean("julian-day");
         }
+
+        if (map->exist("flush-by-bag")) {
+            m_flushbybag = map->getBoolean("flush-by-bag");
+        }
     }
 
     if (not m_filetype) {
@@ -134,13 +139,13 @@ void File::onNewObservable(const std::string& simulator,
                            const double& time)
 {
     if (m_isstart) {
-        flush(time);
+        flush();
     } else {
         if (not m_havefirstevent) {
             m_time = time;
             m_havefirstevent = true;
         } else {
-            flush(time);
+            flush();
             m_isstart = true;
         }
     }
@@ -153,6 +158,7 @@ void File::onNewObservable(const std::string& simulator,
             name);
     }
 
+    m_newbagwatcher[name] = -1.0;
     m_columns[name] = m_buffer.size();
     m_buffer.push_back((value::Value*)0);
     m_valid.push_back(false);
@@ -173,31 +179,43 @@ void File::onValue(const std::string& simulator,
                    const double& time,
                    value::Value* value)
 {
-    if (m_isstart) {
-        flush(time);
-    } else {
-        if (not m_havefirstevent) {
-            m_time = time;
-            m_havefirstevent = true;
-        } else {
-            flush(time);
-            m_isstart = true;
-        }
-    }
+    std::string name(buildname(parent, simulator, port));
+    Columns::iterator it;
 
     if (not simulator.empty()) {
-        std::string name(buildname(parent, simulator, port));
-        Columns::iterator it = m_columns.find(name);
+        name = buildname(parent, simulator, port);
+        it = m_columns.find(name);
 
         if (it == m_columns.end()) {
-            throw utils::InternalError(fmt(
+            throw utils::InternalError(
+                fmt(
                     _("Output plugin: columns '%1%' does not exist. "
                       "No observable ?")) % name);
         }
-
-        m_buffer[it->second] = value;
-        m_valid[it->second] = true;
     }
+
+    if (m_isstart) {
+        if (time != m_time ||
+            (m_flushbybag &&
+             m_newbagwatcher[name] == time)) {
+            flush();
+        }
+    } else {
+        if (not m_havefirstevent) {
+            m_havefirstevent = true;
+        } else {
+            flush();
+            m_isstart = true;
+        }
+        m_time = time;
+        m_newbagwatcher[name] = time;
+    }
+
+    m_buffer[it->second] = value;
+    m_valid[it->second] = true;
+
+    m_time = time;
+    m_newbagwatcher[name] = time;
 }
 
 void File::close(const double& time)
@@ -221,48 +239,45 @@ void File::close(const double& time)
     std::remove(m_filenametmp.c_str());
 }
 
-void File::flush(double trame_time)
+void File::flush()
 {
-    if (trame_time != m_time) {
-        if (m_valid.empty() or std::find(m_valid.begin(), m_valid.end(), true)
-            != m_valid.end()) {
-            m_file << m_time;
-            if (m_julian) {
-                m_filetype->writeSeparator(m_file);
-                try {
-                    m_file << utils::DateTime::toJulianDay(m_time);
-                } catch (const std::exception& /*e*/) {
-                    throw utils::ModellingError(
-                        _("Output plug-in: Year is out of valid range "
-                          "in julian day: 1400..10000"));
-                }
-            }
+    if (m_valid.empty() or std::find(m_valid.begin(), m_valid.end(), true)
+        != m_valid.end()) {
+        m_file << m_time;
+        if (m_julian) {
             m_filetype->writeSeparator(m_file);
-
-            const size_t nb(m_buffer.size());
-            for (size_t i = 0; i < nb; ++i) {
-                if (m_buffer[i]) {
-                    m_buffer[i]->writeFile(m_file);
-                } else {
-                    m_file << "NA";
-                }
-
-                if (i + 1 < nb) {
-                    m_filetype->writeSeparator(m_file);
-                }
-                delete m_buffer[i];
-                m_buffer[i] = 0;
-                m_valid[i] = false;
+            try {
+                m_file << utils::DateTime::toJulianDay(m_time);
+            } catch (const std::exception& /*e*/) {
+                throw utils::ModellingError(
+                    _("Output plug-in: Year is out of valid range "
+                      "in julian day: 1400..10000"));
             }
-            m_file << "\n";
         }
+        m_filetype->writeSeparator(m_file);
+
+        const size_t nb(m_buffer.size());
+        for (size_t i = 0; i < nb; ++i) {
+            if (m_buffer[i]) {
+                m_buffer[i]->writeFile(m_file);
+            } else {
+                m_file << "NA";
+            }
+
+            if (i + 1 < nb) {
+                m_filetype->writeSeparator(m_file);
+            }
+            delete m_buffer[i];
+            m_buffer[i] = 0;
+            m_valid[i] = false;
+        }
+        m_file << "\n";
     }
-    m_time = trame_time;
 }
 
 void File::finalFlush(double trame_time)
 {
-    flush(trame_time);
+    flush();
 
     if (std::find(m_valid.begin(), m_valid.end(), true) != m_valid.end()) {
         m_file << trame_time;
@@ -295,7 +310,7 @@ void File::finalFlush(double trame_time)
 }
 
 void File::copyToFile(const std::string& filename,
-                      const std::vector < std::string >& array)
+                         const std::vector < std::string >& array)
 {
     std::ofstream file(filename.c_str());
 
