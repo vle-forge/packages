@@ -32,6 +32,8 @@
 #include <map>
 #include <vector>
 
+#include <vle/oov/File.hpp>
+
 namespace vle { namespace oov { namespace plugin {
 
 /**
