@@ -6,6 +6,34 @@ A lot of packages for the VFL.
 
 See AUTHORS and COPYRIGHT files for the list of contributors.
 
+Changes since v1.1.0-beta2
+--------------------------
+
+- ChangeLog: removed
+- README: switch to rst
+- README: add ext.muparser and vle.forrester
+- README: update
+- decision: fix the plugin selection management
+- decision: fix the plugin model settings
+- output: add a flushbybag output option
+- all: fix Description files
+
+Changes since v1.1.0-beta1
+--------------------------
+
+- all: fix CPack directives
+- all: update CMakeLists.txt without GVLE
+- cmake: update FindVLE and FindGVLE
+- decision: fix the data directory management
+- differential: allow the update of state variables
+- differential: set a default initialisation
+- differential: simplify the initialisation
+- forrester: fix the drawing area refreshment
+- forrester: update the Conditions
+- forrester: update the observables generator
+- muParser: fix the name of the CMake project
+- package-1.1.0-beta2
+
 Requirements
 ------------
 
