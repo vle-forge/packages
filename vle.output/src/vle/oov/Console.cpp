@@ -170,28 +170,28 @@ public:
                         _("Output plugin: columns '%1%' does not exist. "
                           "No observable ?")) % name);
             }
-        }
 
-        if (mIsStart) {
-            if (time != mTime ||
-                (mFlushByBag &&
-                 mNewBagWatcher[name] == time)) {
-                flush();
-            }
-        } else {
-            if (not mHaveFirstEvent) {
-                mHaveFirstEvent = true;
+            if (mIsStart) {
+                if (time != mTime ||
+                    (mFlushByBag &&
+                     mNewBagWatcher[name] == time)) {
+                    flush();
+                }
             } else {
-                flush();
-                mIsStart = true;
+                if (not mHaveFirstEvent) {
+                    mHaveFirstEvent = true;
+                } else {
+                    flush();
+                    mIsStart = true;
+                }
             }
+
+            mBuffer[it->second] = value;
+            mValid[it->second] = true;
+
+            mNewBagWatcher[name] = time;
         }
-
-        mBuffer[it->second] = value;
-        mValid[it->second] = true;
-
         mTime = time;
-        mNewBagWatcher[name] = time;
     }
 
     void close(const double& time)

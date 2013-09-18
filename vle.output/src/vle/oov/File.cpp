@@ -191,30 +191,27 @@ void File::onValue(const std::string& simulator,
                 fmt(_("Output plugin: columns '%1%' does not exist. "
                       "No observable ?")) % name);
         }
-    }
 
-    if (m_isstart) {
-        if (time != m_time ||
-            (m_flushbybag &&
-             m_newbagwatcher[name] == time)) {
-            flush();
-        }
-    } else {
-        if (not m_havefirstevent) {
-            m_havefirstevent = true;
+        if (m_isstart) {
+            if (time != m_time ||
+                (m_flushbybag &&
+                 m_newbagwatcher[name] == time)) {
+                flush();
+            }
         } else {
-            flush();
-            m_isstart = true;
+            if (not m_havefirstevent) {
+                m_havefirstevent = true;
+            } else {
+                flush();
+                m_isstart = true;
+            }
         }
-        m_time = time;
+        m_buffer[it->second] = value;
+        m_valid[it->second] = true;
+
         m_newbagwatcher[name] = time;
     }
-
-    m_buffer[it->second] = value;
-    m_valid[it->second] = true;
-
     m_time = time;
-    m_newbagwatcher[name] = time;
 }
 
 void File::close(const double& time)
