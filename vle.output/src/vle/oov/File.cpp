@@ -34,6 +34,7 @@
 #include <vle/value/Double.hpp>
 #include <vle/value/Map.hpp>
 #include <iostream>
+#include <iomanip>
 
 namespace vle { namespace oov { namespace plugin {
 
@@ -128,6 +129,8 @@ void File::onParameter(const std::string& plugin,
             fmt(_("Output plug-in '%1%': cannot open file '%2%'")) % plugin %
             m_filenametmp);
     }
+
+    m_file << std::setprecision(std::numeric_limits <double>::digits10);
 
     delete parameters;
 }
@@ -358,4 +361,3 @@ std::string File::buildname(const std::string& parent,
 }}} // namespace vle oov plugin
 
 DECLARE_OOV_PLUGIN(vle::oov::plugin::File)
-
