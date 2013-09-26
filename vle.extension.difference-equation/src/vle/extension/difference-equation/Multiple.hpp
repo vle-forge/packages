@@ -35,8 +35,6 @@ namespace vle { namespace extension { namespace DifferenceEquation {
 
 class Multiple : public Base
 {
-    typedef std::map < std::string, bool > SetValuesMap;
-
     class MultipleValues
     {
     public:
@@ -74,8 +72,6 @@ class Multiple : public Base
         Values mDeque;
     };
 
-    typedef std::map < std::string, MultipleValues > MultipleValuesMap;
-
     struct MultipleVariableIterators
     {
         MultipleValues* mMultipleValues;
@@ -84,6 +80,9 @@ class Multiple : public Base
     };
 
 public:
+    typedef std::map < std::string, bool > SetValuesMap;
+    typedef std::map < std::string, MultipleValues > MultipleValuesMap;
+
     /**
      * @brief var The class var represents an internal
      * variable of the system of equations
