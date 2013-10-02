@@ -6,6 +6,13 @@ A lot of packages for the VFL.
 
 See AUTHORS and COPYRIGHT files for the list of contributors.
 
+Changes since v1.1.0-beta3
+--------------------------
+
+- de: fix private typedef
+- output: add more precision in float/double output
+- output: fix the flushbybag feature
+
 Changes since v1.1.0-beta2
 --------------------------
 
