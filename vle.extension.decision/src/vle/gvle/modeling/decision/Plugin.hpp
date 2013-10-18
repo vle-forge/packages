@@ -105,6 +105,8 @@ public:
  */
     virtual ~PluginDecision();
 
+    void clear();
+
 /**
  * @brief This fonction show the plugin window and wait for the user action
  * ("Valider" or "Annuler")

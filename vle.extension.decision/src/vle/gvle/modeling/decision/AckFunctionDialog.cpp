@@ -160,8 +160,8 @@ void AckFunctionDialog::onAddAck() {
                 row[m_viewscolumnrecord.name] = name;
 
                 mHeaderAck->set_text("void " + name + "(const std::string&"\
-                        "/*activityname*/,\n\t"\
-                        "const ved::Activity& /*activity*/) {");
+                        "activityname,\n\t"\
+                        "const ved::Activity& activity) {");
 
                 std::string generatedFunc = "";
 
@@ -258,8 +258,8 @@ void AckFunctionDialog::onRenameAck() {
 
                     mAckName.push_back(name);
                     mHeaderAck->set_text("void " + name + "(const std::string&"\
-                        "/*activityname*/,\n\t"\
-                        "const ved::Activity& /*activity*/) {");
+                        "activityname,\n\t"\
+                        "const ved::Activity& activity) {");
                     // Delete the element in the vector
                     for (std::vector < std::string > ::iterator it =
                             mAckName.begin(); it != mAckName.end(); ) {
@@ -303,14 +303,14 @@ void AckFunctionDialog::onCursorChangeTreeAckList() {
                 mTextViewFunction->get_buffer()->
                         set_text(mAckFunction[ name ]);
                 mHeaderAck->set_text("void " + name + "(const std::string&"\
-                    "/*activityname*/,\n\t"\
-                    "const ved::Activity& /*activity*/) {");
+                    "activityname,\n\t"\
+                    "const ved::Activity& activity) {");
             }
             else {
                 mTextViewFunction->get_buffer()->set_text("");
                 mHeaderAck->set_text("void " + name + "(const std::string&"\
-                    "/*activityname*/,\n\t"\
-                    "const ved::Activity& /*activity*/) {");
+                    "activityname,\n\t"\
+                    "const ved::Activity& activity) {");
             }
 
             setSensitiveAck( true );

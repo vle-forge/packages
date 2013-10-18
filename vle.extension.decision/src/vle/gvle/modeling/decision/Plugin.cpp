@@ -774,7 +774,7 @@ void PluginDecision::generateSource(const std::string& classname,
         std::string tag = "ackFunctionTags" + *it;
 
         std::string function = "void " + *it + "(const std::string&"\
-                    "/*activityname*/, const ved::Activity& /*activity*/) {";
+                    "activityname, const ved::Activity& activity) {";
         function += "//@@begin:ackFunction" + *it +
                 "@@\n" + mAckFunction[*it] + "//@@end:ackFunction" +
                 *it + "@@\n}";
@@ -956,11 +956,13 @@ bool PluginDecision::modify(vpz::AtomicModel& model,
         model.setDynamics(dynamic.name());
         writePlanFile(mPlanFileName);
         mDialog->hide();
+        clear();
         destroy();
         return true;
     }
     else {
         mDialog->hide();
+        clear();
         destroy();
         return false;
     }
@@ -1668,6 +1670,8 @@ void PluginDecision::parseActivities(const strings_t& lst)
 
 void PluginDecision::parseFacts(const strings_t& lst)
 {
+    mFactName.clear();
+
     std::string facts_lst(lst[2], 2, lst[2].size() - 2);
     strings_t facts;
 
@@ -1685,6 +1689,8 @@ void PluginDecision::parseFacts(const strings_t& lst)
 
 void PluginDecision::parsePredicates(const strings_t& lst)
 {
+    mPredicateName.clear();
+
     std::string facts_lst(lst[3], 2, lst[3].size() - 2);
     strings_t facts;
 
@@ -1702,6 +1708,8 @@ void PluginDecision::parsePredicates(const strings_t& lst)
 
 void PluginDecision::parseOutputFunctions(const strings_t& lst)
 {
+    mOutputFunctionName.clear();
+
     std::string facts_lst(lst[4], 3, lst[4].size() - 3);
     strings_t facts;
 
@@ -1719,6 +1727,8 @@ void PluginDecision::parseOutputFunctions(const strings_t& lst)
 
 void PluginDecision::parseAckFunctions(const strings_t& lst)
 {
+    mAckFunctionName.clear();
+
     std::string facts_lst(lst[6], 3, lst[6].size() - 3);
     strings_t facts;
 
@@ -1941,6 +1951,36 @@ void PluginDecision::onChooseFileName()
         mDialog->set_title("Decision - Plugin : " + mPlanFile + ".txt");
     }
 }
+
+void PluginDecision::clear()
+{
+    mInclude.clear();
+    mCustomConstructor.clear();
+    mMembers.clear();
+    mConstructor.clear();
+    mDefinition.clear();
+
+    mFactName.clear();
+    mFactFunction.clear();
+    mFactAttribute.clear();
+    mFactInit.clear();
+
+    mPredicateName.clear();
+    mPredicateFunction.clear();
+
+    mRule.clear();
+
+    mOutputFunctionName.clear();
+    mOutputFunction.clear();
+
+    mAckFunctionName.clear();
+    mAckFunction.clear();
+
+    mParam.clear();
+
+    mPred.clear();
+}
+
 }
 }
 }
