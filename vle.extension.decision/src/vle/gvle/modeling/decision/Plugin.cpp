@@ -774,7 +774,7 @@ void PluginDecision::generateSource(const std::string& classname,
         std::string tag = "ackFunctionTags" + *it;
 
         std::string function = "void " + *it + "(const std::string&"\
-                    "/*activityname*/, const ved::Activity& /*activity*/) {";
+                    "activityname, const ved::Activity& activity) {";
         function += "//@@begin:ackFunction" + *it +
                 "@@\n" + mAckFunction[*it] + "//@@end:ackFunction" +
                 *it + "@@\n}";
