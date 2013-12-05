@@ -30,8 +30,16 @@
 <dynamic name="m1" package="vle.examples" library="Generator" type="local"  />
 <dynamic name="m2" package="vle.examples" library="Counter" type="local"  />
 </dynamics>
-<experiment name="experimentcounter" duration="1000.000000000000000" begin="0.000000000000000" combination="linear" seed="123456789" >
+<experiment name="experimentcounter"  combination="linear" >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>1000.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 <condition name="m1" >
  <port name="average" >
 <double>0.500000000000000</double>

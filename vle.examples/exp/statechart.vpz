@@ -56,7 +56,17 @@
 <dynamic name="dyn1b" package="vle.examples" library="FDDevs2" type="local"  />
 <dynamic name="dyn2" package="vle.examples" library="Statechart1" type="local"  />
 </dynamics>
-<experiment name="exp4" duration="100.000000000000000" begin="0.000000000000000" seed="123456789" >
+<experiment name="exp4" >
+<conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>100.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
+</conditions>
 <views>
 <outputs>
 <output name="o" location="" format="local" package="vle.output" plugin="file" />

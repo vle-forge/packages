@@ -59,8 +59,16 @@
 <dynamic name="dyn_gen" package="vle.examples" library="LinearGenLin" type="local"  />
 <dynamic name="dyn_lin" package="vle.examples" library="LinearEqLin" type="local"  />
 </dynamics>
-<experiment name="exp" duration="100.000000000000000" begin="0.000000000000000" combination="linear" seed="1" >
+<experiment name="exp"  combination="linear" >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>100.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 <condition name="cond_DE_Linear" >
  <port name="a" >
 <double>0.000000000000000</double>

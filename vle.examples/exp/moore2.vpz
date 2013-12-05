@@ -33,7 +33,17 @@
 <dynamic name="dyn1" package="vle.examples" library="FDDevs1" type="local"  />
 <dynamic name="dyn2" package="vle.examples" library="MooreCounter2" type="local"  />
 </dynamics>
-<experiment name="exp5" duration="100.000000000000000" begin="0.000000000000000" seed="123456789" >
+<experiment name="exp5" >
+<conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>100.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
+</conditions>
 <views>
 <outputs>
 <output name="o" location="" format="local" package="vle.output" plugin="file" />

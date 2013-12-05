@@ -37,8 +37,16 @@
 <dynamic name="dynLP_X" library="LadybirdPlantlouseX" package="vle.extension.differential-equation"  />
 <dynamic name="dynLP_Y" library="LadybirdPlantlouseY" package="vle.extension.differential-equation"  />
 </dynamics>
-<experiment name="LadybirdPlantlouseXY" duration="100.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="LadybirdPlantlouseXY"  combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+<port name="begin">
+<double>0.0</double>
+</port>  
+<port name="duration">
+<double>100.0</double>
+</port> 
+</condition>
 <condition name="condEuler" >
  <port name="method" >
 <string>euler</string>
