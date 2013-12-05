@@ -40,8 +40,16 @@
 <dynamic name="dperturb" library="confluentNosync_perturb" package="vle.examples" type="local"  />
 <dynamic name="dx" library="confluentNosync_x" package="vle.examples" type="local"  />
 </dynamics>
-<experiment name="confluentNosync" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="confluentNosync"  combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>5.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 <condition name="cx" >
  <port name="mode" >
 <string>port</string>

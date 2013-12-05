@@ -74,8 +74,16 @@
 <dynamic name="retarder" package="vle.examples" library="DecisionRetarder" type="local"  />
 <dynamic name="start" package="vle.examples" library="DecisionStart" type="local"  />
 </dynamics>
-<experiment name="Only" duration="10.000000000000000" begin="0.000000000000000" combination="linear" seed="10" >
+<experiment name="Only"  combination="linear" seed="10" >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>10.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 <condition name="Start2init" >
  <port name="start" >
 <double>1.000000000000000</double>

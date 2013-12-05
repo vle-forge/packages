@@ -28,8 +28,16 @@
 <dynamic name="counter" package="vle.examples" library="PetrinetCounter" type="local"  />
 <dynamic name="petri" package="vle.examples" library="PetrinetOrdinary" type="local"  />
 </dynamics>
-<experiment name="PetriNetMult" duration="1.000000000000000" begin="0.000000000000000" seed="123" >
+<experiment name="PetriNetMult"  >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>1.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 <condition name="petrinet" >
  <port name="arcs" >
 <set><set><string>p1</string><string>t1</string></set><set><string>t1</string><string>p4</string></set><set><string>p4</string><string>t4</string></set><set><string>t4</string><string>p4</string></set><set><string>t4</string><string>p6</string></set><set><string>p4</string><string>t2</string></set><set><string>t2</string><string>p3</string></set><set><string>p3</string><string>t1</string></set><set><string>p3</string><string>t3</string></set><set><string>t3</string><string>p3</string></set><set><string>t3</string><string>p2</string></set><set><string>p5</string><string>t3</string></set><set><string>t4</string><string>p5</string></set><set><string>p2</string><string>t4</string></set></set>

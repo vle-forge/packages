@@ -30,9 +30,16 @@
 <dynamic name="dynMeteo" package="vle.examples" library="Meteo" type="local"  />
 <dynamic name="dynStage" package="vle.examples" library="Stage" type="local"  />
 </dynamics>
-<experiment name="exp" duration="330" begin="2452884"
-	    combination="linear" seed="12389" >
+<experiment name="exp"  combination="linear" >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>330.0</double>
+</port>
+ <port name="begin" >
+<double>2452884</double>
+</port>
+</condition>
 <condition name="condMeteo" >
  <port name="begin" >
 <string>2003/09/01</string>

@@ -23,7 +23,17 @@
 <dynamic name="counter" package="vle.examples" library="GensCounter" type="local"  />
 <dynamic name="executive" package="vle.examples" library="GensExecutive" type="local"  />
 </dynamics>
-<experiment name="generatorexecutive" duration="100.000000000000000" begin="0.000000000000000" seed="123" >
+<experiment name="generatorexecutive" >
+<conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>100.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
+</conditions>
 <views>
 <outputs>
 <output name="o" location="localhost:8000:." format="distant" package="vle.output" plugin="caironetview" >

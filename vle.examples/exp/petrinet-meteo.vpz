@@ -46,8 +46,16 @@
 <dynamic name="meteo" package="vle.examples" library="PetrinetMeteo" type="local"  />
 <dynamic name="petri" package="vle.examples" library="PetrinetTrigger" type="local"  />
 </dynamics>
-<experiment name="PetriNetMeteo" duration="30.000000000000000" begin="0.000000000000000" seed="123" >
+<experiment name="PetriNetMeteo"  >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>30.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 <condition name="meteo" >
  <port name="init" >
 <boolean>false</boolean>

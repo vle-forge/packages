@@ -50,8 +50,16 @@
   <dynamic name="petri" package="vle.examples" library="PetrinetOrdinary"/>
   <dynamic name="counter" package="vle.examples" library="PetrinetCounter"/>
  </dynamics>
- <experiment name="PetriNetAnd" duration="1" seed="123">
+ <experiment name="PetriNetAnd"  seed="123">
   <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>1.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
    <condition name="beepa">
     <port name="start">
      <double>0.5</double>

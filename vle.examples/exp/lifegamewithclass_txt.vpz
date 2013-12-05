@@ -24,8 +24,16 @@
 </model>
 </class>
 </classes>
-<experiment name="exp1" duration="100.000000000000000" begin="0.000000000000000" seed="544" >
+<experiment name="exp1" >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>100.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 <condition name="cond_cell" >
  <port name="Delay" >
 <double>0.000000000000000</double>

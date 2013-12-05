@@ -36,8 +36,16 @@
 <dynamic name="dynLotkaVolterraY" library="LotkaVolterraY" package="vle.extension.differential-equation"  />
 <dynamic name="dynPerturb" library="Perturb" package="vle.extension.differential-equation"  />
 </dynamics>
-<experiment name="ExtUpLV" duration="0.500000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="ExtUpLV"  combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+<port name="begin">
+<double>0.0</double>
+</port>  
+<port name="duration">
+<double>0.5</double>
+</port> 
+</condition>
 <condition name="condEuler" >
  <port name="method" >
 <string>euler</string>

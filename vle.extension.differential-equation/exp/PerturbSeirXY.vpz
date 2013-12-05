@@ -109,8 +109,16 @@
 <dynamic name="dynRm" library="Rm" package="vle.extension.differential-equation" type="local"  />
 <dynamic name="dynSm" library="Sm" package="vle.extension.differential-equation" type="local"  />
 </dynamics>
-<experiment name="PerturbSeirXY" duration="25.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="PerturbSeirXY"  combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+<port name="begin">
+<double>0.0</double>
+</port>  
+<port name="duration">
+<double>25.0</double>
+</port> 
+</condition>
 <condition name="condEm" >
  <port name="variables" >
 <map><key name="E"><double>1.000000000000000</double></key></map>

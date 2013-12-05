@@ -110,8 +110,16 @@
 <dynamic name="dynPlantlouse" library="Plantlouse" package="vle.examples"  />
 <dynamic name="dynSmartgardener" library="Smartgardener" package="vle.examples"  />
 </dynamics>
-<experiment name="smartgardener" duration="20.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="smartgardener" >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>20.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 <condition name="condDecisionPlan_smartgardener" >
  <port name="ladybird_min_population" >
 <double>2.000000000000000</double>

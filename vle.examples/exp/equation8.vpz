@@ -164,8 +164,16 @@
 <dynamic name="dynPerturb3" package="vle.examples" library="EquationPerturb4" type="local"  />
 <dynamic name="dynPerturb4" package="vle.examples" library="EquationPerturb5" type="local"  />
 </dynamics>
-<experiment name="exp" duration="20.000000000000000" begin="0.000000000000000" combination="linear" seed="12389" >
+<experiment name="exp"  combination="linear" >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>20.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 <condition name="cond" >
  <port name="size" >
 <integer>2</integer>

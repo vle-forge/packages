@@ -40,8 +40,16 @@
 <dynamic name="counter" package="vle.examples" library="PetrinetCounter" type="local"  />
 <dynamic name="petri" package="vle.examples" library="PetrinetConflict" type="local"  />
 </dynamics>
-<experiment name="PetriNetConflict" duration="1.000000000000000" begin="0.000000000000000" seed="123" >
+<experiment name="PetriNetConflict" >
 <conditions>
+<condition name="simulation_engine" >
+ <port name="duration" >
+<double>1.0</double>
+</port>
+ <port name="begin" >
+<double>0.0</double>
+</port>
+</condition>
 	<condition name="petrinet">
 		<port name="seed">
 			<integer>1</integer>
