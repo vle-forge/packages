@@ -34,10 +34,6 @@
 #include <vle/gvle/Editor.hpp>
 #include <gtkmm/builder.h>
 
-#ifdef VLE_HAVE_GTKSOURCEVIEWMM
-#include <gtksourceviewmm-2.0/gtksourceviewmm.h>
-#endif
-
 namespace vle { namespace gvle { namespace modeling { namespace de {
 
 class SourceDialog

@@ -42,10 +42,6 @@
 
 #include <vle/gvle/modeling/decision/Utils.hpp>
 
-#ifdef VLE_HAVE_GTKSOURCEVIEWMM
-#include <gtksourceviewmm-2.0/gtksourceviewmm.h>
-#endif
-
 namespace vle {
 namespace gvle {
 namespace modeling {
