@@ -6,6 +6,14 @@ A lot of packages for the VFL.
 
 See AUTHORS and COPYRIGHT files for the list of contributors.
 
+Changes since v1.1.0-beta4
+--------------------------
+
+all: replace Gtksourceviewmm with Gtksourceview
+all: update CMakeLists with WITH_WARNINGS option
+decision: fix the plugin clearance
+decision: uncomment the ack function signature
+
 Changes since v1.1.0-beta3
 --------------------------
 
