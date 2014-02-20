@@ -52,48 +52,14 @@ INCLUDE(CMakeDetermineCCompiler)
 set(VLE_DEBUG 0)
 find_package(VLE REQUIRED)
 
-
 ##
 ## Check VLE's packages
 ##
 
-set(VleCheckPackage_DIR "${CMAKE_SOURCE_DIR}/cmake")
-FIND_PACKAGE(VleCheckPackage REQUIRED)
-SET(VLE_ABI_VERSION 1.1)
-
-VLE_CHECK_PACKAGE(CELLDEVS vle.extension.celldevs)
-VLE_CHECK_PACKAGE(CELLQSS vle.extension.cellqss)
-VLE_CHECK_PACKAGE(DECISION vle.extension.decision)
-VLE_CHECK_PACKAGE(DIFFERENCE_EQU vle.extension.difference-equation)
-VLE_CHECK_PACKAGE(DIFFERENTIAL_EQU vle.extension.differential-equation)
-VLE_CHECK_PACKAGE(DSDEVS vle.extension.dsdevs)
-VLE_CHECK_PACKAGE(FSA vle.extension.fsa)
-VLE_CHECK_PACKAGE(PETRINET vle.extension.petrinet)
-
-if (NOT CELLDEVS_FOUND)
-  message(SEND_ERROR "Missing vle.extension.celldevs")
-endif (NOT CELLDEVS_FOUND)
-if (NOT CELLQSS_FOUND)
-  message(SEND_ERROR "Missing vle.extension.cellqss")
-endif (NOT CELLQSS_FOUND)
-if (NOT DECISION_FOUND)
-  message(SEND_ERROR "Missing vle.extension.decision")
-endif (NOT DECISION_FOUND)
-if (NOT DIFFERENCE_EQU_FOUND)
-  message(SEND_ERROR "Missing vle.extension.difference-equation")
-endif (NOT DIFFERENCE_EQU_FOUND)
-if (NOT DIFFERENTIAL_EQU_FOUND)
-  message(SEND_ERROR "Missing vle.extension.differential-equation")
-endif (NOT DIFFERENTIAL_EQU_FOUND)
-if (NOT DSDEVS_FOUND)
-  message(SEND_ERROR "Missing vle.extension.dsdevs")
-endif (NOT DSDEVS_FOUND)
-if (NOT FSA_FOUND)
-  message(SEND_ERROR "Missing vle.extension.fsa")
-endif (NOT FSA_FOUND)
-if (NOT PETRINET_FOUND)
-  message(SEND_ERROR "Missing vle.extension.petrinet")
-endif (NOT PETRINET_FOUND)
+set (VleUtils_DIR "${CMAKE_SOURCE_DIR}/cmake")
+set(VLE_ABI_VERSION 1.1)
+find_package(VleUtils REQUIRED)
+VleCheckDependencies()
 
 ##
 ## Find boost
@@ -148,100 +114,6 @@ IF (DOXYGEN AND WITH_DOC)
   INSTALL(DIRECTORY "${PROJECT_BINARY_DIR}/doxygen/sources/html" DESTINATION
     "doc/html/sources")
 ENDIF (DOXYGEN AND WITH_DOC)
-
-##
-## Define function to simplify the definition of simulations plugins.
-##
-
-FUNCTION(DeclareDevsDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES}
-    ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDevsDynamics name sources)
-
-FUNCTION(DeclareCellDevsDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${CELLDEVS_LIBRARIES}
-    ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareCellDevsDynamics name sources)
-
-FUNCTION(DeclareCellQssDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${CELLQSS_LIBRARIES}
-    ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareCellQssDynamics name sources)
-
-FUNCTION(DeclareDecisionDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DECISION_LIBRARIES}
-    ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDecisionDynamics name sources)
-
-FUNCTION(DeclareDifferenceEquationDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENCE_EQU_LIBRARIES}
-    ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDifferenceEquationDynamics name sources)
-
-FUNCTION(DeclareFsaDifferenceEquationDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENCE_EQU_LIBRARIES}
-    ${FSA_LIBRARIES} ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareFsaDifferenceEquationDynamics name sources)
-
-FUNCTION(DeclareDifferentialEquationDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENTIAL_EQU_LIBRARIES}
-    ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDifferentialEquationDynamics name sources)
-
-FUNCTION(DeclareDsDevsDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DSDEVS_LIBRARIES}
-    ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDsDevsDynamics name sources)
-
-FUNCTION(DeclareFsaDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${FSA_LIBRARIES}
-    ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareFsaDynamics name sources)
-
-FUNCTION(DeclarePetrinetDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${PETRINET_LIBRARIES}
-    ${Boost_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclarePetrinetDynamics name sources)
 
 ##
 ## Subdirectory

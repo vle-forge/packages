@@ -25,6 +25,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * @@tagdynamic@@
+ * @@tagdepends: vle.extension.fsa,vle.extension.difference-equation @@endtagdepends
+ */
 
 #include <vle/examples/fsa/Stage.hpp>
 #include <boost/assign.hpp>

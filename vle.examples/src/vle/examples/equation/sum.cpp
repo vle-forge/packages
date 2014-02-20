@@ -25,7 +25,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+/*
+ * @@tagdepends: vle.extension.difference-equation,vle.extension.fsa @@endtagdepends
+ */
 #ifndef EXAMPLES_EQUATION_SUM_HPP
 #define EXAMPLES_EQUATION_SUM_HPP 1
 

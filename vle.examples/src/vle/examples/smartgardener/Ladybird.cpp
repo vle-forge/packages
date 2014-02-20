@@ -44,6 +44,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * @@tagdynamic@@
+ * @@tagdepends: vle.extension.differential-equation @@endtagdepends
+ */
+
+
 #include <vle/extension/DifferentialEquationDbg.hpp>
 
 namespace vd = vle::devs;
