@@ -44,6 +44,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * @@tagdynamic@@
+ * @@tagdepends: vle.extension.difference-equation @@endtagdepends
+ */
+
+
 #include <vle/extension/DifferenceEquation.hpp>
 #include <vle/devs/DynamicsDbg.hpp>
 

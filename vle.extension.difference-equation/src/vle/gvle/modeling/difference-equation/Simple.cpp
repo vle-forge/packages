@@ -212,6 +212,8 @@ std::string Simple::getTemplate() const
     "  * @file {{classname}}.cpp\n"                                     \
     "  * @author ...\n"                                                 \
     "  * ...\n"                                                         \
+    "  *@@tagdynamic@@\n"                                               \
+    "  *@@tagdepends:vle.extension.difference-equation@@endtagdepends\n"\
     "  * @@tag DifferenceEquationSimple@vle.extension.difference-equation @@"\
     "namespace:{{namespace}};"                                          \
     "class:{{classname}};par:"                                          \

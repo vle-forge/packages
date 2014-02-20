@@ -25,6 +25,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * @@tagdynamic@@
+ * @@tagdepends: vle.extension.fsa @@endtagdepends
+ */
 
 #include <vle/extension/fsa/Mealy.hpp>
 

@@ -25,7 +25,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+/*
+ * @@tagdepends: vle.extension.difference-equation @@endtagdepends
+ */
 #include <vle/examples/equation/A1.hpp>
 
 namespace vle { namespace examples { namespace equation {

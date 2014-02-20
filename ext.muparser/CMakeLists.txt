@@ -34,6 +34,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
   endif ()
 endif ()
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
+
 ##
 ## Modules
 ##
@@ -44,16 +46,15 @@ INCLUDE(CheckLibraryExists)
 INCLUDE(CMakeDetermineCCompiler)
 
 ##
-## Check libraries with pkgconfig
+## Check VLE and package dependencies
 ##
 
-#FIND_PACKAGE(PkgConfig REQUIRED)
-#PKG_CHECK_MODULES(VLE vle-1.1 REQUIRED)
-#PKG_CHECK_MODULES(GVLE gvle-1.1)
-
-#IF (GVLE_FOUND AND NOT WIN32)
-#  PKG_CHECK_MODULES(GTKSOURCEVIEWMM gtksourceview-2.0)
-#ENDIF (GVLE_FOUND AND NOT WIN32)
+set(VLE_DEBUG 0)
+set(VLE_ABI_VERSION 1.2)
+find_package(VLE REQUIRED)
+set (VleUtils_DIR "${CMAKE_SOURCE_DIR}/cmake")
+find_package(VleUtils REQUIRED)
+VleCheckDependencies()
 
 ##
 ## Find boost

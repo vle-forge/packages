@@ -1,7 +1,7 @@
 Package: vle.extension.cellqss
 Version: 0.1.0
-Depends:
-Build-Depends:
+Depends: 
+Build-Depends: vle.extension.celldevs
 Conflicts:
 Maintainer: Gauthier Quesnel <quesnel@users.sourceforge.net>
 Description: An extension to build cellqss models

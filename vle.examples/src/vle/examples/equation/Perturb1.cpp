@@ -25,7 +25,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+/*
+ * @@tagdepends: vle.extension.difference-equation,vle.extension.fsa @@endtagdepends
+ */
 #include <vle/extension/difference-equation/Base.hpp>
 #include <vle/extension/fsa/Statechart.hpp>
 
