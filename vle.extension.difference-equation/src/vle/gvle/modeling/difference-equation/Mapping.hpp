@@ -33,8 +33,11 @@
 #include <gtkmm/dialog.h>
 #include <gtkmm/expander.h>
 #include <gtkmm/liststore.h>
+#include <gtkmm/menu.h>
+#include <gtkmm/uimanager.h>
 #include <gtkmm/treeview.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/radiobutton.h>
 
 namespace vle { namespace gvle { namespace modeling { namespace de {
 
@@ -84,7 +87,11 @@ public:
 	void onEdit();
 
     private:
-	Gtk::Menu                    m_menuPopup;
+        Glib::RefPtr <Gtk::UIManager> mPopupUIManager;
+        Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup;
+        Gtk::Menu *mMenuPopup;
+
+
 	MappingColumns               m_columnsMapping;
 	Glib::RefPtr<Gtk::ListStore> m_refTreeMapping;
 
@@ -99,7 +106,7 @@ public:
 private:
     Gtk::Expander*     m_expander;
     MappingTreeView*   m_mappingTreeView;
-    Gtk::HBox*         m_hboxMode;
+    Gtk::Box*         m_hboxMode;
     Gtk::RadioButton*  m_RadioButtonName;
     Gtk::RadioButton*  m_RadioButtonPort;
     Gtk::RadioButton*  m_RadioButtonMapping;

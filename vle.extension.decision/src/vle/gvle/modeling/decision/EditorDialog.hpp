@@ -132,7 +132,7 @@ private:
     bool onButtonRealeasePred(GdkEventButton* event)
     {
         if (event->button == 3) {
-            mMenuPred.popup(event->button, event->time);
+            mMenuPred->popup(event->button, event->time);
         }
         return true;
     }
@@ -142,10 +142,14 @@ void onAddSubLog() {
     using namespace Gtk;
 
     Glib::RefPtr < TreeSelection > tree_selection = mTreeVPred->get_selection();
-    Gtk::TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    
+    //Gtk::TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    std::vector<TreePath> v1 = tree_selection->get_selected_rows();
+    std::list<TreePath> lst (v1.begin(), v1.end());
 
-    Gtk::TreeSelection::ListHandle_Path::iterator it = lst.begin();
-
+    //Gtk::TreeSelection::ListHandle_Path::iterator it = lst.begin();
+    std::list<TreePath>::iterator it = lst.begin();
+    
     if (it != lst.end()) {
         Gtk::TreeModel::Row row(*(m_refModelPred->get_iter(*it)));
 
@@ -193,10 +197,13 @@ void onAddSubLine() {
     using namespace Gtk;
 
     Glib::RefPtr < TreeSelection > tree_selection = mTreeVPred->get_selection();
-    Gtk::TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    //Gtk::TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    std::vector<TreePath> v1 = tree_selection->get_selected_rows();
+    std::list<TreePath> lst (v1.begin(), v1.end());
 
-    Gtk::TreeSelection::ListHandle_Path::iterator it = lst.begin();
-
+    //Gtk::TreeSelection::ListHandle_Path::iterator it = lst.begin();
+    std::list<TreePath>::iterator it = lst.begin();
+    
     if (it != lst.end()) {
         Gtk::TreeModel::Row row(*(m_refModelPred->get_iter(*it)));
         int rowType = row.get_value(m_modelColumnPred.rowType);
@@ -252,9 +259,14 @@ void onDeleteLog() {
     using namespace Gtk;
 
     Glib::RefPtr < TreeSelection > tree_selection = mTreeVPred->get_selection();
-    Gtk::TreeSelection::ListHandle_Path lst=tree_selection->get_selected_rows();
+    
+    //Gtk::TreeSelection::ListHandle_Path lst=tree_selection->get_selected_rows();
+    std::vector<TreePath> v1 = tree_selection->get_selected_rows();
+    std::list<TreePath> lst (v1.begin(), v1.end());
 
-    Gtk::TreeSelection::ListHandle_Path::iterator it = lst.begin();
+    //Gtk::TreeSelection::ListHandle_Path::iterator it = lst.begin();
+    std::list<TreePath>::iterator it = lst.begin();
+    
     if (it != lst.end()) {
         Gtk::TreeIter iter = m_refModelPred->get_iter(*it) ;
         Gtk::TreeModel::Row row(*(iter));
@@ -280,7 +292,7 @@ void onDeleteLog() {
 
     // Predicate treeview
     Gtk::TreeView* mTreeVPred;
-    Gtk::Menu mMenuPred;
+    Gtk::Menu *mMenuPred;
     sigc::connection m_cntPredButtonRelease;
     // Model used to represent a predicate
     struct ModelColumnPred : public Gtk::TreeModel::ColumnRecord {

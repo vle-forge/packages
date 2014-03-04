@@ -35,6 +35,8 @@
 #include <gtkmm/treestore.h>
 #include <gtkmm/treeview.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/uimanager.h>
+#include <gtkmm/menu.h>
 
 namespace vle { namespace gvle { namespace modeling { namespace de {
 
@@ -83,7 +85,9 @@ protected:
 	void onDown();
 
     private:
-	Gtk::Menu                    m_menuPopup;
+        Glib::RefPtr <Gtk::UIManager> mPopupUIManager;
+        Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup;
+        Gtk::Menu *mMenuPopup;
 	InitColumns                  m_columnsInit;
 	Glib::RefPtr<Gtk::ListStore> m_refTreeInit;
     };
@@ -96,7 +100,7 @@ private:
 
     void onClickCheckButton();
 
-    Gtk::HBox*         m_hbox;
+    Gtk::Box*         m_hbox;
     Gtk::Entry*        m_entryName;
     Gtk::Entry*        m_entryValue;
     InitTreeView*      m_initTreeView;

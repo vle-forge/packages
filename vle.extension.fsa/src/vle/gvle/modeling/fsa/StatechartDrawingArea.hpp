@@ -35,6 +35,7 @@
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/uimanager.h>
 
 namespace vle {
 namespace gvle {
@@ -108,12 +109,15 @@ private:
     bool on_button_press_event(GdkEventButton* event);
     bool on_button_release_event(GdkEventButton* event);
     bool on_configure_event(GdkEventConfigure* event);
-    bool on_expose_event(GdkEventExpose* event);
+    
+    //bool on_expose_event(GdkEventExpose* event); not in gtk3
+    bool on_draw(const Cairo::RefPtr<Cairo::Context>& context);
+    
     bool on_motion_notify_event(GdkEventMotion* event);
     void on_realize();
     void queueRedraw()
     {
-        mNeedRedraw = true;
+//        mNeedRedraw = true;
         queue_draw();
     }
     void removeBreakpoint();
@@ -133,12 +137,12 @@ private:
 
     Glib::RefPtr < Gtk::Builder > mXml;
 
-    Glib::RefPtr < Gdk::Pixmap > mBuffer;
+//    Glib::RefPtr < Gdk::Pixmap > mBuffer;
     Cairo::RefPtr < Cairo::Context > mContext;
     Glib::RefPtr < Gdk::Window > mWin;
-    Glib::RefPtr < Gdk::GC > mWingc;
-    bool mIsRealized;
-    bool mNeedRedraw;
+//    Glib::RefPtr < Gdk::GC > mWingc;
+//    bool mIsRealized;
+//    bool mNeedRedraw;
 
     Statechart* mStatechart;
     int mState;
@@ -160,7 +164,7 @@ private:
     bool mStatechartResize;
     State* mStartState;
 
-    Gtk::Menu mMenuPopup;
+    Gtk::Menu *mMenuPopup;
 };
 
 }

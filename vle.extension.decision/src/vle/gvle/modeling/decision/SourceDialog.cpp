@@ -25,6 +25,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 #include <vle/gvle/modeling/decision/SourceDialog.hpp>
 
 namespace vle {
@@ -87,7 +88,7 @@ SourceDialog::~SourceDialog()
     m_cntParamButtonRelease.disconnect();
     m_cntParamCursorChanged.disconnect();
 
-    mDialog->hide_all();
+    mDialog->hide();
 }
 
 void SourceDialog::add(const std::string& name, const std::string& buffer)
@@ -99,7 +100,7 @@ void SourceDialog::add(const std::string& name, const std::string& buffer)
 bool SourceDialog::onButtonRealeaseParam(GdkEventButton* event)
 {
     if (event->button == 3) {
-        mMenuTreeViewItems.popup(event->button, event->time);
+        mMenuTreeViewItems->popup(event->button, event->time);
     }
     return true;
 }
@@ -117,6 +118,34 @@ int SourceDialog::run()
 
 void SourceDialog::initMenuPopupTreeParam()
 {
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("SourceDialog");
+    
+    mPopupActionGroup->add(Gtk::Action::create("SD_Add", _("_Add")), sigc::mem_fun(*this, &SourceDialog::onAddParam));
+    mPopupActionGroup->add(Gtk::Action::create("SD_Delete", _("_Delete")), sigc::mem_fun(*this, &SourceDialog::onDeleteParam));
+    mPopupActionGroup->add(Gtk::Action::create("SD_Rename", _("_Rename")), sigc::mem_fun(*this, &SourceDialog::onRenameParam));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='SD_Popup'>"
+                "    <menuitem action='SD_Add'/>"
+                "    <menuitem action='SD_Delete'/>"
+                "    <menuitem action='SD_Delete'/>"
+                 "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuTreeViewItems = (Gtk::Menu *) (mUIManager->get_widget("/SD_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: SD_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuTreeViewItems)
+      std::cerr << "not a menu : SD_Popup\n";
+/*
     Gtk::Menu::MenuList& menulist(mMenuTreeViewItems.items());
 
     menulist.push_back(
@@ -133,6 +162,7 @@ void SourceDialog::initMenuPopupTreeParam()
                 *this, &SourceDialog::onRenameParam)));
 
     mMenuTreeViewItems.accelerate(*mTreeViewParam);
+*/
 }
 
 }

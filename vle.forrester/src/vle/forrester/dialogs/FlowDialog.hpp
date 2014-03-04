@@ -43,6 +43,7 @@
 #include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/statusbar.h>
+#include <gtkmm/checkbutton.h>
 
 namespace vle {
 namespace gvle {

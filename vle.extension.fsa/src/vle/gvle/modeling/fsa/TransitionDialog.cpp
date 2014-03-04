@@ -55,30 +55,30 @@ TransitionDialog::TransitionDialog(
     xml->get_widget("TransitionOkButton", mOkButton);
 
     // event
-    mEventEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mEventEntry = Gtk::manage(new Gtk::ComboBoxText);
     mComboVBox->pack_start(*mEventEntry, true, true);
 
     // after
-    mAfterEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mAfterEntry = Gtk::manage(new Gtk::ComboBoxText);
     mComboVBox->pack_start(*mAfterEntry, true, true);
 
     // when
-    mWhenEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mWhenEntry = Gtk::manage(new Gtk::ComboBoxText);
     mComboVBox->pack_start(*mWhenEntry, true, true);
 
     // guard
-    mGuardEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mGuardEntry = Gtk::manage(new Gtk::ComboBoxText);
     mComboVBox->pack_start(*mGuardEntry, true, true);
 
     // action
-    mActionEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mActionEntry = Gtk::manage(new Gtk::ComboBoxText);
     mComboVBox->pack_start(*mActionEntry, true, true);
 
     // send
-    mSendHBox = Gtk::manage(new Gtk::HBox);
-    mOutputPortEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mSendHBox = Gtk::manage(new Gtk::Box (Gtk::ORIENTATION_HORIZONTAL));
+    mOutputPortEntry = Gtk::manage(new Gtk::ComboBoxText);
     mSendHBox->pack_start(*mOutputPortEntry, true, true);
-    mSendEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mSendEntry = Gtk::manage(new Gtk::ComboBoxText);
     mSendHBox->pack_start(*mSendEntry, true, true);
     mComboVBox->pack_start(*mSendHBox, true, true);
 
@@ -349,27 +349,27 @@ void TransitionDialog::onWhenSource()
 int TransitionDialog::run()
 {
     // event
-    mEventEntry->clear_items();
+    mEventEntry->remove_all ();
     for (strings_t::const_iterator it = mStatechart->inputPorts().begin();
          it != mStatechart->inputPorts().end(); ++it) {
-        mEventEntry->append_text(*it);
+        mEventEntry->append(*it);
     }
     if (not mTransition->event().empty()) {
         mEventEntry->set_active_text(mTransition->event());
     }
 
     // action
-    mActionEntry->clear_items();
+    mActionEntry->remove_all();
     if (not mTransition->event().empty()) {
         for (buffers_t::const_iterator it =
                  mStatechart->eventActions().begin();
              it != mStatechart->eventActions().end(); ++it) {
-            mActionEntry->append_text(it->first);
+            mActionEntry->append(it->first);
         }
     } else {
         for (buffers_t::const_iterator it = mStatechart->actions().begin();
              it != mStatechart->actions().end(); ++it) {
-            mActionEntry->append_text(it->first);
+            mActionEntry->append(it->first);
         }
     }
     if (not mTransition->action().empty()) {
@@ -384,10 +384,10 @@ int TransitionDialog::run()
     mActionButton->set_sensitive(not mTransition->action().empty());
 
     // after
-    mAfterEntry->clear_items();
+    mAfterEntry->remove_all();
     for (buffers_t::const_iterator it = mStatechart->afters().begin();
          it != mStatechart->afters().end(); ++it) {
-        mAfterEntry->append_text(it->first);
+        mAfterEntry->append(it->first);
     }
     if (not mTransition->after().empty()) {
         const std::string name =  mTransition->after();
@@ -401,10 +401,10 @@ int TransitionDialog::run()
     mAfterButton->set_sensitive(not mTransition->after().empty());
 
     // guard
-    mGuardEntry->clear_items();
+    mGuardEntry->remove_all();
     for (buffers_t::const_iterator it = mStatechart->guards().begin();
          it != mStatechart->guards().end(); ++it) {
-        mGuardEntry->append_text(it->first);
+        mGuardEntry->append(it->first);
     }
     if (not mTransition->guard().empty()) {
         const std::string name =  mTransition->guard();
@@ -418,14 +418,14 @@ int TransitionDialog::run()
     mGuardButton->set_sensitive(not mTransition->guard().empty());
 
     // send
-    mSendEntry->clear_items();
+    mSendEntry->remove_all();
     for (strings_t::const_iterator it = mStatechart->outputPorts().begin();
          it != mStatechart->outputPorts().end(); ++it) {
-        mOutputPortEntry->append_text(*it);
+        mOutputPortEntry->append(*it);
     }
     for (buffers_t::const_iterator it = mStatechart->sends().begin();
          it != mStatechart->sends().end(); ++it) {
-        mSendEntry->append_text(it->first);
+        mSendEntry->append(it->first);
     }
     if (not mTransition->send().empty()) {
         if (std::find(mStatechart->outputPorts().begin(),
@@ -447,10 +447,10 @@ int TransitionDialog::run()
         not mSendEntry->get_entry()->get_text().empty());
 
     // when
-    mWhenEntry->clear_items();
+    mWhenEntry->remove_all();
     for (buffers_t::const_iterator it = mStatechart->whens().begin();
          it != mStatechart->whens().end(); ++it) {
-        mWhenEntry->append_text(it->first);
+        mWhenEntry->append(it->first);
     }
     if (not mTransition->when().empty()) {
         const std::string name =  mTransition->when();

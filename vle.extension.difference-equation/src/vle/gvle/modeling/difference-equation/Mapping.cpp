@@ -26,11 +26,14 @@
  */
 
 
+
 #include <vle/gvle/modeling/difference-equation/Mapping.hpp>
 #include <vle/value/Value.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/value/String.hpp>
+#include <gtkmm/menu.h>
+#include <iostream>
 
 namespace vle { namespace gvle { namespace modeling { namespace de {
 
@@ -49,30 +52,40 @@ Mapping::MappingTreeView::MappingTreeView(
     m_columnPort = append_column(_("Port"), m_columnsMapping.m_col_port);
     m_columnId = append_column(_("Identifer"), m_columnsMapping.m_col_id);
 
-    {
-	Gtk::Menu::MenuList& menulist = m_menuPopup.items();
+    mPopupActionGroup = Gtk::ActionGroup::create("MappingTreeView");
+    mPopupActionGroup->add(Gtk::Action::create("MTV_ContextMenu", _("Context Menu")));
 
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Add"),
-		sigc::mem_fun(
-		    *this,
-		    &Mapping::MappingTreeView::onAdd)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Remove"),
-		sigc::mem_fun(
-		    *this,
-		    &Mapping::MappingTreeView::onRemove)));
+    mPopupActionGroup->add(Gtk::Action::create("MPV_ContextAdd", _("_Add")),
+        sigc::mem_fun(*this, &Mapping::MappingTreeView::onAdd));
 
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Edit"),
-		sigc::mem_fun(
-		    *this,
-		    &Mapping::MappingTreeView::onEdit)));
+    mPopupActionGroup->add(Gtk::Action::create("MPV_ContextRemove", _("_Remove")),
+        sigc::mem_fun(*this, &Mapping::MappingTreeView::onRemove));
+
+    mPopupActionGroup->add(Gtk::Action::create("MPV_ContextRename", _("_Edit")),
+        sigc::mem_fun(*this, &Mapping::MappingTreeView::onEdit));
+
+    mPopupUIManager = Gtk::UIManager::create();
+    mPopupUIManager->insert_action_group(mPopupActionGroup);
+
+    Glib::ustring ui_info =
+        "<ui>"
+        "  <popup name='MPView_Popup'>"
+        "      <menuitem action='MPV_ContextAdd'/>"
+        "      <menuitem action='MPV_ContextRemove'/>"
+        "      <menuitem action='MPV_ContextRename'/>"
+        "  </popup>"
+        "</ui>";
+
+    try {
+        mPopupUIManager->add_ui_from_string(ui_info);
+        mMenuPopup = (Gtk::Menu *) (
+            mPopupUIManager->get_widget("/MPView_Popup"));
+    } catch(const Glib::Error& ex) {
+        std::cerr << "building menus failed: MPView_Popup " <<  ex.what();
     }
-    m_menuPopup.accelerate(*this);
+
+    if (!mMenuPopup)
+        std::cerr << "menu not found : MPView_Popup\n";
 }
 
 void Mapping::MappingTreeView::init(const vpz::Condition& condition)
@@ -94,7 +107,7 @@ bool Mapping::MappingTreeView::on_button_press_event(GdkEventButton* event)
 {
     bool return_value = Gtk::TreeView::on_button_press_event(event);
     if ( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ) {
-	m_menuPopup.popup(event->button, event->time);
+        mMenuPopup->popup(event->button, event->time);
     }
 
     return return_value;

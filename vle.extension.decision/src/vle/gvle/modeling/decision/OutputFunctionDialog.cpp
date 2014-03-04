@@ -76,7 +76,7 @@ OutputFunctionDialog::~OutputFunctionDialog()
     m_cntTreeOFListButtonRelease.disconnect();
     m_cntTreeOFCursorChanged.disconnect();
 
-    mDialog->hide_all();
+    mDialog->hide();
 }
 
 int OutputFunctionDialog::run()
@@ -93,6 +93,33 @@ int OutputFunctionDialog::run()
 
 void OutputFunctionDialog::initMenuPopupTreeOFList()
 {
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("OutputFunctionDialog");
+    mPopupActionGroup->add(Gtk::Action::create("OFD_Add", _("_Add")), sigc::mem_fun(*this, &OutputFunctionDialog::onAddOF));
+    mPopupActionGroup->add(Gtk::Action::create("OFD_Delete", _("_Delete")), sigc::mem_fun(*this, &OutputFunctionDialog::onDeleteOF));
+    mPopupActionGroup->add(Gtk::Action::create("OFD_Rename", _("_Rename")), sigc::mem_fun(*this, &OutputFunctionDialog::onRenameOF));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='OFD_Popup'>"
+                "    <menuitem action='OFD_Add'/>"
+                "    <menuitem action='OFD_Delete'/>"
+                "    <menuitem action='OFD_Rename'/>"
+                 "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuTreeViewItems = (Gtk::Menu *) (mUIManager->get_widget("/OFD_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: OFD_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuTreeViewItems)
+      std::cerr << "not a menu : OFD_Popup\n";
+/*
     Gtk::Menu::MenuList& menulist(mMenuTreeViewItems.items());
 
     menulist.push_back(
@@ -109,6 +136,7 @@ void OutputFunctionDialog::initMenuPopupTreeOFList()
                 *this, &OutputFunctionDialog::onRenameOF)));
 
     mMenuTreeViewItems.accelerate(*mTreeOFList);
+*/
 }
 
 void OutputFunctionDialog::initTreeOFList()
@@ -140,7 +168,7 @@ void OutputFunctionDialog::fillTreeOFList()
 bool OutputFunctionDialog::onButtonRealeaseTreeOFList(GdkEventButton* event)
 {
     if (event->button == 3) {
-        mMenuTreeViewItems.popup(event->button, event->time);
+        mMenuTreeViewItems->popup(event->button, event->time);
     }
     return true;
 }

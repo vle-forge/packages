@@ -31,13 +31,15 @@
 
 #include <vle/gvle/modeling/fsa/Statechart.hpp>
 #include <vle/utils/i18n.hpp>
-#include <gtkmm/comboboxentrytext.h>
+#include <gtkmm/comboboxtext.h>
 #include <gtkmm/dialog.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/menu.h>
 #include <gtkmm/treeview.h>
 #include <gtkmm/image.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/uimanager.h>
+#include <gtkmm/checkbutton.h>
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 
@@ -131,8 +133,8 @@ private:
     const eventInStates_t& mEventInStates;
     Gtk::Dialog* mDialog;
     Gtk::Entry* mEventEntry;
-    Gtk::VBox* mEventInStateVBox;
-    Gtk::ComboBoxEntryText* mActionEntry;
+    Gtk::Box* mEventInStateVBox;
+    Gtk::ComboBoxText* mActionEntry;
     Gtk::Button* mActionButton;
     std::list < sigc::connection > mList;
 };
@@ -165,7 +167,34 @@ class StateDialog
             set_model(mTreeModel);
             append_column(_("Event"), mColumns.mEvent);
             append_column(_("Action"), mColumns.mAction);
+            
+	    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("EventInStateTreeView");
+            mPopupActionGroup->add(Gtk::Action::create("EISTV_Add", _("Add")), sigc::mem_fun(*this, &EventInStateTreeView::onAdd));
+            mPopupActionGroup->add(Gtk::Action::create("EISTV_Edit", _("Edit")), sigc::mem_fun(*this, &EventInStateTreeView::onEdit));
+            mPopupActionGroup->add(Gtk::Action::create("EISTV_Remove", _("Remove")), sigc::mem_fun(*this, &EventInStateTreeView::onRemove));
+            
+            Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+            mUIManager->insert_action_group(mPopupActionGroup);
+            
+            Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='EISTV_Popup'>"
+                "    <menuitem action='EISTV_Add'/>"
+                "    <menuitem action='EISTV_Edit'/>"
+                "    <menuitem action='EISTV_Remove'/>"
+                "  </popup>"
+                "</ui>";
 
+             try {
+               mUIManager->add_ui_from_string(ui_info);
+               mMenu = (Gtk::Menu *) (mUIManager->get_widget("/EISTV_Popup"));
+             } catch(const Glib::Error& ex) {
+               std::cerr << "building menus failed: EISTV_Popup " <<  ex.what();
+             }
+             
+             if (!mMenu)
+               std::cerr << "not a menu : EISTV_Popup\n";
+/*
             Gtk::Menu::MenuList& items(mMenu.items());
 
             items.push_back(Gtk::Menu_Helpers::MenuElem(
@@ -178,6 +207,7 @@ class StateDialog
                     _("Remove"), sigc::mem_fun(
                         *this, &EventInStateTreeView::onRemove)));
             mMenu.show_all();
+*/
         }
 
         virtual ~EventInStateTreeView()
@@ -206,7 +236,7 @@ class StateDialog
         bool on_button_press_event(GdkEventButton* event)
         {
             if (event->type == GDK_BUTTON_PRESS and event->button == 3) {
-                mMenu.popup(event->button, event->time);
+                mMenu->popup(event->button, event->time);
             }
             return Gtk::TreeView::on_button_press_event(event);
         }
@@ -221,7 +251,7 @@ class StateDialog
         eventInStates_t* mEventInStates;
         EventInStateColumns mColumns;
         Glib::RefPtr < Gtk::ListStore > mTreeModel;
-        Gtk::Menu mMenu;
+        Gtk::Menu *mMenu;
     };
 
 public:
@@ -321,12 +351,12 @@ private:
     Gtk::Dialog* mDialog;
     Gtk::Entry* mNameEntry;
     Gtk::CheckButton* mInitialCheckbox;
-    Gtk::VBox* mStateVBox;
-    Gtk::ComboBoxEntryText* mInActionEntry;
+    Gtk::Box* mStateVBox;
+    Gtk::ComboBoxText* mInActionEntry;
     Gtk::Button* mInActionButton;
-    Gtk::ComboBoxEntryText* mOutActionEntry;
+    Gtk::ComboBoxText* mOutActionEntry;
     Gtk::Button* mOutActionButton;
-    Gtk::ComboBoxEntryText* mActivityEntry;
+    Gtk::ComboBoxText* mActivityEntry;
     Gtk::Button* mActivityButton;
     Gtk::Button* mOkButton;
     EventInStateTreeView* mEventInStateTreeView;

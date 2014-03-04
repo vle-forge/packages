@@ -161,7 +161,7 @@ private:
     Gtk::TextView* mTextViewFunction;
     Gtk::Label* mHeaderAck;
 
-    Gtk::Menu mMenuTreeViewItems;
+    Gtk::Menu *mMenuTreeViewItems;
 
 /**
  * This function activate or disactivate the TextView in the window.

@@ -48,7 +48,7 @@ PlaceDialog::PlaceDialog(const Glib::RefPtr < Gtk::Builder >& xml,
     // output
     xml->get_widget("PlaceOutputHBox", mOutputHBox);
     xml->get_widget("PlaceOutputCheckbox", mOutputCheckbox);
-    mOutputEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mOutputEntry = Gtk::manage(new Gtk::ComboBoxText);
     mOutputHBox->pack_start(*mOutputEntry, true, true);
     mOutputHBox->show_all();
     // marking
@@ -116,7 +116,9 @@ void PlaceDialog::onOutput()
         mDelayEntry->set_sensitive(false);
         mDelayCheckbox->set_sensitive(false);
     } else {
-        mOutputEntry->get_entry()->set_text("");
+        if (mOutputEntry->get_entry()) {
+          mOutputEntry->get_entry()->set_text("");
+        }
         mDelayCheckbox->set_sensitive(true);
         mDelayEntry->set_sensitive(mDelayCheckbox->get_active());
     }
@@ -125,10 +127,10 @@ void PlaceDialog::onOutput()
 int PlaceDialog::run()
 {
     // output
-    mOutputEntry->clear_items();
+    mOutputEntry->remove_all();
     for (strings_t::const_iterator it = mPetriNet.outputPorts().begin();
          it != mPetriNet.outputPorts().end(); ++it) {
-        mOutputEntry->append_text(*it);
+        mOutputEntry->append(*it);
     }
 
     if (mPlace) {

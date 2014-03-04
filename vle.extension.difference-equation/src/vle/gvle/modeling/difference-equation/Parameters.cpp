@@ -30,8 +30,10 @@
 #include <boost/lexical_cast.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/utils/Tools.hpp>
-#include <gtkmm/frame.h>
 #include <vle/gvle/Message.hpp>
+#include <gtkmm/frame.h>
+#include <gtkmm/menu.h>
+#include <iostream>
 
 namespace vu = vle::utils;
 
@@ -62,29 +64,40 @@ Parameters::ParametersTreeView::ParametersTreeView(
         sigc::mem_fun(*this,
 	&Parameters::ParametersTreeView::onSelect));
 
-    {
-	Gtk::Menu::MenuList& menulist = m_menuPopup.items();
+    mPopupActionGroup = Gtk::ActionGroup::create("ParametersTreeView");
+    mPopupActionGroup->add(Gtk::Action::create("PTV_ContextMenu", _("Context Menu")));
+    mPopupActionGroup->add(
+        Gtk::Action::create("PTV_ContextAdd", _("Add")),
+        sigc::mem_fun(*this, &Parameters::ParametersTreeView::onAdd));
+    mPopupActionGroup->add(
+        Gtk::Action::create("PTV_ContextRemove", _("Remove")),
+        sigc::mem_fun(*this, &Parameters::ParametersTreeView::onRemove));
+    mPopupActionGroup->add(
+        Gtk::Action::create("PTV_ContextEdit", _("Edit")),
+        sigc::mem_fun(*this, &Parameters::ParametersTreeView::onEdit));
 
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Add"),
-		sigc::mem_fun(
-		    *this,
-		    &Parameters::ParametersTreeView::onAdd)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Remove"),
-		sigc::mem_fun(
-		    *this,
-		    &Parameters::ParametersTreeView::onRemove)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Edit"),
-		sigc::mem_fun(
-		    *this,
-		    &Parameters::ParametersTreeView::onEdit)));
+    mPopupUIManager = Gtk::UIManager::create();
+    mPopupUIManager->insert_action_group(mPopupActionGroup);
+
+    Glib::ustring ui_info =
+        "<ui>"
+        "  <popup name='PTView_Popup'>"
+        "      <menuitem action='PTV_ContextAdd'/>"
+        "      <menuitem action='PTV_ContextRemove'/>"
+        "      <menuitem action='PTV_ContextEdit'/>"
+        "  </popup>"
+        "</ui>";
+
+    try {
+        mPopupUIManager->add_ui_from_string(ui_info);
+        mMenuPopup = (Gtk::Menu *) (
+            mPopupUIManager->get_widget("/PTView_Popup"));
+    } catch(const Glib::Error& ex) {
+        std::cerr << "building menus failed: PTView_Popup " <<  ex.what();
     }
-    m_menuPopup.accelerate(*this);
+
+    if (!mMenuPopup)
+        std::cerr << "menu not found : PTView_Popup\n";
 }
 
 Parameters::ParametersTreeView::~ParametersTreeView()
@@ -155,7 +168,7 @@ bool Parameters::ParametersTreeView::on_button_press_event(
 {
     bool return_value = Gtk::TreeView::on_button_press_event(event);
     if ( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ) {
-	m_menuPopup.popup(event->button, event->time);
+        mMenuPopup->popup(event->button, event->time);
     }
 
     return return_value;
@@ -290,29 +303,42 @@ Parameters::ExternalVariablesTreeView::ExternalVariablesTreeView(
         sigc::mem_fun(*this,
 	&Parameters::ExternalVariablesTreeView::onSelect));
 
-    {
-	Gtk::Menu::MenuList& menulist = m_menuPopup.items();
+    mPopupActionGroup = Gtk::ActionGroup::create("ExternalVariablesTreeView");
+    mPopupActionGroup->add(Gtk::Action::create("EVTV_ContextMenu", _("Context Menu")));
 
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Add"),
-		sigc::mem_fun(
-		    *this,
-		    &Parameters::ExternalVariablesTreeView::onAdd)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Remove"),
-		sigc::mem_fun(
-		    *this,
-		    &Parameters::ExternalVariablesTreeView::onRemove)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Edit"),
-		sigc::mem_fun(
-		    *this,
-		    &Parameters::ExternalVariablesTreeView::onEdit)));
+    mPopupActionGroup->add(Gtk::Action::create("EVTV_ContextAdd", _("_Add")),
+        sigc::mem_fun(*this, &Parameters::ExternalVariablesTreeView::onAdd));
+
+    mPopupActionGroup->add(Gtk::Action::create("EVTV_ContextRemove", _("_Remove")),
+        sigc::mem_fun(*this, &Parameters::ExternalVariablesTreeView::onRemove));
+
+    mPopupActionGroup->add(Gtk::Action::create("EVTV_ContextRename", _("_Edit")),
+        sigc::mem_fun(*this, &Parameters::ExternalVariablesTreeView::onEdit));
+
+    mPopupUIManager = Gtk::UIManager::create();
+    mPopupUIManager->insert_action_group(mPopupActionGroup);
+
+    Glib::ustring ui_info =
+        "<ui>"
+        "  <popup name='EVTView_Popup'>"
+        "      <menuitem action='EVTV_ContextAdd'/>"
+        "      <menuitem action='EVTV_ContextRemove'/>"
+        "      <menuitem action='EVTV_ContextRename'/>"
+        "  </popup>"
+        "</ui>";
+
+    try {
+        mPopupUIManager->add_ui_from_string(ui_info);
+        mMenuPopup = (Gtk::Menu *) (
+            mPopupUIManager->get_widget("/EVTView_Popup"));
+    } catch(const Glib::Error& ex) {
+        std::cerr << "building menus failed: EVTView_Popup " <<  ex.what();
     }
-    m_menuPopup.accelerate(*this);
+
+    if (!mMenuPopup)
+        std::cerr << "menu not found : EVTView_Popup\n";
+
+
 }
 
 Parameters::ExternalVariablesTreeView::~ExternalVariablesTreeView()
@@ -354,7 +380,7 @@ bool Parameters::ExternalVariablesTreeView::on_button_press_event(
 {
     bool return_value = Gtk::TreeView::on_button_press_event(event);
     if ( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ) {
-	m_menuPopup.popup(event->button, event->time);
+        mMenuPopup->popup(event->button, event->time);
     }
 
     return return_value;
@@ -462,7 +488,8 @@ Gtk::Widget& Parameters::build(Glib::RefPtr < Gtk::Builder >& ref)
     Gtk::Frame* parametersFrame;
     Gtk::Frame* externalVariablesFrame;
 
-    m_hbox = Gtk::manage(new Gtk::HBox);
+    m_hbox = Gtk::manage(new Gtk::Box (Gtk::ORIENTATION_HORIZONTAL));
+    
     ref->get_widget_derived("ParametersTreeView",
 			    m_parametersTreeView);
     ref->get_widget("ParametersFrame", parametersFrame);

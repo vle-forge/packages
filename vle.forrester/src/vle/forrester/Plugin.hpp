@@ -38,6 +38,7 @@
 #include <gtkmm/toolbar.h>
 #include <gtkmm/uimanager.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/radiobutton.h>
 #include <vle/forrester/graphicalItems/Compartment.hpp>
 #include <vle/vpz/AtomicModel.hpp>
 #include <vle/vpz/Condition.hpp>

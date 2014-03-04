@@ -66,7 +66,7 @@ EditorDialog::~EditorDialog()
 
     m_cntPredButtonRelease.disconnect();
 
-    mDialog->hide_all();
+    mDialog->hide();
 }
 
 int EditorDialog::run()
@@ -92,6 +92,34 @@ void EditorDialog::initPopupMenus()
     mList.push_back(mRenamePred->signal_clicked().connect(
             sigc::mem_fun(*this, &EditorDialog::onRenamePred)));
 
+
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("EditorDialog");
+    mPopupActionGroup->add(Gtk::Action::create("ED_AddLogicalOp", _("Add Logical Op.")), sigc::mem_fun(*this, &EditorDialog::onAddSubLog));
+    mPopupActionGroup->add(Gtk::Action::create("ED_AddLine", _("Add Line")), sigc::mem_fun(*this, &EditorDialog::onAddSubLine));
+    mPopupActionGroup->add(Gtk::Action::create("ED_Rename", _("_Rename")), sigc::mem_fun(*this, &EditorDialog::onDeleteLog));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='ED_Popup'>"
+                "    <menuitem action='ED_AddLogicalOp'/>"
+                "    <menuitem action='ED_AddLine'/>"
+                "    <menuitem action='ED_Rename'/>"
+                 "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuPred = (Gtk::Menu *) (mUIManager->get_widget("/ED_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: ED_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuPred)
+      std::cerr << "not a menu : ED_Popup\n";
+/*
     Gtk::Menu::MenuList& menulist1(mMenuPred.items());
     menulist1.push_back(Gtk::Menu_Helpers::MenuElem(("Add Logical Op."),
             sigc::mem_fun(*this, &EditorDialog::onAddSubLog)));
@@ -100,6 +128,7 @@ void EditorDialog::initPopupMenus()
     menulist1.push_back(Gtk::Menu_Helpers::MenuElem(("_Delete"),
             sigc::mem_fun(*this, &EditorDialog::onDeleteLog)));
     mMenuPred.accelerate(*mTreeVPred);
+*/
     m_cntPredButtonRelease = mTreeVPred->
             signal_button_release_event().connect(
             sigc::mem_fun(*this, &EditorDialog::onButtonRealeasePred));
@@ -370,9 +399,11 @@ void EditorDialog::onDeletePred()
     using namespace Gtk;
 
     Glib::RefPtr < TreeSelection > tree_selection = mTreeVPred->get_selection();
-    Gtk::TreeSelection::ListHandle_Path lst=tree_selection->get_selected_rows();
-
-    Gtk::TreeSelection::ListHandle_Path::iterator it = lst.begin();
+    //Gtk::TreeSelection::ListHandle_Path lst=tree_selection->get_selected_rows();
+    std::vector<TreePath> v1 = tree_selection->get_selected_rows();
+    std::list<TreePath> lst (v1.begin(), v1.end());
+    
+    std::list<TreePath>::iterator it = lst.begin();
     if (it != lst.end()) {
         if (Question(_("Are you sure you want to delete this predicate?"))) {
             Gtk::TreeIter iter = m_refModelPred->get_iter(*it) ;

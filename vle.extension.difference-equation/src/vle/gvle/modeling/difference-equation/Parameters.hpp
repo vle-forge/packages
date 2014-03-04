@@ -35,6 +35,9 @@
 #include <gtkmm/liststore.h>
 #include <gtkmm/treeview.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/menu.h>
+#include <gtkmm/uimanager.h>
+
 
 namespace vle { namespace gvle { namespace modeling { namespace de {
 
@@ -124,7 +127,9 @@ private:
 	void onEdit();
 
     private:
-	Gtk::Menu                        m_menuPopup;
+        Glib::RefPtr <Gtk::UIManager> mPopupUIManager;
+        Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup;
+        Gtk::Menu *mMenuPopup;
 	ParameterColumns                 m_columnsParameter;
 	Glib::RefPtr<Gtk::ListStore>     m_refTreeParameter;
 	Glib::RefPtr<Gtk::TreeSelection> m_refTreeSelection;
@@ -183,7 +188,9 @@ private:
 	void onEdit();
 
     private:
-	Gtk::Menu                        m_menuPopup;
+        Glib::RefPtr <Gtk::UIManager> mPopupUIManager;
+        Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup;
+        Gtk::Menu *mMenuPopup;
 	ExternalVariableColumns          m_columnsVariable;
 	Glib::RefPtr<Gtk::ListStore>     m_refTreeVariable;
 	Glib::RefPtr<Gtk::TreeSelection> m_refTreeSelection;
@@ -193,7 +200,7 @@ private:
 	Gtk::Entry*   m_name;
     };
 
-    Gtk::HBox*                  m_hbox;
+    Gtk::Box*                  m_hbox;
     ParametersTreeView*         m_parametersTreeView;
     ExternalVariablesTreeView*  m_externalVariablesTreeView;
     std::vector < std::string > m_oldParameters;

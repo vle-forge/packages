@@ -219,7 +219,7 @@ PluginForrester::PluginForrester(const std::string& package,
                         sigc::mem_fun(*this,
                                       &PluginForrester::onRk4)));
     {
-        Gtk::HBox* hbox;
+        Gtk::Box* hbox;
         mXml->get_widget("ForresterHBox", hbox);
         mActionGroup = Gtk::ActionGroup::create();
         mUIManager = Gtk::UIManager::create();
@@ -229,7 +229,8 @@ PluginForrester::PluginForrester(const std::string& package,
         createUI();
         mToolbar = dynamic_cast < Gtk::Toolbar* >(
                        mUIManager->get_widget("/Toolbar"));
-        mToolbar->set_orientation(Gtk::ORIENTATION_VERTICAL);
+        //mToolbar->set_orientation(Gtk::ORIENTATION_VERTICAL); Not in GTK3
+        mToolbar->set_property("orientation", Gtk::ORIENTATION_VERTICAL);
         hbox->pack_start(*mToolbar, false, false);
     }
 }

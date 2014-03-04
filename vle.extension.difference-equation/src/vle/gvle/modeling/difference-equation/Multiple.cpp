@@ -43,7 +43,7 @@ Multiple::~Multiple()
 
 void Multiple::build(bool modeling)
 {
-    Gtk::VBox* vbox;
+    Gtk::Box* vbox;
 
 
     vle::utils::Package pack(getPackage());
@@ -104,11 +104,11 @@ bool Multiple::create(vpz::AtomicModel& model,
     if (m_dialog->run() == Gtk::RESPONSE_ACCEPT) {
         generate(model, dynamic, conditions, observables, classname,
                  namespace_);
-        m_dialog->hide_all();
+        m_dialog->hide();
         destroy();
         return true;
     }
-    m_dialog->hide_all();
+    m_dialog->hide();
     destroy();
     return false;
 }
@@ -116,7 +116,7 @@ bool Multiple::create(vpz::AtomicModel& model,
 void Multiple::destroy()
 {
     if (m_buttonSource) {
-        Gtk::VBox* vbox;
+        Gtk::Box* vbox;
 
         mXml->get_widget("MultiplePluginVBox", vbox);
         vbox->remove(*m_buttonSource);
@@ -342,11 +342,11 @@ bool Multiple::modify(vpz::AtomicModel& model,
     if (m_dialog->run() == Gtk::RESPONSE_ACCEPT) {
         generate(model, dynamic, conditions, observables, classname,
                  namespace_);
-        m_dialog->hide_all();
+        m_dialog->hide();
         destroy();
         return true;
     }
-    m_dialog->hide_all();
+    m_dialog->hide();
     destroy();
     return false;
 }

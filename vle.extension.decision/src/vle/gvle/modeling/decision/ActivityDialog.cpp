@@ -345,10 +345,13 @@ void ActivityDialog::on_add_rule()
 {
     using namespace Gtk;
 
-    TreeSelection::ListHandle_Path lstSrc = mSrcSelect->get_selected_rows();
+    //TreeSelection::ListHandle_Path lstSrc = mSrcSelect->get_selected_rows();
+    std::vector<TreePath> v1 = mSrcSelect->get_selected_rows();
+    std::list<TreePath> lstSrc (v1.begin(), v1.end());
+    
     Glib::RefPtr < TreeModel > modelSrc = mTreeViewPlanRules->get_model();
 
-    for (TreeSelection::ListHandle_Path::iterator iSrc = lstSrc.begin();
+    for (std::list<TreePath>::iterator iSrc = lstSrc.begin();
             iSrc != lstSrc.end(); ++iSrc) {
         TreeModel::Row rowSrc(*(modelSrc->get_iter(*iSrc)));
         std::string data_name(rowSrc.get_value(mColumnsPlanRules.m_col_name));
@@ -364,10 +367,13 @@ void ActivityDialog::on_del_rule()
 {
     using namespace Gtk;
 
-    TreeSelection::ListHandle_Path lstSrc = mDstSelect->get_selected_rows();
+    //TreeSelection::ListHandle_Path lstSrc = mDstSelect->get_selected_rows();
+    std::vector<TreePath> v1 = mDstSelect->get_selected_rows();
+    std::list<TreePath> lstSrc (v1.begin(), v1.end());
+    
     Glib::RefPtr < TreeModel > modelSrc = mTreeViewActRules->get_model();
 
-    for (TreeSelection::ListHandle_Path::iterator iSrc = lstSrc.begin();
+    for (std::list<TreePath>::iterator iSrc = lstSrc.begin();
             iSrc != lstSrc.end(); ++iSrc) {
         TreeModel::Row rowSrc(*(modelSrc->get_iter(*iSrc)));
         std::string data_name(rowSrc.get_value(mColumnsActRules.m_col_name));
@@ -390,11 +396,14 @@ void ActivityDialog::on_add_output()
 {
     using namespace Gtk;
 
-    TreeSelection::ListHandle_Path lstSrc = mSrcOutSelect->get_selected_rows();
+    //TreeSelection::ListHandle_Path lstSrc = mSrcOutSelect->get_selected_rows();
+    std::vector<TreePath> v1 = mSrcOutSelect->get_selected_rows();
+    std::list<TreePath> lstSrc (v1.begin(), v1.end());
+    
     Glib::RefPtr < TreeModel > modelSrc = mTreeViewOutput->get_model();
 
     if (mActOut.empty()) {
-        for (TreeSelection::ListHandle_Path::iterator iSrc = lstSrc.begin();
+        for (std::list<TreePath>::iterator iSrc = lstSrc.begin();
                 iSrc != lstSrc.end(); ++iSrc) {
             TreeModel::Row rowSrc(*(modelSrc->get_iter(*iSrc)));
             std::string data_name(rowSrc.get_value(mColumnsOutput.m_col_name));
@@ -411,10 +420,13 @@ void ActivityDialog::on_del_output()
 {
     using namespace Gtk;
 
-    TreeSelection::ListHandle_Path lstSrc = mDstOutSelect->get_selected_rows();
+    //TreeSelection::ListHandle_Path lstSrc = mDstOutSelect->get_selected_rows();
+    std::vector<TreePath> v1 = mDstOutSelect->get_selected_rows();
+    std::list<TreePath> lstSrc (v1.begin(), v1.end());
+    
     Glib::RefPtr < TreeModel > modelSrc = mTreeViewActOut->get_model();
 
-    for (TreeSelection::ListHandle_Path::iterator iSrc = lstSrc.begin();
+    for (std::list<TreePath>::iterator iSrc = lstSrc.begin();
             iSrc != lstSrc.end(); ++iSrc) {
         TreeModel::Row rowSrc(*(modelSrc->get_iter(*iSrc)));
         std::string data_name(rowSrc.get_value(mColumnsActOut.m_col_name));
@@ -437,11 +449,14 @@ void ActivityDialog::on_add_ack()
 {
     using namespace Gtk;
 
-    TreeSelection::ListHandle_Path lstSrc = mSrcAckSelect->get_selected_rows();
+    //TreeSelection::ListHandle_Path lstSrc = mSrcAckSelect->get_selected_rows();
+    std::vector<TreePath> v1 = mSrcAckSelect->get_selected_rows();
+    std::list<TreePath> lstSrc (v1.begin(), v1.end());
+    
     Glib::RefPtr < TreeModel > modelSrc = mTreeViewAck->get_model();
 
     if (mActAck.empty()) {
-        for (TreeSelection::ListHandle_Path::iterator iSrc = lstSrc.begin();
+        for (std::list<TreePath>::iterator iSrc = lstSrc.begin();
                 iSrc != lstSrc.end(); ++iSrc) {
             TreeModel::Row rowSrc(*(modelSrc->get_iter(*iSrc)));
             std::string data_name(rowSrc.get_value(mColumnsAck.m_col_name));

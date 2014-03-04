@@ -54,3 +54,4 @@ vle.output/cmake/doxygen-modeling.conf.in.bak
 vle.output/cmake/doxygen-sources.conf.in.bak
 vle.output/doc/html/
 vle.output/plugins/
+GNUmakefile

@@ -58,7 +58,7 @@ SourceDialog::~SourceDialog()
     mNotebook->remove_page(*mComputeFunction);
     mNotebook->remove_page(*mInitValueFunction);
     mNotebook->remove_page(*mUserFunctions);
-    mDialog->hide_all();
+    mDialog->hide();
 }
 
 std::string SourceDialog::getIncludes() const

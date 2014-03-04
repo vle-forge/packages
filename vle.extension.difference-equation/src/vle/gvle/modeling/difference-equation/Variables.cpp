@@ -30,6 +30,7 @@
 #include <vle/gvle/SimpleTypeBox.hpp>
 #include <boost/lexical_cast.hpp>
 #include <vle/utils/Tools.hpp>
+#include <iostream>
 
 namespace vu = vle::utils;
 
@@ -51,21 +52,37 @@ Variables::ValuesTreeView::~ValuesTreeView()
 
 void Variables::ValuesTreeView::buildMenu()
 {
-    Gtk::Menu::MenuList& menulist = mMenu.items();
-    menulist.push_back(
-	Gtk::Menu_Helpers::MenuElem(
-	    _("_Add"),
-	    sigc::mem_fun(
-		*this,
-		&Variables::ValuesTreeView::onAdd)));
-    menulist.push_back(
-	Gtk::Menu_Helpers::MenuElem(
-	    _("_Remove"),
-	    sigc::mem_fun(
-		*this,
-		&Variables::ValuesTreeView::onRemove)));
 
-    mMenu.accelerate(*this);
+    mPopupActionGroup = Gtk::ActionGroup::create("ValuesTreeView");
+    mPopupActionGroup->add(Gtk::Action::create("VTV_ContextMenu", _("Context Menu")));
+
+    mPopupActionGroup->add(Gtk::Action::create("VTV_ContextAdd", _("_Add")),
+        sigc::mem_fun(*this, &Variables::ValuesTreeView::onAdd));
+
+    mPopupActionGroup->add(Gtk::Action::create("VTV_ContextRemove", _("_Remove")),
+        sigc::mem_fun(*this, &Variables::ValuesTreeView::onRemove));
+
+    mPopupUIManager = Gtk::UIManager::create();
+    mPopupUIManager->insert_action_group(mPopupActionGroup);
+
+    Glib::ustring ui_info =
+        "<ui>"
+        "  <popup name='VTView_Popup'>"
+        "      <menuitem action='VTV_ContextAdd'/>"
+        "      <menuitem action='VTV_ContextRemove'/>"
+        "  </popup>"
+        "</ui>";
+
+    try {
+        mPopupUIManager->add_ui_from_string(ui_info);
+        mMenuPopup = (Gtk::Menu *) (
+            mPopupUIManager->get_widget("/VTView_Popup"));
+    } catch(const Glib::Error& ex) {
+        std::cerr << "building menus failed: VTView_Popup " <<  ex.what();
+    }
+
+    if (!mMenuPopup)
+        std::cerr << "menu not found : VTView_Popup\n";
 }
 
 void Variables::ValuesTreeView::makeTreeView()
@@ -93,7 +110,7 @@ bool Variables::ValuesTreeView::on_button_press_event(GdkEventButton* event)
 {
     if (not m_variable.empty()and
 	event->type ==GDK_BUTTON_PRESS and event->button == 3) {
-        mMenu.popup(event->button, event->time);
+        mMenuPopup->popup(event->button, event->time);
     }
     return TreeView::on_button_press_event(event);
 }
@@ -162,29 +179,41 @@ Variables::VariablesTreeView::VariablesTreeView(
         sigc::mem_fun(*this,
 	&Variables::VariablesTreeView::onSelect));
 
-    {
-	Gtk::Menu::MenuList& menulist = m_menuPopup.items();
 
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Add"),
-		sigc::mem_fun(
-		    *this,
-		    &Variables::VariablesTreeView::onAdd)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Remove"),
-		sigc::mem_fun(
-		    *this,
-		    &Variables::VariablesTreeView::onRemove)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Edit"),
-		sigc::mem_fun(
-		    *this,
-		    &Variables::VariablesTreeView::onEdit)));
+    mPopupActionGroup = Gtk::ActionGroup::create("VariablesTreeView2");
+    mPopupActionGroup->add(Gtk::Action::create("VTV2_ContextMenu", _("Context Menu")));
+
+    mPopupActionGroup->add(Gtk::Action::create("VTV2_ContextAdd", _("_Add")),
+        sigc::mem_fun(*this, &Variables::VariablesTreeView::onAdd));
+
+    mPopupActionGroup->add(Gtk::Action::create("VTV2_ContextRemove", _("_Remove")),
+        sigc::mem_fun(*this, &Variables::VariablesTreeView::onRemove));
+
+    mPopupActionGroup->add(Gtk::Action::create("VTV2_ContextEdit", _("_Edit")),
+        sigc::mem_fun(*this, &Variables::VariablesTreeView::onEdit));
+
+    mPopupUIManager = Gtk::UIManager::create();
+    mPopupUIManager->insert_action_group(mPopupActionGroup);
+
+    Glib::ustring ui_info =
+        "<ui>"
+        "  <popup name='VTView2_Popup'>"
+        "      <menuitem action='VTV2_ContextAdd'/>"
+        "      <menuitem action='VTV2_ContextRemove'/>"
+        "      <menuitem action='VTV2_ContextEdit'/>"
+        "  </popup>"
+        "</ui>";
+
+    try {
+        mPopupUIManager->add_ui_from_string(ui_info);
+        mMenuPopup = (Gtk::Menu *) (
+            mPopupUIManager->get_widget("/VTView2_Popup"));
+    } catch(const Glib::Error& ex) {
+        std::cerr << "building menus failed: VTView2_Popup " <<  ex.what();
     }
-    m_menuPopup.accelerate(*this);
+
+    if (!mMenuPopup)
+        std::cerr << "menu not found : VTView2_Popup\n";
 }
 
 Variables::VariablesTreeView::~VariablesTreeView()
@@ -262,7 +291,7 @@ bool Variables::VariablesTreeView::on_button_press_event(GdkEventButton* event)
 {
     bool return_value = Gtk::TreeView::on_button_press_event(event);
     if ( (event->type == GDK_BUTTON_PRESS) and (event->button == 3) ) {
-	m_menuPopup.popup(event->button, event->time);
+        mMenuPopup->popup(event->button, event->time);
     }
 
     return return_value;

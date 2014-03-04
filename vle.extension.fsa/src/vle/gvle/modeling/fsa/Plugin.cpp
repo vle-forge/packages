@@ -205,7 +205,7 @@ PluginFSA::PluginFSA(const std::string& package, const std::string& library,
                 &PluginFSA::onTimeStep)));
 
     {
-        Gtk::HBox* hbox;
+        Gtk::Box* hbox;
         mXml->get_widget("StatechartHBox", hbox);
         mActionGroup = Gtk::ActionGroup::create();
         mUIManager = Gtk::UIManager::create();
@@ -216,7 +216,8 @@ PluginFSA::PluginFSA(const std::string& package, const std::string& library,
         mToolbar = dynamic_cast < Gtk::Toolbar* > (
                 mUIManager->get_widget("/Toolbar"));
         mToolbar->set_toolbar_style(Gtk::TOOLBAR_BOTH);
-        mToolbar->set_orientation(Gtk::ORIENTATION_VERTICAL);
+        //mToolbar->set_orientation(Gtk::ORIENTATION_VERTICAL); changed in gtk3
+        mToolbar->set_property("orientation", Gtk::ORIENTATION_VERTICAL);
         mToolbar->set_size_request(100, 50);
         hbox->pack_start(*mToolbar, false, false);
     }

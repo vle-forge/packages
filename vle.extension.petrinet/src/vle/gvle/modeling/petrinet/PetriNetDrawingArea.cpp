@@ -59,8 +59,8 @@ PetriNetDrawingArea::PetriNetDrawingArea(
     const Glib::RefPtr < Gtk::Builder >& xml) :
     Gtk::DrawingArea(cobject),
     mXml(xml),
-    mIsRealized(false),
-    mNeedRedraw(true),
+//    mIsRealized(false),
+//    mNeedRedraw(true),
     mPetriNet(0),
     mState(SELECT),
     mHeight(300 + 2 * OFFSET),
@@ -211,18 +211,18 @@ void PetriNetDrawingArea::exportGraphic()
                                 Gtk::FILE_CHOOSER_ACTION_SAVE);
     file.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     file.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
-    Gtk::FileFilter filterAuto;
-    Gtk::FileFilter filterPng;
-    Gtk::FileFilter filterPdf;
-    Gtk::FileFilter filterSvg;
-    filterAuto.set_name(_("Guess type from file name"));
-    filterAuto.add_pattern("*");
-    filterPng.set_name(_("Portable Newtork Graphics (.png)"));
-    filterPng.add_pattern("*.png");
-    filterPdf.set_name(_("Portable Format Document (.pdf)"));
-    filterPdf.add_pattern("*.pdf");
-    filterSvg.set_name(_("Scalable Vector Graphics (.svg)"));
-    filterSvg.add_pattern("*.svg");
+    Glib::RefPtr<Gtk::FileFilter> filterAuto = Gtk::FileFilter::create ();
+    Glib::RefPtr<Gtk::FileFilter> filterPng = Gtk::FileFilter::create ();
+    Glib::RefPtr<Gtk::FileFilter> filterPdf = Gtk::FileFilter::create ();
+    Glib::RefPtr<Gtk::FileFilter> filterSvg = Gtk::FileFilter::create ();
+    filterAuto->set_name(_("Guess type from file name"));
+    filterAuto->add_pattern("*");
+    filterPng->set_name(_("Portable Newtork Graphics (.png)"));
+    filterPng->add_pattern("*.png");
+    filterPdf->set_name(_("Portable Format Document (.pdf)"));
+    filterPdf->add_pattern("*.pdf");
+    filterSvg->set_name(_("Scalable Vector Graphics (.svg)"));
+    filterSvg->add_pattern("*.svg");
     file.add_filter(filterAuto);
     file.add_filter(filterPng);
     file.add_filter(filterPdf);
@@ -260,16 +260,29 @@ void PetriNetDrawingArea::exportGraphic()
 
 void PetriNetDrawingArea::initMenuPopupModels()
 {
-    Gtk::Menu::MenuList& menulist(mMenuPopup.items());
-
-    menulist.push_back(
-        Gtk::Menu_Helpers::MenuElem(
-            _("_Export Graphic"),
-            sigc::mem_fun(
-                *this,
-                &PetriNetDrawingArea::exportGraphic)));
-
-    mMenuPopup.accelerate(*this);
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("PetriNetDrawingArea");
+    
+    mPopupActionGroup->add(Gtk::Action::create("PNDA_ExportGraphic", _("_Export Graphic")), sigc::mem_fun(*this, &PetriNetDrawingArea::exportGraphic));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='PNDA_Popup'>"
+                "    <menuitem action='PNDA_ExportGraphic'/>"
+                "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuPopup = (Gtk::Menu *) (mUIManager->get_widget("/PNDA_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: PNDA_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuPopup)
+      std::cerr << "not a menu : PNDA_Popup\n";
 }
 
 points_t PetriNetDrawingArea::computeMarking(const Place* place)
@@ -313,7 +326,6 @@ void PetriNetDrawingArea::displacePlaces(int oldx, int oldy,
 {
     int deltax = newx - oldx;
     int deltay = newy - oldy;
-    bool change = false;
 
     xok = false;
     yok = false;
@@ -344,21 +356,16 @@ void PetriNetDrawingArea::displacePlaces(int oldx, int oldy,
                 if (newWidth > mPetriNet->width()) {
                     mPetriNet->width(newWidth);
                     mWidth = mPetriNet->width() + OFFSET;
-                    change = true;
                 }
                 if (newHeight > mPetriNet->height()) {
                     mPetriNet->height(newHeight);
                     mHeight = mPetriNet->height() + OFFSET;
-                    change = true;
                 }
             }
         }
     } else {
         xok = true;
         yok = true;
-    }
-    if (change) {
-        mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
     }
 }
 
@@ -368,7 +375,6 @@ void PetriNetDrawingArea::displaceTransitions(int oldx, int oldy,
 {
     int deltax = newx - oldx;
     int deltay = newy - oldy;
-    bool change = false;
 
     xok = false;
     yok = false;
@@ -399,12 +405,10 @@ void PetriNetDrawingArea::displaceTransitions(int oldx, int oldy,
                 if (newWidth > mPetriNet->width()) {
                     mPetriNet->width(newWidth);
                     mWidth = mPetriNet->width() + OFFSET;
-                    change = true;
                 }
                 if (newHeight > mPetriNet->height()) {
                     mPetriNet->height(newHeight);
                     mHeight = mPetriNet->height() + OFFSET;
-                    change = true;
                 }
             }
         }
@@ -412,14 +416,11 @@ void PetriNetDrawingArea::displaceTransitions(int oldx, int oldy,
         xok = true;
         yok = true;
     }
-    if (change) {
-        mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
-    }
 }
 
 void PetriNetDrawingArea::draw()
 {
-    if (mIsRealized and mBuffer) {
+    if (mContext) {
         mContext->save();
 
         mContext->set_line_width(Settings::settings().getLineWidth());
@@ -1016,7 +1017,7 @@ bool PetriNetDrawingArea::modifyCurrentTransition()
 bool PetriNetDrawingArea::on_button_press_event(GdkEventButton* event)
 {
     if (event->button == 3) {
-        mMenuPopup.popup(event->button, event->time);
+        mMenuPopup->popup(event->button, event->time);
     }
 
     switch (mState)
@@ -1181,14 +1182,23 @@ bool PetriNetDrawingArea::on_configure_event(GdkEventConfigure* event)
         change = true;
         mHeight = event->height;
     }
-    if (change and mIsRealized) {
+    if (change) {
         set_size_request(mWidth, mHeight);
-        mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
         queueRedraw();
     }
     return true;
 }
 
+bool PetriNetDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
+{
+    mContext = context;
+    mContext->set_line_width(Settings::settings().getLineWidth());
+    draw();
+    
+    return true;
+}
+
+/*
 bool PetriNetDrawingArea::on_expose_event(GdkEventExpose*)
 {
     if (mIsRealized) {
@@ -1207,7 +1217,7 @@ bool PetriNetDrawingArea::on_expose_event(GdkEventExpose*)
     }
     return true;
 }
-
+*/
 bool PetriNetDrawingArea::on_motion_notify_event(GdkEventMotion* event)
 {
     int button;
@@ -1332,8 +1342,8 @@ void PetriNetDrawingArea::on_realize()
 {
     Gtk::DrawingArea::on_realize();
     mWin = get_window();
-    mWingc = Gdk::GC::create(mWin);
-    mIsRealized = true;
+//    mWingc = Gdk::GC::create(mWin);
+//    mIsRealized = true;
     queueRedraw();
 }
 

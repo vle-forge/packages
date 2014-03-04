@@ -50,13 +50,13 @@ TransitionDialog::TransitionDialog(
     //input
     xml->get_widget("TransitionInputHBox", mInputHBox);
     xml->get_widget("TransitionInputCheckbox", mInputCheckbox);
-    mInputEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mInputEntry = Gtk::manage(new Gtk::ComboBoxText);
     mInputHBox->pack_start(*mInputEntry, true, true);
     mInputHBox->show_all();
     // output
     xml->get_widget("TransitionOutputHBox", mOutputHBox);
     xml->get_widget("TransitionOutputCheckbox", mOutputCheckbox);
-    mOutputEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mOutputEntry = Gtk::manage(new Gtk::ComboBoxText);
     mOutputHBox->pack_start(*mOutputEntry, true, true);
     mOutputHBox->show_all();
     // delay
@@ -139,16 +139,16 @@ void TransitionDialog::onOutput()
 int TransitionDialog::run()
 {
     // input
-    mInputEntry->clear_items();
+    mInputEntry->remove_all();
     for (strings_t::const_iterator it = mPetriNet.inputPorts().begin();
          it != mPetriNet.inputPorts().end(); ++it) {
-        mInputEntry->append_text(*it);
+        mInputEntry->append(*it);
     }
     // output
-    mOutputEntry->clear_items();
+    mOutputEntry->remove_all();
     for (strings_t::const_iterator it = mPetriNet.outputPorts().begin();
          it != mPetriNet.outputPorts().end(); ++it) {
-        mOutputEntry->append_text(*it);
+        mOutputEntry->append(*it);
     }
 
     if (mTransition) {

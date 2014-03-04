@@ -95,7 +95,7 @@ EventInStateDialog::EventInStateDialog(
     xml->get_widget("EventInStateDialog", mDialog);
     xml->get_widget("EventInStateNameEntry", mEventEntry);
     xml->get_widget("EventInStateVBox", mEventInStateVBox);
-    mActionEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mActionEntry = Gtk::manage(new Gtk::ComboBoxText);
     mEventInStateVBox->pack_start(*mActionEntry, true, true);
     mActionEntry->show();
     xml->get_widget("EventInStateButton", mActionButton);
@@ -139,7 +139,7 @@ int EventInStateDialog::run(const std::string& event,
     mActionEntry->clear();
     for (buffers_t::const_iterator it = mStatechart->eventActions().begin();
          it != mStatechart->eventActions().end(); ++it) {
-        mActionEntry->append_text(it->first);
+        mActionEntry->append(it->first);
     }
     if (not action.empty()) {
         const std::string& buffer = mStatechart->eventAction(action);
@@ -210,13 +210,13 @@ StateDialog::StateDialog(const Glib::RefPtr < Gtk::Builder >& xml,
     xml->get_widget("StateInitialCheckbox", mInitialCheckbox);
 
     xml->get_widget("StateVBox", mStateVBox);
-    mInActionEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mInActionEntry = Gtk::manage(new Gtk::ComboBoxText);
     mStateVBox->pack_start(*mInActionEntry, true, true);
     mInActionEntry->show();
-    mOutActionEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mOutActionEntry = Gtk::manage(new Gtk::ComboBoxText);
     mStateVBox->pack_start(*mOutActionEntry, true, true);
     mOutActionEntry->show();
-    mActivityEntry = Gtk::manage(new Gtk::ComboBoxEntryText);
+    mActivityEntry = Gtk::manage(new Gtk::ComboBoxText);
     mStateVBox->pack_start(*mActivityEntry, true, true);
     mActivityEntry->show();
 
@@ -395,8 +395,8 @@ int StateDialog::run()
     mOutActionEntry->clear();
     for (buffers_t::const_iterator it = mStatechart->actions().begin();
          it != mStatechart->actions().end(); ++it) {
-        mInActionEntry->append_text(it->first);
-        mOutActionEntry->append_text(it->first);
+        mInActionEntry->append(it->first);
+        mOutActionEntry->append(it->first);
     }
     if (not mState->inAction().empty()) {
         const std::string action = mState->inAction();
@@ -424,7 +424,7 @@ int StateDialog::run()
     mActivityEntry->clear();
     for (buffers_t::const_iterator it = mStatechart->activities().begin();
          it != mStatechart->activities().end(); ++it) {
-        mActivityEntry->append_text(it->first);
+        mActivityEntry->append(it->first);
     }
     if (not mState->activity().empty()) {
         const std::string action = mState->activity();

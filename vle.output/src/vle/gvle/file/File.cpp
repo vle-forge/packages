@@ -66,7 +66,7 @@ File::File(const std::string& package,
     ref->get_widget("hboxLocaleFileOutputPlugin", mHBoxLocale);
 
     mComboType = Gtk::manage(new Gtk::ComboBoxText());
-    mComboFile = Gtk::manage(new Gtk::ComboBoxEntryText());
+    mComboFile = Gtk::manage(new Gtk::ComboBoxText(true) );
     mComboType->show();
     mComboFile->show();
 
@@ -95,15 +95,15 @@ bool File::start(vpz::Output& output, vpz::View& /* view */)
 
 void File::init(vpz::Output& output)
 {
-    mComboType->clear_items();
-    mComboType->append_text("text");
-    mComboType->append_text("csv");
-    mComboType->append_text("rdata");
+    mComboType->remove_all();
+    mComboType->append("text");
+    mComboType->append("csv");
+    mComboType->append("rdata");
     mComboType->set_active_text("text");
 
-    mComboFile->clear_items();
-    mComboFile->append_text("C");
-    mComboFile->append_text("user");
+    mComboFile->remove_all();
+    mComboFile->append("C");
+    mComboFile->append("user");
     mComboFile->set_active_text("C");
 
     mRadioFile->set_active();
@@ -125,7 +125,7 @@ void File::init(vpz::Output& output)
         if (map->exist("locale")) {
             std::string loc = map->getString("locale");
             if (not loc.empty() and loc != "user" and loc != "C") {
-                mComboFile->append_text(loc);
+                mComboFile->append(loc);
             }
 
             mComboFile->set_active_text(loc);

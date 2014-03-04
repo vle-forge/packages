@@ -263,8 +263,9 @@ private:
  * @param the event
  * @return return a boolean
  */
-    bool on_expose_event(GdkEventExpose* event);
-
+//    bool on_expose_event(GdkEventExpose* event);
+    bool on_draw(const Cairo::RefPtr<Cairo::Context>& context);
+    
     bool onQueryTooltip(int wx,int wy, bool /* keyboard_tooltip */,
                 const Glib::RefPtr<Gtk::Tooltip>& tooltip);
 /**
@@ -284,7 +285,7 @@ private:
  */
     void queueRedraw()
     {
-        mNeedRedraw = true;
+//        mNeedRedraw = true;
         queue_draw();
     }
 
@@ -374,7 +375,7 @@ private:
                 mDecision->height(newHeight);
                 mWidth = mDecision->width() + 2 * OFFSET;
                 mHeight = mDecision->height() + 2 * OFFSET;
-                mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
+//                mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
                 set_size_request(mWidth, mHeight);
             }
         }
@@ -468,12 +469,12 @@ private:
 
     Glib::RefPtr < Gtk::Builder > mXml;
 
-    Glib::RefPtr < Gdk::Pixmap > mBuffer;
+//    Glib::RefPtr < Gdk::Pixmap > mBuffer;
     Cairo::RefPtr < Cairo::Context > mContext;
     Glib::RefPtr < Gdk::Window > mWin;
-    Glib::RefPtr < Gdk::GC > mWingc;
-    bool mIsRealized;
-    bool mNeedRedraw;
+//    Glib::RefPtr < Gdk::GC > mWingc;
+//    bool mIsRealized;
+//    bool mNeedRedraw;
 
     Decision* mDecision;
     int mState;
@@ -504,7 +505,7 @@ private:
     point_t mStartSelectRect;
     point_t mEndSelectRect;
 
-    Gtk::Menu mMenuPopup;
+    Gtk::Menu *mMenuPopup;
 
     ActivityModel *mStartActivity;
     PrecedenceConstraintModel* mCurrentPrecedenceConstraint;

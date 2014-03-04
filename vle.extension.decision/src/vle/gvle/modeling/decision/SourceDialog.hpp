@@ -270,7 +270,7 @@ private:
     sigc::connection m_cntParamCursorChanged;
 
     std::map < std::string, std::string > mParam;
-    Gtk::Menu mMenuTreeViewItems;
+    Gtk::Menu *mMenuTreeViewItems;
 
     void initTreeParam()
     {

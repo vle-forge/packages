@@ -76,7 +76,7 @@ AckFunctionDialog::~AckFunctionDialog()
     m_cntTreeAckListButtonRelease.disconnect();
     m_cntTreeAckCursorChanged.disconnect();
 
-    mDialog->hide_all();
+    mDialog->hide();
 }
 
 int AckFunctionDialog::run()
@@ -93,6 +93,33 @@ int AckFunctionDialog::run()
 
 void AckFunctionDialog::initMenuPopupTreeAckList()
 {
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("AckFunctionDialog");
+    mPopupActionGroup->add(Gtk::Action::create("AFD_Add", _("_Add")), sigc::mem_fun(*this, &AckFunctionDialog::onAddAck));
+    mPopupActionGroup->add(Gtk::Action::create("AFD_Delete", _("_Delete")), sigc::mem_fun(*this, &AckFunctionDialog::onDeleteAck));
+    mPopupActionGroup->add(Gtk::Action::create("AFD_Rename", _("_Rename")), sigc::mem_fun(*this, &AckFunctionDialog::onRenameAck));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='AFD_Popup'>"
+                "    <menuitem action='AFD_Add'/>"
+                "    <menuitem action='AFD_Delete'/>"
+                "    <menuitem action='AFD_Rename'/>"
+                 "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuTreeViewItems = (Gtk::Menu *) (mUIManager->get_widget("/AFD_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: AFD_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuTreeViewItems)
+      std::cerr << "not a menu : AFD_Popup\n";
+/*
     Gtk::Menu::MenuList& menulist(mMenuTreeViewItems.items());
 
     menulist.push_back(
@@ -109,6 +136,7 @@ void AckFunctionDialog::initMenuPopupTreeAckList()
                 *this, &AckFunctionDialog::onRenameAck)));
 
     mMenuTreeViewItems.accelerate(*mTreeAckList);
+*/
 }
 
 void AckFunctionDialog::initTreeAckList()
@@ -140,7 +168,7 @@ void AckFunctionDialog::fillTreeAckList()
 bool AckFunctionDialog::onButtonRealeaseTreeAckList(GdkEventButton* event)
 {
     if (event->button == 3) {
-        mMenuTreeViewItems.popup(event->button, event->time);
+        mMenuTreeViewItems->popup(event->button, event->time);
     }
     return true;
 }

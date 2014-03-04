@@ -118,7 +118,7 @@ if (${_find_gvle_using_cmake})
 
   set(GVLE_INCLUDE_DIRS
     ${_gvle_base_include}/vle-${VLE_ABI_VERSION}; ${_gvle_base_include};
-    ${_gvle_base_include}/gtkmm-2.4;${_gvle_base_lib}/gtkmm-2.4/include;
+    ${_gvle_base_include}/gtkmm-3.0;${_gvle_base_lib}/gtkmm-3.0/include;
     ${_gvle_base_include}/cairomm-1.0;${_gvle_base_lib}/cairomm-1.0/include;
     ${_gvle_base_include}/atkmm-1.6;
     ${_gvle_base_include}/giomm-2.4;${_gvle_base_lib}/giomm-2.4/include;
@@ -140,11 +140,12 @@ if (${_find_gvle_using_cmake})
     c:/devel/dist/win32/lipng-1.4.3-1/lib)
 
   set (GVLE_LIBRARIES
-    gvle-${VLE_ABI_VERSION} gtkmm-2.4 vle-${VLE_ABI_VERSION} atkmm-1.6
+    gvle-${VLE_ABI_VERSION} gtkmm-3.0 vle-${VLE_ABI_VERSION} atkmm-1.6
     gdkmm-2.4 giomm-2.4 pangomm-1.4 gtk-win32-2.0 cairomm-1.0 gdk-win32-2.0
     atk-1.0 gio-2.0 pangowin32-1.0 gdi32 pangocairo-1.0 gdk_pixbuf-2.0 png14
     pango-1.0 gmodule-2.0 cairo xml2 glibmm-2.4 gobject-2.0 sigc-2.0
     gthread-2.0 glib-2.0 intl)
+
 else () # find gvle using pkg-config
   find_package(PkgConfig REQUIRED)
   PKG_CHECK_MODULES(GVLE gvle-${VLE_ABI_VERSION})

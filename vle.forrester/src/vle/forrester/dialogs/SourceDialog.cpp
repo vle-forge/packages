@@ -47,7 +47,7 @@ SourceDialog::~SourceDialog()
     {
         mNotebook->remove_page(*it->second);
     }
-    mDialog->hide_all();
+    mDialog->hide();
 }
 
 void SourceDialog::add(const std::string& name, const std::string& buffer)

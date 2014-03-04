@@ -31,7 +31,7 @@
 
 #include <vle/gvle/modeling/petrinet/PetriNet.hpp>
 #include <gtkmm/checkbutton.h>
-#include <gtkmm/comboboxentrytext.h>
+#include <gtkmm/comboboxtext.h>
 #include <gtkmm/dialog.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/image.h>
@@ -97,9 +97,9 @@ private:
     Gtk::Entry* mNameEntry;
     Gtk::Image* mStatusName;
     // output
-    Gtk::HBox* mOutputHBox;
+    Gtk::Box* mOutputHBox;
     Gtk::CheckButton* mOutputCheckbox;
-    Gtk::ComboBoxEntryText* mOutputEntry;
+    Gtk::ComboBoxText* mOutputEntry;
     // marking
     Gtk::Entry* mMarkingEntry;
     // delay

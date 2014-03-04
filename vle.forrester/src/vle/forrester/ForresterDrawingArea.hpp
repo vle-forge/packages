@@ -43,6 +43,7 @@
 #include <gtkmm/builder.h>
 #include <gtkmm/menu.h>
 #include <gtkmm/stock.h>
+#include <gtkmm/uimanager.h>
 
 namespace vle {
 namespace gvle {
@@ -87,10 +88,8 @@ public:
         mForrester = forrester_;
         set_size_request(mForrester->getForresterGI().getWidth(),
                          mForrester->getForresterGI().getHeight());
-        if (mIsRealized) {
-            updateBuffer();
-            queueRedraw();
-        }
+//        updateBuffer();
+        queueRedraw();
     }
 
     /*!
@@ -145,7 +144,7 @@ private:
      * @brief GTKmm event.
      * Called to redraw the drawing area
      */
-    virtual bool on_expose_event(GdkEventExpose*);
+//    virtual bool on_expose_event(GdkEventExpose*);
 
     /*!
      * @brief GTKmm event.
@@ -173,7 +172,8 @@ private:
     virtual bool on_button_release_event(GdkEventButton* event);
 
 
-    virtual bool on_draw(const Cairo::RefPtr<Cairo::Context> &cr);
+    virtual bool on_draw(const Cairo::RefPtr<Cairo::Context> &context);
+    virtual bool on_draw_old(const Cairo::RefPtr<Cairo::Context> &cr);
 
     /*!
      * @brief Main method to draw all Forrester diagramm.
@@ -191,7 +191,7 @@ private:
      */
     void queueRedraw()
     {
-        mNeedRedraw = true;
+//        mNeedRedraw = true;
         queue_draw();
     }
 
@@ -204,19 +204,21 @@ private:
     /*!
      * @brief Update the pixmap size
      */
-    void updateBuffer()
+/*    void updateBuffer()
     {
         mBuffer = Gdk::Pixmap::create(mWin,
             mForrester->getForresterGI().getWidth() + 10,
             mForrester->getForresterGI().getHeight() + 10, -1);
+
     }
+*/
 
     /*!
      * @brief Update a part of drawing area
      */
     void queueRedraw(int x, int y, int w, int h)
     {
-        mNeedRedraw = true;
+//        mNeedRedraw = true;
         queue_draw_area(x, y, w, h);
     }
 
@@ -250,11 +252,11 @@ private:
     void on_motion_notify_event_SELECT(GdkEventMotion* ev);
     void on_button_release_event_ADD_FLOW(GdkEventButton* event);
 
-    Gtk::Menu mMenuPopup;
+    Gtk::Menu* mMenuPopup;
     Glib::RefPtr < Gtk::Builder > mXml;/*!< @brief Glade xml file. */
-    Glib::RefPtr < Gdk::Pixmap > mBuffer;
+//    Glib::RefPtr < Gdk::Pixmap > mBuffer;
     Glib::RefPtr < Gdk::Window > mWin;
-    Glib::RefPtr < Gdk::GC > mWingc;
+//    Glib::RefPtr < Gdk::GC > mWingc;
     Cairo::RefPtr < Cairo::Context > mContext;/*!< @brief Cairo context */
 
     Forrester* mForrester;/*!< @brief Forrester data model */
@@ -262,8 +264,8 @@ private:
     /*! @brief Redraw flag.
      *   true if the drawing area needs to be redrawn, false otherwise
      */
-    bool mNeedRedraw;
-    bool mIsRealized;/*!< @brief Width of the drawing area */
+//    bool mNeedRedraw;
+//    bool mIsRealized;/*!< @brief Width of the drawing area */
     bool mForresterResize;
     int mPreviousX, mPreviousY;
     int mState;/*!< @brief Drawing area current state

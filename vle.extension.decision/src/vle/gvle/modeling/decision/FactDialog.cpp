@@ -25,6 +25,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 #include <vle/gvle/modeling/decision/FactDialog.hpp>
 
 namespace vle {
@@ -81,7 +82,7 @@ FactDialog::~FactDialog()
     m_cntTreeFactListButtonRelease.disconnect();
     m_cntTreeFactCursorChanged.disconnect();
 
-    mDialog->hide_all();
+    mDialog->hide();
 }
 
 int FactDialog::run()
@@ -98,6 +99,35 @@ int FactDialog::run()
 
 void FactDialog::initMenuPopupTreeFactList()
 {
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("FactDialog");
+    
+    mPopupActionGroup->add(Gtk::Action::create("FD_Add", _("_Add")), sigc::mem_fun(*this, &FactDialog::onAddFact));
+    mPopupActionGroup->add(Gtk::Action::create("FD_Delete", _("_Delete")), sigc::mem_fun(*this, &FactDialog::onDeleteFact));
+    mPopupActionGroup->add(Gtk::Action::create("FD_Rename", _("_Rename")), sigc::mem_fun(*this, &FactDialog::onRenameFact));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='FD_Popup'>"
+                "    <menuitem action='FD_Add'/>"
+                "    <menuitem action='FD_Delete'/>"
+                "    <menuitem action='FD_Delete'/>"
+                 "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuTreeViewItems = (Gtk::Menu *) (mUIManager->get_widget("/FD_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: FD_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuTreeViewItems)
+      std::cerr << "not a menu : FD_Popup\n";
+    
+/*
     Gtk::Menu::MenuList& menulist(mMenuTreeViewItems.items());
 
     menulist.push_back(
@@ -114,6 +144,7 @@ void FactDialog::initMenuPopupTreeFactList()
                 *this, &FactDialog::onRenameFact)));
 
     mMenuTreeViewItems.accelerate(*mTreeFactList);
+*/
 }
 
 void FactDialog::initTreeFactList()
@@ -145,7 +176,7 @@ void FactDialog::fillTreeFactList()
 bool FactDialog::onButtonRealeaseTreeFactList(GdkEventButton* event)
 {
     if (event->button == 3) {
-        mMenuTreeViewItems.popup(event->button, event->time);
+        mMenuTreeViewItems->popup(event->button, event->time);
     }
     return true;
 }

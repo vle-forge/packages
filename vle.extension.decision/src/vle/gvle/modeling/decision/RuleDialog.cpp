@@ -25,6 +25,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 #include <vle/gvle/modeling/decision/RuleDialog.hpp>
 
 namespace vle {
@@ -75,7 +76,35 @@ namespace decision {
     xml->get_widget("ButtonDelPredicate", mButtonDelete);
     mList.push_back(mButtonDelete->signal_clicked().connect(
         sigc::mem_fun(*this, &RuleDialog::on_del_pred)));
-
+    
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("RuleDialog");
+    mPopupActionGroup->add(Gtk::Action::create("RD_Add", _("_Add")), sigc::mem_fun(*this, &RuleDialog::on_add_rule));
+    mPopupActionGroup->add(Gtk::Action::create("RD_Remove", _("_Remove")), sigc::mem_fun(*this, &RuleDialog::on_del_rule));
+    mPopupActionGroup->add(Gtk::Action::create("RD_Rename", _("_Rename")), sigc::mem_fun(*this, &RuleDialog::on_rename_rule));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='RD_Popup'>"
+                "    <menuitem action='RD_Add'/>"
+                "    <menuitem action='RD_Remove'/>"
+                "    <menuitem action='RD_Rename'/>"
+                 "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuPopup = (Gtk::Menu *) (mUIManager->get_widget("/RD_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: RD_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuPopup)
+      std::cerr << "not a menu : RD_Popup\n";
+    
+    /*
     // Fill popup menu
     {
         Gtk::Menu::MenuList& menulist = mMenuPopup.items();
@@ -87,6 +116,7 @@ namespace decision {
             "_Rename", sigc::mem_fun(*this, &RuleDialog::on_rename_rule)));
     }
     mMenuPopup.accelerate(*mTreeViewRules);
+    */
 }
 
 RuleDialog::~RuleDialog()
@@ -98,7 +128,7 @@ RuleDialog::~RuleDialog()
     mTreeViewRules->remove_all_columns();
     mTreeViewPred->remove_all_columns();
 
-    mDialog->hide_all();
+    mDialog->hide();
 }
 
 int RuleDialog::run()
@@ -117,7 +147,7 @@ int RuleDialog::run()
 void RuleDialog::on_button_press(GdkEventButton* event)
 {
     if (event->type == GDK_BUTTON_PRESS and event->button == 3) {
-        mMenuPopup.popup(event->button, event->time);
+        mMenuPopup->popup(event->button, event->time);
     }
 }
 
@@ -125,19 +155,25 @@ void RuleDialog::on_add_pred()
 {
     using namespace Gtk;
 
-    TreeSelection::ListHandle_Path lstDst = mDstSelect->get_selected_rows();
+    //TreeSelection::ListHandle_Path lstDst = mDstSelect->get_selected_rows();
+    std::vector<TreePath> v1 = mDstSelect->get_selected_rows();
+    std::list<TreePath> lstDst (v1.begin(), v1.end());
+    
     Glib::RefPtr < TreeModel > modelDst = mTreeViewRules->get_model();
 
-    for (TreeSelection::ListHandle_Path::iterator iDst = lstDst.begin();
+    for (std::list<TreePath>::iterator iDst = lstDst.begin();
             iDst != lstDst.end(); ++iDst) {
         TreeModel::Row rowDst(*(modelDst->get_iter(*iDst)));
         std::string data_name(rowDst.get_value(mColumnsRules.m_col_name));
         std::string data_type(rowDst.get_value(mColumnsRules.m_col_type));
         if (data_type == "Rule" ) {
-            TreeSelection::ListHandle_Path lstSrc = mSrcSelect->get_selected_rows();
+            //TreeSelection::ListHandle_Path lstSrc = mSrcSelect->get_selected_rows();
+            std::vector<TreePath> v2 = mSrcSelect->get_selected_rows();
+            std::list<TreePath> lstSrc (v1.begin(), v1.end());
+            
             Glib::RefPtr < TreeModel > modelSrc = mTreeViewPred->get_model();
 
-            for (TreeSelection::ListHandle_Path::iterator iSrc = lstSrc.begin();
+            for (std::list<TreePath>::iterator iSrc = lstSrc.begin();
                     iSrc != lstSrc.end(); ++iSrc) {
                 TreeModel::Row rowSrc(*(modelSrc->get_iter(*iSrc)));
                 std::string pred(rowSrc.get_value(mColumnsPred.m_col_name));
@@ -216,10 +252,13 @@ void RuleDialog::on_del_rule()
     using namespace Gtk;
 
     Glib::RefPtr < TreeSelection > tree_selection = mTreeViewRules->get_selection();
-    Gtk::TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    //Gtk::TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    std::vector<TreePath> v1 = tree_selection->get_selected_rows();
+    std::list<TreePath> lst (v1.begin(), v1.end());
+    
     Glib::RefPtr < TreeModel > model = mTreeViewRules->get_model();
 
-    for (Gtk::TreeSelection::ListHandle_Path::iterator it = lst.begin();
+    for (std::list<TreePath>::iterator it = lst.begin();
             it != lst.end(); ++it) {
         Gtk::TreeModel::Row row(*(model->get_iter(*it)));
         std::string data_name(row.get_value(mColumnsRules.m_col_name));
@@ -238,10 +277,13 @@ void RuleDialog::on_rename_rule()
     using namespace Gtk;
 
     Glib::RefPtr < TreeSelection > tree_selection = mTreeViewRules->get_selection();
-    Gtk::TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    //Gtk::TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    std::vector<TreePath> v1 = tree_selection->get_selected_rows();
+    std::list<TreePath> lst (v1.begin(), v1.end());
+    
     Glib::RefPtr < TreeModel > model = mTreeViewRules->get_model();
 
-    Gtk::TreeSelection::ListHandle_Path::iterator it = lst.begin();
+    std::list<TreePath>::iterator it = lst.begin();
     if (it != lst.end()) {
         Gtk::TreeModel::Row row(*(model->get_iter(*it)));
         std::string data_name(row.get_value(mColumnsRules.m_col_name));
@@ -274,10 +316,13 @@ void RuleDialog::on_del_pred()
     using namespace Gtk;
 
     Glib::RefPtr < TreeSelection > tree_selection = mTreeViewRules->get_selection();
-    TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    //TreeSelection::ListHandle_Path lst = tree_selection->get_selected_rows();
+    std::vector<TreePath> v1 = tree_selection->get_selected_rows();
+    std::list<TreePath> lst (v1.begin(), v1.end());
+    
     Glib::RefPtr < TreeModel > model = mTreeViewRules->get_model();
 
-    for (TreeSelection::ListHandle_Path::iterator it = lst.begin();
+    for (std::list<TreePath>::iterator it = lst.begin();
             it != lst.end(); ++it) {
         TreeModel::Row row(*(model->get_iter(*it)));
         std::string data_name(row.get_value(mColumnsRules.m_col_name));

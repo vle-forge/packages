@@ -25,6 +25,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 #include <vle/gvle/modeling/decision/PredicateDialog.hpp>
 
 namespace vle {
@@ -79,7 +80,7 @@ PredicateDialog::~PredicateDialog()
     m_cntTreePredicateListButtonRelease.disconnect();
     m_cntTreePredicateCursorChanged.disconnect();
 
-    mDialog->hide_all();
+    mDialog->hide();
 }
 
 int PredicateDialog::run()
@@ -96,6 +97,34 @@ int PredicateDialog::run()
 
 void PredicateDialog::initMenuPopupTreePredicateList()
 {
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("PredicateDialog");
+    
+    mPopupActionGroup->add(Gtk::Action::create("PrD_Add", _("_Add")), sigc::mem_fun(*this, &PredicateDialog::onAddPredicate));
+    mPopupActionGroup->add(Gtk::Action::create("PrD_Delete", _("_Delete")), sigc::mem_fun(*this, &PredicateDialog::onDeletePredicate));
+    mPopupActionGroup->add(Gtk::Action::create("PrD_Rename", _("_Rename")), sigc::mem_fun(*this, &PredicateDialog::onRenamePredicate));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='PrD_Popup'>"
+                "    <menuitem action='PrD_Add'/>"
+                "    <menuitem action='PrD_Delete'/>"
+                "    <menuitem action='PrD_Delete'/>"
+                 "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuTreeViewItems = (Gtk::Menu *) (mUIManager->get_widget("/PrD_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: PrD_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuTreeViewItems)
+      std::cerr << "not a menu : PrD_Popup\n";
+/*
     Gtk::Menu::MenuList& menulist(mMenuTreeViewItems.items());
 
     menulist.push_back(
@@ -112,6 +141,7 @@ void PredicateDialog::initMenuPopupTreePredicateList()
                 *this, &PredicateDialog::onRenamePredicate)));
 
     mMenuTreeViewItems.accelerate(*mTreePredicateList);
+*/
 }
 
 void PredicateDialog::initTreePredicateList()
@@ -144,7 +174,7 @@ void PredicateDialog::fillTreePredicateList()
 bool PredicateDialog::onButtonRealeaseTreePredicateList(GdkEventButton* event)
 {
     if (event->button == 3) {
-        mMenuTreeViewItems.popup(event->button, event->time);
+        mMenuTreeViewItems->popup(event->button, event->time);
     }
     return true;
 }

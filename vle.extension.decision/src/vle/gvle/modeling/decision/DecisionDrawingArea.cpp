@@ -47,8 +47,8 @@ DecisionDrawingArea::DecisionDrawingArea(
         const Glib::RefPtr < Gtk::Builder >& xml) :
     Gtk::DrawingArea(cobject),
     mXml(xml),
-    mIsRealized(false),
-    mNeedRedraw(true),
+//    mIsRealized(false),
+//    mNeedRedraw(true),
     mDecision(0),
     mState(SELECT_MODE),
     mHeight(300 + 2 * OFFSET),
@@ -75,6 +75,33 @@ DecisionDrawingArea::DecisionDrawingArea(
 
 void DecisionDrawingArea::initMenuPopupModels()
 {
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("DecisionDrawingArea");
+    mPopupActionGroup->add(Gtk::Action::create("DDA_Copy", _("_Copy")), sigc::mem_fun(*this, &DecisionDrawingArea::copy));
+    mPopupActionGroup->add(Gtk::Action::create("DDA_Paste", _("_Paste")), sigc::mem_fun(*this, &DecisionDrawingArea::paste));
+    mPopupActionGroup->add(Gtk::Action::create("DDA_Delete", _("_Delete")), sigc::mem_fun(*this, &DecisionDrawingArea::deleteElmts));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='DDA_Popup'>"
+                "    <menuitem action='DDA_Copy'/>"
+                "    <menuitem action='DDA_Paste'/>"
+                "    <menuitem action='DDA_Delete'/>"
+                 "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuPopup = (Gtk::Menu *) (mUIManager->get_widget("/DDA_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: DDA_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuPopup)
+      std::cerr << "not a menu : DDA_Popup\n";
+/*
     Gtk::Menu::MenuList& menulist(mMenuPopup.items());
     menulist.push_back(Gtk::Menu_Helpers::MenuElem(_("_Copy"),
             sigc::mem_fun(*this, &DecisionDrawingArea::copy)));
@@ -84,6 +111,7 @@ void DecisionDrawingArea::initMenuPopupModels()
             sigc::mem_fun(*this, &DecisionDrawingArea::deleteElmts)));
 
     mMenuPopup.accelerate(*this);
+*/
 }
 
 bool DecisionDrawingArea::addActivity(guint x, guint y)
@@ -115,7 +143,7 @@ bool DecisionDrawingArea::addActivity(guint x, guint y)
             mDecision->height(newHeight);
             mWidth = mDecision->width() + 2 * OFFSET;
             mHeight = mDecision->height() + 2 * OFFSET;
-            mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
+//            mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
         }
 
         return true;
@@ -148,13 +176,8 @@ void DecisionDrawingArea::displaceActivitiesModel(int oldx, int oldy,
         int newx, int newy,
         bool& xok, bool& yok)
 {
-    int oldWidth, oldHeight;
-    oldWidth = mDecision->width() + 2 * OFFSET;
-    oldHeight = mDecision->height() + 2 * OFFSET;
-
     int deltax = newx - oldx;
     int deltay = newy - oldy;
-    bool change = false;
 
     xok = false;
     yok = false;
@@ -185,12 +208,10 @@ void DecisionDrawingArea::displaceActivitiesModel(int oldx, int oldy,
                 if (newWidth > mDecision->width()) {
                     mDecision->width(newWidth);
                     mWidth = mDecision->width() + 2 * OFFSET;
-                    change = true;
                 }
                 if (newHeight > mDecision->height()) {
                     mDecision->height(newHeight);
                     mHeight = mDecision->height() + 2 * OFFSET;
-                    change = true;
                 }
             }
         }
@@ -198,15 +219,11 @@ void DecisionDrawingArea::displaceActivitiesModel(int oldx, int oldy,
         xok = true;
         yok = true;
     }
-
-    if (change && (oldHeight < mHeight || oldWidth < mWidth)) {
-        mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
-    }
 }
 
 void DecisionDrawingArea::draw()
 {
-    if (mIsRealized and mBuffer) {
+    if (mContext) {
         mContext->save();
         mContext->set_line_width(Settings::settings().getLineWidth());
 
@@ -546,7 +563,6 @@ bool DecisionDrawingArea::modifyCurrentActivityModel()
                     mDecision->height(newHeight);
                     mHeight = mDecision->height() + 2 * OFFSET;
                 }
-                mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
             }
 
             return true;
@@ -592,7 +608,7 @@ point_t DecisionDrawingArea::searchAnchor(const ActivityModel* activityModel,
 bool DecisionDrawingArea::on_button_press_event(GdkEventButton* event)
 {
     if (event->button == 3) {
-        mMenuPopup.popup(event->button, event->time);
+        mMenuPopup->popup(event->button, event->time);
     }
     else {
         switch (mState)
@@ -776,14 +792,24 @@ bool DecisionDrawingArea::on_configure_event(GdkEventConfigure* event)
         change = true;
         mHeight = event->height;
     }
-    if (change and mIsRealized) {
+    if (change) {
         set_size_request(mWidth, mHeight);
-        mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
+//        mBuffer = Gdk::Pixmap::create(mWin, mWidth, mHeight, -1);
         queueRedraw();
     }
     return true;
 }
 
+bool DecisionDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
+{
+    mContext = context;
+    mContext->set_line_width(Settings::settings().getLineWidth());
+    draw();
+    
+    return true;
+}
+
+/*
 bool DecisionDrawingArea::on_expose_event(GdkEventExpose*)
 {
     if (mIsRealized) {
@@ -802,6 +828,7 @@ bool DecisionDrawingArea::on_expose_event(GdkEventExpose*)
     }
     return true;
 }
+*/
 
 bool DecisionDrawingArea::onQueryTooltip(int wx,int wy, bool,
             const Glib::RefPtr<Gtk::Tooltip>& tooltip)
@@ -906,8 +933,8 @@ void DecisionDrawingArea::on_realize()
 {
     Gtk::DrawingArea::on_realize();
     mWin = get_window();
-    mWingc = Gdk::GC::create(mWin);
-    mIsRealized = true;
+//    mWingc = Gdk::GC::create(mWin);
+//    mIsRealized = true;
     queueRedraw();
 }
 

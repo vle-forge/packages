@@ -46,8 +46,8 @@ ForresterDrawingArea::ForresterDrawingArea(BaseObjectType* cobject,
     Gtk::DrawingArea(cobject),
     mXml(xml),
     mForrester(0),
-    mNeedRedraw(true),
-    mIsRealized(false),
+//    mNeedRedraw(true),
+//    mIsRealized(false),
     mPreviousX(-1),
     mPreviousY(-1),
     mState(ForresterDrawingArea::SELECT),
@@ -59,11 +59,27 @@ ForresterDrawingArea::ForresterDrawingArea(BaseObjectType* cobject,
         Gdk::BUTTON1_MOTION_MASK | Gdk::BUTTON2_MOTION_MASK |
         Gdk::BUTTON3_MOTION_MASK | Gdk::BUTTON_PRESS_MASK |
         Gdk::BUTTON_RELEASE_MASK);
-    modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#FFFFFF"));
+    
+//    modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#FFFFFF"));
+    override_background_color (Gdk::RGBA("#FFFFFF00"), Gtk::STATE_FLAG_NORMAL);
+    
     initMenuPopupModels();
     set_double_buffered(true);
 }
 
+bool ForresterDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
+{
+    mContext = context;
+    mContext->set_line_width(Settings::settings().getLineWidth());
+
+    on_draw_old (context);
+
+    draw();
+    
+    return true;
+}
+
+/*
 bool ForresterDrawingArea::on_expose_event(GdkEventExpose*)
 {
     if (mIsRealized) {
@@ -83,13 +99,14 @@ bool ForresterDrawingArea::on_expose_event(GdkEventExpose*)
     }
     return true;
 }
+*/
 
 void ForresterDrawingArea::on_realize()
 {
     Gtk::DrawingArea::on_realize();
     mWin = get_window();
-    mWingc = Gdk::GC::create(mWin);
-    mIsRealized = true;
+//    mWingc = Gdk::GC::create(mWin);
+//    mIsRealized = true;
     queueRedraw();
 }
 
@@ -175,7 +192,7 @@ void ForresterDrawingArea::resizeForrester(int oldx, int oldy,
 bool ForresterDrawingArea::on_button_press_event(GdkEventButton* ev)
 {
     if (ev->button == 3) {
-        mMenuPopup.popup(ev->button, ev->time);
+        mMenuPopup->popup(ev->button, ev->time);
     }
     switch (mState) {
     case SELECT:
@@ -217,12 +234,11 @@ bool ForresterDrawingArea::on_button_press_event(GdkEventButton* ev)
     default:
         break;
     };
-    if (mForrester->checkDiagramSize())
-        updateBuffer();
+    
     return true;
 }
 
-bool ForresterDrawingArea::on_draw(
+bool ForresterDrawingArea::on_draw_old(
         const Cairo::RefPtr<Cairo::Context> &cr)
 {
     cr->set_source_rgb(1, 1, 1);
@@ -346,7 +362,7 @@ void ForresterDrawingArea::on_button_release_event_ADD_FLOW(GdkEventButton* ev) 
 
 
 void ForresterDrawingArea::draw(){
-    if (mIsRealized and mBuffer) {
+    if (mContext) {
         mContext->save();
         mContext->set_line_width(Settings::settings().getLineWidth());
 
@@ -400,16 +416,29 @@ void ForresterDrawingArea::setColor(const Gdk::Color& color)
 
 void ForresterDrawingArea::initMenuPopupModels()
 {
-    Gtk::Menu::MenuList& menulist(mMenuPopup.items());
-
-    menulist.push_back(
-        Gtk::Menu_Helpers::MenuElem(
-            ("_Export Graphic"),
-            sigc::mem_fun(
-                *this,
-                &ForresterDrawingArea::exportGraphic)));
-
-    mMenuPopup.accelerate(*this);
+    Glib::RefPtr <Gtk::ActionGroup> mPopupActionGroup = Gtk::ActionGroup::create("ForresterDrawingArea");
+    
+    mPopupActionGroup->add(Gtk::Action::create("FDA_ExportGraphic", _("_Export Graphic")), sigc::mem_fun(*this, &ForresterDrawingArea::exportGraphic));
+    
+    Glib::RefPtr <Gtk::UIManager> mUIManager = Gtk::UIManager::create();
+    mUIManager->insert_action_group(mPopupActionGroup);
+    
+    Glib::ustring ui_info =
+                "<ui>"
+                "  <popup name='FDA_Popup'>"
+                "    <menuitem action='FDA_ExportGraphic'/>"
+                "  </popup>"
+                "</ui>";
+    
+    try {
+      mUIManager->add_ui_from_string(ui_info);
+      mMenuPopup = (Gtk::Menu *) (mUIManager->get_widget("/FDA_Popup"));
+    } catch(const Glib::Error& ex) {
+      std::cerr << "building menus failed: FDA_Popup " <<  ex.what();
+    }
+    
+    if (!mMenuPopup)
+      std::cerr << "not a menu : FDA_Popup\n";
 }
 
 void ForresterDrawingArea::exportPng(const std::string& filename)
@@ -468,18 +497,18 @@ void ForresterDrawingArea::exportGraphic()
                                 Gtk::FILE_CHOOSER_ACTION_SAVE);
     file.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     file.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
-    Gtk::FileFilter filterAuto;
-    Gtk::FileFilter filterPng;
-    Gtk::FileFilter filterPdf;
-    Gtk::FileFilter filterSvg;
-    filterAuto.set_name(_("Guess type from file name"));
-    filterAuto.add_pattern("*");
-    filterPng.set_name(_("Portable Newtork Graphics (.png)"));
-    filterPng.add_pattern("*.png");
-    filterPdf.set_name(_("Portable Format Document (.pdf)"));
-    filterPdf.add_pattern("*.pdf");
-    filterSvg.set_name(_("Scalable Vector Graphics (.svg)"));
-    filterSvg.add_pattern("*.svg");
+    Glib::RefPtr<Gtk::FileFilter> filterAuto = Gtk::FileFilter::create ();
+    Glib::RefPtr<Gtk::FileFilter> filterPng = Gtk::FileFilter::create ();
+    Glib::RefPtr<Gtk::FileFilter> filterPdf = Gtk::FileFilter::create ();
+    Glib::RefPtr<Gtk::FileFilter> filterSvg = Gtk::FileFilter::create ();
+    filterAuto->set_name(_("Guess type from file name"));
+    filterAuto->add_pattern("*");
+    filterPng->set_name(_("Portable Newtork Graphics (.png)"));
+    filterPng->add_pattern("*.png");
+    filterPdf->set_name(_("Portable Format Document (.pdf)"));
+    filterPdf->add_pattern("*.pdf");
+    filterSvg->set_name(_("Scalable Vector Graphics (.svg)"));
+    filterSvg->add_pattern("*.svg");
     file.add_filter(filterAuto);
     file.add_filter(filterPng);
     file.add_filter(filterPdf);
@@ -539,7 +568,6 @@ void ForresterDrawingArea::displace(GraphicalItem* item, int newx,
         item->displace(deltax, deltay);
 
         if (mForrester->checkDiagramSize()) {
-            updateBuffer();
             set_size_request(mForrester->getForresterGI().getWidth(),
                 mForrester->getForresterGI().getHeight());
         }
@@ -557,9 +585,8 @@ void ForresterDrawingArea::checkBuffer(int width, int height) {
         change = true;
         mForrester->getForresterGI().setHeight(height);
     }
-    if (change and mIsRealized) {
-        updateBuffer();
-        set_size_request(mForrester->getForresterGI().getWidth() +10,
+    if (change) {
+       set_size_request(mForrester->getForresterGI().getWidth() +10,
             mForrester->getForresterGI().getHeight() + 10);
         queueRedraw();
     }

@@ -32,6 +32,7 @@
 #include <vle/value/Double.hpp>
 #include <vle/utils/Tools.hpp>
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 namespace vu = vle::utils;
 
@@ -46,35 +47,45 @@ NameValue::InitTreeView::InitTreeView(
     set_model(m_refTreeInit);
     append_column(_("Value"), m_columnsInit.m_col_value);
 
-    {
-	Gtk::Menu::MenuList& menulist = m_menuPopup.items();
+    mPopupActionGroup = Gtk::ActionGroup::create("InitTreeView");
+    mPopupActionGroup->add(Gtk::Action::create("ITV_ContextMenu", _("Context Menu")));
 
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Add"),
-		sigc::mem_fun(
-		    *this,
-		    &NameValue::InitTreeView::onAdd)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Remove"),
-		sigc::mem_fun(
-		    *this,
-		    &NameValue::InitTreeView::onRemove)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Up"),
-		sigc::mem_fun(
-		    *this,
-		    &NameValue::InitTreeView::onUp)));
-	menulist.push_back(
-	    Gtk::Menu_Helpers::MenuElem(
-		_("_Down"),
-		sigc::mem_fun(
-		    *this,
-		    &NameValue::InitTreeView::onDown)));
+    mPopupActionGroup->add(Gtk::Action::create("ITV_ContextAdd", _("_Add")),
+        sigc::mem_fun(*this, &NameValue::InitTreeView::onAdd));
+
+    mPopupActionGroup->add(Gtk::Action::create("ITV_ContextRemove", _("_Remove")),
+        sigc::mem_fun(*this, &NameValue::InitTreeView::onRemove));
+
+    mPopupActionGroup->add(Gtk::Action::create("ITV_ContextUp", _("_Up")),
+        sigc::mem_fun(*this, &NameValue::InitTreeView::onUp));
+
+    mPopupActionGroup->add(Gtk::Action::create("ITV_ContextDown", _("_Down")),
+        sigc::mem_fun(*this, &NameValue::InitTreeView::onDown));
+
+    mPopupUIManager = Gtk::UIManager::create();
+    mPopupUIManager->insert_action_group(mPopupActionGroup);
+
+    Glib::ustring ui_info =
+        "<ui>"
+        "  <popup name='ITView_Popup'>"
+        "      <menuitem action='ITV_ContextAdd'/>"
+        "      <menuitem action='ITV_ContextRemove'/>"
+        "      <menuitem action='ITV_ContextUp'/>"
+        "      <menuitem action='ITV_ContextDown'/>"
+        "  </popup>"
+        "</ui>";
+
+    try {
+        mPopupUIManager->add_ui_from_string(ui_info);
+        mMenuPopup = (Gtk::Menu *) (
+            mPopupUIManager->get_widget("/ITView_Popup"));
+    } catch(const Glib::Error& ex) {
+        std::cerr << "building menus failed: ITView_Popup " <<  ex.what();
     }
-    m_menuPopup.accelerate(*this);
+
+    if (!mMenuPopup)
+        std::cerr << "menu not found : ITView_Popup\n";
+
 }
 
 NameValue::InitTreeView::~InitTreeView()
@@ -100,7 +111,7 @@ bool NameValue::InitTreeView::on_button_press_event(GdkEventButton* event)
 {
     bool return_value = Gtk::TreeView::on_button_press_event(event);
     if ( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ) {
-	m_menuPopup.popup(event->button, event->time);
+        mMenuPopup->popup(event->button, event->time);
     }
 
     return return_value;

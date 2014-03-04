@@ -119,7 +119,7 @@ private:
     Gtk::TreeView* mTreeViewRules;
     Glib::RefPtr < Gtk::TreeStore > mRefTreeRules;
     ModelColumnsRule mColumnsRules;
-    Gtk::Menu mMenuPopup;
+    Gtk::Menu *mMenuPopup;
     Glib::RefPtr < Gtk::TreeSelection > mSrcSelect;
 
     //Predicates
