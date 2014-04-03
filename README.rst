@@ -1,10 +1,15 @@
-====================================
-Virtual Laboratory Environment 1.1.0
-====================================
+==================================
+Virtual Laboratory Environment 1.1
+==================================
 
 A lot of packages for the VFL.
 
 See AUTHORS and COPYRIGHT files for the list of contributors.
+
+Changes since v1.1.0
+--------------------
+
+Nothing
 
 Changes since v1.1.0-beta4
 --------------------------
