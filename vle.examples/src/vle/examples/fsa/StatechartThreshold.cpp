@@ -25,6 +25,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * @@tagdynamic@@
+ * @@tagdepends: vle.extension.fsa, vle.extension.difference-equation@@endtagdepends
+ */
+
 
 #include <vle/extension/fsa/Statechart.hpp>
 #include <vle/extension/difference-equation/Base.hpp>

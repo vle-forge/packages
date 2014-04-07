@@ -64,6 +64,15 @@ IF (GVLE_FOUND AND NOT WIN32)
 ENDIF (GVLE_FOUND AND NOT WIN32)
 
 ##
+## Check VLE's packages
+##
+
+set (VleUtils_DIR "${CMAKE_SOURCE_DIR}/cmake")
+set(VLE_ABI_VERSION 1.1)
+find_package(VleUtils REQUIRED)
+VleCheckDependencies()
+
+##
 ## Find boost
 ##
 

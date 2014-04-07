@@ -1,6 +1,6 @@
 Package: vle.extension.differential-equation
 Version: 0.1.0
-Depends: vle (>=1.1)
+Depends:
 Build-Depends:
 Conflicts:
 Maintainer: Ronan Trépos <rtrepos@toulouse.inra.fr>

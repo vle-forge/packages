@@ -34,6 +34,9 @@
  * variable e1 is received. An error is raised if the compute function of PerturbE2
  * is called more than once.
  */
+/*
+ * @@tagdepends: vle.extension.difference-equation,vle.extension.fsa @@endtagdepends
+ */
 
 #include <vle/extension/difference-equation/Multiple.hpp>
 #include <vle/extension/fsa/Statechart.hpp>

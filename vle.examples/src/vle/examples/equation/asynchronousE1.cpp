@@ -35,6 +35,9 @@
  * - (again) the asynchronous variable ae2
  * - the synchonous variable e1
  */
+/*
+ * @@tagdepends: vle.extension.difference-equation @@endtagdepends
+ */
 
 #include <vle/extension/difference-equation/Multiple.hpp>
 

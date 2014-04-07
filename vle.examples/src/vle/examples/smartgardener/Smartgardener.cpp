@@ -44,6 +44,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * @@tagdynamic@@
+ * @@tagdepends: vle.extension.decision @@endtagdepends
+ */
+
 #include <vle/extension/decision/Agent.hpp>
 #include <vle/extension/decision/Activity.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>

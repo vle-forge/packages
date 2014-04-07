@@ -35,6 +35,9 @@
  * - (again) the asynchronous variable ae2
  * - the synchonous variable e1
  */
+/*
+ * @@tagdepends: vle.extension.fsa @@endtagdepends
+ */
 
 #include <vle/extension/fsa/Statechart.hpp>
 

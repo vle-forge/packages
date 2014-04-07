@@ -227,6 +227,8 @@ std::string Multiple::getTemplate() const
     "  * @file {{classname}}.cpp\n"                                     \
     "  * @author ...\n"                                                 \
     "  * ...\n"                                                         \
+    "  *@@tagdynamic@@\n"                                               \
+    "  *@@tagdepends:vle.extension.difference-equation@@endtagdepends\n"\
     "  * @@tag DifferenceEquationMultiple@vle.extension.difference-equation @@"\
     "namespace:{{namespace}};"                                          \
     "class:{{classname}};par:"                                          \

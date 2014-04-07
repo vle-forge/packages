@@ -44,6 +44,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * @@tagdynamic@@
+ */
 
 #include <vle/devs/DynamicsDbg.hpp>
 
