@@ -31,6 +31,11 @@
  * is called more than once ; that should not be the case in this example.
  */
 
+/*
+ * @@tagdynamic@@
+ * @@tagdepends: vle.extension.fsa @@endtagdepends
+ */
+
 #include <vle/extension/fsa/Statechart.hpp>
 
 namespace vle { namespace examples { namespace fsa {

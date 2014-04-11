@@ -47,6 +47,8 @@ const std::string PluginPetriNet::TEMPLATE_DEFINITION =
     "  * @file {{classname}}.cpp\n"                                     \
     "  * @author ...\n"                                                 \
     "  * ...\n"                                                         \
+    "  *@@tagdynamic@@\n"                                               \
+    "  *@@tagdepends:vle.extension.petrinet@@endtagdepends\n"           \
     "  * @@tag Petrinet@vle.extension.petrinet @@"                      \
     "namespace:{{namespace}};"                                          \
     "class:{{classname}};{{width}}|{{height}};p:"                       \

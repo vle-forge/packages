@@ -39,6 +39,8 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     " * @file {{classname}}.cpp\n"                                      \
     " * @author ...\n"                                                  \
     " * ...\n"                                                          \
+    "  *@@tagdynamic@@\n"                                               \
+    "  *@@tagdepends:vle.extension.decision@@endtagdepends\n"           \
     " * @@tag Decision@vle.extension.decision @@"                       \
     "namespace:{{namespace}};"                                          \
     "class:{{classname}};f:"                                            \

@@ -46,21 +46,15 @@ INCLUDE(CheckLibraryExists)
 INCLUDE(CMakeDetermineCCompiler)
 
 ##
-## Check libraries with pkgconfig
+## Check VLE and package dependencies
 ##
 
-FIND_PACKAGE(PkgConfig REQUIRED)
 set(VLE_DEBUG 0)
+set(VLE_ABI_VERSION 1.2)
 find_package(VLE REQUIRED)
-
-set(VleCheckPackage_DIR "${CMAKE_SOURCE_DIR}/cmake")
-FIND_PACKAGE(VleCheckPackage REQUIRED)
-SET(VLE_ABI_VERSION 1.1)
-VLE_CHECK_PACKAGE(CELLDEVS vle.extension.celldevs)
-
-if (NOT CELLDEVS_FOUND)
-  message(SEND_ERROR "Missing VLE CELLDEVS extension")
-endif (NOT CELLDEVS_FOUND)
+set (VleUtils_DIR "${CMAKE_SOURCE_DIR}/cmake")
+find_package(VleUtils REQUIRED)
+VleCheckDependencies()
 
 ##
 ## Find boost

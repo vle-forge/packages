@@ -50,6 +50,8 @@ const std::string PluginFSA::TEMPLATE_DEFINITION =
     "  * @file {{classname}}.cpp\n"                                     \
     "  * @author ...\n"                                                 \
     "  * ...\n"                                                         \
+    "  *@@tagdynamic@@\n"                                               \
+    "  *@@tagdepends:vle.extension.fsa@@endtagdepends\n"                \
     "  * @@tag Statechart@vle.extension.fsa @@"                         \
     "namespace:{{namespace}};"                                          \
     "class:{{classname}};{{width}}|{{height}};s:"                       \

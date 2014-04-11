@@ -46,22 +46,33 @@ INCLUDE(CheckLibraryExists)
 INCLUDE(CMakeDetermineCCompiler)
 
 ##
-## Check libraries with pkgconfig
+## Check VLE and package dependencies
 ##
 
 set(VLE_DEBUG 0)
-set(GVLE_DEBUG 0)
+set(VLE_ABI_VERSION 1.2)
 find_package(VLE REQUIRED)
-find_package(GVLE)
+set (VleUtils_DIR "${CMAKE_SOURCE_DIR}/cmake")
+find_package(VleUtils REQUIRED)
+VleCheckDependencies()
+
+##
+## Check GVLE and package dependencies
+##
 
 option(WITH_GVLE "use the GVLE [default: on]" ON)
-if (WITH_GVLE AND GVLE_FOUND)
-  set (HAVE_GVLE 1 CACHE INTERNAL "" FORCE)
-endif ()
 
-IF (GVLE_FOUND AND NOT WIN32)
-  PKG_CHECK_MODULES(GTKSOURCEVIEW gtksourceview-2.0)
-ENDIF (GVLE_FOUND AND NOT WIN32)
+if (WITH_GVLE)
+  find_package(GVLE)
+  if (GVLE_FOUND)
+    set (HAVE_GVLE 1 CACHE INTERNAL "" FORCE)
+    if (NOT WIN32)
+      pkg_check_modules(GTKSOURCEVIEW gtksourceview-2.0)
+    endif (NOT WIN32)
+  else ()
+    message (WARNING "GVLE not found!")
+  endif ()
+endif ()
 
 ##
 ## Find boost

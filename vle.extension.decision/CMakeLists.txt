@@ -46,22 +46,33 @@ INCLUDE(CheckLibraryExists)
 INCLUDE(CMakeDetermineCCompiler)
 
 ##
-## Check libraries
+## Check VLE and package dependencies
 ##
 
 set(VLE_DEBUG 0)
-set(GVLE_DEBUG 0)
+set(VLE_ABI_VERSION 1.2)
 find_package(VLE REQUIRED)
-find_package(GVLE)
+set (VleUtils_DIR "${CMAKE_SOURCE_DIR}/cmake")
+find_package(VleUtils REQUIRED)
+VleCheckDependencies()
+
+##
+## Check GVLE and package dependencies
+##
 
 option(WITH_GVLE "use the GVLE [default: on]" ON)
-if (WITH_GVLE AND GVLE_FOUND)
-  set (HAVE_GVLE 1 CACHE INTERNAL "" FORCE)
-endif ()
 
-IF (GVLE_FOUND AND NOT WIN32)
-  PKG_CHECK_MODULES(GTKSOURCEVIEW gtksourceview-2.0)
-ENDIF ()
+if (WITH_GVLE)
+  find_package(GVLE)
+  if (GVLE_FOUND)
+    set (HAVE_GVLE 1 CACHE INTERNAL "" FORCE)
+    if (NOT WIN32)
+      pkg_check_modules(GTKSOURCEVIEW gtksourceview-2.0)
+    endif (NOT WIN32)
+  else ()
+    message (WARNING "GVLE not found!")
+  endif ()
+endif ()
 
 ##
 ## Find boost
@@ -117,91 +128,6 @@ IF (DOXYGEN AND WITH_DOC)
   INSTALL(DIRECTORY "${PROJECT_BINARY_DIR}/doxygen/sources/html" DESTINATION
     "doc/html/sources")
 ENDIF (DOXYGEN AND WITH_DOC)
-
-##
-## Define function to simplify the definition of simulations plugins.
-##
-
-FUNCTION(DeclareDevsDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDevsDynamics name sources)
-
-FUNCTION(DeclareCellDevsDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${CELLDEVS_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareCellDevsDynamics name sources)
-
-FUNCTION(DeclareCellQssDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${CELLQSS_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareCellQssDynamics name sources)
-
-FUNCTION(DeclareDecisionDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DECISION_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDecisionDynamics name sources)
-
-FUNCTION(DeclareDifferenceEquationDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENCE_EQU_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDifferenceEquationDynamics name sources)
-
-FUNCTION(DeclareFsaDifferenceEquationDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENCE_EQU_LIBRARIES}
-    ${FSA_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareFsaDifferenceEquationDynamics name sources)
-
-FUNCTION(DeclareDifferentialEquationDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DIFFERENTIAL_EQU_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDifferentialEquationDynamics name sources)
-
-FUNCTION(DeclareDsDevsDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${DSDEVS_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareDsDevsDynamics name sources)
-
-FUNCTION(DeclareFsaDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${FSA_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclareFsaDynamics name sources)
-
-FUNCTION(DeclarePetrinetDynamics name sources)
-  ADD_LIBRARY(${name} MODULE ${sources})
-  TARGET_LINK_LIBRARIES(${name} ${VLE_LIBRARIES} ${PETRINET_LIBRARIES})
-  INSTALL(TARGETS ${name}
-    RUNTIME DESTINATION plugins/simulator
-    LIBRARY DESTINATION plugins/simulator)
-ENDFUNCTION(DeclarePetrinetDynamics name sources)
 
 ##
 ## Subdirectory

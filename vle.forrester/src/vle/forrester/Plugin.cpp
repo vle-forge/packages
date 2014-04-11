@@ -60,6 +60,8 @@ const std::string PluginForrester::TEMPLATE_DEFINITION =
     "  * @file {{classname}}.cpp\n"                                     \
     "  * @author ...\n"                                                 \
     "  * ...\n"                                                         \
+    "  *@@tagdynamic@@\n"                                               \
+    "  *@@tagdepends:vle.extension.differential-equation@@endtagdepends\n"\
     "  * @@tag Forrester@vle.forrester "                                \
     "@@namespace:{{namespace}};"                                        \
     "class:{{classname}};{{width}}|{{height}};"                         \
