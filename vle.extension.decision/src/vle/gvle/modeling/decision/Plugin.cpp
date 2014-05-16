@@ -164,6 +164,12 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{hierPred^i}}\n\n"                                                \
     "{{end for}}\n"                                                     \
     "{{hierarchicalPreds}}"                                             \
+    "std::string getSuffixName(int n) const\n"                          \
+    "{\n"                                                               \
+    "   std::stringstream ret(\"_\");\n"                                \
+    "   ret << boost::format(\"%1$02d\") % n;\n"                        \
+    "   return ret.str();\n"                                            \
+    "}\n"                                                               \
     "\n};\n\n"                                                          \
     "} // namespace {{namespace}}\n\n"                                  \
     "DECLARE_DYNAMICS({{namespace}}::{{classname}})\n";
@@ -200,6 +206,41 @@ const std::string PluginDecision::PLAN_TEMPLATE_DEFINITION =
     "{{end for}}"                                                       \
     "}\n\n## Precedences\n"                                             \
     "{{precedences}}";
+
+//Template : ack function
+const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
+    "std::string suffixRetourNum;\n"                                    \
+    "m{{activity}}Counter++;\n"                                         \
+    "suffixRetourNum = getSuffixName(m{{activity}}Counter);\n"          \
+    "{\n"                                                               \
+    "   ved::Activity& a =\n"                                           \
+    "      addActivity(\"{{activity}}\" + suffixRetourNum);\n"          \
+    "   a.initStartRangeFinishRange(activity.minstart(),\n"             \
+    "                               vd::infinity,\n"                    \
+    "                               vd::negativeInfinity,\n"            \
+    "                               activity.maxfinish());\n"           \
+    "   a.addOutputFunction(\n"                                         \
+    "      boost::bind(&{{classname}}::out_{{activity}},\n"             \
+    "      this, _1, _2, _3));\n"                                       \
+    "   a.addAcknowledgeFunction(\n"                                    \
+    "      boost::bind(&{{classname}}::ack_{{activity}},\n"             \
+    "      this, _1, _2));\n"                                           \
+    "   {{for i in addRules}}"                                          \
+    "   a.addRule(\"{{addRules^i}}\","                                  \
+    "      KnowledgeBase::rules().get(\"{{addRules^i}}\"));\n"          \
+    "   {{end for}}"                                                    \
+    "}\n";
+
+//Template : out function
+const std::string PluginDecision::OUT_TEMPLATE_DEFINITION =
+    "if (activity.isInStartedState()) {\n"                              \
+    "   vd::ExternalEvent* evt = new vd::ExternalEvent(\n"              \
+    "      \"out_{{activity}}\");\n"                                    \
+    "   evt->putAttribute(\"name\", new vv::String(name));\n"           \
+    "   evt->putAttribute(\"activity\", new vv::String(name));\n"       \
+    "   evt->putAttribute(\"value\", new vv::String(\"done\"));\n"      \
+    "   output.push_back(evt);\n"                                       \
+    "}";
 
 const Glib::ustring PluginDecision::UI_DEFINITION =
     "<ui>"
@@ -365,7 +406,7 @@ bool PluginDecision::create(vpz::AtomicModel& model,
 
     mDecision = new Decision(mClassname);
 
-    mView->setDecision(mDecision);
+    mView->setDecision(mDecision, this);
     mDecision->setRule(&mRule);
     mDecision->setAckFunc(&mAckFunctionName);
     mDecision->setOutputFunc(&mOutputFunctionName);
@@ -454,6 +495,7 @@ void PluginDecision::generateSource(const std::string& classname,
             ++it) {
         definition += "double " + it->first + ";\n";
     }
+
     tpl_.stringSymbol().append("definition", definition);
 
     // facts
@@ -1075,7 +1117,7 @@ bool PluginDecision::loadPlanFile(std::string filename)
         }
     }
 
-    mView->setDecision(mDecision);
+    mView->setDecision(mDecision, this);
 
     return true;
 }
@@ -1103,6 +1145,7 @@ void PluginDecision::writePlanFile(std::string filename)
         std::string outputFunc = "";
         std::string ackFunc = "";
         std::string relDate = "";
+        std::string repeated = "";
         if (!it->second->getOutputFunc().empty()) {
             outputFunc = it->second->getOutputFunc().at(0);
         }
@@ -1116,8 +1159,11 @@ void PluginDecision::writePlanFile(std::string filename)
                 relDate = "R";
             }
         }
+        if (it->second->isRepeated()) {
+            repeated = "R";
+        }
         templateSave.listSymbol().append("activities", it->second->toString() +
-                "," + outputFunc + "," + ackFunc +  "," + relDate);
+                "," + outputFunc + "," + ackFunc +  "," + relDate + "," + repeated);
     }
 
     //ruleAndPred
@@ -2172,6 +2218,60 @@ void PluginDecision::clear()
     mParam.clear();
 
     mPred.clear();
+}
+
+void PluginDecision::onRepeatedActivityAsked(
+    ActivityDialog& dialogActivityDialog)
+{
+    std::string aname =  dialogActivityDialog.name();
+
+    std::size_t found = mMembers.find("int m" + aname + "Counter;\n");
+    if (found == std::string::npos) {
+        mMembers += "int m" + aname + "Counter;\n";
+        mCustomConstructor += "m" + aname + "Counter = 0;\n";
+    }
+
+    strings_t::iterator it = find(mOutputFunctionName.begin(),
+                                  mOutputFunctionName.end(),
+                                  "out_" + aname);
+    if (it == mOutputFunctionName.end()) {
+        // To add an output function
+        mOutputFunctionName.push_back("out_" + aname);
+
+        // Process out content
+        utils::Template templateOut(OUT_TEMPLATE_DEFINITION);
+        templateOut.stringSymbol().append("activity", aname);
+
+        std::ostringstream outOut;
+        templateOut.process(outOut);
+        mOutputFunction["out_" + aname] = outOut.str();
+    }
+
+    it = find(mAckFunctionName.begin(),
+              mAckFunctionName.end(),
+              "ack_" + aname);
+
+    if (it == mAckFunctionName.end()) {
+        // To add an ack function
+        mAckFunctionName.push_back("ack_" + aname);
+
+        // Process ack content
+        utils::Template templateAck(ACK_TEMPLATE_DEFINITION);
+        templateAck.stringSymbol().append("activity", aname);
+        templateAck.stringSymbol().append("classname", mClassname);
+
+        templateAck.listSymbol().append("addRules");
+        strings_t rules = dialogActivityDialog.getActRule();
+        strings_t::const_iterator it;
+        it = rules.begin();
+        while (it != rules.end()) {
+            templateAck.listSymbol().append("addRules", *it);
+            ++it;
+        }
+        std::ostringstream outAck;
+        templateAck.process(outAck);
+        mAckFunction["ack_" + aname] = outAck.str();
+    }
 }
 
 }

@@ -68,6 +68,17 @@ ActivityModel::ActivityModel(const std::string& conf):
         mIsHumanDate = false;
     }
 
+    if (activityModel.size() < 9) {
+        mIsRepeated = false;
+    } else {
+        if (activityModel[8] == "R") {
+            mIsRepeated = true;
+        }
+        else {
+            mIsRepeated = false;
+        }
+    }
+
     computeAnchors();
 }
 

@@ -92,6 +92,8 @@ bool DecisionDrawingArea::addActivity(guint x, guint y)
                           *mDecision->getOutputFunc(),
                           *mDecision->getAckFunc());
 
+    mPluginDecision->onRepeatedActivitySignalConnect(&dialog);
+
     if (dialog.run() == Gtk::RESPONSE_ACCEPT) {
 
         mDecision->addActivityModel(dialog.name(),
@@ -106,8 +108,10 @@ bool DecisionDrawingArea::addActivity(guint x, guint y)
             newActivity->minstart(dialog.minstart());
             newActivity->maxfinish(dialog.maxfinish());
         }
+
         newActivity->setRelativeDate(dialog.isRelativeDate());
         newActivity->setHumanDate(dialog.isHumanDate());
+        newActivity->setRepeated(dialog.isRepeated());
 
         int newWidth = x + newActivity->width() + OFFSET;
         int newHeight = y + newActivity->height() + OFFSET;
@@ -517,6 +521,8 @@ bool DecisionDrawingArea::modifyCurrentActivityModel()
                 *mDecision->getRule(),*mDecision->getOutputFunc(),
                 *mDecision->getAckFunc());
 
+        mPluginDecision->onRepeatedActivitySignalConnect(&dialog);
+
         if (dialog.run() == Gtk::RESPONSE_ACCEPT) {
             activityModel->name(dialog.name());
             activityModel->setRules(dialog.getActRule());
@@ -532,6 +538,7 @@ bool DecisionDrawingArea::modifyCurrentActivityModel()
             }
             activityModel->setRelativeDate(dialog.isRelativeDate());
             activityModel->setHumanDate(dialog.isHumanDate());
+            activityModel->setRepeated(dialog.isRepeated());
             checkSize(activityModel, activityModel->name());
 
             int newWidth = activityModel->x() + activityModel->width() + OFFSET;

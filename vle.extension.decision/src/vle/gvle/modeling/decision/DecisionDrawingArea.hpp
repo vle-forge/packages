@@ -31,6 +31,7 @@
 #include <vle/gvle/modeling/decision/PrecedenceConstraintDialog.hpp>
 #include <vle/gvle/modeling/decision/ActivityDialog.hpp>
 #include <vle/gvle/modeling/decision/Decision.hpp>
+#include <vle/gvle/modeling/decision/Plugin.hpp>
 #include <vle/gvle/Message.hpp>
 #include <vle/gvle/Settings.hpp>
 #include <vle/utils/i18n.hpp>
@@ -43,6 +44,8 @@ namespace vle {
 namespace gvle {
 namespace modeling {
 namespace decision {
+
+class PluginDecision;
 
 /**
  * @class DecisionDrawingArea
@@ -85,9 +88,10 @@ public:
  * @brief This function set the Decision model of the class
  * @param a decision model
  */
-    void setDecision(Decision* decision)
+    void setDecision(Decision* decision, PluginDecision* plug)
     {
         mDecision = decision;
+        mPluginDecision = plug;
         mWidth = mDecision->width() + 2 * OFFSET;
         mHeight = mDecision->height() + 2 * OFFSET;
         queueRedraw();
@@ -509,6 +513,7 @@ private:
     ActivityModel *mStartActivity;
     PrecedenceConstraintModel* mCurrentPrecedenceConstraint;
     bool mDecisionResize;
+    PluginDecision* mPluginDecision;
 };
 
 }

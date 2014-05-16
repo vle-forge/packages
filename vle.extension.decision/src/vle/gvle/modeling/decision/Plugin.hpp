@@ -50,6 +50,7 @@
 #include <vle/gvle/modeling/decision/AckFunctionDialog.hpp>
 #include <vle/gvle/modeling/decision/EditorDialog.hpp>
 #include <vle/gvle/modeling/decision/Decision.hpp>
+#include <vle/gvle/modeling/decision/ActivityDialog.hpp>
 
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/extension/decision/Activity.hpp>
@@ -75,10 +76,15 @@
 #include <iostream>
 #include <fstream>
 
+#include <sigc++/sigc++.h>
+
 namespace vle {
 namespace gvle {
 namespace modeling {
 namespace decision {
+
+class DecisionDrawingArea;
+
 typedef std::vector < std::string > strings_t;
 typedef strings_t::iterator strings_it;
 typedef std::map < std::string, strings_t > hierarchicalPred;
@@ -107,6 +113,16 @@ public:
  * @brief PluginDecision destructor
  */
     virtual ~PluginDecision();
+
+
+    void onRepeatedActivitySignalConnect(ActivityDialog* dialog)
+    {  dialog->signalRepeatedActivity().connect(
+            sigc::mem_fun(*this, &PluginDecision::onRepeatedActivityAsked));}
+
+/**
+ *  @brief When a repeated activity is wanted
+ */
+    void onRepeatedActivityAsked(ActivityDialog& dialogActivityDialog);
 
     void clear();
 
@@ -469,6 +485,8 @@ strings_t::iterator* generatePred(std::string *pPred,
     static const Glib::ustring UI_DEFINITION;
     static const std::string TEMPLATE_DEFINITION;
     static const std::string PLAN_TEMPLATE_DEFINITION;
+    static const std::string ACK_TEMPLATE_DEFINITION;
+    static const std::string OUT_TEMPLATE_DEFINITION;
 
     Glib::RefPtr < Gtk::Builder > mXml;
 

@@ -83,6 +83,9 @@ ActivityDialog::ActivityDialog(const Glib::RefPtr < Gtk::Builder >& xml,
     xml->get_widget("ActivityAddAck", mButtonAddAck);
     xml->get_widget("ActivityDelAck", mButtonDelAck);
     xml->get_widget("buttonRelativeDate", mRelativeButton);
+
+    xml->get_widget("checkRepeated", mRepeatedCheckButton);
+
     initActivityDialogActions();
 }
 
@@ -137,6 +140,9 @@ ActivityDialog::ActivityDialog(const Glib::RefPtr < Gtk::Builder >& xml,
     xml->get_widget("ActivityAddAck", mButtonAddAck);
     xml->get_widget("ActivityDelAck", mButtonDelAck);
     xml->get_widget("buttonRelativeDate", mRelativeButton);
+
+    xml->get_widget("checkRepeated", mRepeatedCheckButton);
+
     initActivityDialogActions();
 }
 
@@ -178,6 +184,9 @@ void ActivityDialog::initActivityDialogActions() {
             sigc::mem_fun(*this, &ActivityDialog::onDateRangeChange)));
     mList.push_back(mRelativeButton->signal_clicked().connect(
             sigc::mem_fun(*this, &ActivityDialog::onDateRangeChange)));
+
+    mList.push_back(mRepeatedCheckButton->signal_clicked().connect(
+            sigc::mem_fun(*this, &ActivityDialog::onRepeated)));
 
     makePlanRules();
     makeOutput();
@@ -268,6 +277,7 @@ void ActivityDialog::onChangeName()
         mStatusName->set(Gtk::StockID(Gtk::Stock::NO),
                          Gtk::IconSize(1));
         mOkButton->set_sensitive(false);
+        mRepeatedCheckButton->set_sensitive(false);
     } else {
         if (not(mDecision->existActivityModel(entryName)) &&
             Utils::isValidName(entryName)) {
@@ -275,6 +285,7 @@ void ActivityDialog::onChangeName()
             mStatusName->set(Gtk::StockID(Gtk::Stock::YES),
                              Gtk::IconSize(1));
             mOkButton->set_sensitive(true);
+            mRepeatedCheckButton->set_sensitive(true);
         }
         else if (mDecision->existActivityModel(entryName) &&
             Utils::isValidName(entryName) && mOriginalName == entryName) {
@@ -282,11 +293,13 @@ void ActivityDialog::onChangeName()
             mStatusName->set(Gtk::StockID(Gtk::Stock::YES),
                              Gtk::IconSize(1));
             mOkButton->set_sensitive(true);
+            mRepeatedCheckButton->set_sensitive(true);
         }
         else {
             mStatusName->set(Gtk::StockID(Gtk::Stock::NO),
                              Gtk::IconSize(1));
             mOkButton->set_sensitive(false);
+            mRepeatedCheckButton->set_sensitive(false);
         }
     }
 }
@@ -351,14 +364,13 @@ void ActivityDialog::onCalendarFinish()
 
 int ActivityDialog::run()
 {
-    mNameEntry->get_buffer()->set_text("");
-    mDateStartEntry->get_buffer()->set_text("");
+     mDateStartEntry->get_buffer()->set_text("");
     mDateFinishEntry->get_buffer()->set_text("");
 
     if (mActivityModel) {
-
-        mRelativeButton->set_active(mActivityModel->getRelativeDate());
         mNameEntry->set_text(mActivityModel->name());
+        mRepeatedCheckButton->set_active(mActivityModel->isRepeated());
+        mRelativeButton->set_active(mActivityModel->getRelativeDate());
         mOriginalName = mActivityModel->name();
 
         if (mActivityModel->getRelativeDate()) {
@@ -546,25 +558,7 @@ void ActivityDialog::on_del_output()
 {
     using namespace Gtk;
 
-    TreeSelection::ListHandle_Path lstSrc = mDstOutSelect->get_selected_rows();
-    Glib::RefPtr < TreeModel > modelSrc = mTreeViewActOut->get_model();
-
-    for (TreeSelection::ListHandle_Path::iterator iSrc = lstSrc.begin();
-            iSrc != lstSrc.end(); ++iSrc) {
-        TreeModel::Row rowSrc(*(modelSrc->get_iter(*iSrc)));
-        std::string data_name(rowSrc.get_value(mColumnsActOut.m_col_name));
-
-        // Delete the element in the vector
-        for (std::vector < std::string > ::iterator it =
-                mActOut.begin(); it != mActOut.end(); ) {
-            if ( *it == data_name ) {
-                it = mActOut.erase(it);
-            }
-            else {
-                ++it;
-            }
-        }
-    }
+    mActOut.clear();
     makeActOutput();
 }
 
@@ -596,6 +590,42 @@ void ActivityDialog::on_del_ack()
     makeActAck();
 }
 
+void ActivityDialog::onRepeated()
+{
+    if (mRepeatedCheckButton->get_active()) {
+        sendSignalRepeatedActivity();
+        {
+            strings_t::iterator it = find(mAck.begin(),
+                                          mAck.end(),
+                                          "ack_" + name());
+            if (it == mAck.end()) {
+                mAck.push_back("ack_" + name());
+            }
+            makeAck();
+
+
+            on_del_ack();
+            mActAck.push_back("ack_" + name());
+            makeActAck();
+        }
+        {
+            strings_t::iterator it = find(mOutput.begin(),
+                                          mOutput.end(),
+                                          "out_" + name());
+            if (it == mOutput.end()) {
+                mOutput.push_back("out_" + name());
+            }
+            makeOutput();
+
+            on_del_output();
+            mActOut.push_back("out_" + name());
+            makeActOutput();
+        }
+    } else {
+        on_del_ack();
+        on_del_output();
+    }
+}
 }
 }
 }

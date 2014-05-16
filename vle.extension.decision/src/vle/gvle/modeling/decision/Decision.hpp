@@ -272,10 +272,9 @@ public:
           int w,
           int h) :
         mName(name), mX(x), mY(y), mWidth(w), mHeight(h), mMinstart(""),
-        mMaxfinish("")
+        mMaxfinish(""), mIsRelativeDate(false), mIsHumanDate(true),
+        mIsRepeated(false)
     {
-        mIsHumanDate = true;
-        mIsRelativeDate = false;
         computeAnchors();
     }
 
@@ -537,6 +536,15 @@ public:
         mIsHumanDate = state;
     }
 
+    void setRepeated(bool state)
+    {
+        mIsRepeated = state;
+    }
+
+    bool isRepeated() const
+    {
+        return mIsRepeated;
+    }
 private:
     void computeAnchors();
 
@@ -549,6 +557,7 @@ private:
     std::string mMaxfinish;
     bool mIsRelativeDate;
     bool mIsHumanDate;
+    bool mIsRepeated;
 
     points_t mAnchors;
 

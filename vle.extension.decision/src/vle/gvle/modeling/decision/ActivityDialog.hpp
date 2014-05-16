@@ -36,6 +36,8 @@
 #include <boost/algorithm/string/split.hpp>
 #include <gtkmm.h>
 
+#include <sigc++/sigc++.h>
+
 namespace vle {
 namespace gvle {
 namespace modeling {
@@ -51,6 +53,21 @@ typedef std::vector < std::string > strings_t;
 class ActivityDialog
 {
 public:
+
+    /** signal that something has been modified*/
+    typedef sigc::signal< void, ActivityDialog &> SignalRepeatedActivity;
+
+    /**
+     * signal accessor.
+     */
+    inline SignalRepeatedActivity signalRepeatedActivity()
+    { return mSignalRepeatedActivity; }
+
+    /**
+     * to signal that a repeated activity is wanted.
+     */
+    inline void sendSignalRepeatedActivity()
+        { mSignalRepeatedActivity.emit(*this); }
 /**
  * @brief Constructor of the ActivityDialog
  * @param reference to the xml builder
@@ -242,6 +259,10 @@ public:
         return isHumanDate(start) || isHumanDate(finish);
     }
 
+    bool isRepeated() const
+    {
+        return mRepeatedCheckButton->get_active();
+    }
 
 protected:
 /**
@@ -257,6 +278,20 @@ protected:
  * @brief Function called when the user clicked on the Start activity calendar button.
  */
     void onCalendarStart();
+
+    void onSetRelDate(bool state);
+
+    void on_set_rel_date()
+    {
+        onSetRelDate(!mIsRelativeDate);
+    }
+
+/**
+ * @brief Function called when the user clicked on the repeated check button..
+ */
+    void onRepeated();
+
+    bool mIsRelativeDate;
 
 /**
  * @brief Function called when the user clicked on the Finish activity calendar button.
@@ -278,6 +313,8 @@ protected:
     Gtk::Button* mAddButton;
     Gtk::Button* mDelButton;
     Gtk::ToggleButton* mRelativeButton;
+
+    Gtk::CheckButton* mRepeatedCheckButton;
 
     Gtk::Button* mAddButtonOut;
     Gtk::Button* mDelButtonOut;
@@ -381,6 +418,10 @@ protected:
 
 private:
     void initActivityDialogActions();
+
+protected:
+    SignalRepeatedActivity mSignalRepeatedActivity;
+
 };
 
 }
