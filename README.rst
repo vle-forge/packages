@@ -1,53 +1,21 @@
-====================================
-Virtual Laboratory Environment 1.1.0
-====================================
+==================================
+Virtual Laboratory Environment 1.2
+==================================
 
 A lot of packages for the VFL.
 
 See AUTHORS and COPYRIGHT files for the list of contributors.
 
-Changes since v1.1.0-beta4
---------------------------
+Chances since v1.1.0
+--------------------
 
-all: replace Gtksourceviewmm with Gtksourceview
-all: update CMakeLists with WITH_WARNINGS option
-decision: fix the plugin clearance
-decision: uncomment the ack function signature
+Ronan Trépos (5):
 
-Changes since v1.1.0-beta3
---------------------------
-
-- de: fix private typedef
-- output: add more precision in float/double output
-- output: fix the flushbybag feature
-
-Changes since v1.1.0-beta2
---------------------------
-
-- ChangeLog: removed
-- README: switch to rst
-- README: add ext.muparser and vle.forrester
-- README: update
-- decision: fix the plugin selection management
-- decision: fix the plugin model settings
-- output: add a flushbybag output option
-- all: fix Description files
-
-Changes since v1.1.0-beta1
---------------------------
-
-- all: fix CPack directives
-- all: update CMakeLists.txt without GVLE
-- cmake: update FindVLE and FindGVLE
-- decision: fix the data directory management
-- differential: allow the update of state variables
-- differential: set a default initialisation
-- differential: simplify the initialisation
-- forrester: fix the drawing area refreshment
-- forrester: update the Conditions
-- forrester: update the observables generator
-- muParser: fix the name of the CMake project
-- package-1.1.0-beta2
+- all: put the duration and begin into conditions
+- all: make use of the new cmake features
+- vle.examples: fix generator dynamic building
+- all: fix the VleUtilsConfig.cmake filesi
+- all: fix VleUtils scripts and fix vle.forrester
 
 Requirements
 ------------
