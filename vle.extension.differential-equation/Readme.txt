@@ -1,7 +1,7 @@
 Requirements
 ============
 
-vle      1.1  http://www.vle-project.org
+vle      1.3  http://www.vle-project.org
 boost    1.49 http://www.boost.org
 cmake    2.8  http://www.cmake.org
 

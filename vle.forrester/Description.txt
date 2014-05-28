@@ -7,6 +7,6 @@ Maintainer: Ronan Trépos <ronan.trepos@toulouse.inra.fr>
 Description: A modelling plugin based on the visual formalism Forrester
  .
 Tags: modelling
-Url: http://www.vle-project.org/pub/1.1
+Url: http://www.vle-project.org/pub/1.3
 Size: 0
 MD5sum: xxxx

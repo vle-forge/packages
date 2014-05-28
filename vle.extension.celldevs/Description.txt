@@ -7,6 +7,6 @@ Maintainer: Gauthier Quesnel <quesnel@users.sourceforge.net>
 Description: An extension to build celldevs models
  .
 Tags: extension
-Url: http://www.vle-project.org/pub/1.1
+Url: http://www.vle-project.org/pub/1.3
 Size: 0
 MD5sum: xxxx
