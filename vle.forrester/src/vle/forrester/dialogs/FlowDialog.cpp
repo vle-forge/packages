@@ -63,6 +63,8 @@ FlowDialog::FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
     mPredicateEntry->set_text(flow.getPredicate());
     mValueIfTrue->set_text(flow.getTrueValue());
     mValueIfFalse->set_text(flow.getFalseValue());
+    mConditionnalButton->set_active(flow.isConditionnal());
+    onConditionnalityChanged();
     mParser.addConstant("t");
     onTextChange();
 }
@@ -79,6 +81,8 @@ FlowDialog::FlowDialog(const Glib::RefPtr < Gtk::Builder >& xml,
     mPredicateEntry->set_text(var.getPredicate());
     mValueIfTrue->set_text(var.getTrueValue());
     mValueIfFalse->set_text(var.getFalseValue());
+    mConditionnalButton->set_active(var.isConditionnal());
+    onConditionnalityChanged();
     mParser.addConstant("t");
     onTextChange();
 }
