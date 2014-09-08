@@ -12,7 +12,7 @@
 </model>
 </structures>
 <dynamics>
-<dynamic name="dynLotkaVolterra" library="LotkaVolterra" package="vle.extension.differentialEquation" type="local"  />
+<dynamic name="dynLotkaVolterra" library="LotkaVolterra" package="vle.extension.differential-equation"  />
 </dynamics>
 <experiment name="LotkaVolterra" duration="1500.000000000000000" begin="0.000000000000000" combination="linear"  >
 <conditions>
