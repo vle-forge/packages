@@ -277,9 +277,12 @@ Three numerical integration methods are provided Runge Kutta 4 (rk4) Euler
   \item For rk4 and euler:
   \begin{itemize}
     \item  'timestep' is a double value that gives the time step for
-    	integration.
-  	\item 'synchronisation' (optionnal) is a boolean. If true, integration steps
-  	are synchronized with external variables updates.
+    integration.
+    \item 'synchronisation' (optionnal) is a boolean. If true, integration steps
+    are synchronized with external variables updates.
+    \item output\_period (integer, default=1). It gives the period at which
+    output of variable values are performed. They are output every
+    ${output\_period} * {timestep}$ time unit.
   \end{itemize}
   \item For qss2: 
   \begin{itemize}
