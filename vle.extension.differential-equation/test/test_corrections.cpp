@@ -65,3 +65,40 @@ BOOST_AUTO_TEST_CASE(test_ExtUpLV)
     BOOST_REQUIRE_CLOSE(va::toDouble(colX[42]),
                         1.0, 10e-5);
 }
+
+
+/******************
+ * test output_period parameter
+ ******************/
+BOOST_AUTO_TEST_CASE(test_OutputPeriod)
+{
+    vle::utils::Package pack("vle.extension.differential-equation");
+    vz::Vpz vpz(pack.getExpFile("LotkaVolterraOutputPeriod.vpz"));
+
+    ttconfOutputPlugins(vpz);
+
+    //simulation
+    vu::ModuleManager man;
+    vm::Error error;
+    vm::Simulation sim(vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
+    va::Map *out = sim.run(new vz::Vpz(vpz), man, &error);
+
+
+    //checks that simulation has succeeded
+    BOOST_REQUIRE_EQUAL(error.code, 0);
+    //checks the number of views
+    BOOST_REQUIRE_EQUAL(out->size(),1);
+    //checks the selected view
+    const va::Matrix& view = out->getMatrix("view");
+    BOOST_REQUIRE_EQUAL(view.columns(),4);
+    BOOST_REQUIRE_EQUAL(view.column(0).size(),2);
+
+    //gets nbExtEvents
+    va::ConstVectorView col = ttgetColumnFromView(view,
+                        "Top model:Counter", "nbExtEvents");
+
+    //check X at = 0.400 and t=0.41
+    BOOST_REQUIRE_CLOSE(va::toDouble(col[1]),
+                        151, 10e-5);
+
+}
