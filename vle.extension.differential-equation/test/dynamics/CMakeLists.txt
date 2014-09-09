@@ -3,6 +3,12 @@ include_directories(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 
 link_directories(${VLE_LIBRARY_DIRS} ${CMAKE_SOURCE_DIR}/lib)
 
+ADD_LIBRARY(Counter MODULE Counter.cpp)
+TARGET_LINK_LIBRARIES(Counter ${VLE_LIBRARIES})
+INSTALL(TARGETS Counter
+    RUNTIME DESTINATION plugins/simulator
+    LIBRARY DESTINATION plugins/simulator)
+
 ADD_LIBRARY(Perturb MODULE Perturb.cpp)
 TARGET_LINK_LIBRARIES(Perturb ${VLE_LIBRARIES})
 INSTALL(TARGETS Perturb
