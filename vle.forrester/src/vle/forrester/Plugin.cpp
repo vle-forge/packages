@@ -234,8 +234,6 @@ PluginForrester::PluginForrester(const std::string& package,
 
 PluginForrester::~PluginForrester()
 {
-    destroy();
-
     for (std::list < sigc::connection >::iterator it = mList.begin();
     it != mList.end(); ++it) {
         it->disconnect();
@@ -243,13 +241,6 @@ PluginForrester::~PluginForrester()
 
     delete mForrester;
     delete mView;
-}
-void PluginForrester::destroy()
-{
-    for (std::list < sigc::connection >::iterator it = mList.begin();
-    it != mList.end(); ++it) {
-        it->disconnect();
-    }
 }
 
 void PluginForrester::onIncludeSource()
@@ -287,11 +278,9 @@ bool PluginForrester::create(vpz::AtomicModel& model,
         generatePorts(model);
         model.setDynamics(dynamic.name());
         mDialog->hide();
-        destroy();
         return true;
     } else {
         mDialog->hide();
-        destroy();
         return false;
     }
 }
@@ -448,11 +437,9 @@ bool PluginForrester::modify(vpz::AtomicModel& model,
         generatePorts(model);
         model.setDynamics(dynamic.name());
         mDialog->hide();
-        destroy();
         return true;
     } else {
         mDialog->hide();
-        destroy();
         return false;
     }
 
