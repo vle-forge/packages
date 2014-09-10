@@ -25,8 +25,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <vle/forrester/dialogs/TimeStepDialog.hpp>
+#include <boost/lexical_cast.hpp>
+#include <iostream>
 
 namespace vle {
 namespace gvle {
@@ -45,7 +46,7 @@ TimeStepDialog::TimeStepDialog(
 
 int TimeStepDialog::run(double timeStep)
 {
-    mTimeStep->set_text(boost::lexical_cast<std::string>(timeStep));
+    mTimeStep->set_text(utils::toScientificString(timeStep, true));
     int response = mDialog->run();
 
     mDialog->hide();
@@ -54,10 +55,10 @@ int TimeStepDialog::run(double timeStep)
 
 void TimeStepDialog::onTextChange()
 {
-    try {
-        boost::lexical_cast<double>(mTimeStep->get_text());
+    double timeStep = vu::convert < double >(mTimeStep->get_text(), true);
+    if (timeStep > 0.0) {
         mOkButton->set_sensitive(true);
-    }catch(boost::bad_lexical_cast &){
+    } else {
         mOkButton->set_sensitive(false);
     }
 }
