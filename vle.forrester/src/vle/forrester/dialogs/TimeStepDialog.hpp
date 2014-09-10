@@ -29,11 +29,15 @@
 #ifndef VLE_GVLE_MODELING_FSA_TIME_STEP_DIALOG_HPP
 #define VLE_GVLE_MODELING_FSA_TIME_STEP_DIALOG_HPP
 
+#include <vle/utils/Tools.hpp>
+
 #include <gtkmm/dialog.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/builder.h>
 #include <gtkmm/spinbutton.h>
 #include <boost/lexical_cast.hpp>
+
+namespace vu = vle::utils;
 
 namespace vle {
 namespace gvle {
@@ -52,7 +56,7 @@ public:
 
      double timeStep() const
     {
-        return boost::lexical_cast<double>(mTimeStep->get_text());
+        return vu::convert < double >(mTimeStep->get_text(), true);
     }
 
     int run(double timeStep);
