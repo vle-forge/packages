@@ -27,7 +27,6 @@
 
 #include <vle/forrester/dialogs/CompartmentDialog.hpp>
 #include <boost/lexical_cast.hpp>
-#include <iostream>
 
 namespace vle {
 namespace gvle {

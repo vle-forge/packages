@@ -32,7 +32,6 @@
 #include <vle/forrester/graphicalItems/Variable.hpp>
 #include <vle/forrester/utilities/Tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
-#include <iostream>
 
 namespace vle {
 namespace gvle {
