@@ -122,11 +122,6 @@ private:
     PluginForrester& operator= (const PluginForrester&);
 
     /**
-     * Delete all gtkmm signal connections.
-     */
-    void destroy();
-
-    /**
      * Extract the string between 2 beacons.
      * @param[in] buffer Parsed text.
      * @param[in] begin The beginning beacon
