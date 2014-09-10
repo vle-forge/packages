@@ -93,11 +93,12 @@ void CompartmentDialog::onTextChange()
     }
 
     if (mForrester.integrationScheme() == Forrester::QSS2) {
-        try {
-            boost::lexical_cast<double>(mTimeStepEntry->get_text());
-        } catch(boost::bad_lexical_cast &) {
+        double timeStep = vu::convert < double >(mTimeStepEntry->get_text(), true);
+        if (timeStep > 0.0) {
+        } else {
             mOkButton->set_sensitive(false);
         }
+
     }
 }
 
@@ -118,7 +119,7 @@ void CompartmentDialog::init(const Glib::RefPtr < Gtk::Builder >& xml,
         xml->get_widget("QSS2CompartmentOkButton",mOkButton);
         xml->get_widget("QSS2CompartmentInitialValue",mInitialValueEntry);
         mTimeStepEntry->set_text(
-            boost::lexical_cast<std::string>(compartment.getTimeStep()));
+            utils::toScientificString(compartment.getTimeStep(), true));
         textModifyHandler.push_back(mTimeStepEntry->signal_changed().connect(
             sigc::mem_fun(*this, &CompartmentDialog::onTextChange)));
     }
