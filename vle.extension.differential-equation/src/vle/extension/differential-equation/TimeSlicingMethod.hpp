@@ -105,7 +105,7 @@ struct TSM_TransitionGuards
 struct TSM_Options
 {
     TSM_Options() :
-            synchronization(false)
+        synchronization(false), output_period(1)
     {
     }
     /**
@@ -116,6 +116,11 @@ struct TSM_Options
      * for the current integration step
      */
     bool synchronization;
+    /**
+     * @brief Period at which output of variable values are performed.
+     * Output is performed each (output_period * timestep) time unit.
+     */
+    int output_period;
 };
 
 /**
@@ -190,6 +195,7 @@ private:
     TSM_State state;
     vd::Time nextIntegration;
     vd::Time lastWakeUp;
+    int nbIntegration;//nb integration steps since last output
     //integration method
     INTEGRATE intMethod;
     //Variable improver
@@ -206,8 +212,8 @@ public:
     TimeSlicingMethod(DifferentialEquation& eq, const vv::Map& params) :
             DifferentialEquationImpl(eq, params), state(INIT_SEND),
             nextIntegration(vd::negativeInfinity),
-            lastWakeUp(vd::negativeInfinity), intMethod(*this, params),
-            varImprovers(), extUps(),
+            lastWakeUp(vd::negativeInfinity), nbIntegration(0),
+            intMethod(*this, params), varImprovers(), extUps(),
             discontinuities(eq.getModelName()), guards(), options()
     {
         if (params.exist("synchronization")) {
@@ -218,6 +224,18 @@ public:
                 options.synchronization = false;
             } else {
                 options.synchronization = true;
+            }
+        }
+        if (params.exist("output_period")) {
+            const value::Value* v = params.get("output_period");
+            options.output_period = 0;
+            if (v->isInteger()) {
+                options.output_period = (double) v->toInteger().value();
+            }
+            if (options.output_period < 1) {
+                throw utils::ModellingError(
+                        vle::fmt("[%1%] Parameter 'output_period' should "
+                                "be an Integer > 0"));
             }
         }
     }
@@ -249,6 +267,7 @@ private:
                 backUpVars(t);
                 intMethod.predictValue(t, nextIntegration, varImprovers);
                 lastWakeUp = t;
+                nbIntegration = (nbIntegration + 1) % options.output_period;
                 break;
             case EXTERNAL:
                 restoreBackup(t);
@@ -257,6 +276,7 @@ private:
                 backUpVars(t);
                 intMethod.predictValue(t, nextIntegration, varImprovers);
                 lastWakeUp = t;
+                nbIntegration = (nbIntegration + 1) % options.output_period;
                 break;
             case CONFLUENT:
                 applyExtUp(t);
@@ -264,6 +284,7 @@ private:
                 backUpVars(t);
                 intMethod.predictValue(t, nextIntegration, varImprovers);
                 lastWakeUp = t;
+                nbIntegration = (nbIntegration + 1) % options.output_period;
                 break;
             }
             break;
@@ -579,7 +600,9 @@ private:
         case INIT_BAG_EATER:
             break;
         case INTEGRATION_TIME:
-            outputVar(time, ext, false);
+            if (nbIntegration == 0) {
+                outputVar(time, ext, false);
+            }
             break;
         case PERTURBATION:
             outputVar(time, ext, true);

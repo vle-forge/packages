@@ -28,6 +28,8 @@
 #ifndef VLE_GVLE_MODELING_FORRESTER_COMPARTMENT_DIALOG_HPP
 #define VLE_GVLE_MODELING_FORRESTER_COMPARTMENT_DIALOG_HPP
 
+#include <vle/utils/Tools.hpp>
+
 #include <vle/forrester/Forrester.hpp>
 #include <vle/forrester/graphicalItems/Compartment.hpp>
 #include <gtkmm/dialog.h>
@@ -38,6 +40,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <gtkmm/stock.h>
+
+namespace vu = vle::utils;
 
 namespace vle {
 namespace gvle {
@@ -68,7 +72,7 @@ public:
     { return mNameEntry->get_text(); }
 
     double getTimeStep() const
-    { return boost::lexical_cast<double>(mTimeStepEntry->get_text()); }
+    { return vu::convert < double >(mTimeStepEntry->get_text(), true); }
 
     double getInitialValue() const
     { return boost::lexical_cast<double>(mInitialValueEntry->get_text()); }
