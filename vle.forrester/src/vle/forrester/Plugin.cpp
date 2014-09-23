@@ -186,9 +186,7 @@ PluginForrester::PluginForrester(const std::string& package,
                                  const std::string& library,
                                  const std::string& curr_package)
     : ModelingPlugin(package, library, curr_package),
-      mDialog(0),
-      mForrester(0),
-      mTimeStep(0.001)
+      mDialog(0), mForrester(0), mTimeStep(0.001), mOutputPeriod(100)
 {
     vle::utils::Package pack(package);
     std::string glade = pack.getPluginGvleModelingFile(
@@ -202,7 +200,10 @@ PluginForrester::PluginForrester(const std::string& package,
     mXml->get_widget("eulerButton", mEulerButton);
     mXml->get_widget("rk4Button", mRk4Button);
     mXml->get_widget("qss2Button", mQss2Button);
+    mXml->get_widget("period", mOutputPeriodEntry);
     mXml->get_widget_derived("ForresterDrawingArea", mView);
+    mXml->get_widget("ForresterValidButton",mOkButton);
+
     mList.push_back(mIncludeButton->signal_clicked().connect(
                         sigc::mem_fun(*this,
                                       &PluginForrester::onIncludeSource)));
@@ -218,6 +219,9 @@ PluginForrester::PluginForrester(const std::string& package,
     mList.push_back(mRk4Button->signal_clicked().connect(
                         sigc::mem_fun(*this,
                                       &PluginForrester::onRk4)));
+    mList.push_back(mOutputPeriodEntry->signal_changed().connect(
+                        sigc::mem_fun(*this,
+                                      &PluginForrester::onOutputPeriodChange)));
     {
         Gtk::Box* hbox;
         mXml->get_widget("ForresterHBox", hbox);
@@ -430,6 +434,10 @@ bool PluginForrester::modify(vpz::AtomicModel& model,
 
     setIntegrationTimeStep(conditions,
         (fmt("cond_DTE_%1%_integration") % model.getName()).str());
+
+    setOutputPeriod(conditions,
+                    (fmt("cond_DTE_%1%_integration") % model.getName()).str());
+
     loadInitialValues(conditions, generateConditionName(model));
     mView->setForrester(mForrester);
     if (mDialog->run() == Gtk::RESPONSE_ACCEPT) {
@@ -626,13 +634,25 @@ void PluginForrester::onAddVariable() {
     mView->setState(ForresterDrawingArea::ADD_VARIABLE);
 }
 
-
 void PluginForrester::onTimeStep()
 {
     TimeStepDialog dialog(mXml);
 
     if (dialog.run(mTimeStep) == Gtk::RESPONSE_ACCEPT) {
         mTimeStep = dialog.timeStep();
+    }
+}
+
+void PluginForrester::onOutputPeriodChange()
+{
+    int outputPeriod = vu::convert < int >(mOutputPeriodEntry->get_text(), true);
+
+    if (outputPeriod > 0) {
+        mOkButton->set_sensitive(true);
+        mOutputPeriod = outputPeriod;
+        mOutputPeriodEntry->set_text(vu::to < int >(outputPeriod));
+    } else {
+        mOkButton->set_sensitive(false);
     }
 }
 
@@ -701,6 +721,9 @@ void PluginForrester::generateCondition(vle::vpz::Conditions& conditions,
         methodParameters.add("timestep",
                              vle::value::Double(mTimeStep));
     }
+
+    methodParameters.add("output_period",
+                         vle::value::Integer(mOutputPeriod));
 
     std::string conditionName(
         (fmt("cond_DTE_%1%_integration") % model.getName()).str());
@@ -854,6 +877,21 @@ void PluginForrester::setIntegrationTimeStep(const vpz::Conditions& conditions,
                 }
             }
         }
+    }
+}
+
+void PluginForrester::setOutputPeriod(const vpz::Conditions& conditions,
+                                      std::string conditionName)
+{
+    if (!conditions.exist(conditionName))
+        throw vle::utils::ModellingError("error condition not found");
+
+    vle::vpz::Condition mCondition(conditions.get(conditionName));
+    vle::value::Map ports = mCondition.firstValue("method-parameters").toMap();
+
+    if (ports.exist("output_period")) {
+        mOutputPeriod = ports.get("output_period")->toInteger().value();
+        mOutputPeriodEntry->set_text(vu::to < int >(mOutputPeriod));
     }
 }
 
