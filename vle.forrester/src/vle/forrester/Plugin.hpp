@@ -39,6 +39,7 @@
 #include <gtkmm/uimanager.h>
 #include <gtkmm/builder.h>
 #include <gtkmm/radiobutton.h>
+#include <gtkmm/entry.h>
 #include <vle/forrester/graphicalItems/Compartment.hpp>
 #include <vle/vpz/AtomicModel.hpp>
 #include <vle/vpz/Condition.hpp>
@@ -184,6 +185,11 @@ private:
     void onTimeStep();
 
     /**
+     * Gtkmm callback function. Output period entry.
+     */
+    void onOutputPeriodChange();
+
+    /**
      * Gtkmm callback function. Qss2 radiobutton.
      */
     void onQss2();
@@ -276,6 +282,13 @@ private:
      */
     void setIntegrationTimeStep(const vpz::Conditions& conditions,
         std::string conditionName);
+
+    /**
+     * Save the output period into experimental conditions
+     */
+    void setOutputPeriod(const vpz::Conditions& conditions,
+                         std::string conditionName);
+
     /**
      * Load conditions mode from experimental conditions
      */
@@ -328,6 +341,9 @@ private:
     Gtk::RadioButton* mEulerButton;
     Gtk::RadioButton* mRk4Button;
     Gtk::RadioButton* mQss2Button;
+    Gtk::Entry* mOutputPeriodEntry;
+    Gtk::Button* mOkButton;
+
 
     std::list < sigc::connection > mList;
     std::string mInclude;
@@ -338,6 +354,7 @@ private:
 
     Forrester* mForrester;
     double mTimeStep;
+    int mOutputPeriod;
     ForresterDrawingArea* mView;
  };
 
