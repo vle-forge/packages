@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
 <vle_project version="1.1.0" date="2014-Sep-09 17:49:27" author="Ronan Trépos">
 <structures>
-<model name="Top model" type="coupled" x="0" y="0" width="636" height="360"  >
+<model name="Top model" type="coupled" x="0" y="0" width="1325" height="500"  >
 <submodels>
 <model name="Counter" type="atomic" dynamics="dynCounter" observables="obsCounter" x="249" y="40" width="100" height="60" >
 <in>
@@ -33,7 +33,7 @@
 <dynamic name="dynCounter" library="Counter" package="vle.extension.differential-equation"  />
 <dynamic name="dynLotkaVolterra" library="LotkaVolterra" package="vle.extension.differential-equation"  />
 </dynamics>
-<experiment name="LotkaVolterraOutputPeriod" combination="linear"  >
+<experiment name="LotkaVolterraOutputPeriod" duration="15.000000000000000" begin="0.000000000000000" combination="linear"  >
 <conditions>
 <condition name="condLV" >
  <port name="alpha" >
@@ -58,14 +58,6 @@
 </port>
  <port name="method-parameters" >
 <map><key name="output_period"><integer>100</integer></key><key name="timestep"><double>0.001000000000000</double></key></map>
-</port>
-</condition>
-<condition name="simulation_engine" >
- <port name="begin" >
-<double>0.000000000000000</double>
-</port>
- <port name="duration" >
-<double>15.000000000000000</double>
 </port>
 </condition>
 </conditions>

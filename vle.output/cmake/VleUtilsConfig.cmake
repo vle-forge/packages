@@ -122,17 +122,6 @@ macro(_vle_check_package_unset var)
 endmacro(_vle_check_package_unset)
 
 ###
-# Remove blanks (spaces and tabulations) of a string
-#   inStr: hel lo
-#   outStr: hello
-###
-
-function(_vle_str_remove_blanks inStr outStr)
-  string(REGEX REPLACE "[ \t]" "" outStrTmp "${inStr}")
-  set (${outStr} "${outStrTmp}" PARENT_SCOPE)
-endfunction(_vle_str_remove_blanks)
-
-###
 # Split module requirement : 
 #   in: ext.muparser(>=1.0)
 #   out1: ext.muparser
@@ -228,8 +217,8 @@ function(IntVleBuildDepends out)
   file(STRINGS "${CMAKE_SOURCE_DIR}/Description.txt" _description_text)
   foreach(_line_descr_text IN LISTS _description_text)
    if ("${_line_descr_text}" MATCHES "^Build-Depends:(.*)")
-    _vle_str_remove_blanks("${CMAKE_MATCH_1}" _vle_pkgs_deps)
-    if (NOT ${_vle_pkgs_deps} STREQUAL "")
+    if (NOT ${CMAKE_MATCH_1} STREQUAL "")
+      string(REGEX REPLACE "[ ]" "" _vle_pkgs_deps ${CMAKE_MATCH_1})
       string(REGEX REPLACE "," ";" _vle_pkgs_deps ${_vle_pkgs_deps})
       set (${out} "${_vle_pkgs_deps}" PARENT_SCOPE)
       return ()
@@ -297,7 +286,7 @@ function(IntVleInstalledPkgVersion in out)
   foreach(_line_descr_text IN LISTS _description_text)
    if ("${_line_descr_text}" MATCHES "^Version:(.*)")
     if (NOT ${CMAKE_MATCH_1} STREQUAL "")
-      _vle_str_remove_blanks(${CMAKE_MATCH_1} _pkg_version)
+      string(REGEX REPLACE "[ ]" "" _pkg_version ${CMAKE_MATCH_1})
       set (${out} "${_pkg_version}" PARENT_SCOPE)
     else ()
       set (${out} "" PARENT_SCOPE)
@@ -376,7 +365,7 @@ macro (VleBuildDynamic _dynname _cppfiles)
     set (__tag_depends ${CMAKE_MATCH_1})
     string(REGEX REPLACE "," ";" __tag_depends ${CMAKE_MATCH_1})
     foreach(__vle_pkg_dep IN LISTS __tag_depends)
-      _vle_str_remove_blanks(${__vle_pkg_dep} __vle_pkg_dep)
+      string(REGEX REPLACE "[ ]" "" __vle_pkg_dep ${__vle_pkg_dep})
       if (NOT ${__vle_pkg_dep} STREQUAL "")
         if (NOT ${__vle_pkg_dep}_FOUND)
           message (FATAL_ERROR "Missing pkg '${__vle_pkg_dep}' for building "

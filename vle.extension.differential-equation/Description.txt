@@ -1,7 +1,7 @@
 Package: vle.extension.differential-equation
 Version: 0.1.0
 Depends: vle.output
-Build-Depends:
+Build-Depends: 
 Conflicts:
 Maintainer: Ronan Trépos <rtrepos@toulouse.inra.fr>
 Description: An extension to simulate ordinary differential equations
