@@ -24,10 +24,10 @@
 # set -x
 
 output=ext.log
-pkgs="vle.extension.celldevs vle.extension.cellqss vle.extension.decision
-vle.extension.difference-equation vle.extension.differential-equation
-vle.extension.dsdevs vle.extension.fsa vle.extension.petrinet vle.output
-vle.examples ext.muparser vle.forrester"
+pkgs="vle.output vle.extension.celldevs vle.extension.cellqss vle.extension.decision
+vle.extension.difference-equation vle.extension.differential-equation_test 
+vle.extension.differential-equation vle.extension.dsdevs vle.extension.fsa 
+vle.extension.petrinet vle.examples ext.muparser vle.forrester"
 
 clean_package () {
   echo -e -n " -  clean:"

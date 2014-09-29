@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
+<vle_project version="1.1.0" date="2011-Nov-20 23:42:28" author="Ronan Trépos">
+<structures>
+<model name="Top model" type="coupled" x="0" y="0" width="932" height="315"  >
+<submodels>
+<model name="LotkaVolterraX" type="atomic" conditions="condLV_X,condQSS2_X" dynamics="dynLotkaVolterraX" observables="obsX" x="46" y="65" width="100" height="45" >
+<in>
+ <port name="Y" />
+</in>
+<out>
+ <port name="X" />
+</out>
+</model>
+<model name="LotkaVolterraY" type="atomic" conditions="condLV_Y,condQSS2_Y" dynamics="dynLotkaVolterraY" observables="obsY" x="212" y="65" width="100" height="45" >
+<in>
+ <port name="X" />
+</in>
+<out>
+ <port name="Y" />
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="LotkaVolterraX" port="X" />
+ <destination model="LotkaVolterraY" port="X" />
+</connection>
+<connection type="internal">
+ <origin model="LotkaVolterraY" port="Y" />
+ <destination model="LotkaVolterraX" port="Y" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynLotkaVolterraX" library="LotkaVolterraX" package="vle.extension.differential-equation_test" type="local"  />
+<dynamic name="dynLotkaVolterraY" library="LotkaVolterraY" package="vle.extension.differential-equation_test" type="local"  />
+</dynamics>
+<experiment name="LotkaVolterraXY"  combination="linear"  >
+<conditions>
+<condition name="simulation_engine" >
+<port name="begin">
+<double>0.0</double>
+</port>  
+<port name="duration">
+<double>15.0</double>
+</port> 
+</condition>
+<condition name="condEuler" >
+ <port name="method" >
+<string>euler</string>
+</port>
+ <port name="method-parameters" >
+<map><key name="synchronization"><boolean>true</boolean></key><key name="timestep"><double>0.001000000000000</double></key></map>
+</port>
+</condition>
+<condition name="condLV_X" >
+ <port name="alpha" >
+<double>1.500000000000000</double>
+</port>
+ <port name="beta" >
+<double>1.000000000000000</double>
+</port>
+ <port name="delta" >
+<double>3.000000000000000</double>
+</port>
+ <port name="gamma" >
+<double>1.000000000000000</double>
+</port>
+ <port name="variables" >
+<map><key name="X"><double>10.000000000000000</double></key></map>
+</port>
+</condition>
+<condition name="condLV_Y" >
+ <port name="alpha" >
+<double>1.500000000000000</double>
+</port>
+ <port name="beta" >
+<double>1.000000000000000</double>
+</port>
+ <port name="delta" >
+<double>3.000000000000000</double>
+</port>
+ <port name="gamma" >
+<double>1.000000000000000</double>
+</port>
+ <port name="variables" >
+<map><key name="Y"><double>5.000000000000000</double></key></map>
+</port>
+</condition>
+<condition name="condQSS2_X" >
+ <port name="method" >
+<string>qss2</string>
+</port>
+ <port name="method-parameters" >
+<map><key name="DeltaQ"><map><key name="X"><double>0.010000000000000</double></key></map></key><key name="expect-gradients"><boolean>true</boolean></key></map>
+</port>
+</condition>
+<condition name="condQSS2_Y" >
+ <port name="method" >
+<string>qss2</string>
+</port>
+ <port name="method-parameters" >
+<map><key name="DeltaQ"><map><key name="Y"><double>0.001000000000000</double></key></map></key><key name="expect-gradients"><boolean>true</boolean></key></map>
+</port>
+</condition>
+<condition name="condRK4" >
+ <port name="method" >
+<string>rk4</string>
+</port>
+ <port name="method-parameters" >
+<map><key name="timestep"><double>0.001000000000000</double></key></map>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="file" >
+<map><key name="julian-day"><boolean>false</boolean></key><key name="locale"><string>C</string></key><key name="type"><string>csv</string></key></map></output>
+
+</outputs>
+<observables>
+<observable name="obsX" >
+<port name="X" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="obsY" >
+<port name="Y" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="0.001000000000000" />
+
+</views>
+</experiment>
+</vle_project>
