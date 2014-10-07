@@ -103,6 +103,10 @@ bool Generic::create(vpz::AtomicModel& model,
         "virtual double initValue(const vd::Time& /*time*/)\n"      \
         "{ return 0; }\n";
     mUserFunctions = "";
+    mUserConstructor =
+        "// available constructor parameters :\n"     \
+        "//  * const vd::DynamicsInit& atom\n"        \
+        "//  * const vd::InitEventList& evts";
 
     if (m_dialog->run() == Gtk::RESPONSE_ACCEPT) {
         Plugin::generate(model, dynamic, conditions, observables,
@@ -234,6 +238,9 @@ std::string Generic::getTemplate() const
     "       const vd::InitEventList& evts)\n"                           \
     "        : ve::DifferenceEquation::Generic(atom, evts)\n"           \
     "    {\n"                                                           \
+    "//@@begin:construct@@\n"                                           \
+    "{{construct}}"                                                     \
+    "//@@end:construct@@\n\n"                                           \
     "{{for i in par}}"                                                  \
     "        {{par^i}} = vv::toDouble(evts.get(\"{{par^i}}\"));\n"      \
     "{{end for}}"                                                       \

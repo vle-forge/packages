@@ -101,6 +101,11 @@ bool Multiple::create(vpz::AtomicModel& model,
         "virtual void initValue(const vd::Time& /*time*/)\n"      \
         "{ }\n";
     mUserFunctions = "";
+    mUserConstructor =
+        "// available constructor parameters :\n"            \
+        "//  * const vd::DynamicsInit& atom\n"               \
+        "//  * const vd::InitEventList& evts";
+
     if (m_dialog->run() == Gtk::RESPONSE_ACCEPT) {
         generate(model, dynamic, conditions, observables, classname,
                  namespace_);
@@ -261,6 +266,9 @@ std::string Multiple::getTemplate() const
     "       const vd::InitEventList& evts)\n"                           \
     "        : ve::DifferenceEquation::Multiple(atom, evts)\n"          \
     "    {\n"                                                           \
+    "//@@begin:construct@@\n"                                           \
+    "{{construct}}"                                                     \
+    "//@@end:construct@@\n\n"                                           \
     "{{for i in par}}"                                                  \
     "        {{par^i}} = vv::toDouble(evts.get(\"{{par^i}}\"));\n"      \
     "{{end for}}"                                                       \

@@ -35,18 +35,21 @@ SourceDialog::SourceDialog(Glib::RefPtr < Gtk::Builder >& xml,
                            const std::string& includes,
                            const std::string& computeFunction,
                            const std::string& initValueFunction,
-                           const std::string& userFunctions) :
+                           const std::string& userFunctions,
+                           const std::string& userConstructor) :
     mXml(xml)
 {
     xml->get_widget("DialogSourceBox", mDialog);
     xml->get_widget("NotebookSource", mNotebook);
 
     mIncludes = Gtk::manage(new DocumentText(includes));
+    mUserConstructor = Gtk::manage(new DocumentText(userConstructor));
     mComputeFunction = Gtk::manage(new DocumentText(computeFunction));
     mInitValueFunction = Gtk::manage(new DocumentText(initValueFunction));
     mUserFunctions = Gtk::manage(new DocumentText(userFunctions));
 
     mNotebook->append_page(*mIncludes, std::string("Includes"));
+    mNotebook->append_page(*mUserConstructor, std::string("Constructor"));
     mNotebook->append_page(*mInitValueFunction, std::string("InitValue"));
     mNotebook->append_page(*mComputeFunction, std::string("Compute"));
     mNotebook->append_page(*mUserFunctions, std::string("User"));
@@ -55,6 +58,7 @@ SourceDialog::SourceDialog(Glib::RefPtr < Gtk::Builder >& xml,
 SourceDialog::~SourceDialog()
 {
     mNotebook->remove_page(*mIncludes);
+    mNotebook->remove_page(*mUserConstructor);
     mNotebook->remove_page(*mComputeFunction);
     mNotebook->remove_page(*mInitValueFunction);
     mNotebook->remove_page(*mUserFunctions);
@@ -79,6 +83,11 @@ std::string SourceDialog::getInitValueFunction() const
 std::string SourceDialog::getUserFunctions() const
 {
     return mUserFunctions->getBuffer();
+}
+
+std::string SourceDialog::getUserConstructor() const
+{
+    return mUserConstructor->getBuffer();
 }
 
 int SourceDialog::run()
