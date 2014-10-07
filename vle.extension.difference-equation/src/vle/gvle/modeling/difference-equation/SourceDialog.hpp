@@ -43,7 +43,8 @@ public:
                  const std::string& includes,
                  const std::string& computeFunction,
                  const std::string& initValueFunction,
-                 const std::string& userFunctions);
+                 const std::string& userFunctions,
+                 const std::string& userConstrutor);
 
     virtual ~SourceDialog();
 
@@ -51,6 +52,7 @@ public:
     std::string getComputeFunction() const;
     std::string getInitValueFunction() const;
     std::string getUserFunctions() const;
+    std::string getUserConstructor() const;
 
     int run();
 
@@ -65,6 +67,7 @@ private:
     DocumentText*                   mComputeFunction;
     DocumentText*                   mInitValueFunction;
     DocumentText*                   mUserFunctions;
+    DocumentText*                   mUserConstructor;
 };
 
 }}}} // namespace vle gvle modeling de

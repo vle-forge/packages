@@ -187,6 +187,7 @@ void Plugin::generateSource(const std::string& classname,
     tpl_.stringSymbol().append("compute", mComputeFunction);
     tpl_.stringSymbol().append("initValue", mInitValueFunction);
     tpl_.stringSymbol().append("userFunctions", mUserFunctions);
+    tpl_.stringSymbol().append("construct", mUserConstructor);
 
     std::ostringstream out;
     tpl_.process(out);
@@ -197,13 +198,14 @@ void Plugin::generateSource(const std::string& classname,
 void Plugin::onSource()
 {
     SourceDialog box(mXml, mIncludes, mComputeFunction, mInitValueFunction,
-                     mUserFunctions);
+                     mUserFunctions, mUserConstructor);
 
     if (box.run() == Gtk::RESPONSE_ACCEPT) {
         mIncludes = box.getIncludes();
         mComputeFunction = box.getComputeFunction();
         mInitValueFunction = box.getInitValueFunction();
         mUserFunctions = box.getUserFunctions();
+        mUserConstructor = box.getUserConstructor();
     }
 }
 
@@ -283,6 +285,11 @@ std::string Plugin::parseFunction(const std::string& buffer,
     boost::sregex_iterator jt(buffer.begin(), buffer.end(), tagend);
     boost::sregex_iterator itend;
 
+    // to enable port
+    if (it == itend and jt == itend) {
+        return std::string("");
+    }
+
     if (it == itend or jt == itend) {
         throw utils::ArgError(fmt(_("DifferenceEquation plugin error, " \
                                     "no begin or end tag (%1%)")) % name);
@@ -307,6 +314,8 @@ void Plugin::parseFunctions(const std::string& buffer)
                                             "initValue"));
     mUserFunctions.assign(parseFunction(buffer, "//@@begin:user@@",
                                         "//@@end:user@@", "user"));
+    mUserConstructor.assign(parseFunction(buffer, "//@@begin:construct@@",
+                                        "//@@end:construct@@", "construct"));
 }
 
 }}}} // namespace vle gvle modeling de
