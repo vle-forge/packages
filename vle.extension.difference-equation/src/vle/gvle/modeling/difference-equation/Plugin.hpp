@@ -62,6 +62,7 @@ protected:
     std::string mComputeFunction;
     std::string mInitValueFunction;
     std::string mUserFunctions;
+    std::string mUserConstructor;
 
     TimeStep mTimeStep;
     Mapping mMapping;
