@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.0" date="2014-Apr-23 12:28:43" author="Ronan Trépos">
+<structures>
+<model name="model2" type="coupled" x="0" y="0" width="1504" height="501"  >
+<submodels>
+<model name="A2" type="atomic" conditions="cond_time_step" dynamics="dynA2" observables="obsA2" x="367" y="38" width="100" height="45" >
+<in>
+ <port name="b" />
+</in>
+<out>
+ <port name="a" />
+</out>
+</model>
+<model name="B2" type="atomic" conditions="condB2,cond_init_c,cond_time_step" dynamics="dynB2" observables="obsB2" x="327" y="189" width="100" height="60" >
+<in>
+ <port name="a" />
+ <port name="c" />
+</in>
+<out>
+ <port name="b" />
+</out>
+</model>
+<model name="C2" type="atomic" conditions="condC2,cond_init_c,cond_init_d,cond_time_step" dynamics="dynC2" observables="obsC2" x="74" y="193" width="100" height="45" >
+<in>
+ <port name="d" />
+</in>
+<out>
+ <port name="c" />
+</out>
+</model>
+<model name="D2" type="atomic" conditions="condD2,cond_init_d,cond_time_step" dynamics="dynD2" observables="obsD2" x="66" y="47" width="100" height="45" >
+<in>
+ <port name="b" />
+</in>
+<out>
+ <port name="d" />
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="A2" port="a" />
+ <destination model="B2" port="a" />
+</connection>
+<connection type="internal">
+ <origin model="B2" port="b" />
+ <destination model="A2" port="b" />
+</connection>
+<connection type="internal">
+ <origin model="B2" port="b" />
+ <destination model="D2" port="b" />
+</connection>
+<connection type="internal">
+ <origin model="C2" port="c" />
+ <destination model="B2" port="c" />
+</connection>
+<connection type="internal">
+ <origin model="D2" port="d" />
+ <destination model="C2" port="d" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynA2" library="A2" package="vle.discrete-time_test"  />
+<dynamic name="dynB2" library="B2" package="vle.discrete-time_test"  />
+<dynamic name="dynC2" library="C2" package="vle.discrete-time_test"  />
+<dynamic name="dynD2" library="D2" package="vle.discrete-time_test"  />
+</dynamics>
+<experiment name="model2" duration="10.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="condB2" >
+ <port name="sync_a" >
+<integer>1</integer>
+</port>
+</condition>
+<condition name="condC2" >
+ <port name="sync_d" >
+<integer>1</integer>
+</port>
+</condition>
+<condition name="condD2" >
+ <port name="sync_b" >
+<integer>1</integer>
+</port>
+</condition>
+<condition name="cond_init_c" >
+ <port name="init_value_c" >
+<double>2.000000000000000</double>
+</port>
+</condition>
+<condition name="cond_init_d" >
+ <port name="init_value_d" >
+<double>3.000000000000000</double>
+</port>
+</condition>
+<condition name="cond_time_step" >
+ <port name="time_step" >
+<double>1.000000000000000</double>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="console" />
+
+</outputs>
+<observables>
+<observable name="obsA2" >
+<port name="a" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="obsB2" >
+<port name="b" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="obsC2" >
+<port name="c" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="obsD2" >
+<port name="d" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+
+</views>
+</experiment>
+</vle_project>

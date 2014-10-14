@@ -1,0 +1,528 @@
+/*
+ * This file is part of VLE, a framework for multi-modeling, simulation
+ * and analysis of complex dynamical systems
+ * http://www.vle-project.org
+ *
+ * Copyright (c) 2013-2013 INRA http://www.inra.fr
+ *
+ * See the AUTHORS or Authors.txt file for copyright owners and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#include <vle/discrete-time/TemporalValues.hpp>
+#include <vle/discrete-time/DiscreteTimeDyn.hpp>
+#include <vle/value/Tuple.hpp>
+
+namespace vle {
+namespace discrete_time {
+
+namespace vd = vle::devs;
+namespace vu = vle::utils;
+namespace vz = vle::vpz;
+
+DiscreteTimeDyn::DEVS_TransitionGuards::DEVS_TransitionGuards():
+         has_sync(false), all_synchronized(false), bags_to_eat_eq_0(true),
+         bags_eaten_eq_bags_to_eat(true), LWUt_sup_NCt(false),
+         LWUt_eq_NCt(false)
+{
+}
+
+DiscreteTimeDyn::DEVS_Options::DEVS_Options():
+        bags_to_eat(0), dt(1.0), syncs()
+{
+}
+
+DiscreteTimeDyn::DEVS_Options::~DEVS_Options()
+{
+}
+
+
+DiscreteTimeDyn::DiscreteTimeDyn(const vd::DynamicsInit& model,
+    const vd::InitEventList& events) : vd::Dynamics(model, events),
+    TemporalValuesProvider(getModelName(), events), devs_state(INIT),
+    devs_options(), devs_guards(), devs_internal(), declarationOn(true),
+    currentTimeStep(0)
+{
+    vd::InitEventList::const_iterator itb = events.begin();
+    vd::InitEventList::const_iterator ite = events.end();
+    std::string prefix;
+    std::string var_name;
+    //first init
+    for (; itb != ite; itb++) {
+        const std::string& event_name = itb->first;
+        if (event_name == "bags_to_eat") {
+            devs_options.bags_to_eat = itb->second->toInteger().value();
+        } else if (event_name == "time_step") {
+            devs_options.dt = itb->second->toDouble().value();
+        } else if (!prefix.assign("sync").empty() and
+                !event_name.compare(0, prefix.size(), prefix)) {
+            var_name.assign(event_name.substr(prefix.size()+1,
+                    event_name.size()));
+            devs_options.syncs.insert(std::make_pair(var_name,
+                    itb->second->toInteger().value()));
+        }
+    }
+}
+
+DiscreteTimeDyn::~DiscreteTimeDyn()
+{
+}
+
+void
+DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
+        vle::devs::ExternalEventList& output) const
+{
+    Variables::const_iterator itb = getVariables().begin();
+    Variables::const_iterator ite = getVariables().end();
+    for (; itb!=ite; itb++) {
+        const std::string& var_name = itb->first;
+        if (getModel().existOutputPort(var_name)) {
+            VarInterface* v = itb->second;
+            switch (v->getType()) {
+            case MONO:{
+                VarMono* vmono = static_cast < VarMono* >(v);
+                vd::ExternalEvent* e = new vd::ExternalEvent(var_name);
+                //e->putAttribute("name", new vv::String(var_name));
+                e->putAttribute("value",
+                        new vv::Double(vmono->getVal(time,0)));
+                output.push_back(e);
+                break;
+            } case MULTI: {
+                VarMulti* vmulti = static_cast < VarMulti* >(v);
+                vd::ExternalEvent* e = new vd::ExternalEvent(var_name);
+                //e->putAttribute("name", new vv::String(var_name));
+                vv::Tuple* extTuple = new vv::Tuple(vmulti->dim);
+                vv::Tuple::iterator itb = extTuple->value().begin();
+                vv::Tuple::iterator ite = extTuple->value().end();
+                std::vector<double>::const_iterator itval =
+                        vmulti->getVal(time,0).begin();
+                for (; itb!=ite; itb++, itval++) {
+                    *itb = *itval;
+                }
+                e->putAttribute("value", extTuple);
+                output.push_back(e);
+                break;
+            } case VALUE_VLE: {
+                VarValue* vval = static_cast < VarValue* >(v);
+                vd::ExternalEvent* e = new vd::ExternalEvent(var_name);
+                e->putAttribute("value", vval->getVal(time,0).clone());
+                output.push_back(e);
+                break;
+            }}
+        }
+    }
+}
+
+void
+DiscreteTimeDyn::updateGuardAllSynchronized(const vle::devs::Time& t)
+{
+    Variables::iterator itb = getVariables().begin();
+    Variables::iterator ite = getVariables().end();
+    for (;itb!=ite;itb++) {
+        const std::string& var_name = itb->first;
+        if (isSync(var_name, currentTimeStep+1)) {
+            if (itb->second->lastUpdateTime() < t) {
+                devs_guards.all_synchronized = false;
+                return ;
+            }
+        }
+    }
+    devs_guards.all_synchronized = true;
+}
+
+void
+DiscreteTimeDyn::updateGuardHasSync(const vle::devs::Time& /*t*/)
+{
+    Variables::iterator itb = getVariables().begin();
+    Variables::iterator ite = getVariables().end();
+    for (;itb!=ite;itb++) {
+        const std::string& var_name = itb->first;
+        if (isSync(var_name, currentTimeStep+1)) {
+            devs_guards.has_sync = true;
+            return;
+        }
+    }
+    devs_guards.has_sync = false;
+}
+
+void
+DiscreteTimeDyn::varOnSyncError(std::string& v)
+{
+    Variables::iterator itb = getVariables().begin();
+    Variables::iterator ite = getVariables().end();
+    for (;itb!=ite;itb++) {
+        const std::string& var_name = itb->first;
+        if (isSync(var_name, currentTimeStep)) {
+            if (itb->second->lastUpdateTime() < devs_internal.NCt) {
+                v.assign(var_name);
+                return ;
+            }
+        }
+    }
+    v.assign("");
+}
+
+bool
+DiscreteTimeDyn::isSync(const std::string& var_name,
+        unsigned int currTimeStep) const
+{
+    DEVS_Options::SyncsType::const_iterator itf =
+            devs_options.syncs.find(var_name);
+    DEVS_Options::SyncsType::const_iterator ite = devs_options.syncs.end();
+    if ((itf == ite) or (itf->second == 0)) {
+        return false;
+    }
+    return (currTimeStep % itf->second) == 0 ;
+}
+
+vd::Time
+DiscreteTimeDyn::init(const vd::Time& t)
+{
+    devs_state = INIT;
+    processIn(t, INTERNAL);
+    return timeAdvance();
+}
+
+vd::Time
+DiscreteTimeDyn::timeAdvance() const
+{
+    switch (devs_state) {
+    case INIT:
+        return 0;
+        break;
+    case WAIT:
+        return devs_internal.NCt - devs_internal.LWUt;
+        break;
+    case WAIT_SYNC:
+        return devs_internal.NCt + devs_options.dt/2.0 - devs_internal.LWUt;
+        break;
+    case WAIT_BAGS:
+        return 0;
+        break;
+    case COMPUTE:
+        return 0;
+        break;
+    }
+    return 0;
+}
+
+
+void
+DiscreteTimeDyn::internalTransition(const vd::Time& t)
+{
+    processOut(t, INTERNAL);
+    updateGuards(t, INTERNAL);
+
+    switch (devs_state) {
+    case INIT:
+        if (devs_guards.has_sync) {
+            devs_state = WAIT_SYNC;
+        } else {
+            devs_state = WAIT;
+        }
+        break;
+    case WAIT:
+        if (devs_guards.bags_to_eat_eq_0) {
+            devs_state = COMPUTE;
+        } else {
+            devs_state = WAIT_BAGS;
+        }
+        break;
+    case WAIT_SYNC:
+        {
+            std::string varError;
+            varOnSyncError(varError);
+            throw vu::InternalError(
+                    vle::fmt("[%1%] Error missing sync: '%2%'\n")
+                    % getModelName() % varError);
+        }
+        break;
+    case WAIT_BAGS:
+        if (devs_guards.bags_eaten_eq_bags_to_eat) {
+            devs_state = COMPUTE;
+        } else {
+            devs_state = WAIT_BAGS;
+        }
+        break;
+    case COMPUTE:
+        if (devs_guards.has_sync) {
+            devs_state = WAIT_SYNC;
+        } else {
+            devs_state = WAIT;
+        }
+        break;
+    }
+    processIn(t, INTERNAL);
+}
+
+void
+DiscreteTimeDyn::externalTransition(
+    const vd::ExternalEventList& event,
+    const vd::Time& t)
+{
+    processOut(t, EXTERNAL);
+    handleExtEvt(t, event);
+    updateGuards(t, EXTERNAL);
+
+    switch (devs_state) {
+    case INIT:
+        throw vu::InternalError("Error DEVS \n");
+        break;
+    case WAIT:
+        devs_state = WAIT;
+        break;
+    case WAIT_SYNC:
+        if (devs_guards.LWUt_sup_NCt) {
+            {
+                std::string varError;
+                varOnSyncError(varError);
+                throw vu::InternalError(
+                        vle::fmt("[%1%] Error missing sync: '%2%'\n")
+                        % getModelName() % varError);
+            }
+        } else if (devs_guards.LWUt_eq_NCt and devs_guards.all_synchronized) {
+            if (devs_guards.bags_to_eat_eq_0) {
+                devs_state = COMPUTE;
+            } else {
+                devs_state = WAIT_BAGS;
+            }
+        } else {
+            devs_state = WAIT_SYNC;
+        }
+        break;
+    case WAIT_BAGS:
+        throw vu::InternalError("Error DEVS \n");
+        break;
+    case COMPUTE:
+        throw vu::InternalError("Error DEVS \n");
+        break;
+    }
+    processIn(t, EXTERNAL);
+}
+
+void
+DiscreteTimeDyn::confluentTransitions(
+    const vd::Time& t,
+    const vd::ExternalEventList& event)
+{
+    processOut(t, CONFLUENT);
+    handleExtEvt(t, event);
+    updateGuards(t, CONFLUENT);
+
+    switch (devs_state) {
+    case INIT:
+        throw vu::InternalError("Error Unhandled error \n");
+        break;
+    case WAIT:
+        if (devs_guards.bags_to_eat_eq_0) {
+            devs_state = COMPUTE;
+        } else {
+            devs_state = WAIT_BAGS;
+        }
+        break;
+    case WAIT_SYNC:
+        {
+            std::string varError;
+            varOnSyncError(varError);
+            throw vu::InternalError(
+                    vle::fmt("[%1%] Error missing sync: '%2%'\n")
+            % getModelName() % varError);
+        }
+        break;
+    case WAIT_BAGS:
+        if (devs_guards.bags_eaten_eq_bags_to_eat) {
+            devs_state = COMPUTE;
+        } else {
+            devs_state = WAIT_BAGS;
+        }
+        break;
+    case COMPUTE:
+        if (devs_guards.has_sync) {
+            devs_state = WAIT_SYNC;
+        } else {
+            devs_state = WAIT;
+        }
+        break;
+    }
+    processIn(t, EXTERNAL);
+}
+
+
+void
+DiscreteTimeDyn::output(const vle::devs::Time& time,
+                        vle::devs::ExternalEventList& output) const
+{
+    switch (devs_state) {
+    case INIT:
+        break;
+    case WAIT:
+        break;
+    case WAIT_SYNC:
+        break;
+    case WAIT_BAGS:
+        break;
+    case COMPUTE:
+        outputVar(time, output);
+        break;
+    }
+}
+
+vle::value::Value*
+DiscreteTimeDyn::observation(const vle::devs::ObservationEvent& event) const
+{
+    const std::string& port = event.getPortName();
+    Variables::const_iterator itf =
+            getVariables().find(port);
+
+    if (itf != getVariables().end()) {
+        VarInterface* v = itf->second;
+        switch (v->getType()) {
+        case MONO: {
+            VarMono* vmono =
+                    static_cast < VarMono* >(v);
+            return new vle::value::Double(vmono->snapshot);
+            break;
+        } case MULTI: {
+            VarMulti* vmulti =
+                    static_cast < VarMulti* >(v);
+            vle::value::Tuple* res = new  vle::value::Tuple(vmulti->dim);
+            for (unsigned int i=0; i < vmulti->dim; i++) {
+                (*res)[i] = vmulti->snapshot[i];
+            }
+            return res;
+            break;
+        } case VALUE_VLE: {
+            VarValue* vvalue =
+                    static_cast < VarValue* >(v);
+                return vvalue->snapshot->clone();
+            break;
+        }}
+    }
+    return 0;
+}
+
+
+
+void
+DiscreteTimeDyn::processIn(const vd::Time& t,
+        DEVS_TransitionType /*trans*/)
+{
+    switch (devs_state) {
+    case INIT:
+        declarationOn = false;
+        setCurrentTime(t);
+        initHistory(t);
+        snapshot();
+        break;
+    case WAIT:
+        break;
+    case WAIT_SYNC:
+        break;
+    case WAIT_BAGS:
+        break;
+    case COMPUTE:
+        currentTimeStep ++;
+        setCurrentTime(t);
+        compute(t);
+        snapshot();
+        break;
+    }
+}
+
+void
+DiscreteTimeDyn::processOut(const vd::Time& t,
+        DEVS_TransitionType /*trans*/)
+{
+    switch (devs_state) {
+    case INIT:
+        devs_internal.LWUt = t;
+        devs_internal.NCt = t + devs_options.dt;
+        break;
+    case WAIT:
+        devs_internal.LWUt = t;
+        devs_internal.bags_eaten = 0;
+        break;
+    case WAIT_SYNC:
+        devs_internal.LWUt = t;
+        devs_internal.bags_eaten = 0;
+        break;
+    case WAIT_BAGS:
+        devs_internal.LWUt = t;
+        devs_internal.bags_eaten ++;
+        break;
+    case COMPUTE:
+        devs_internal.LWUt = t;
+        devs_internal.NCt = t + devs_options.dt;
+        break;
+    }
+}
+
+void
+DiscreteTimeDyn::updateGuards(const vd::Time& t,
+        DEVS_TransitionType /*trans*/)
+{
+    switch (devs_state) {
+    case INIT: {
+        devs_guards.bags_to_eat_eq_0 = (devs_options.bags_to_eat == 0);
+        updateGuardHasSync(t);
+        break;
+    } case WAIT: {
+        break;
+    } case WAIT_SYNC: {
+        devs_guards.LWUt_eq_NCt = (devs_internal.LWUt == devs_internal.NCt);
+        devs_guards.LWUt_sup_NCt = (devs_internal.LWUt > devs_internal.NCt);
+        updateGuardAllSynchronized(t);
+        break;
+    } case WAIT_BAGS: {
+        devs_guards.bags_eaten_eq_bags_to_eat =
+                (devs_internal.bags_eaten == devs_options.bags_to_eat);
+        break;
+    } case COMPUTE: {
+        updateGuardHasSync(t);
+        break;
+    }}
+}
+
+void
+DiscreteTimeDyn::handleExtEvt(const vd::Time& t,
+        const vd::ExternalEventList& ext)
+{
+    vd::ExternalEventList::const_iterator itb = ext.begin();
+    vd::ExternalEventList::const_iterator ite = ext.end();
+    for (; itb != ite; itb++) {
+        handleExtEvt(t, (*itb)->getPortName(), (*itb)->attributes());
+    }
+}
+
+void
+DiscreteTimeDyn::handleExtEvt(const vd::Time& t,
+        const std::string& port, const vv::Map& attrs)
+{
+    Variables::iterator it = getVariables().find(port);
+    if(it == getVariables().end()){
+        throw vu::InternalError(
+                vle::fmt("[%1%] Unrecognised port '%2%' "
+                        "which does not match a variable \n")
+        % getModelName() % port);
+    }
+    VarInterface* var = it->second;
+    if (attrs.exist("value")) {
+        const vv::Value& varValue = *attrs.get("value");
+        var->update(t,varValue);
+    }
+}
+
+}} // namespace

@@ -1,0 +1,13 @@
+Package: vle.recursive_test
+Version: 0.1.0
+Depends: vle.output
+Build-Depends:vle.recursive
+Conflicts:
+Maintainer: Ronan Trépos <ronan.trepos@toulouse.inra.fr>
+Description: Test package for vle API for embedded simulation
+ .
+Tags: record utils simulation
+Url: http://recordb.toulouse.inra.fr/distributions/1.1
+Size: 0
+MD5sum: xxxx
+

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.0" date="2014-May-02 10:46:30" author="Ronan Trépos">
+<structures>
+<model name="model11" type="coupled" x="0" y="0" width="1504" height="501"  >
+<submodels>
+<model name="D1" type="atomic" conditions="condD1,cond_time_step" dynamics="dynD1" observables="obsD1" x="601" y="55" width="100" height="60" >
+<in>
+ <port name="a" />
+ <port name="c" />
+</in>
+<out>
+ <port name="d" />
+</out>
+</model>
+<model name="E3" type="atomic" conditions="condE3,cond_time_step" dynamics="dynE3" observables="obsE3" x="385" y="93" width="100" height="60" >
+<in>
+ <port name="a" />
+ <port name="c" />
+</in>
+<out>
+ <port name="a" />
+ <port name="c" />
+</out>
+</model>
+<model name="Perturb1" type="atomic" dynamics="dynPerturb1" x="99" y="50" width="100" height="45" >
+<out>
+ <port name="a" />
+</out>
+</model>
+<model name="Perturb2" type="atomic" dynamics="dynPerturb2" x="58" y="203" width="100" height="60" >
+<out>
+ <port name="out1" />
+ <port name="out2" />
+</out>
+</model>
+<model name="Perturb4" type="atomic" dynamics="dynPerturb4" x="209" y="141" width="100" height="60" >
+<in>
+ <port name="in1" />
+ <port name="in2" />
+</in>
+<out>
+ <port name="c" />
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="E3" port="a" />
+ <destination model="D1" port="a" />
+</connection>
+<connection type="internal">
+ <origin model="E3" port="c" />
+ <destination model="D1" port="c" />
+</connection>
+<connection type="internal">
+ <origin model="Perturb1" port="a" />
+ <destination model="E3" port="a" />
+</connection>
+<connection type="internal">
+ <origin model="Perturb2" port="out1" />
+ <destination model="Perturb4" port="in1" />
+</connection>
+<connection type="internal">
+ <origin model="Perturb2" port="out2" />
+ <destination model="Perturb4" port="in2" />
+</connection>
+<connection type="internal">
+ <origin model="Perturb4" port="c" />
+ <destination model="E3" port="c" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynD1" library="D1" package="vle.discrete-time_test"  />
+<dynamic name="dynE3" library="E3" package="vle.discrete-time_test"  />
+<dynamic name="dynPerturb1" library="Perturb1" package="vle.discrete-time_test"  />
+<dynamic name="dynPerturb2" library="Perturb2" package="vle.discrete-time_test"  />
+<dynamic name="dynPerturb4" library="Perturb4" package="vle.discrete-time_test"  />
+</dynamics>
+<experiment name="model11" duration="20.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="condD1" >
+ <port name="sync_a" >
+<integer>1</integer>
+</port>
+ <port name="sync_c" >
+<integer>1</integer>
+</port>
+</condition>
+<condition name="condE3" >
+ <port name="bags_to_eat" >
+<integer>10</integer>
+</port>
+</condition>
+<condition name="cond_time_step" >
+ <port name="time_step" >
+<double>1.000000000000000</double>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="file" />
+
+</outputs>
+<observables>
+<observable name="obsD1" >
+<port name="d" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="obsE3" >
+<port name="a" >
+ <attachedview name="view" />
+</port>
+
+<port name="b" >
+ <attachedview name="view" />
+</port>
+
+<port name="c" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+
+</views>
+</experiment>
+</vle_project>

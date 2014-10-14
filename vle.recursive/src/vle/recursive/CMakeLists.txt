@@ -1,0 +1,28 @@
+install(DIRECTORY . DESTINATION src/vle/recursive 
+                    FILES_MATCHING PATTERN "*.hpp")
+   
+INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/src
+    ${VLE_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
+    ${vle.reader_INCLUDE_DIRS})
+LINK_DIRECTORIES(
+    ${VLE_LIBRARY_DIRS}
+    ${Boost_LIBRARY_DIRS})
+ADD_LIBRARY(vle-recursive STATIC 
+   EmbeddedSimulatorReplicas.cpp;
+   EmbeddedSimulatorPlan.cpp;
+   EmbeddedSimulatorSingle.cpp
+   EmbeddedSimulatorMPI.cpp
+   
+)
+IF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
+  if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
+    SET_TARGET_PROPERTIES(vle-recursive PROPERTIES COMPILE_FLAGS -fPIC)
+  endif ()
+ENDIF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
+
+TARGET_LINK_LIBRARIES(vle-recursive ${VLE_LIBRARIES} ${Boost_LIBRARIES}
+                                       ${REC_READER_LIBRARIES})
+INSTALL(TARGETS vle-recursive ARCHIVE DESTINATION lib)
+           

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.0" date="2014-May-02 14:06:20" author="Ronan Trépos">
+<structures>
+<model name="asynchronous" type="coupled" x="0" y="0" width="1504" height="618"  >
+<submodels>
+<model name="asyncE0" type="atomic" dynamics="dynAsyncE0" observables="oE0" x="46" y="207" width="100" height="45" >
+<out>
+ <port name="e0" />
+</out>
+</model>
+<model name="asyncE1" type="atomic" conditions="condE1" dynamics="dynAsyncE1" observables="oE1" x="280" y="233" width="100" height="45" >
+<in>
+ <port name="e0" />
+</in>
+<out>
+ <port name="e1" />
+</out>
+</model>
+<model name="asyncE1bis" type="atomic" conditions="condE1" dynamics="dynAsyncE1" observables="oE1" x="443" y="237" width="100" height="45" >
+<in>
+ <port name="e0" />
+</in>
+<out>
+ <port name="e1" />
+</out>
+</model>
+<model name="asyncE2" type="atomic" conditions="condE2" dynamics="dynAsyncE2" observables="oE2" x="320" y="34" width="100" height="45" >
+<in>
+ <port name="fsa" />
+</in>
+<out>
+ <port name="e2" />
+</out>
+</model>
+<model name="asyncE3" type="atomic" conditions="condE3" dynamics="dynAsyncE3" observables="oE3" x="670" y="118" width="100" height="75" >
+<in>
+ <port name="ae2" />
+ <port name="e0" />
+ <port name="e1" />
+</in>
+</model>
+<model name="ayncFSA" type="atomic" dynamics="dynAsyncFsa" x="157" y="36" width="100" height="45" >
+<out>
+ <port name="fsa" />
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="asyncE0" port="e0" />
+ <destination model="asyncE3" port="e0" />
+</connection>
+<connection type="internal">
+ <origin model="asyncE0" port="e0" />
+ <destination model="asyncE1" port="e0" />
+</connection>
+<connection type="internal">
+ <origin model="asyncE1" port="e1" />
+ <destination model="asyncE1bis" port="e0" />
+</connection>
+<connection type="internal">
+ <origin model="asyncE1bis" port="e1" />
+ <destination model="asyncE3" port="e1" />
+</connection>
+<connection type="internal">
+ <origin model="asyncE2" port="e2" />
+ <destination model="asyncE3" port="ae2" />
+</connection>
+<connection type="internal">
+ <origin model="ayncFSA" port="fsa" />
+ <destination model="asyncE2" port="fsa" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynAsyncE0" library="asynchronousE0" package="vle.discrete-time_test"  />
+<dynamic name="dynAsyncE1" library="asynchronousE1" package="vle.discrete-time_test"  />
+<dynamic name="dynAsyncE2" library="asynchronousE2" package="vle.discrete-time_test"  />
+<dynamic name="dynAsyncE3" library="asynchronousE3" package="vle.discrete-time_test"  />
+<dynamic name="dynAsyncFsa" library="asynchronousFSA" package="vle.discrete-time_test"  />
+</dynamics>
+<experiment name="asynchronous" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="condE1" >
+ <port name="sync_e0" >
+<integer>1</integer>
+</port>
+</condition>
+<condition name="condE2" >
+ <port name="bags_to_eat" >
+<integer>10</integer>
+</port>
+</condition>
+<condition name="condE3" >
+ <port name="sync_e0" >
+<integer>1</integer>
+</port>
+ <port name="sync_e1" >
+<integer>1</integer>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="file" />
+
+</outputs>
+<observables>
+<observable name="oE0" >
+<port name="e0" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="oE1" >
+<port name="e1" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="oE2" >
+<port name="e2" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="oE3" >
+<port name="e3" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+
+</views>
+</experiment>
+</vle_project>

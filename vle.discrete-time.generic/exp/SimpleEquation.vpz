@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.1.0" date="2011-Nov-20 23:42:28" author="Ronan Trépos">
+<structures>
+<model name="Top model" type="coupled" x="0" y="0" width="1504" height="531"  >
+<submodels>
+<model name="SimpleEquation" type="atomic" conditions="cond" dynamics="dynSimpleEquation" observables="obs" x="67" y="67" width="100" height="30" >
+</model>
+</submodels>
+<connections>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynSimpleEquation" library="SimpleEquation" package="vle.extension.recurrence-relation"  />
+</dynamics>
+<experiment name="SimpleEquation" duration="10.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="cond" >
+ <port name="timeStep" >
+<double>1.000000000000000</double>
+</port>
+ <port name="variables" >
+<map><key name="A"><tuple>0.000000000000000 0.000000000000000</tuple></key><key name="B"><table width="2" height="5" >0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 </table></key></map>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="file" >
+<map><key name="julian-day"><boolean>false</boolean></key><key name="locale"><string>C</string></key><key name="type"><string>text</string></key></map></output>
+
+</outputs>
+<observables>
+<observable name="obs" >
+<port name="A" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[0]" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[1]" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[2]" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[3]" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[4]" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+
+</views>
+</experiment>
+</vle_project>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.1.0" date="2013-Mar-27 18:09:25" author="Ronan Trépos">
+<structures>
+<model name="Top model" type="coupled" x="0" y="0" width="1168" height="322"  >
+<submodels>
+<model name="SimpleEquationGen" type="atomic" conditions="cond" dynamics="dynSimpleEquationGen" observables="obs" x="62" y="58" width="100" height="30" >
+</model>
+</submodels>
+<connections>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynSimpleEquationGen" library="RecurrenceRelationGen" package="vle.extension.recurrence-relation"  />
+</dynamics>
+<experiment name="SimpleEquationGen" duration="10.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="cond" >
+ <port name="equations" >
+<set><string>A = A(-2) + 1</string><string>B[0] = B[0](-1) + 0</string><string>B[1] = B[1](-1) + 1</string><string>B[2] = B[2](-1) + 2</string><string>B[3] = B[3](-1) + 3</string><string>B[4] = B[4](-1) + 4</string></set>
+</port>
+ <port name="timeStep" >
+<double>1.000000000000000</double>
+</port>
+ <port name="variables" >
+<map><key name="A"><tuple>0.000000000000000 0.000000000000000</tuple></key><key name="B"><table width="2" height="5" >0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 0.000000000000000 </table></key></map>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="file" >
+<map><key name="julian-day"><boolean>false</boolean></key><key name="locale"><string>C</string></key><key name="type"><string>text</string></key></map></output>
+
+</outputs>
+<observables>
+<observable name="obs" >
+<port name="A" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[0]" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[1]" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[2]" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[3]" >
+ <attachedview name="view" />
+</port>
+
+<port name="B[4]" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+
+</views>
+</experiment>
+</vle_project>

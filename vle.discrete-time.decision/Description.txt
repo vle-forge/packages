@@ -1,0 +1,12 @@
+Package: vle.discrete-time.decision
+Version: 0.1.0
+Depends: vle (>=1.3)
+Build-Depends: vle.discrete-time, vle.extension.decision
+Conflicts:
+Maintainer: Ronan Trépos <rtrepos@toulouse.inra.fr>
+Description: Discrete timed dynamic extension based on Decision
+ .
+Tags: extension generic
+Url: http://www.vle-project.org/pub/1.3
+Size: 0
+MD5sum: xxxx

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.0" date="2014-Jun-19 13:44:29" author="Ronan Trépos">
+<structures>
+<model name="executiveDT" type="coupled" x="0" y="0" width="907" height="339"  >
+<submodels>
+<model name="A" type="atomic" dynamics="dynA" observables="oA" x="33" y="103" width="100" height="45" >
+<out>
+ <port name="a" />
+</out>
+</model>
+<model name="B_1" type="atomic" conditions="condB" dynamics="dynB" observables="oB" x="215" y="132" width="100" height="45" >
+<in>
+ <port name="a" />
+</in>
+<out>
+ <port name="b" />
+</out>
+</model>
+<model name="dsdevs" type="atomic" dynamics="dyndsdevs" x="137" y="38" width="100" height="30" >
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="A" port="a" />
+ <destination model="B_1" port="a" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynA" library="executiveDT_A" package="vle.discrete-time_test"  />
+<dynamic name="dynB" library="executiveDT_B" package="vle.discrete-time_test"  />
+<dynamic name="dyndsdevs" library="executiveDT_dsdevs" package="vle.discrete-time_test"  />
+</dynamics>
+<classes>
+<class name="ClassB" >
+<model name="B" type="atomic" conditions="condB" dynamics="dynB" observables="oB" height="45" >
+<in>
+ <port name="a" />
+</in>
+<out>
+ <port name="b" />
+</out>
+</model>
+</class>
+</classes>
+<experiment name="executiveDT" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="condB" >
+ <port name="sync_a" >
+<integer>1</integer>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="console" />
+
+</outputs>
+<observables>
+<observable name="oA" >
+<port name="a" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="oB" >
+<port name="b" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+
+</views>
+</experiment>
+</vle_project>

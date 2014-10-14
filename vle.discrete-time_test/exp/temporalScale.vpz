@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.0" date="2014-May-28 19:14:45" author="Ronan Trépos">
+<structures>
+<model name="temporalScale" type="coupled" x="0" y="0" width="1504" height="501"  >
+<submodels>
+<model name="temporalScaleA1" type="atomic" dynamics="dyntemporalScaleA1" observables="oA1" x="34" y="45" width="100" height="45" >
+<out>
+ <port name="a" />
+</out>
+</model>
+<model name="temporalScaleB4" type="atomic" conditions="condB4" dynamics="dyntemporalScaleB4" observables="oB4" x="210" y="45" width="100" height="45" >
+<in>
+ <port name="a" />
+</in>
+<out>
+ <port name="b" />
+</out>
+</model>
+<model name="temporalScaleC2" type="atomic" conditions="condC2" dynamics="dyntemporalScaleC2" observables="oC2" x="397" y="106" width="100" height="60" >
+<in>
+ <port name="a" />
+ <port name="b" />
+</in>
+<out>
+ <port name="c" />
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="temporalScaleA1" port="a" />
+ <destination model="temporalScaleC2" port="a" />
+</connection>
+<connection type="internal">
+ <origin model="temporalScaleA1" port="a" />
+ <destination model="temporalScaleB4" port="a" />
+</connection>
+<connection type="internal">
+ <origin model="temporalScaleB4" port="b" />
+ <destination model="temporalScaleC2" port="b" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dyntemporalScaleA1" library="temporalScaleA1" package="vle.discrete-time_test"  />
+<dynamic name="dyntemporalScaleB4" library="temporalScaleB4" package="vle.discrete-time_test"  />
+<dynamic name="dyntemporalScaleC2" library="temporalScaleC2" package="vle.discrete-time_test"  />
+</dynamics>
+<experiment name="temporalScale" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="condB4" >
+ <port name="sync_a" >
+<integer>1</integer>
+</port>
+ <port name="time_step" >
+<double>4.000000000000000</double>
+</port>
+</condition>
+<condition name="condC2" >
+ <port name="sync_a" >
+<integer>1</integer>
+</port>
+ <port name="sync_b" >
+<integer>2</integer>
+</port>
+ <port name="time_step" >
+<double>2.000000000000000</double>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="console" />
+
+</outputs>
+<observables>
+<observable name="oA1" >
+<port name="a" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="oB4" >
+<port name="b" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="oC2" >
+<port name="c" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+
+</views>
+</experiment>
+</vle_project>

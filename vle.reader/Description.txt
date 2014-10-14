@@ -1,0 +1,13 @@
+Package: vle.reader
+Version: 0.1.0
+Depends:
+Build-Depends:
+Conflicts:
+Maintainer: Ronan Trépos <rtrepos@toulouse.inra.fr>
+Description: Utilities for fie reader and test deployments 
+ .
+Tags: vle utils reader tests
+Url: http://www.vle-project.org/pub/1.3
+Size: 0
+MD5sum: xxxx
+

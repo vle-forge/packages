@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.0" date="2014-May-02 14:06:20" author="Ronan Trépos">
+<structures>
+<model name="vectorAndValues" type="coupled" x="0" y="0" width="1302" height="501"  >
+<submodels>
+<model name="X" type="atomic" dynamics="dynX" observables="ox" x="100" y="75" width="100" height="60" >
+<out>
+ <port name="x" />
+ <port name="x_value" />
+</out>
+</model>
+<model name="Y" type="atomic" conditions="condY" dynamics="dynY" observables="oy" x="348" y="75" width="100" height="60" >
+<in>
+ <port name="x" />
+ <port name="x_value" />
+</in>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="X" port="x" />
+ <destination model="Y" port="x" />
+</connection>
+<connection type="internal">
+ <origin model="X" port="x_value" />
+ <destination model="Y" port="x_value" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynX" library="vectorAndValues_x" package="vle.discrete-time_test"  />
+<dynamic name="dynY" library="vectorAndValues_y" package="vle.discrete-time_test"  />
+</dynamics>
+<experiment name="asynchronous" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="condY" >
+ <port name="dimension_y" >
+<integer>4</integer>
+</port>
+ <port name="sync_x" >
+<integer>1</integer>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="console" />
+
+</outputs>
+<observables>
+<observable name="ox" >
+<port name="x" >
+ <attachedview name="view" />
+</port>
+
+<port name="x_value" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="oy" >
+<port name="res" >
+ <attachedview name="view" />
+</port>
+
+<port name="y" >
+ <attachedview name="view" />
+</port>
+
+<port name="y_value" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+
+</views>
+</experiment>
+</vle_project>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.0" date="2014-May-02 15:28:10" author="Ronan Trépos">
+<structures>
+<model name="Top model" type="coupled" x="0" y="0" width="1504" height="501"  >
+<submodels>
+<model name="confluentNosync_output" type="atomic" dynamics="dynconfluentOutput" x="435" y="55" width="100" height="45" >
+<in>
+ <port name="x" />
+</in>
+</model>
+<model name="confluentNosync_perturb" type="atomic" dynamics="dynconfluentPerturb" x="37" y="55" width="100" height="45" >
+<out>
+ <port name="y_nosync" />
+</out>
+</model>
+<model name="confluentNosync_x" type="atomic" dynamics="dynconfluentX" x="242" y="55" width="100" height="45" >
+<in>
+ <port name="y_nosync" />
+</in>
+<out>
+ <port name="x" />
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="confluentNosync_perturb" port="y_nosync" />
+ <destination model="confluentNosync_x" port="y_nosync" />
+</connection>
+<connection type="internal">
+ <origin model="confluentNosync_x" port="x" />
+ <destination model="confluentNosync_output" port="x" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynconfluentOutput" library="confluentNosync_output" package="vle.discrete-time_test"  />
+<dynamic name="dynconfluentPerturb" library="confluentNosync_perturb" package="vle.discrete-time_test"  />
+<dynamic name="dynconfluentX" library="confluentNosync_x" package="vle.discrete-time_test"  />
+</dynamics>
+<experiment name="confluentNosync" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<views>
+</views>
+</experiment>
+</vle_project>

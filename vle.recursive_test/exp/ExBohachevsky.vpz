@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
+<vle_project version="1.0" date="jeu., 08 oct. 2009" author="Ronan Trépos">
+<structures>
+<model name="ExBohachevsky" type="coupled" x="0" y="0" width="482" height="500"  >
+<submodels>
+<model name="ExBohachevsky" type="atomic" conditions="cond" dynamics="ExBohachevsky" observables="obs" x="36" y="47" width="100" height="30" >
+</model>
+</submodels>
+<connections>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="ExBohachevsky" library="ExBohachevsky" package="vle.recursive_test"  />
+</dynamics>
+<experiment name="Bohachevsky" combination="linear"  >
+<conditions>
+<condition name="cond" >
+ <port name="x1" >
+<double>0.000000000000000</double>
+</port>
+ <port name="x2" >
+<double>0.000000000000000</double>
+</port>
+</condition>
+<condition name="simulation_engine" >
+ <port name="begin" >
+<double>0.000000000000000</double>
+</port>
+ <port name="duration" >
+<double>100.000000000000000</double>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="file" />
+
+</outputs>
+<observables>
+<observable name="obs" >
+<port name="y" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="finish" />
+
+</views>
+</experiment>
+</vle_project>

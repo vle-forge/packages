@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.0" date="2014-Apr-23 14:52:59" author="Ronan Trépos">
+<structures>
+<model name="model3" type="coupled" x="0" y="0" width="1504" height="501"  >
+<submodels>
+<model name="D3" type="atomic" conditions="condD3,cond_init_c,cond_init_d,cond_time_step" dynamics="dynD3" observables="obsD3" x="207" y="25" width="100" height="60" >
+<in>
+ <port name="a" />
+ <port name="c" />
+</in>
+<out>
+ <port name="d" />
+</out>
+</model>
+<model name="E3" type="atomic" conditions="cond_init_b,cond_init_c,cond_time_step" dynamics="dynE3" observables="obsE3" x="45" y="160" width="100" height="75" >
+<out>
+ <port name="a" />
+ <port name="b" />
+ <port name="c" />
+</out>
+</model>
+<model name="GenericSum" type="atomic" conditions="cond_sum,cond_time_step" dynamics="dynGenericSum" observables="obsSum" x="366" y="184" width="100" height="90" >
+<in>
+ <port name="a" />
+ <port name="b" />
+ <port name="c" />
+ <port name="d" />
+</in>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="D3" port="d" />
+ <destination model="GenericSum" port="d" />
+</connection>
+<connection type="internal">
+ <origin model="E3" port="a" />
+ <destination model="D3" port="a" />
+</connection>
+<connection type="internal">
+ <origin model="E3" port="a" />
+ <destination model="GenericSum" port="a" />
+</connection>
+<connection type="internal">
+ <origin model="E3" port="b" />
+ <destination model="GenericSum" port="b" />
+</connection>
+<connection type="internal">
+ <origin model="E3" port="c" />
+ <destination model="D3" port="c" />
+</connection>
+<connection type="internal">
+ <origin model="E3" port="c" />
+ <destination model="GenericSum" port="c" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="dynD3" library="D3" package="vle.discrete-time_test"  />
+<dynamic name="dynE3" library="E3" package="vle.discrete-time_test"  />
+<dynamic name="dynGenericSum" library="GenericSum" package="vle.discrete-time.generic"  />
+</dynamics>
+<experiment name="model3" duration="1.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="condD3" >
+ <port name="sync_a" >
+<integer>1</integer>
+</port>
+ <port name="sync_c" >
+<integer>1</integer>
+</port>
+</condition>
+<condition name="cond_init_b" >
+ <port name="init_value_b" >
+<double>-3.000000000000000</double>
+</port>
+</condition>
+<condition name="cond_init_c" >
+ <port name="init_value_c" >
+<double>1.000000000000000</double>
+</port>
+</condition>
+<condition name="cond_init_d" >
+ <port name="init_value_d" >
+<double>1.000000000000000</double>
+</port>
+</condition>
+<condition name="cond_sum" >
+ <port name="generic" >
+<boolean>true</boolean>
+</port>
+ <port name="generic_all_sync" >
+<integer>1</integer>
+</port>
+</condition>
+<condition name="cond_time_step" >
+ <port name="time_step" >
+<double>0.100000000000000</double>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="view" location="" format="local" package="vle.output"  plugin="console" />
+
+</outputs>
+<observables>
+<observable name="obsD3" >
+<port name="d" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="obsE3" >
+<port name="a" >
+ <attachedview name="view" />
+</port>
+
+<port name="b" >
+ <attachedview name="view" />
+</port>
+
+<port name="c" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+<observable name="obsSum" >
+<port name="Sum" >
+ <attachedview name="view" />
+</port>
+
+</observable>
+
+</observables>
+<view name="view" output="view" type="timed" timestep="0.100000000000000" />
+
+</views>
+</experiment>
+</vle_project>
