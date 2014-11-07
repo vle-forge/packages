@@ -270,8 +270,8 @@ public:
           int y,
           int w,
           int h) :
-        mName(name), mX(x), mY(y), mWidth(w), mHeight(h), mMinstart("2456063"),
-        mMaxfinish("2456064")
+        mName(name), mX(x), mY(y), mWidth(w), mHeight(h), mMinstart(""),
+        mMaxfinish("")
     {
         mIsRelativeDate = false;
         computeAnchors();

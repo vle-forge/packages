@@ -537,10 +537,10 @@ bool DecisionDrawingArea::modifyCurrentActivityModel()
             activityModel->setRules(dialog.getActRule());
             activityModel->setOutputFunc(dialog.getActOut());
             activityModel->setAckFunc(dialog.getActAck());
-            if (!dialog.minstart().empty() && !dialog.maxfinish().empty()) {
-                activityModel->minstart(dialog.minstart());
-                activityModel->maxfinish(dialog.maxfinish());
-            }
+
+            activityModel->minstart(dialog.minstart());
+            activityModel->maxfinish(dialog.maxfinish());
+
             if (oldName != dialog.name()) {
                 mDecision->changeActivityModelName(oldName,
                                              dialog.name());

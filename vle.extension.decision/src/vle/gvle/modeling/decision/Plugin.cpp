@@ -1037,22 +1037,27 @@ bool PluginDecision::loadPlanFile(std::string filename)
 
     // Get the Activities dates in the KB
     for (vle::extension::decision::Activities::const_iterator it =
-        mDecision->getKnowledgeBase()->activities().begin();
-        it != mDecision->getKnowledgeBase()->activities().end(); ++it)
+             mDecision->getKnowledgeBase()->activities().begin();
+         it != mDecision->getKnowledgeBase()->activities().end(); ++it)
     {
-        mDecision->activityModel(it->first)->minstart(
-                utils::toScientificString(it->second.minstart()));
-        mDecision->activityModel(it->first)->maxfinish(
-                utils::toScientificString(it->second.maxfinish()));
+        std::string ms = utils::toScientificString(it->second.minstart());
+        if (ms != "-inf") {
+            mDecision->activityModel(it->first)->minstart(ms);
+        }
+
+        std::string mf = utils::toScientificString(it->second.maxfinish());
+        if (mf != "inf") {
+            mDecision->activityModel(it->first)->maxfinish(mf);
+        }
     }
 
     // Get the Rules atached to an activity in the KB
     for (vle::extension::decision::Activities::const_iterator it =
-        mDecision->getKnowledgeBase()->activities().begin();
-        it != mDecision->getKnowledgeBase()->activities().end(); ++it) {
+             mDecision->getKnowledgeBase()->activities().begin();
+         it != mDecision->getKnowledgeBase()->activities().end(); ++it) {
         for (vle::extension::decision::Rules::const_iterator it2 =
-                it->second.rules().begin();
-                it2 != it->second.rules().end(); ++it2) {
+                 it->second.rules().begin();
+             it2 != it->second.rules().end(); ++it2) {
             mDecision->activityModel(it->first)->addRule(it2->first);
         }
     }
@@ -1156,18 +1161,40 @@ void PluginDecision::writePlanFile(std::string filename)
              activitiesModel().begin(); it != mDecision->
              activitiesModel().end(); ++it) {
         std::string esp16 = "                ";
-        std::string actListElem;
+        std::string actListElem = it->second->name() + "\";\n";
         if (it->second->getRelativeDate()) {
-            actListElem = it->second->name() +
-                "\";\n        temporal {\n" + esp16 + "minstart = +" +
-                it->second->minstart() + ";\n" + esp16 + "maxfinish = +" +
-                it->second->maxfinish() + ";\n" + "        }\n";
+            if (it->second->minstart() != "" &&
+                it->second->maxfinish() != "") {
+                actListElem =  actListElem + "        temporal {\n";
+                if ( it->second->minstart() != "" ) {
+                    actListElem =  actListElem +
+                        esp16 + "minstart = +" +
+                        it->second->minstart() + ";\n";
+                }
+                if  ( it->second->maxfinish() != "" ) {
+                    actListElem =  actListElem +
+                        esp16 + "maxfinish = +" +
+                        it->second->maxfinish() + ";\n";
+                }
+                actListElem =  actListElem + "        }\n";
+            }
         }
         else {
-            actListElem = it->second->name() +
-                "\";\n        temporal {\n" + esp16 + "minstart = " +
-                it->second->minstart() + ";\n" + esp16 + "maxfinish = " +
-                it->second->maxfinish() + ";\n" + "        }\n";
+            if (it->second->minstart() != "" ||
+                it->second->maxfinish() != "") {
+                actListElem =  actListElem + "        temporal {\n";
+                if ( it->second->minstart() != "" ) {
+                    actListElem =  actListElem +
+                        esp16 + "minstart = " +
+                        it->second->minstart() + ";\n";
+                }
+                if  ( it->second->maxfinish() != "" ) {
+                    actListElem =  actListElem +
+                        esp16 + "maxfinish = " +
+                        it->second->maxfinish() + ";\n";
+                }
+                actListElem =  actListElem + "        }\n";
+            }
         }
         //activity rules
         strings_t mVect = it->second->getRules();
