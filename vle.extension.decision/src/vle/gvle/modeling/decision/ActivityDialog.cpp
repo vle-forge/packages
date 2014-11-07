@@ -176,10 +176,74 @@ void ActivityDialog::initActivityDialogActions() {
             sigc::mem_fun(*this, &ActivityDialog::on_del_ack)));
     mList.push_back(mRelativeButton->signal_clicked().connect(
             sigc::mem_fun(*this, &ActivityDialog::on_set_rel_date)));
+    mList.push_back(mDateStartEntry->signal_changed().connect(
+            sigc::mem_fun(*this, &ActivityDialog::onDateRangeChange)));
+    mList.push_back(mDateFinishEntry->signal_changed().connect(
+            sigc::mem_fun(*this, &ActivityDialog::onDateRangeChange)));
 
     makePlanRules();
     makeOutput();
     makeAck();
+}
+
+void ActivityDialog::onDateRangeChange()
+{
+    std::string start = mDateStartEntry->get_text();
+    std::string finish = mDateFinishEntry->get_text();
+    int istart = 0, ifinish = 0 ;
+    double dstart = .0, dfinish = .0;
+
+    if (start != "") {
+        if ( mIsRelativeDate) {
+            try {
+                istart = boost::lexical_cast<int>(start);
+                mOkButton->set_sensitive(true);
+            } catch (...) {
+                mOkButton->set_sensitive(false);
+            }
+        } else {
+            try {
+                dstart = vle::utils::DateTime::toJulianDayNumber(start);
+                mOkButton->set_sensitive(true);
+            } catch (...) {
+                mOkButton->set_sensitive(false);
+            }
+        }
+    }
+
+    if (finish != "") {
+        if ( mIsRelativeDate) {
+            try {
+                ifinish = boost::lexical_cast<int>(finish);
+                mOkButton->set_sensitive(true);
+            } catch (...) {
+                mOkButton->set_sensitive(false);
+            }
+        } else {
+            try {
+                dfinish = vle::utils::DateTime::toJulianDayNumber(finish);
+                mOkButton->set_sensitive(true);
+            } catch (...) {
+                mOkButton->set_sensitive(false);
+            }
+        }
+    }
+
+    if (start != "" && finish != "") {
+        if ( mIsRelativeDate) {
+            if ( istart < ifinish ) {
+                mOkButton->set_sensitive(true);
+            } else {
+                mOkButton->set_sensitive(false);
+            }
+        } else {
+            if ( dstart < dfinish ) {
+                mOkButton->set_sensitive(true);
+            } else {
+                mOkButton->set_sensitive(false);
+            }
+        }
+    }
 }
 
 void ActivityDialog::onChangeName()
@@ -215,9 +279,22 @@ void ActivityDialog::onChangeName()
 
 void ActivityDialog::onCalendarStart()
 {
-    std::string date;
-
     vle::gvle::CalendarBox cal(mXml);
+    std::string date;
+    std::string dateFromField = mDateStartEntry->get_text();
+
+    if (dateFromField != "") {
+        long year, month, day, hours, minutes, seconds;
+        try {
+            double ms = vle::utils::DateTime::toJulianDayNumber
+                (mDateStartEntry->get_text());
+            utils::DateTime::toTime(ms, year, month, day, hours, minutes, seconds);
+
+            cal.selectDate(day, month, year);
+        } catch (...) {
+        }
+    }
+
     cal.dateBegin(date);
     if (not date.empty()) {
         mDateStartEntry->set_text(date);
@@ -226,9 +303,22 @@ void ActivityDialog::onCalendarStart()
 
 void ActivityDialog::onCalendarFinish()
 {
-    std::string date;
-
     vle::gvle::CalendarBox cal(mXml);
+    std::string date;
+    std::string dateFromField = mDateFinishEntry->get_text();
+
+    if (dateFromField != "") {
+        long year, month, day, hours, minutes, seconds;
+        try {
+            double ms = vle::utils::DateTime::toJulianDayNumber
+                (mDateFinishEntry->get_text());
+            utils::DateTime::toTime(ms, year, month, day, hours, minutes, seconds);
+
+            cal.selectDate(day, month, year);
+        } catch (...) {
+        }
+    }
+
     cal.dateBegin(date);
     if (not date.empty()) {
         mDateFinishEntry->set_text(date);
@@ -246,11 +336,18 @@ int ActivityDialog::run()
         mDateFinishEntry->set_text(mActivityModel->maxfinish());
     }
     else {
-        double x = vle::utils::convert < double >(mActivityModel->minstart(),
+        if (mActivityModel->minstart() != "") {
+            double x = vle::utils::convert < double >(
+                mActivityModel->minstart(),
                 true);
-        mDateStartEntry->set_text(utils::DateTime::toJulianDayNumber(x));
-        x = vle::utils::convert < double >(mActivityModel->maxfinish(),true);
-        mDateFinishEntry->set_text(utils::DateTime::toJulianDayNumber(x));
+            mDateStartEntry->set_text(utils::DateTime::toJulianDayNumber(x));
+        }
+        if (mActivityModel->maxfinish() != "") {
+            double x = vle::utils::convert < double >(
+                mActivityModel->maxfinish(),
+                true);
+            mDateFinishEntry->set_text(utils::DateTime::toJulianDayNumber(x));
+        }
     }
 
     mActRule = mActivityModel->getRules();
@@ -463,16 +560,42 @@ void ActivityDialog::on_del_ack()
 
 void ActivityDialog::onSetRelDate(bool state)
 {
+    std::string start = mDateStartEntry->get_text();
+    std::string finish = mDateFinishEntry->get_text();
+    int istart, ifinish;
+    double dstart, dfinish;
+
     mIsRelativeDate = state;
+
     if (state) {
         mRelativeButton->set_inconsistent(false);
         mCalendarStartButton->set_sensitive(false);
         mCalendarFinishButton->set_sensitive(false);
+
+        try {
+            dstart = vle::utils::DateTime::toJulianDayNumber(start);
+            dfinish = vle::utils::DateTime::toJulianDayNumber(finish);
+
+            mDateStartEntry->set_text(boost::lexical_cast<string>((int)dstart));
+            mDateFinishEntry->set_text(boost::lexical_cast<string>((int)dfinish));
+        } catch (...) {}
     }
     else {
         mRelativeButton->set_inconsistent(true);
         mCalendarStartButton->set_sensitive(true);
         mCalendarFinishButton->set_sensitive(true);
+
+        try {
+            istart = boost::lexical_cast<int>(start);
+            ifinish = boost::lexical_cast<int>(finish);
+
+            mDateStartEntry->set_text(
+                vle::utils::DateTime::toJulianDay((long)istart));
+            mDateFinishEntry->set_text(
+                vle::utils::DateTime::toJulianDay((long)ifinish));
+
+        } catch (...) {}
+
     }
 }
 

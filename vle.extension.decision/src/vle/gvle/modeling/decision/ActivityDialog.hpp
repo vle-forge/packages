@@ -33,6 +33,7 @@
 #include <vle/utils/DateTime.hpp>
 #include <vle/utils/Tools.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <gtkmm.h>
 
 namespace vle {
@@ -111,19 +112,18 @@ public:
  */
     std::string minstart() const
     {
-        if (mIsRelativeDate) {
+        if (mDateStartEntry->get_text() == "" ||  mIsRelativeDate) {
             return mDateStartEntry->get_text();
         }
-        else {
-            try {
-                double begin = vle::utils::DateTime::toJulianDayNumber
-                        (mDateStartEntry->get_text());
-                return (utils::toScientificString(begin));
-            } catch (...) {
-                std::string entryText = mDateStartEntry->get_text();
-                boost::trim(entryText);
-                return entryText;
-            }
+
+        try {
+            double ms = vle::utils::DateTime::toJulianDayNumber
+                (mDateStartEntry->get_text());
+            return (utils::toScientificString(ms));
+        } catch (...) {
+            std::string entryText = mDateStartEntry->get_text();
+            boost::trim(entryText);
+            return entryText;
         }
     }
 
@@ -133,19 +133,18 @@ public:
  */
     std::string maxfinish() const
     {
-        if (mIsRelativeDate) {
+        if (mDateFinishEntry->get_text() == "" || mIsRelativeDate) {
             return mDateFinishEntry->get_text();
         }
-        else {
-            try {
-                double begin = vle::utils::DateTime::toJulianDayNumber
-                        (mDateFinishEntry->get_text());
-                return (utils::toScientificString(begin));
-            } catch (...) {
-                std::string entryText = mDateFinishEntry->get_text();
-                boost::trim(entryText);
-                return entryText;
-            }
+
+        try {
+            double mf = vle::utils::DateTime::toJulianDayNumber
+                (mDateFinishEntry->get_text());
+            return (utils::toScientificString(mf));
+        } catch (...) {
+            std::string entryText = mDateFinishEntry->get_text();
+            boost::trim(entryText);
+            return entryText;
         }
     }
 
@@ -188,6 +187,8 @@ protected:
  * Desactive the valid button on the window if the name isn't correct.
  */
     void onChangeName();
+
+    void onDateRangeChange();
 
 /**
  * @brief Function called when the user clicked on the Start activity calendar button.
