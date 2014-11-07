@@ -38,10 +38,7 @@ const int Decision::MINIMAL_HEIGHT = 100;
 const int Decision::MINIMAL_WIDTH = 100;
 
 ActivityModel::ActivityModel(const std::string& conf):
-        mMinstart(utils::toScientificString(utils::DateTime::toJulianDayNumber
-                ("1400-01-01"))),
-        mMaxfinish(utils::toScientificString(utils::DateTime::toJulianDayNumber
-                ("1401-01-01")))
+        mMinstart(""), mMaxfinish("")
 {
     strings_t activityModel;
 
@@ -132,7 +129,7 @@ const std::string Decision::getActivityCard(string activityName) const
     std::vector < std::string > rules = activity->getRules();
     std::vector < std::string >::const_iterator itR;
     itR = rules.begin();
-    
+
     if (itR == rules.end()) {
         card += "\nNo rules";
     } else {
@@ -143,7 +140,7 @@ const std::string Decision::getActivityCard(string activityName) const
             } else {
                 card += "\n| " + *itR;
             }
-            
+
             strings_t predicates = getPredicates(*itR);
             strings_t::const_iterator itP;
 
