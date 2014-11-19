@@ -40,6 +40,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+
 using namespace std;
 
 namespace vle {
@@ -273,6 +274,7 @@ public:
         mName(name), mX(x), mY(y), mWidth(w), mHeight(h), mMinstart(""),
         mMaxfinish("")
     {
+        mIsHumanDate = true;
         mIsRelativeDate = false;
         computeAnchors();
     }
@@ -514,7 +516,17 @@ public:
 
     bool getRelativeDate() const
     {
-        return (mIsRelativeDate == true);
+        return mIsRelativeDate;
+    }
+
+    bool isHumanDate() const
+    {
+        return mIsHumanDate;
+    }
+
+    void setHumanDate(bool state)
+    {
+        mIsHumanDate = state;
     }
 
 private:
@@ -528,6 +540,7 @@ private:
     std::string mMinstart;
     std::string mMaxfinish;
     bool mIsRelativeDate;
+    bool mIsHumanDate;
 
     points_t mAnchors;
 
@@ -669,6 +682,13 @@ public:
     }
 
     ActivityModel* getActivityByName(string activityName) const;
+
+/**
+ * @brief Convert a double to a Human Date
+ * @param Numeric date
+ * @return Human date
+ */
+    const std::string toHumanRelativeDate(double numericDate) const;
 
 /**
  * @brief Return the ActivityModel card : the description displayed in a tooltip

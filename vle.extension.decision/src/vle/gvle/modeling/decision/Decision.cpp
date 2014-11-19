@@ -59,9 +59,13 @@ ActivityModel::ActivityModel(const std::string& conf):
 
     if (activityModel[7] == "R") {
         mIsRelativeDate = true;
-    }
-    else {
+        mIsHumanDate = false;
+    } else if (activityModel[7] == "Y") {
+        mIsRelativeDate = true;
+        mIsHumanDate = true;
+    } else {
         mIsRelativeDate = false;
+        mIsHumanDate = false;
     }
 
     computeAnchors();
@@ -99,6 +103,31 @@ ActivityModel* Decision::getActivityByName(string activityName) const
 const strings_t Decision::getPredicates(string ruleName) const
 {
     return getRule()->find(ruleName)->second;
+}
+
+const std::string Decision::toHumanRelativeDate(double numericDate) const
+{
+ std::string humanDate;
+
+ int year = numericDate/365;
+
+ int daysAfter1Jan = (int)numericDate % 365;
+
+ long aYearNotLeap = utils::DateTime::toJulianDayNumber("1400-12-31");
+
+ double aDate = aYearNotLeap + daysAfter1Jan;
+
+ int month =  utils::DateTime::month(aDate);
+
+ int day =  utils::DateTime::dayOfMonth(aDate);
+
+ std::string yS = boost::lexical_cast<std::string>(year);
+ std::string mS = boost::lexical_cast<std::string>(month);
+ std::string dS = boost::lexical_cast<std::string>(day);
+
+ humanDate = yS + "-" + mS + "-" + dS;
+
+ return humanDate;
 }
 
 const std::string Decision::getActivityCard(string activityName) const

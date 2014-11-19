@@ -174,11 +174,11 @@ void ActivityDialog::initActivityDialogActions() {
             sigc::mem_fun(*this, &ActivityDialog::on_add_ack)));
     mList.push_back(mButtonDelAck->signal_clicked().connect(
             sigc::mem_fun(*this, &ActivityDialog::on_del_ack)));
-    mList.push_back(mRelativeButton->signal_clicked().connect(
-            sigc::mem_fun(*this, &ActivityDialog::on_set_rel_date)));
     mList.push_back(mDateStartEntry->signal_changed().connect(
             sigc::mem_fun(*this, &ActivityDialog::onDateRangeChange)));
     mList.push_back(mDateFinishEntry->signal_changed().connect(
+            sigc::mem_fun(*this, &ActivityDialog::onDateRangeChange)));
+    mList.push_back(mRelativeButton->signal_clicked().connect(
             sigc::mem_fun(*this, &ActivityDialog::onDateRangeChange)));
 
     makePlanRules();
@@ -190,59 +190,75 @@ void ActivityDialog::onDateRangeChange()
 {
     std::string start = mDateStartEntry->get_text();
     std::string finish = mDateFinishEntry->get_text();
-    int istart = 0, ifinish = 0 ;
-    double dstart = .0, dfinish = .0;
+    long istart = 0, ifinish = 1;
 
     if (start != "") {
-        if ( mIsRelativeDate) {
+        if ( mRelativeButton->get_active() ) {
             try {
                 istart = boost::lexical_cast<int>(start);
                 mOkButton->set_sensitive(true);
             } catch (...) {
-                mOkButton->set_sensitive(false);
+                if (isHumanDate(start)) {
+                    if (is29OfFebruary(start)) {
+                        mOkButton->set_sensitive(false);
+                        return;
+                    }
+                    mOkButton->set_sensitive(true);
+                } else {
+                    mOkButton->set_sensitive(false);
+                    return;
+                }
             }
         } else {
             try {
-                dstart = vle::utils::DateTime::toJulianDayNumber(start);
+                istart = vle::utils::DateTime::toJulianDayNumber(start);
                 mOkButton->set_sensitive(true);
             } catch (...) {
                 mOkButton->set_sensitive(false);
+                return;
             }
         }
     }
 
     if (finish != "") {
-        if ( mIsRelativeDate) {
+        if ( mRelativeButton->get_active() ) {
             try {
                 ifinish = boost::lexical_cast<int>(finish);
                 mOkButton->set_sensitive(true);
             } catch (...) {
-                mOkButton->set_sensitive(false);
+                if (isHumanDate(finish)) {
+                    if (is29OfFebruary(start)) {
+                        mOkButton->set_sensitive(false);
+                        return;
+                    }
+                    mOkButton->set_sensitive(true);
+                } else {
+                    mOkButton->set_sensitive(false);
+                    return;
+                }
             }
         } else {
             try {
-                dfinish = vle::utils::DateTime::toJulianDayNumber(finish);
+                ifinish = vle::utils::DateTime::toJulianDayNumber(finish);
                 mOkButton->set_sensitive(true);
             } catch (...) {
                 mOkButton->set_sensitive(false);
+                return;
             }
         }
     }
 
     if (start != "" && finish != "") {
-        if ( mIsRelativeDate) {
-            if ( istart < ifinish ) {
-                mOkButton->set_sensitive(true);
-            } else {
-                mOkButton->set_sensitive(false);
-            }
-        } else {
-            if ( dstart < dfinish ) {
-                mOkButton->set_sensitive(true);
-            } else {
-                mOkButton->set_sensitive(false);
-            }
+        if (isHumanDate(start) != isHumanDate(finish)) {
+            mOkButton->set_sensitive(false);
+            return;
         }
+        if (not relativeHumanDateLessThan(start, finish)) {
+            mOkButton->set_sensitive(false);
+            return;
+        }
+
+        mOkButton->set_sensitive(istart < ifinish);
     }
 }
 
@@ -280,15 +296,19 @@ void ActivityDialog::onChangeName()
 void ActivityDialog::onCalendarStart()
 {
     vle::gvle::CalendarBox cal(mXml);
-    std::string date;
     std::string dateFromField = mDateStartEntry->get_text();
+    std::string date;
 
     if (dateFromField != "") {
-        long year, month, day, hours, minutes, seconds;
         try {
-            double ms = vle::utils::DateTime::toJulianDayNumber
-                (mDateStartEntry->get_text());
-            utils::DateTime::toTime(ms, year, month, day, hours, minutes, seconds);
+            strings_t dateItems;
+            boost::split(dateItems,
+                         dateFromField,
+                         boost::is_any_of("-"));
+
+            int year =  boost::lexical_cast<int>(dateItems.at(0));
+            int month =  boost::lexical_cast<int>(dateItems.at(1));
+            int day =  boost::lexical_cast<int>(dateItems.at(2));
 
             cal.selectDate(day, month, year);
         } catch (...) {
@@ -296,6 +316,7 @@ void ActivityDialog::onCalendarStart()
     }
 
     cal.dateBegin(date);
+
     if (not date.empty()) {
         mDateStartEntry->set_text(date);
     }
@@ -304,15 +325,19 @@ void ActivityDialog::onCalendarStart()
 void ActivityDialog::onCalendarFinish()
 {
     vle::gvle::CalendarBox cal(mXml);
-    std::string date;
     std::string dateFromField = mDateFinishEntry->get_text();
+    std::string date;
 
     if (dateFromField != "") {
-        long year, month, day, hours, minutes, seconds;
         try {
-            double ms = vle::utils::DateTime::toJulianDayNumber
-                (mDateFinishEntry->get_text());
-            utils::DateTime::toTime(ms, year, month, day, hours, minutes, seconds);
+            strings_t dateItems;
+            boost::split(dateItems,
+                         dateFromField,
+                         boost::is_any_of("-"));
+
+            int year =  boost::lexical_cast<int>(dateItems.at(0));
+            int month =  boost::lexical_cast<int>(dateItems.at(1));
+            int day =  boost::lexical_cast<int>(dateItems.at(2));
 
             cal.selectDate(day, month, year);
         } catch (...) {
@@ -320,6 +345,7 @@ void ActivityDialog::onCalendarFinish()
     }
 
     cal.dateBegin(date);
+
     if (not date.empty()) {
         mDateFinishEntry->set_text(date);
     }
@@ -327,15 +353,14 @@ void ActivityDialog::onCalendarFinish()
 
 int ActivityDialog::run()
 {
-    onSetRelDate(mActivityModel->getRelativeDate());
+    mRelativeButton->set_active(mActivityModel->getRelativeDate());
     mNameEntry->set_text(mActivityModel->name());
     mOriginalName = mActivityModel->name();
 
-    if (mIsRelativeDate) {
+    if (mActivityModel->getRelativeDate()) {
         mDateStartEntry->set_text(mActivityModel->minstart());
         mDateFinishEntry->set_text(mActivityModel->maxfinish());
-    }
-    else {
+    } else {
         if (mActivityModel->minstart() != "") {
             double x = vle::utils::convert < double >(
                 mActivityModel->minstart(),
@@ -556,47 +581,6 @@ void ActivityDialog::on_del_ack()
     using namespace Gtk;
     mActAck.clear();
     makeActAck();
-}
-
-void ActivityDialog::onSetRelDate(bool state)
-{
-    std::string start = mDateStartEntry->get_text();
-    std::string finish = mDateFinishEntry->get_text();
-    int istart, ifinish;
-    double dstart, dfinish;
-
-    mIsRelativeDate = state;
-
-    if (state) {
-        mRelativeButton->set_inconsistent(false);
-        mCalendarStartButton->set_sensitive(false);
-        mCalendarFinishButton->set_sensitive(false);
-
-        try {
-            dstart = vle::utils::DateTime::toJulianDayNumber(start);
-            dfinish = vle::utils::DateTime::toJulianDayNumber(finish);
-
-            mDateStartEntry->set_text(boost::lexical_cast<string>((int)dstart));
-            mDateFinishEntry->set_text(boost::lexical_cast<string>((int)dfinish));
-        } catch (...) {}
-    }
-    else {
-        mRelativeButton->set_inconsistent(true);
-        mCalendarStartButton->set_sensitive(true);
-        mCalendarFinishButton->set_sensitive(true);
-
-        try {
-            istart = boost::lexical_cast<int>(start);
-            ifinish = boost::lexical_cast<int>(finish);
-
-            mDateStartEntry->set_text(
-                vle::utils::DateTime::toJulianDay((long)istart));
-            mDateFinishEntry->set_text(
-                vle::utils::DateTime::toJulianDay((long)ifinish));
-
-        } catch (...) {}
-
-    }
 }
 
 }

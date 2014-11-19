@@ -587,7 +587,7 @@ void PluginDecision::generateSource(const std::string& classname,
         std::string esp8 = "        ";
         std::string esp12 = esp8 + "    ";
         if (it == mAckFunctionName.begin() && it ==
-                (mAckFunctionName.end() - 1)) {
+            (mAckFunctionName.end() - 1)) {
         tpl_.listSymbol().append("addAckFunctionList", "\n" + esp8 +
             "addAcknowledgeFunctions(this) +=\n" + esp12 + ""\
             "A(\"" + *it + "\", &" + classname + "::" + *it + ");\n");
@@ -959,8 +959,7 @@ bool PluginDecision::modify(vpz::AtomicModel& model,
         clear();
         destroy();
         return true;
-    }
-    else {
+    } else {
         mDialog->hide();
         clear();
         destroy();
@@ -1039,12 +1038,26 @@ bool PluginDecision::loadPlanFile(std::string filename)
     {
         std::string ms = utils::toScientificString(it->second.minstart());
         if (ms != "-inf") {
-            mDecision->activityModel(it->first)->minstart(ms);
+            if (mDecision->activityModel(it->first)->isHumanDate())
+            {
+                std::string mshr =
+                    mDecision->toHumanRelativeDate(it->second.minstart());
+                mDecision->activityModel(it->first)->minstart(mshr);
+            } else {
+                mDecision->activityModel(it->first)->minstart(ms);
+            }
         }
 
         std::string mf = utils::toScientificString(it->second.maxfinish());
         if (mf != "inf") {
-            mDecision->activityModel(it->first)->maxfinish(mf);
+            if (mDecision->activityModel(it->first)->isHumanDate())
+            {
+                std::string mfhr =
+                    mDecision->toHumanRelativeDate(it->second.maxfinish());
+                mDecision->activityModel(it->first)->maxfinish(mfhr);
+            } else {
+                mDecision->activityModel(it->first)->maxfinish(mf);
+            }
         }
     }
 
@@ -1094,7 +1107,11 @@ void PluginDecision::writePlanFile(std::string filename)
             ackFunc = it->second->getAckFunc().at(0);
         }
         if (it->second->getRelativeDate()) {
-            relDate = "R";
+            if (it->second->isHumanDate()) {
+                relDate = "Y";
+            } else {
+                relDate = "R";
+            }
         }
         templateSave.listSymbol().append("activities", it->second->toString() +
                 "," + outputFunc + "," + ackFunc +  "," + relDate);
@@ -1160,23 +1177,34 @@ void PluginDecision::writePlanFile(std::string filename)
         std::string esp16 = "                ";
         std::string actListElem = it->second->name() + "\";\n";
         if (it->second->getRelativeDate()) {
-            if (it->second->minstart() != "" &&
+            if (it->second->minstart() != "" ||
                 it->second->maxfinish() != "") {
                 actListElem =  actListElem + "        temporal {\n";
                 if ( it->second->minstart() != "" ) {
-                    actListElem =  actListElem +
-                        esp16 + "minstart = +" +
-                        it->second->minstart() + ";\n";
+                    if (it->second->isHumanDate()) {
+                        actListElem =  actListElem +
+                            esp16 + "minstart = \"+" +
+                            it->second->minstart() + "\";\n";
+                    } else {
+                        actListElem =  actListElem +
+                            esp16 + "minstart = +" +
+                            it->second->minstart() + ";\n";
+                    }
                 }
                 if  ( it->second->maxfinish() != "" ) {
-                    actListElem =  actListElem +
-                        esp16 + "maxfinish = +" +
-                        it->second->maxfinish() + ";\n";
+                    if (it->second->isHumanDate()) {
+                        actListElem =  actListElem +
+                            esp16 + "maxfinish = \"+" +
+                            it->second->maxfinish() + "\";\n";
+                    } else {
+                        actListElem =  actListElem +
+                            esp16 + "maxfinish = +" +
+                            it->second->maxfinish() + ";\n";
+                    }
                 }
                 actListElem =  actListElem + "        }\n";
             }
-        }
-        else {
+        } else {
             if (it->second->minstart() != "" ||
                 it->second->maxfinish() != "") {
                 actListElem =  actListElem + "        temporal {\n";

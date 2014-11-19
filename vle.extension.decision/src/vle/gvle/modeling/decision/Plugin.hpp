@@ -171,6 +171,8 @@ public:
     }
 
 private:
+
+    std::string toHumanDate(double date);
 /**
  * @brief Create actions for the butons group like "Select",
  * "Add Activity"...

@@ -41,10 +41,13 @@
 #include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/devs/Time.hpp>
+#include <vle/utils/DateTime.hpp>
 #include <vle/extension/Decision.hpp>
 
 namespace vmd = vle::extension::decision;
 namespace vd = vle::devs;
+namespace vu = vle::utils;
+
 using vle::fmt;
 using namespace boost::assign;
 
@@ -252,6 +255,13 @@ const char* Plan1 = \
 "            finish = +23.5;\n"
 "        }\n"
 "    }\n"
+"    activity {\n"
+"        id = \"activity9\";\n"
+"        temporal {\n"
+"            start = \"+0-1-2\";\n"
+"            finish = \"+3-2-1\";\n"
+"        }\n"
+"    }\n"
 "}\n"
 "\n"
 "precedences {\n"
@@ -310,7 +320,7 @@ BOOST_AUTO_TEST_CASE(parser)
     std::cout << fmt("parser: %1%\n") % b;
     std::cout << fmt("graph: %1%\n") % b.activities().precedencesGraph();
 
-    BOOST_REQUIRE_EQUAL(b.activities().size(), (vmd::Activities::size_type)8);
+    BOOST_REQUIRE_EQUAL(b.activities().size(), (vmd::Activities::size_type)9);
     BOOST_REQUIRE_EQUAL(
         b.activities().get("activity2")->second.rules().size(), 2);
     BOOST_REQUIRE_EQUAL(
@@ -351,6 +361,25 @@ BOOST_AUTO_TEST_CASE(test_relativedates)
         const vmd::Activity& act8 = b.activities().get("activity8")->second;
         BOOST_REQUIRE_EQUAL(act8.start(),15.0);
         BOOST_REQUIRE_EQUAL(act8.finish(),28.5);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(test_relativehumandates)
+{
+    vle::Init app;
+    {
+        vmd::ex::KnowledgeBase b;
+        b.plan().fill(std::string(vmd::ex::Plan1), 0);
+        const vmd::Activity& act9 = b.activities().get("activity9")->second;
+        BOOST_REQUIRE_EQUAL(act9.start(), 2.0);
+        BOOST_REQUIRE_EQUAL(act9.finish(), 365.0 * 3 + 31.0 + 1.0);
+    }
+    {
+        vmd::ex::KnowledgeBase b;
+        b.plan().fill(std::string(vmd::ex::Plan1), vu::DateTime::toJulianDayNumber("1966-11-08"));
+        const vmd::Activity& act9 = b.activities().get("activity9")->second;
+        BOOST_REQUIRE_EQUAL(act9.start(), vu::DateTime::toJulianDayNumber("1966-01-02"));
+        BOOST_REQUIRE_EQUAL(act9.finish(), vu::DateTime::toJulianDayNumber("1969-02-01"));
     }
 }
 

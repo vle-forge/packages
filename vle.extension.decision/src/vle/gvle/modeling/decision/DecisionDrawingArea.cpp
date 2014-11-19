@@ -529,6 +529,7 @@ bool DecisionDrawingArea::modifyCurrentActivityModel()
                                              dialog.name());
             }
             activityModel->setRelativeDate(dialog.isRelativeDate());
+            activityModel->setHumanDate(dialog.isHumanDate());
             checkSize(activityModel, activityModel->name());
 
             int newWidth = activityModel->x() + activityModel->width() + OFFSET;

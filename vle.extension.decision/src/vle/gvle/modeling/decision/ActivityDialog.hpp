@@ -112,7 +112,7 @@ public:
  */
     std::string minstart() const
     {
-        if (mDateStartEntry->get_text() == "" ||  mIsRelativeDate) {
+        if (mDateStartEntry->get_text() == "" ||  isRelativeDate()) {
             return mDateStartEntry->get_text();
         }
 
@@ -133,7 +133,7 @@ public:
  */
     std::string maxfinish() const
     {
-        if (mDateFinishEntry->get_text() == "" || mIsRelativeDate) {
+        if (mDateFinishEntry->get_text() == "" || isRelativeDate()) {
             return mDateFinishEntry->get_text();
         }
 
@@ -177,8 +177,71 @@ public:
 
     bool isRelativeDate() const
     {
-        return mIsRelativeDate;
+        return mRelativeButton->get_active();
     }
+
+    bool explodeNonGregorianHumanDate(const std::string &date, long &year, long &month, long &day, double &arbitraryDate) const
+    {
+        std::string humanDate;
+        strings_t dateItems;
+        try {
+            boost::split(dateItems,
+                         date,
+                         boost::is_any_of("-"));
+
+            year =  boost::lexical_cast<int>(dateItems.at(0));
+            month =  boost::lexical_cast<int>(dateItems.at(1));
+            day =  boost::lexical_cast<int>(dateItems.at(2));
+            std::string yS = boost::lexical_cast<std::string>(year + 1400);
+            std::string mS = boost::lexical_cast<std::string>(month);
+            std::string dS = boost::lexical_cast<std::string>(day);
+
+            humanDate = yS + "-" + mS + "-" + dS;
+
+            arbitraryDate = utils::DateTime::toJulianDayNumber(humanDate);
+            return true;
+        } catch (...) {
+            return false;
+        }
+    }
+
+    bool isHumanDate(const std::string &date) const
+    {
+        long year, month, day;
+        double numeric;
+        return explodeNonGregorianHumanDate(date, year, month, day, numeric);
+    }
+
+    bool relativeHumanDateLessThan(const std::string &date1,
+                                   const std::string &date2) const
+    {
+        long year, month, day;
+        double arbitrary1, arbitrary2;
+
+        explodeNonGregorianHumanDate(date1, year, month, day, arbitrary1);
+        explodeNonGregorianHumanDate(date2, year, month, day, arbitrary2);
+
+        return arbitrary1 < arbitrary2;
+    }
+
+
+    bool is29OfFebruary(const std::string &date) const
+    {
+        long year, month, day;
+        double numeric;
+        explodeNonGregorianHumanDate(date, year, month, day, numeric);
+
+        return month == 2 and day == 29;
+    }
+
+    bool isHumanDate() const
+    {
+        std::string start = mDateStartEntry->get_text();
+        std::string finish = mDateStartEntry->get_text();
+
+        return isHumanDate(start) || isHumanDate(finish);
+    }
+
 
 protected:
 /**
@@ -194,14 +257,6 @@ protected:
  * @brief Function called when the user clicked on the Start activity calendar button.
  */
     void onCalendarStart();
-
-    void onSetRelDate(bool state);
-
-    void on_set_rel_date()
-    {
-        onSetRelDate(!mIsRelativeDate);
-    }
-    bool mIsRelativeDate;
 
 /**
  * @brief Function called when the user clicked on the Finish activity calendar button.
@@ -361,7 +416,7 @@ int run()
     onChangeName();
     mOkButton->set_sensitive(false);
     mDialog->set_title("New Activity Dialog");
-    onSetRelDate(false);
+    mRelativeButton->set_active(false);
     int response = mDialog->run();
     mDialog->hide();
     return response;

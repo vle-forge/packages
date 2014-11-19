@@ -31,6 +31,8 @@
 #include <vle/utils/Parser.hpp>
 #include <vle/utils/i18n.hpp>
 #include <vle/utils/DateTime.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include <sstream>
 
@@ -40,6 +42,8 @@ typedef utils::Block UB;
 typedef utils::Block::Blocks UBB;
 typedef utils::Block::Strings UBS;
 typedef utils::Block::Reals UBR;
+
+using boost::lexical_cast;
 
 Plan::Plan(KnowledgeBase& kb, const std::string& buffer)
     : mKb(kb)
@@ -342,19 +346,53 @@ Plan::DateResult Plan::getDate(const std::string& dateName,
 
     bool hasRelativeDate = dateRelative.first != dateRelative.second;
     if((hasRealDate && hasStringDate) ||
-            (hasRealDate && hasRelativeDate) ||
-            (hasStringDate && hasRelativeDate)) {
+       (hasRealDate && hasRelativeDate) ||
+       (hasStringDate && hasRelativeDate)) {
         throw utils::ArgError(fmt(_(
-         "Decision: date '%1%' should not be given twice ")) % dateName);
+          "Decision: date '%1%' should not be given twice ")) % dateName);
     }
     if (hasRealDate){
         return DateResult(true,devs::Time((double) dateReal.first->second));
     } else if (hasStringDate){
-        return DateResult(true,devs::Time(
-         (int) utils::DateTime::toJulianDayNumber(dateString.first->second)));
-        } else if (hasRelativeDate){
+        bool hasRelativeStringDate =  dateString.first->second[0] == '+';
+        if (hasRelativeStringDate) {
+            std::string relativeDate = dateString.first->second.substr(1);
+            std::vector< std::string > explosedDate;
+
+            boost::split(explosedDate, relativeDate, boost::is_any_of("-") );
+
+            std::string year = explosedDate[0];
+            std::string month = explosedDate[1];
+            std::string day = explosedDate[2];
+
+            if (utils::DateTime::isValidYear(loadTime)) {
+
+                year = lexical_cast<std::string>(
+                    lexical_cast<int>(year) +
+                    utils::DateTime::year(loadTime));
+
+                return DateResult(true, devs::Time(
+                                      (int) utils::DateTime::toJulianDayNumber(
+                                          year + "-" + month + "-" + day)));
+            } else {
+                std::string firstNonLeapYear = "1401";
+
+                int daysOfLastYear = utils::DateTime::dayOfYear(
+                    utils::DateTime::toJulianDayNumber(
+                        firstNonLeapYear + "-" + month + "-" + day));
+                int daysOfFullYears = 365 * lexical_cast<int>(year);
+
+                return DateResult(true, devs::Time(daysOfLastYear + daysOfFullYears));
+
+            }
+        } else {
+            return DateResult(true,devs::Time(
+                                  (int) utils::DateTime::toJulianDayNumber(
+                                      dateString.first->second)));
+        }
+    } else if (hasRelativeDate){
         return DateResult(true,
-                loadTime + devs::Time((double) dateRelative.first->second));
+                          loadTime + devs::Time((double) dateRelative.first->second));
     } else {
         return DateResult(false,devs::infinity);
     }
