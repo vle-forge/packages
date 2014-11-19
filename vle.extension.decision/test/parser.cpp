@@ -32,11 +32,15 @@
 #include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/devs/Time.hpp>
+
 #include <vle/utils/Tools.hpp>
+#include <vle/utils/DateTime.hpp>
+
 #include <vle/extension/Decision.hpp>
 
 namespace vmd = vle::extension::decision;
 namespace vd = vle::devs;
+namespace vu = vle::utils;
 
 namespace vle { namespace extension { namespace decision { namespace ex {
 
@@ -242,6 +246,13 @@ const char* Plan1 = \
 "            finish = +23.5;\n"
 "        }\n"
 "    }\n"
+"    activity {\n"
+"        id = \"activity9\";\n"
+"        temporal {\n"
+"            start = \"+0-1-2\";\n"
+"            finish = \"+3-2-1\";\n"
+"        }\n"
+"    }\n"
 "}\n"
 "\n"
 "precedences {\n"
@@ -297,7 +308,7 @@ void parser()
     vmd::ex::KnowledgeBase b;
     b.plan().fill(std::string(vmd::ex::Plan1));
 
-    EnsuresEqual(b.activities().size(), (vmd::Activities::size_type)8);
+    EnsuresEqual(b.activities().size(), (vmd::Activities::size_type)9);
     EnsuresEqual(
         b.activities().get("activity2")->second.rules().size(), 2);
     EnsuresEqual(
@@ -341,6 +352,24 @@ void test_relativedates()
     }
 }
 
+void test_relativehumandates()
+{
+    vle::Init app;
+    {
+        vmd::ex::KnowledgeBase b;
+        b.plan().fill(std::string(vmd::ex::Plan1), 0);
+        const vmd::Activity& act9 = b.activities().get("activity9")->second;
+        EnsuresEqual(act9.start(), 2.0);
+        EnsuresEqual(act9.finish(), 365.0 * 3 + 31.0 + 1.0);
+    }
+    {
+        vmd::ex::KnowledgeBase b;
+        b.plan().fill(std::string(vmd::ex::Plan1), vu::DateTime::toJulianDayNumber("1966-11-08"));
+        const vmd::Activity& act9 = b.activities().get("activity9")->second;
+        EnsuresEqual(act9.start(), vu::DateTime::toJulianDayNumber("1966-01-02"));
+        EnsuresEqual(act9.finish(), vu::DateTime::toJulianDayNumber("1969-02-01"));
+    }
+}
 
 int main()
 {
@@ -348,6 +377,7 @@ int main()
     parser();
     test_stringdates();
     test_relativedates();
+    test_relativehumandates();
 
     return unit_test::report_errors();
 }
