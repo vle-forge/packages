@@ -49,6 +49,8 @@ namespace modeling {
 namespace decision {
 
 typedef std::vector < std::string > strings_t;
+typedef std::vector < std::pair <std::string, std::string> > rename_t;
+typedef rename_t::const_iterator rename_it;
 
 /**
  * @class AckFunctionDialog
@@ -90,6 +92,10 @@ public:
  */
     std::map < std::string, std::string > getAckFunction() {
         return mAckFunction;
+    }
+
+    rename_t& getRemameList() {
+        return mRenameList;
     }
 
 private:
@@ -200,6 +206,7 @@ private:
 
     strings_t mAckName;
     std::map < std::string, std::string > mAckFunction;
+    rename_t mRenameList;
 };
 
 }

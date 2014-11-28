@@ -259,6 +259,8 @@ void FactDialog::onRenameFact() {
                 Gtk::ListStore::Row row = *iter;
                 row[m_viewscolumnrecord.name] = name;
 
+                mRenameList.push_back(std::make_pair(oldName, name));
+
                 if (mFactFunction.find(oldName) != mFactFunction.end()) {
                     mTextViewFunction->get_buffer()->
                             set_text(mFactFunction[oldName]);

@@ -261,6 +261,9 @@ void OutputFunctionDialog::onRenameOF() {
                 }
 
                 mOFName.push_back(name);
+
+                mRenameList.push_back(std::make_pair(oldName, name));
+
                 mHeaderOutput->set_text("void " + name + "(\n"\
                     "const std::string& name,\nconst ved::Activity& activity,\n"\
                     "vd::ExternalEventList& output) {");

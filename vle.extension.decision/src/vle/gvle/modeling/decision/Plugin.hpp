@@ -79,9 +79,12 @@ namespace vle {
 namespace gvle {
 namespace modeling {
 namespace decision {
-
 typedef std::vector < std::string > strings_t;
+typedef strings_t::iterator strings_it;
 typedef std::map < std::string, strings_t > hierarchicalPred;
+typedef std::map < std::string, strings_t > rules_t;
+typedef rules_t::iterator rules_it;
+
 
 /**
  * @class PluginDecision
@@ -369,6 +372,12 @@ private:
         return true;
     }
 
+    void renamePredicate(std::string old, std::string news);
+    void renameRule(std::string old, std::string news);
+    void renameOutput(std::string old, std::string news);
+    void renameAck(std::string old, std::string news);
+    void renameHierachicalPredItem(std::string old, std::string news);
+
 strings_t::iterator* generatePred(std::string *pPred,
         strings_t::iterator *it,
         strings_t *vPred, int pRowNumber, std::string pLog) {
@@ -509,7 +518,7 @@ strings_t::iterator* generatePred(std::string *pPred,
     std::map < std::string, std::string > mPredicateFunction;
 
 // Store the Rules
-    std::map < std::string, strings_t > mRule;
+    rules_t mRule;
 
 // Store the Output functions
     strings_t mOutputFunctionName;

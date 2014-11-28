@@ -439,7 +439,15 @@ public:
  * @brief Get the rules vector of the activity
  * @return return the vector which contains the class activities
  */
-   strings_t getRules() const
+    strings_t getRules() const
+    {
+        return mRules;
+    }
+/**
+ * @brief Get the rules vector of the activity
+ * @return return the vector which contains the class activities
+ */
+    strings_t& getRules()
     {
         return mRules;
     }
@@ -551,6 +559,7 @@ private:
 
 
 typedef std::map < std::string, ActivityModel* > activitiesModel_t;
+typedef activitiesModel_t::const_iterator activitiesModel_it;
 typedef std::vector < PrecedenceConstraintModel* > precedenceConstraints_t;
 
 /**

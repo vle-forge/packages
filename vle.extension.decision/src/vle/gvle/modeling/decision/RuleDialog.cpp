@@ -254,6 +254,9 @@ void RuleDialog::on_rename_rule()
                 strings_t vPred = mRule[data_name];
                 mRule.erase(data_name);
                 mRule.insert(std::pair < std::string, strings_t > (name, vPred));
+
+                mRenameList.push_back(std::make_pair(data_name, name));
+
                 makeRules();
             }
             else {

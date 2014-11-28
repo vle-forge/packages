@@ -232,8 +232,8 @@ void PredicateDialog::onRenamePredicate() {
             savePreviousPredicate(oldName);
 
             SimpleTypeBox box(("Predicate new name?"), "");
-            std::string name = boost::trim_copy(box.run());
-            if (box.valid() and checkName(name)) {
+            std::string newName = boost::trim_copy(box.run());
+            if (box.valid() and checkName(newName)) {
 
                 setSensitivePredicate(false);
                 m_model->erase(iter);
@@ -242,19 +242,19 @@ void PredicateDialog::onRenamePredicate() {
                 m_iter = children.begin();
 
                 iter = m_model->append();
-                mPredicateNameEntry->set_text(name);
+                mPredicateNameEntry->set_text(newName);
                 Gtk::ListStore::Row row = *iter;
-                row[m_viewscolumnrecord.name] = name;
+                row[m_viewscolumnrecord.name] = newName;
 
                 if (mPredicateFunction.find(oldName) !=
                         mPredicateFunction.end()) {
                     mTextViewFunction->get_buffer()->
                             set_text(mPredicateFunction[oldName]);
-                    mPredicateFunction[name] = mPredicateFunction[oldName];
+                    mPredicateFunction[newName] = mPredicateFunction[oldName];
                     mPredicateFunction.erase(oldName);
                 }
 
-                mPredicateName.push_back(name);
+                mPredicateName.push_back(newName);
                 // Delete the element in the vector
                 for (std::vector < std::string > ::iterator it =
                         mPredicateName.begin(); it != mPredicateName.end(); ) {
@@ -265,6 +265,9 @@ void PredicateDialog::onRenamePredicate() {
                         ++it;
                     }
                 }
+
+                mRenameList.push_back(std::make_pair(oldName, newName));
+
                 mTreePredicateList->set_cursor(m_model->get_path(iter));
                 setSensitivePredicate(true);
             }

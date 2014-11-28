@@ -45,6 +45,8 @@ namespace gvle {
 namespace modeling {
 namespace decision {
 
+typedef std::vector < std::pair <std::string, std::string> > rename_t;
+typedef rename_t::const_iterator rename_it;
 /**
  * @class SourceDialog
  * @brief This class is used to manage the user sources.
@@ -173,6 +175,8 @@ public:
                         Gtk::ListStore::Row row = *iter;
                         row[m_viewscolumnrecord.name] = name;
 
+                        mRenameList.push_back(std::make_pair(oldName, name));
+
                         // Delete the element in the map
                         std::map < std::string, std::string > ::iterator it =
                                 mParam.find(oldName);
@@ -237,6 +241,10 @@ public:
         return mParam;
     }
 
+    rename_t& getRemameList() {
+        return mRenameList;
+    }
+
 private:
     Glib::RefPtr < Gtk::Builder > mXml;
 
@@ -258,6 +266,9 @@ private:
     int m_columnName;
     Gtk::CellRendererText* m_cellrenderer;
     Gtk::TreeModel::iterator m_iter;
+
+    rename_t mRenameList;
+
     struct ViewsColumnRecord : public Gtk::TreeModel::ColumnRecord
     {
         Gtk::TreeModelColumn < std::string > name;
@@ -330,6 +341,8 @@ private:
         mValueParam->set_sensitive(state);
     }
 };
+
+
 
 }
 }

@@ -49,6 +49,8 @@ namespace modeling {
 namespace decision {
 
 typedef std::vector < std::string > strings_t;
+typedef std::vector < std::pair <std::string, std::string> > rename_t;
+typedef rename_t::const_iterator rename_it;
 
 /**
  * @class OutputFunctionDialog
@@ -90,6 +92,10 @@ public:
  */
     std::map < std::string, std::string > getOFFunction() {
         return mOFFunction;
+    }
+
+    rename_t& getRemameList() {
+        return mRenameList;
     }
 
 private:
@@ -199,6 +205,7 @@ private:
 
     strings_t mOFName;
     std::map < std::string, std::string > mOFFunction;
+    rename_t mRenameList;
 };
 
 }

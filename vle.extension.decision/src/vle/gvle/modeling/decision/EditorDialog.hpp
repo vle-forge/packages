@@ -53,6 +53,7 @@ namespace decision {
 
 typedef std::vector < std::string > strings_t;
 typedef std::map < std::string, strings_t > hierarchicalPred;
+typedef std::vector < std::pair <std::string, std::string> > rename_t;
 
 #define ROW_TYPE_EMPTY 0
 #define ROW_TYPE_PRED 1
@@ -88,7 +89,11 @@ public:
  */
     int run();
 
-hierarchicalPred getPred();
+    hierarchicalPred getPred();
+
+    rename_t& getRemameList() {
+        return mRenameList;
+    }
 
 private:
 
@@ -319,93 +324,93 @@ void onDeleteLog() {
     Glib::RefPtr < Gtk::TreeStore > m_refModelPred;
     ModelColumnPred m_modelColumnPred;
 
-void on_cellrenderer_choice_edited_logs(
+    void on_cellrenderer_choice_edited_logs(
         const Glib::ustring& path_string, const Glib::ustring& new_text)
-{
-    Gtk::TreePath path(path_string);
-
-    //Get the row from the path:
-    Gtk::TreeModel::iterator iter = m_refModelPred->get_iter(path);
-    if(iter)
     {
-        if (new_text == "OR" || new_text == "AND") {
-            //Store the user's new text in the model:
-            Gtk::TreeRow row = *iter;
-            row[m_modelColumnPred.log] = new_text;
-        }
-    }
-}
-void on_cellrenderer_choice_edited_facts(
-        const Glib::ustring& path_string, const Glib::ustring& new_text)
-{
-    Gtk::TreePath path(path_string);
+        Gtk::TreePath path(path_string);
 
-    //Get the row from the path:
-    Gtk::TreeModel::iterator iter = m_refModelPred->get_iter(path);
-    if(iter)
-    {
-        std::string test = new_text + "";
-        if (find(mFactName.begin(), mFactName.end(), test) != mFactName.end()) {
-            //Store the user's new text in the model:
-            Gtk::TreeRow row = *iter;
-            row[m_modelColumnPred.fact] = new_text;
-        }
-    }
-}
-void on_cellrenderer_choice_edited_ops(
-        const Glib::ustring& path_string, const Glib::ustring& new_text)
-{
-    Gtk::TreePath path(path_string);
-
-    //Get the row from the path:
-    Gtk::TreeModel::iterator iter = m_refModelPred->get_iter(path);
-    if(iter)
-    {
-        if (new_text == "==" || new_text == "!=" || new_text == "<=" ||
-                new_text == "<" || new_text == ">=" || new_text == ">") {
-            //Store the user's new text in the model:
-            Gtk::TreeRow row = *iter;
-            row[m_modelColumnPred.op] = new_text;
-        }
-    }
-}
-void on_cellrenderer_choice_edited_pars(
-        const Glib::ustring& path_string, const Glib::ustring& new_text)
-{
-    Gtk::TreePath path(path_string);
-
-    //Get the row from the path:
-    Gtk::TreeModel::iterator iter = m_refModelPred->get_iter(path);
-    if(iter)
-    {
-        std::string test = new_text + "";
-        if (find(mParam.begin(), mParam.end(), test) != mParam.end()) {
-            //Store the user's new text in the model:
-            Gtk::TreeRow row = *iter;
-            row[m_modelColumnPred.par] = new_text;
-        }
-        else {
-            unsigned int i = 0;
-            bool valid = true;
-            while (i < test.size()) {
-                if (!isdigit(test[i])) {
-                    valid = false;
-                }
-                i++;
+        //Get the row from the path:
+        Gtk::TreeModel::iterator iter = m_refModelPred->get_iter(path);
+        if(iter)
+        {
+            if (new_text == "OR" || new_text == "AND") {
+                //Store the user's new text in the model:
+                Gtk::TreeRow row = *iter;
+                row[m_modelColumnPred.log] = new_text;
             }
-            //Store the user's new text in the model:
-            if (valid) {
+        }
+    }
+    void on_cellrenderer_choice_edited_facts(
+        const Glib::ustring& path_string, const Glib::ustring& new_text)
+    {
+        Gtk::TreePath path(path_string);
+
+        //Get the row from the path:
+        Gtk::TreeModel::iterator iter = m_refModelPred->get_iter(path);
+        if(iter)
+        {
+            std::string test = new_text + "";
+            if (find(mFactName.begin(), mFactName.end(), test) != mFactName.end()) {
+                //Store the user's new text in the model:
+                Gtk::TreeRow row = *iter;
+                row[m_modelColumnPred.fact] = new_text;
+            }
+        }
+    }
+    void on_cellrenderer_choice_edited_ops(
+        const Glib::ustring& path_string, const Glib::ustring& new_text)
+    {
+        Gtk::TreePath path(path_string);
+
+        //Get the row from the path:
+        Gtk::TreeModel::iterator iter = m_refModelPred->get_iter(path);
+        if(iter)
+        {
+            if (new_text == "==" || new_text == "!=" || new_text == "<=" ||
+                new_text == "<" || new_text == ">=" || new_text == ">") {
+                //Store the user's new text in the model:
+                Gtk::TreeRow row = *iter;
+                row[m_modelColumnPred.op] = new_text;
+            }
+        }
+    }
+    void on_cellrenderer_choice_edited_pars(
+        const Glib::ustring& path_string, const Glib::ustring& new_text)
+    {
+        Gtk::TreePath path(path_string);
+
+        //Get the row from the path:
+        Gtk::TreeModel::iterator iter = m_refModelPred->get_iter(path);
+        if(iter)
+        {
+            std::string test = new_text + "";
+            if (find(mParam.begin(), mParam.end(), test) != mParam.end()) {
+                //Store the user's new text in the model:
                 Gtk::TreeRow row = *iter;
                 row[m_modelColumnPred.par] = new_text;
             }
+            else {
+                unsigned int i = 0;
+                bool valid = true;
+                while (i < test.size()) {
+                    if (!isdigit(test[i])) {
+                        valid = false;
+                    }
+                    i++;
+                }
+                //Store the user's new text in the model:
+                if (valid) {
+                    Gtk::TreeRow row = *iter;
+                    row[m_modelColumnPred.par] = new_text;
+                }
+            }
         }
     }
-}
 
-bool SaveRow(Gtk::TreeModel::Children children);
-strings_t::iterator* InsertPredicate(Gtk::TreeModel::Row pRow,
-        strings_t::iterator *it,
-        strings_t*, int);
+    bool SaveRow(Gtk::TreeModel::Children children);
+    strings_t::iterator* InsertPredicate(Gtk::TreeModel::Row pRow,
+                                         strings_t::iterator *it,
+                                         strings_t*, int);
 
     bool breakLine;
     // Stocks the datas
@@ -421,6 +426,8 @@ strings_t::iterator* InsertPredicate(Gtk::TreeModel::Row pRow,
     Gtk::Dialog* mDialog;
     Gtk::Label* mLabelLPred;
     Glib::RefPtr < Gtk::Builder > mXml;
+
+    rename_t mRenameList;
 
     // Editor Model
 

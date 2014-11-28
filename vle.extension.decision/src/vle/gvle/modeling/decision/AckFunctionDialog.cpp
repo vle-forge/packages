@@ -257,6 +257,9 @@ void AckFunctionDialog::onRenameAck() {
                     }
 
                     mAckName.push_back(name);
+
+                    mRenameList.push_back(std::make_pair(oldName, name));
+
                     mHeaderAck->set_text("void " + name + "(const std::string&"\
                         "activityname,\n\t"\
                         "const ved::Activity& activity) {");

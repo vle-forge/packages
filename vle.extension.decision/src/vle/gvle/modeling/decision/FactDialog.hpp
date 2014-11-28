@@ -51,6 +51,9 @@ namespace gvle {
 namespace modeling {
 namespace decision {
 
+typedef std::vector < std::pair <std::string, std::string> > rename_t;
+typedef rename_t::const_iterator rename_it;
+
 /**
  * @class FactDialog
  * @brief This class is used to manage the facts.
@@ -113,6 +116,10 @@ public:
  */
     std::map < std::string, std::string > getFactInit() {
         return mFactInit;
+    }
+
+    rename_t& getRemameList() {
+        return mRenameList;
     }
 private:
     Glib::RefPtr < Gtk::Builder > mXml;
@@ -238,6 +245,8 @@ private:
     std::map < std::string, std::string > mFactFunction;
     std::map < std::string, std::string > mFactAttribute;
     std::map < std::string, std::string > mFactInit;
+
+    rename_t                              mRenameList;
 };
 
 }

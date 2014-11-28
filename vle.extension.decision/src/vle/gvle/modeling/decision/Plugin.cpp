@@ -1491,6 +1491,15 @@ void PluginDecision::onIncludeSource()
         mCustomConstructor.assign(dialog.getCustomConstructor());
         mMembers.assign(dialog.getMembers());
         mParam = dialog.getParam();
+        rename_t& renameList = dialog.getRemameList();
+        rename_it itRename = renameList.begin();
+
+        while (itRename != renameList.end()) {
+            renameHierachicalPredItem(itRename->first,
+                                      itRename->second);
+            ++itRename;
+        }
+        renameList.clear();
     }
 }
 
@@ -1504,6 +1513,27 @@ void PluginDecision::onUserFact()
         mFactAttribute = dialog.getFactAttribute();
         mFactFunction = dialog.getFactFunction();
         mFactInit = dialog.getFactInit();
+        rename_t& renameList = dialog.getRemameList();
+        rename_it itRename = renameList.begin();
+
+        while (itRename != renameList.end()) {
+            renameHierachicalPredItem(itRename->first,
+                                      itRename->second);
+            ++itRename;
+        }
+        renameList.clear();
+    }
+}
+
+void PluginDecision::renameHierachicalPredItem(std::string old, std::string news)
+{
+    for (hierarchicalPred::iterator it = mPred.begin();
+         it != mPred.end(); ++it) {
+        for (strings_t::iterator it2 = it->second.begin();
+             it2 != it->second.end();
+             it2++) {
+            boost::replace_all(*it2, "|" + old + "|", "|" + news + "|");
+        }
     }
 }
 
@@ -1514,16 +1544,23 @@ void PluginDecision::onUserPredicate()
     if (dialog.run() == Gtk::RESPONSE_ACCEPT) {
         mPredicateName = dialog.getPredicateName();
         mPredicateFunction = dialog.getPredicateFunction();
+        rename_t& renameList = dialog.getRemameList();
+        rename_it itRename = renameList.begin();
 
-// Delete the deleted predicates in the Rule vector
-        for (std::map < std::string, strings_t > ::const_iterator it =
-                mRule.begin()
-                ; it != mRule.end(); ++it) {
-            for (strings_t::iterator it2 = mRule[it->first].begin();
-                    it2 != mRule[it->first].end(); ) {
+        while (itRename != renameList.end()) {
+            renamePredicate(itRename->first,
+                            itRename->second);
+            ++itRename;
+        }
+        renameList.clear();
+
+        for (rules_it it = mRule.begin();
+             it != mRule.end(); ++it) {
+            for (strings_it it2 = mRule[it->first].begin();
+                 it2 != mRule[it->first].end(); ) {
                 if (mPred.find(*it2) == mPred.end() &&
-                        find(mPredicateName.begin(), mPredicateName.end(),
-                        *it2) == mPredicateName.end()) {
+                    find(mPredicateName.begin(), mPredicateName.end(),
+                         *it2) == mPredicateName.end()) {
                     it2 = mRule[it->first].erase(it2);
                 }
                 else {
@@ -1534,22 +1571,45 @@ void PluginDecision::onUserPredicate()
     }
 }
 
+void PluginDecision::renamePredicate(std::string old, std::string news)
+{
+    for (rules_it it = mRule.begin(); it != mRule.end(); ++it) {
+        strings_it itPred = std::find((it->second).begin(),
+                                      (it->second).end(), old);
+
+        if (itPred != it->second.end()) {
+            (*itPred) = news;
+        }
+    }
+}
+
 void PluginDecision::onUserHierPredicate() {
     std::vector < std::string > vectorParam;
+
     for (std::map < std::string, std::string > ::iterator it =
-            mParam.begin(); it != mParam.end(); ++it) {
+             mParam.begin(); it != mParam.end(); ++it) {
         vectorParam.push_back(it->first);
     }
     EditorDialog dialog(mXml,
-                                mPred,
-                                mFactName,
-                                vectorParam,
-                                mPredicateName);
+                        mPred,
+                        mFactName,
+                        vectorParam,
+                        mPredicateName);
     if (dialog.run() == Gtk::RESPONSE_ACCEPT) {
         mPred = dialog.getPred();
+        rename_t& renameList = dialog.getRemameList();
+        rename_it itRename = renameList.begin();
+
+        while (itRename != renameList.end()) {
+            renamePredicate(itRename->first,
+                            itRename->second);
+            ++itRename;
+        }
+        renameList.clear();
+
 // Delete the deleted predicates in the Rule vector
         for (std::map < std::string, strings_t > ::const_iterator it =
-                mRule.begin()
+                 mRule.begin()
                 ; it != mRule.end(); ++it) {
             for (strings_t::iterator it2 = mRule[it->first].begin();
                     it2 != it->second.end(); ) {
@@ -1572,13 +1632,23 @@ void PluginDecision::onUserRule()
     int response = dialog->run();
     if (response == Gtk::RESPONSE_ACCEPT) {
         mRule = dialog->getRule();
+        rename_t& renameList = dialog->getRemameList();
+        rename_it itRename = renameList.begin();
+
+        while (itRename != renameList.end()) {
+            renameRule(itRename->first,
+                       itRename->second);
+            ++itRename;
+        }
+        renameList.clear();
 
         // Delete the deleted rules in the activities
-        for (activitiesModel_t::const_iterator it = mDecision->
-                activitiesModel().begin(); it != mDecision->
-                activitiesModel().end(); ++it) {
+        for (activitiesModel_it it = mDecision->
+                 activitiesModel().begin();
+             it != mDecision->
+                 activitiesModel().end(); ++it) {
             //activity rules
-            strings_t mVect = it->second->getRules();
+            strings_t& mVect = it->second->getRules();
 
             // Check in the activities rule vector if all rules exist
             for (strings_t::iterator it2 = mVect.begin();
@@ -1595,6 +1665,25 @@ void PluginDecision::onUserRule()
     delete dialog;
 }
 
+void PluginDecision::renameRule(std::string old, std::string news)
+{
+    activitiesModel_t activities = mDecision-> activitiesModel();
+
+    for (activitiesModel_it it = activities.begin();
+         it != activities.end(); ++it) {
+
+        strings_t& rules = it->second->getRules();
+
+        strings_it itRules = std::find(rules.begin(),
+                                       rules.end(), old);
+
+        if (itRules != rules.end()) {
+            (*itRules) = news;
+        }
+    }
+}
+
+
 void PluginDecision::onUserOutputFunction()
 {
     OutputFunctionDialog dialog(mXml, mOutputFunctionName, mOutputFunction);
@@ -1603,6 +1692,15 @@ void PluginDecision::onUserOutputFunction()
     if (state == Gtk::RESPONSE_ACCEPT) {
         mOutputFunctionName = dialog.getOFName();
         mOutputFunction = dialog.getOFFunction();
+        rename_t& renameList = dialog.getRemameList();
+        rename_it itRename = renameList.begin();
+
+        while (itRename != renameList.end()) {
+            renameOutput(itRename->first,
+                       itRename->second);
+            ++itRename;
+        }
+        renameList.clear();
 
         // Check for deleted output functions in activities
         for (activitiesModel_t::const_iterator it = mDecision->
@@ -1626,6 +1724,20 @@ void PluginDecision::onUserOutputFunction()
     }
 }
 
+void PluginDecision::renameOutput(std::string old, std::string news)
+{
+    activitiesModel_t activities = mDecision-> activitiesModel();
+
+    for (activitiesModel_it it = activities.begin();
+         it != activities.end(); ++it) {
+        if (!it->second->getOutputFunc().empty()) {
+            if (it->second->getOutputFunc().at(0) == old) {
+                it->second->setOutputFunc(strings_t(1, news));
+            }
+        }
+    }
+}
+
 void PluginDecision::onUserAckFunction()
 {
     AckFunctionDialog dialog(mXml, mAckFunctionName, mAckFunction);
@@ -1634,6 +1746,15 @@ void PluginDecision::onUserAckFunction()
     if (state == Gtk::RESPONSE_ACCEPT) {
         mAckFunctionName = dialog.getAckName();
         mAckFunction = dialog.getAckFunction();
+        rename_t& renameList = dialog.getRemameList();
+        rename_it itRename = renameList.begin();
+
+        while (itRename != renameList.end()) {
+            renameAck(itRename->first,
+                       itRename->second);
+            ++itRename;
+        }
+        renameList.clear();
 
         // Check for deleted acknowledge functions in activities
         for (activitiesModel_t::const_iterator it = mDecision->
@@ -1652,6 +1773,20 @@ void PluginDecision::onUserAckFunction()
                 if (find == false) {
                     it->second->delAckFunc();
                 }
+            }
+        }
+    }
+}
+
+void PluginDecision::renameAck(std::string old, std::string news)
+{
+    activitiesModel_t activities = mDecision-> activitiesModel();
+
+    for (activitiesModel_it it = activities.begin();
+         it != activities.end(); ++it) {
+        if (!it->second->getAckFunc().empty()) {
+            if (it->second->getAckFunc().at(0) == old) {
+                it->second->setAckFunc(strings_t(1, news));
             }
         }
     }

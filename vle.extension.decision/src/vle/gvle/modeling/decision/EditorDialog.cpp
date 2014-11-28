@@ -468,6 +468,7 @@ bool EditorDialog::SaveRow(Gtk::TreeModel::Children children)
         oss << (*iter)[m_modelColumnPred.rowNumber];
         toPush += oss.str();
         std::string predName = (*iter)[m_modelColumnPred.predName] + "";
+
         if ((*iter)[m_modelColumnPred.rowType] != ROW_TYPE_EMPTY) {
             mPred[predName].push_back(toPush);
         }
@@ -552,7 +553,29 @@ strings_t::iterator* EditorDialog::InsertPredicate(Gtk::TreeModel::Row pRow,
 }
 
 void EditorDialog::onRenamePred() {
-    mRenamePred->set_sensitive(false);
+    using namespace Gtk;
+
+    Glib::RefPtr < TreeSelection > tree_selection = mTreeVPred->get_selection();
+
+    if (tree_selection) {
+        TreeSelection::ListHandle_Path lst=tree_selection->get_selected_rows();
+        TreeSelection::ListHandle_Path::iterator it = lst.begin();
+        if (it != lst.end()) {
+            Gtk::TreeIter iter = m_refModelPred->get_iter(*it) ;
+            Gtk::TreeModel::Row row(*(iter));
+            int rowType = row.get_value(m_modelColumnPred.rowType);
+            if (rowType == ROW_TYPE_PRED) {
+                std::string predName = row.get_value(m_modelColumnPred.predName);
+                SimpleTypeBox box(("Predicate new name?"), "");
+                std::string newName = boost::trim_copy(box.run());
+                if (box.valid() and checkName(newName)) {
+                     row[m_modelColumnPred.predName] = newName;
+                     row[m_modelColumnPred.pred] = newName;
+                     mRenameList.push_back(std::make_pair(predName, newName));
+                }
+            }
+        }
+    }
 }
 
 }

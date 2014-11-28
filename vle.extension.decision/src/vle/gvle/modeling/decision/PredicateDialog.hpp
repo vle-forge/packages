@@ -49,6 +49,8 @@ namespace decision {
 
 typedef std::vector < std::string > strings_t;
 typedef std::map < std::string, strings_t > hierarchicalPred;
+typedef std::vector < std::pair <std::string, std::string> > rename_t;
+typedef rename_t::const_iterator rename_it;
 
 /**
  * @class PredicateDialog
@@ -91,6 +93,10 @@ public:
  */
     std::map < std::string, std::string > getPredicateFunction() {
         return mPredicateFunction;
+    }
+
+    rename_t& getRemameList() {
+        return mRenameList;
     }
 
 private:
@@ -197,9 +203,11 @@ private:
  */
     void onCursorChangeTreePredicateList();
 
-    strings_t mPredicateName;
+    strings_t                             mPredicateName;
     std::map < std::string, std::string > mPredicateFunction;
-    hierarchicalPred mPred;
+    hierarchicalPred                      mPred;
+
+    rename_t                              mRenameList;
 };
 
 }

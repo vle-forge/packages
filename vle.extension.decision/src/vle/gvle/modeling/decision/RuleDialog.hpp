@@ -42,6 +42,8 @@ namespace decision {
 
 typedef std::vector < std::string > strings_t;
 typedef std::map < std::string, strings_t > hierarchicalPred;
+typedef std::vector < std::pair <std::string, std::string> > rename_t;
+typedef rename_t::const_iterator rename_it;
 
 /**
  * @class RuleDialog
@@ -61,6 +63,10 @@ public:
     int run();
 
     std::map < std::string, strings_t > getRule();
+
+    rename_t& getRemameList() {
+        return mRenameList;
+    }
 
 protected:
     class ModelColumnsRule : public Gtk::TreeModel::ColumnRecord
@@ -135,6 +141,8 @@ private:
     void on_button_press(GdkEventButton* event);
 
     std::list < sigc::connection > mList;
+
+    rename_t mRenameList;
 
     void makeRules();
     void makePredicates();
