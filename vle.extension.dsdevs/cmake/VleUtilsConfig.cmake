@@ -384,7 +384,11 @@ macro (VleBuildDynamic _dynname _cppfiles)
                                "package into the Description.txt file")
         endif ()
         set(__include_dirs "${__include_dirs};${${__vle_pkg_dep}_INCLUDE_DIRS}")
-        set(__libraries "${__libraries};${${__vle_pkg_dep}_LIBRARIES}")
+        if (NOT ${__libraries} STREQUAL "")
+          set(__libraries "${__libraries};${${__vle_pkg_dep}_LIBRARIES}")
+        else ()
+          set(__libraries "${${__vle_pkg_dep}_LIBRARIES}")
+        endif ()
       endif ()    
     endforeach ()
     if (_vle_debug)
@@ -406,8 +410,8 @@ macro (VleBuildDynamic _dynname _cppfiles)
      "${CMAKE_SOURCE_DIR}/src;${VLE_INCLUDE_DIRS};"
      "${Boost_INCLUDE_DIRS};${__include_dirs}")
   endif ()
-  target_link_libraries(${_dynname} "${__libraries};${VLE_LIBRARIES};"
-                                    "${Boost_LIBRARIES}")
+  target_link_libraries(${_dynname} ${__libraries} ${VLE_LIBRARIES}
+                                    ${Boost_LIBRARIES})
   install(TARGETS ${_dynname}
                  RUNTIME DESTINATION plugins/simulator
                  LIBRARY DESTINATION plugins/simulator)
