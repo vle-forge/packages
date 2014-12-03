@@ -102,7 +102,7 @@ struct VarMono : public VarInterface
 
     static double getDefaultInit();
 
-    typedef typename std::deque<VarUpdate*> History;
+    typedef std::deque<VarUpdate*> History;
 
     History history;
     double snapshot;
@@ -120,7 +120,7 @@ struct VarMono : public VarInterface
 
 struct VarMulti : public VarInterface
 {
-    typedef typename std::deque<VectUpdate*> History;
+    typedef std::deque<VectUpdate*> History;
 
     History history;
     std::vector<double> snapshot;
@@ -142,7 +142,7 @@ struct VarMulti : public VarInterface
 
 struct VarValue : public VarInterface
 {
-    typedef typename std::deque<VarValueUpdate*> History;
+    typedef std::deque<VarValueUpdate*> History;
 
     History history;
     vle::value::Value* snapshot;
