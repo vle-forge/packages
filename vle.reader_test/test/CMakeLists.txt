@@ -3,9 +3,16 @@ macro (VleBuildTestTemp _testname _cppfile)
     ${VLE_LIBRARY_DIRS}
     ${Boost_LIBRARY_DIRS})
   add_executable(${_testname} ${_cppfile})
-  target_include_directories(${_testname} PUBLIC
-    "${CMAKE_SOURCE_DIR}/src;${VLE_INCLUDE_DIRS};${Boost_INCLUDE_DIRS};"
+  if (CMAKE_VERSION VERSION_LESS 2.8.12)
+    include_directories(
+     "${CMAKE_SOURCE_DIR}/src;${VLE_INCLUDE_DIRS};${Boost_INCLUDE_DIRS};"
      "${vle.reader_INCLUDE_DIRS}")
+  else ()
+    target_include_directories(${_testname} PUBLIC
+     "${CMAKE_SOURCE_DIR}/src;${VLE_INCLUDE_DIRS};${Boost_INCLUDE_DIRS};"
+     "${vle.reader_INCLUDE_DIRS}")
+  endif ()
+
   target_link_libraries(${_testname}
     ${VLE_LIBRARIES}
     ${Boost_LIBRARIES}
