@@ -80,6 +80,13 @@ public:
      */
     void fill(const std::string& buffer, const devs::Time& loadTime);
     /**
+     * @brief Fill a plan from a stream
+     * @param buffer, string representation of the plan
+     * @param loadTime, the time of plan loading.
+     */
+    void fill(const std::string& buffer, const devs::Time& loadTime,
+         const std::string suffixe);
+    /**
      * @brief Fill a plan from a string
      * @param stream, stream containing the representation of the plan
      * @deprecated the loadTime should be given as second argument
@@ -91,6 +98,13 @@ public:
      * @param loadTime, the time of plan loading.
      */
     void fill(std::istream& stream, const devs::Time& loadTime);
+    /**
+     * @brief Fill a plan from a string
+     * @param stream, stream containing the representation of the plan
+     * @param loadTime, the time of plan loading.
+     */
+    void fill(std::istream& stream, const devs::Time& loadTime,
+              const std::string suffixe);
 
     const Rules& rules() const { return mRules; }
     const Activities& activities() const { return mActivities; }
@@ -102,17 +116,23 @@ private:
     void fillRules(const utils::Block::BlocksResult& rules);
     void fillActivities(const utils::Block::BlocksResult& activities);
     void fill(const utils::Block& root, const devs::Time& loadTime);
+    void fill(const utils::Block& root, const devs::Time& loadTime,
+              const std::string suffixe);
     void fillRules(const utils::Block::BlocksResult& rules,
             const devs::Time& loadTime);
     void fillActivities(const utils::Block::BlocksResult& activities,
-            const devs::Time& loadTime);
-
-
+                        const devs::Time& loadTime);
+    void fillActivities(const utils::Block::BlocksResult& activities,
+                        const devs::Time& loadTime,
+                        const std::string suffixe);
     void fillTemporal(const utils::Block::BlocksResult& temporals,
                               Activity& activity,
                               const devs::Time& loadTime);
     void fillPrecedences(const utils::Block::BlocksResult& precedences,
-            const devs::Time& loadTime);
+                         const devs::Time& loadTime);
+    void fillPrecedences(const utils::Block::BlocksResult& precedences,
+                         const devs::Time& loadTime,
+                         const std::string suffixe);
     /**
      * @brief Get a date into a block with real format (e.g. julian day 2452132)
      * or a date format (e.g. 2001-08-10)
