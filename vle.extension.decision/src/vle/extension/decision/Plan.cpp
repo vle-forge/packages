@@ -79,11 +79,34 @@ void Plan::fill(const std::string& buffer, const devs::Time& loadTime)
     }
 }
 
+void Plan::fill(const std::string& buffer, const devs::Time& loadTime,
+                const std::string suffixe)
+{
+    try {
+        std::istringstream in(buffer);
+        utils::Parser parser(in);
+        fill(parser.root(), loadTime, suffixe);
+    } catch (const std::exception& e) {
+        throw utils::ArgError(fmt(_("Decision plan error in %1%")) % e.what());
+    }
+}
+
 void Plan::fill(std::istream& stream, const devs::Time& loadTime)
 {
     try {
         utils::Parser parser(stream);
         fill(parser.root(), loadTime);
+    } catch (const std::exception& e) {
+        throw utils::ArgError(fmt(_("Decision plan error: %1%")) % e.what());
+    }
+}
+
+void Plan::fill(std::istream& stream, const devs::Time& loadTime,
+                const std::string suffixe)
+{
+    try {
+        utils::Parser parser(stream);
+        fill(parser.root(), loadTime, suffixe);
     } catch (const std::exception& e) {
         throw utils::ArgError(fmt(_("Decision plan error: %1%")) % e.what());
     }
@@ -112,6 +135,12 @@ void Plan::fill(std::istream& stream)
 
 void Plan::fill(const utils::Block& root, const devs::Time& loadTime)
 {
+    fill(root, loadTime, "");
+}
+
+void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
+                const std::string suffixe)
+{
     utils::Block::BlocksResult mainrules, mainactivities, mainprecedences;
 
     mainrules = root.blocks.equal_range("rules");
@@ -129,7 +158,7 @@ void Plan::fill(const utils::Block& root, const devs::Time& loadTime)
     for (it = mainactivities.first; it != mainactivities.second; ++it) {
         utils::Block::BlocksResult activities;
         activities = it->second.blocks.equal_range("activity");
-        fillActivities(activities, loadTime);
+        fillActivities(activities, loadTime, suffixe);
     }
 
     for (it = mainprecedences.first; it != mainprecedences.second; ++it) {
@@ -160,7 +189,14 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
 }
 
 void Plan::fillActivities(const utils::Block::BlocksResult& acts,
-        const devs::Time& loadTime)
+                          const devs::Time& loadTime)
+{
+    fillActivities(acts, loadTime, "");
+}
+
+void Plan::fillActivities(const utils::Block::BlocksResult& acts,
+                          const devs::Time& loadTime,
+                          const std::string suffixe)
 {
     for (UBB::const_iterator it = acts.first; it != acts.second; ++it) {
         const utils::Block& block = it->second;
@@ -170,7 +206,7 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
             throw utils::ArgError(_("Decision: activity needs id"));
         }
 
-        Activity& act = mActivities.add(id.first->second, Activity());
+        Activity& act = mActivities.add(id.first->second + suffixe, Activity());
 
         UB::StringsResult rules = block.strings.equal_range("rules");
         for (UBS::const_iterator jt = rules.first; jt != rules.second; ++jt) {
