@@ -52,3 +52,17 @@ The different steps of the above code do the following :
  (8) read the entire file using the function TableFileReader::readFile.
   This function takes a matrix as argument and will fill it with the data.
 ```
+
+### Use case: read a file line by line
+
+To read the file line by line, use the function _readLine_.
+Starting from the first use case, just replace step 8 by :
+
+```
+...
+vv::Set set;
+tfr.readLine(set);                        //(9)    
+std::cout << set << std::endl;
+tfr.readLine(set);                        //(10)    
+std::cout << set << std::endl;
+```
