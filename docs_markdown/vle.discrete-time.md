@@ -91,7 +91,7 @@ _t - 2*D_. These expressions must be written in the
 _compute_ function.
 
 
-![MISSING FIG](http://www.vle-project.org/pub/1.3/docs/userInterface.png)
+![MISSING FIG](http://www.vle-project.org/pub/1.3/docs/userInterfaceDiscreteTime.png)
 
 **Fig:** A discrete-time model with 6 variables, 3 can be
 updated from external event (inputs), 3 are sent by default at each time step 
@@ -166,9 +166,6 @@ following:
   computing the values of variables (calls of _compute_ user function).
 
 ### Technical details
-
-
-
 
 
 #### Global architecture
