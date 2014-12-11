@@ -1,3 +1,6 @@
+// @@tagtest@@
+// @@tagdepends: vle.tester, vle.reader @@endtagdepends
+
 /*
  * This file is part of VLE, a framework for multi-modeling, simulation
  * and analysis of complex dynamical systems.
