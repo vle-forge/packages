@@ -56,12 +56,15 @@ Or:
     vle --package=vle.forrester clean rclean configure build test
     vle --package=vle.reader_test clean rclean configure build test
     vle --package=vle.recursive_test clean rclean configure build test
-    vle --package=vle.duiscrete-time_test clean rclean configure build test
+    vle --package=vle.discrete-time_test clean rclean configure build test
 
 ### Documentation
 
 * [vle.reader](docs_markdown/vle.reader.md)
 * [vle.tester](docs_markdown/vle.tester.md)
+* [vle.recursive](docs_markdown/vle.recursive.md)
+* [vle.discrete-time, vle.discrete-time.generic, vle.discrete-time.decision](docs_markdown/vle.discrete-time.md)
+* [vle.extension.differential-equation](docs_markdown/vle.extension.differential-equation.md)
 
 ## License
 
