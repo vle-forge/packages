@@ -13,7 +13,7 @@ See AUTHORS and COPYRIGHT files for the list of contributors.
 * boost (>= 1.41)
 * cmake (>= 2.8.0)
 * make (>= 1.8)
-* c++ compiler (gcc >= 4.4, clang >= 3.1, intel icc (>= 11.0)
+* c++ compiler (gcc >= 4.4, clang >= 3.1, intel icc >= 11.0)
 
 ## Getting the code
 
@@ -26,24 +26,38 @@ repository online: https://github.com/vle-forge/packages The URL to clone it:
 
 Once you have met requirements, compiling and installing is simple:
 
-    cd package
+    cd packages
     ./build.sh
 
 Or:
 
-    cd package
-    vle-1.3 --package=vle.output clean rclean configure build test
-    vle-1.3 --package=vle.extension.celldevs clean rclean configure build test
-    vle-1.3 --package=vle.extension.cellqss clean rclean configure build test
-    vle-1.3 --package=vle.extension.decision clean rclean configure build test
-    vle-1.3 --package=vle.extension.difference-equation clean rclean configure build test
-    vle-1.3 --package=vle.extension.differential-equation clean rclean configure build test
-    vle-1.3 --package=vle.extension.dsdevs clean rclean configure build test
-    vle-1.3 --package=vle.extension.fsa clean rclean configure build test
-    vle-1.3 --package=vle.extension.petrinet clean rclean configure build test
-    vle-1.3 --package=vle.examples clean rclean configure build test
-    vle-1.3 --package=vle.examples ext.muparser clean rclean configure build test
-    vle-1.3 --package=vle.examples vle.forrester clean rclean configure build test
+    cd packages
+    vle --package=vle.output clean rclean configure build test
+    vle --package=vle.extension.celldevs clean rclean configure build test
+    vle --package=vle.discrete-time clean rclean configure build test
+    vle --package=vle.discrete-time.generic clean rclean configure build test
+    vle --package=vle.extension.cellqss clean rclean configure build test
+    vle --package=vle.extension.decision clean rclean configure build test
+    vle --package=vle.discrete-time.decision clean rclean configure build test
+    vle --package=vle.reader clean rclean configure build test
+    vle --package=vle.tester clean rclean configure build test
+    vle --package=vle.recursive clean rclean configure build test
+    vle --package=vle.extension.difference-equation clean rclean configure build test
+    vle --package=vle.extension.differential-equation clean rclean configure build test
+    vle --package=vle.extension.differential-equation_test clean rclean configure build test
+    vle --package=vle.extension.dsdevs clean rclean configure build test
+    vle --package=vle.extension.fsa clean rclean configure build test
+    vle --package=vle.extension.petrinet clean rclean configure build test
+    vle --package=vle.examples clean rclean configure build test
+    vle --package=ext.muparser clean rclean configure build test
+    vle --package=vle.forrester clean rclean configure build test
+    vle --package=vle.reader_test clean rclean configure build test
+    vle --package=vle.recursive_test clean rclean configure build test
+    vle --package=vle.duiscrete-time_test clean rclean configure build test
+
+## Documentation
+
+* [vle.reader](docs_markdown/vle.reader.md)
 
 ## License
 
