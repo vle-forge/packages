@@ -164,7 +164,7 @@ void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
     for (it = mainprecedences.first; it != mainprecedences.second; ++it) {
         utils::Block::BlocksResult precedences;
         precedences = it->second.blocks.equal_range("precedence");
-        fillPrecedences(precedences, loadTime);
+        fillPrecedences(precedences, loadTime, suffixe);
     }
 }
 
@@ -318,7 +318,14 @@ void Plan::fillTemporal(const utils::Block::BlocksResult& temps,
 }
 
 void Plan::fillPrecedences(const utils::Block::BlocksResult& preds,
-        const devs::Time&)
+                           const devs::Time& loadTime)
+{
+    fillPrecedences(preds, loadTime, "");
+}
+
+void Plan::fillPrecedences(const utils::Block::BlocksResult& preds,
+                           const devs::Time&,
+                           const std::string suffixe)
 {
     for (UBB::const_iterator it = preds.first; it != preds.second; ++it) {
         const utils::Block& block = it->second;
@@ -329,12 +336,12 @@ void Plan::fillPrecedences(const utils::Block::BlocksResult& preds,
 
         UB::StringsResult first = block.strings.equal_range("first");
         if (first.first != first.second) {
-            valuefirst = first.first->second;
+            valuefirst = first.first->second + suffixe;
         }
 
         UB::StringsResult second = block.strings.equal_range("second");
         if (second.first != second.second) {
-            valuesecond = second.first->second;
+            valuesecond = second.first->second + suffixe;
         }
 
         UB::RealsResult mintl = block.reals.equal_range("mintimelag");

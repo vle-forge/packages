@@ -129,7 +129,10 @@ private:
                               Activity& activity,
                               const devs::Time& loadTime);
     void fillPrecedences(const utils::Block::BlocksResult& precedences,
-            const devs::Time& loadTime);
+                         const devs::Time& loadTime);
+    void fillPrecedences(const utils::Block::BlocksResult& precedences,
+                         const devs::Time& loadTime,
+                         const std::string suffixe);
     /**
      * @brief Get a date into a block with real format (e.g. julian day 2452132)
      * or a date format (e.g. 2001-08-10)
