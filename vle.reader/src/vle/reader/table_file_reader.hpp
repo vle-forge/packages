@@ -60,16 +60,14 @@ public:
         boost::replace_all(file_path, "\n", "");
     }
 
-    TableFileReader(const std::string& filepath, const vv::Map& params) :
-        file_path(filepath), filestream(0), params_parser(params), report()
-    {
-        boost::replace_all(file_path, "\r\n", "");
-        boost::replace_all(file_path, "\n", "");
-    }
-
     virtual ~TableFileReader()
     {
         clearFileStream();
+    }
+
+    void setParams(const vv::Map& params)
+    {
+        params_parser.set_params(params);
     }
 
     bool readLine(std::string& lineStr)

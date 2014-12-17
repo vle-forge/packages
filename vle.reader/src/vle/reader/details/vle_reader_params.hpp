@@ -41,8 +41,7 @@ struct vle_reader_params
     {
     }
 
-    vle_reader_params(const vv::Map& params) :
-        separator(" "), col_types()
+    void set_params(const vv::Map& params)
     {
         if (params.exist("sep")) {
             separator.assign(params.getString("sep"));

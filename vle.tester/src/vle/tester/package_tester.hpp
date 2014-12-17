@@ -78,7 +78,8 @@ public:
         cols.addString("string");//expected double or string
         cols.addString("string");//precision for double or NA for string
 
-        vle::reader::TableFileReader tfr(test_file_path, params);
+        vle::reader::TableFileReader tfr(test_file_path);
+        tfr.setParams(params);
         vv::Matrix resParsing;
         tfr.readFile(resParsing);
 

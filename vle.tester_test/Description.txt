@@ -1,0 +1,13 @@
+Package: vle.tester_test
+Version: 0.1.0
+Depends: vle.output
+Build-Depends: vle.reader, vle.tester
+Conflicts:
+Maintainer: Ronan Trépos <ronan.trepos@toulouse.inra.fr>
+Description: Test package for vle.tester
+ .
+Tags: vle tester test
+Url: http://www.vle-project.org/pub/1.3
+Size: 0
+MD5sum: xxxx
+

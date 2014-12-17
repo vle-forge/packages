@@ -3,9 +3,7 @@
  * and analysis of complex dynamical systems.
  * http://www.vle-project.org
  *
- * Copyright (c) 2003-2013 Gauthier Quesnel <quesnel@users.sourceforge.net>
- * Copyright (c) 2003-2013 ULCO http://www.univ-littoral.fr
- * Copyright (c) 2007-2013 INRA http://www.inra.fr
+ * Copyright (c) 2014-2014 INRA http://www.inra.fr
  *
  * See the AUTHORS or Authors.txt file for copyright owners and
  * contributors
@@ -24,6 +22,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//@@tagtest@@
+//@@tagdepends: vle.reader @@endtagdepends
 
 #define BOOST_TEST_MAIN
 #define BOOST_AUTO_TEST_MAIN
@@ -52,11 +52,13 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         columns.addString("double");
         columns.addString("double");
         vle::utils::Package pkg("vle.reader_test");
-        vle::reader::TableFileReader tfr(pkg.getDataFile("data.txt"),params);
+        vle::reader::TableFileReader tfr(pkg.getDataFile("data.txt"));
+        tfr.setParams(params);
         vle::value::Matrix mat;
         tfr.readFile(mat);
         BOOST_REQUIRE_CLOSE(mat.getDouble(2,1), 10.3, 10e-5);
-        vle::reader::TableFileReader tfr2(pkg.getDataFile("data.txt"),params);
+        vle::reader::TableFileReader tfr2(pkg.getDataFile("data.txt"));
+        tfr2.setParams(params);
         vle::value::Set set;
         tfr2.readLine(set);
         BOOST_REQUIRE_CLOSE(set.getDouble(2), 6, 10e-5);
@@ -72,12 +74,14 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         columns.addString("double");
         vle::utils::Package pkg("vle.reader_test");
         vle::reader::TableFileReader tfr(
-                pkg.getDataFile("dataWithCommaSep.txt"),params);
+                pkg.getDataFile("dataWithCommaSep.txt"));
+        tfr.setParams(params);
         vle::value::Matrix mat;
         tfr.readFile(mat);
         BOOST_REQUIRE_CLOSE(mat.getDouble(2,1), 10.3, 10e-5);
         vle::reader::TableFileReader tfr2(
-                pkg.getDataFile("dataWithCommaSep.txt"),params);
+                pkg.getDataFile("dataWithCommaSep.txt"));
+        tfr2.setParams(params);
         vle::value::Set set;
         tfr2.readLine(set);
         BOOST_REQUIRE_CLOSE(set.getDouble(2), 25, 10e-5);
