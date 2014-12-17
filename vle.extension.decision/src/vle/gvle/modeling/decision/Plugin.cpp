@@ -106,22 +106,24 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{for i in addAckFunctionList}}"                                   \
     "{{addAckFunctionList^i}}"                                          \
     "{{end for}}\n"                                                     \
-    "        //Plan initialisation\n"                                   \
-    "        std::string dataPackageParam;\n"                           \
     "        if (evts.exist(\"PackageName\"))\n"                        \
-    "          dataPackageParam = evts.getString(\"PackageName\");\n"   \
+    "          mDataPackageParam = evts.getString(\"PackageName\");\n"  \
     "        else\n"                                                    \
     "          throw vle::utils::ModellingError(\n"                     \
     "             \"Package where to find the data is not set\");\n"    \
-    "        vle::utils::Package mPack(dataPackageParam);\n"            \
-    "        std::string filePath =\n"                                  \
-    "        mPack.getDataFile(\"{{classname}}.txt\");\n"               \
-    "        std::ifstream fileStream(filePath.c_str());\n"             \
-    "        KnowledgeBase::plan().fill(fileStream);\n"                 \
     "    }\n"                                                           \
     "\n"                                                                \
     "    virtual ~{{classname}}()\n"                                    \
     "    {}\n\n"                                                        \
+    "    vd::Time init(const vd::Time& time)\n"                         \
+    "    {\n"                                                           \
+    "        vle::utils::Package mPack(mDataPackageParam);\n"           \
+    "        std::string filePath =\n"                                  \
+    "        mPack.getDataFile(\"{{classname}}.txt\");\n"               \
+    "        std::ifstream fileStream(filePath.c_str());\n"             \
+    "        KnowledgeBase::plan().fill(fileStream, time);\n"           \
+    "        return Agent::init(time);\n"                               \
+    "    }\n\n"                                                         \
     "//@@begin:definition@@\n"                                          \
     "{{definition}}"                                                    \
     "//@@end:definition@@\n"                                            \
@@ -150,7 +152,8 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{ackFunctionList^i}}\n\n"                                         \
     "{{end for}}"                                                       \
     "private:\n"                                                        \
-    "        //Custom members"                                          \
+    "   std::string mDataPackageParam;\n"                               \
+    "//Custom members"                                                  \
     "//@@begin:custommembers@@\n"                                       \
     "{{custommembers}}"                                                 \
     "//@@end:custommembers@@\n"                                         \
