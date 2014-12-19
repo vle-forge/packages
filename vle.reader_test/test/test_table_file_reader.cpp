@@ -97,4 +97,30 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         BOOST_REQUIRE((header.size() == 3));
         BOOST_REQUIRE((header.getString(2) == "V3"));
     }
+    {//readLineUndo
+        vle::value::Map params;
+        params.addString("sep"," ");
+        vle::value::Set& columns = params.addSet("columns");
+        columns.addString("double");
+        columns.addString("double");
+        columns.addString("double");
+        vle::utils::Package pkg("vle.reader_test");
+        vle::reader::TableFileReader tfr(pkg.getDataFile("data.txt"));
+        tfr.setParams(params);
+        vle::value::Set set;
+        tfr.readLine(set);
+        std::cout << " 1: " << set << std::endl;
+        BOOST_REQUIRE_CLOSE(set.getDouble(2), 6, 10e-5);
+        tfr.readLineUndo();
+        tfr.readLine(set);
+        std::cout << " 2: " << set << std::endl;
+        BOOST_REQUIRE_CLOSE(set.getDouble(2), 6, 10e-5);
+        tfr.readLine(set);
+        std::cout << " 3: " << set << std::endl;
+        BOOST_REQUIRE_CLOSE(set.getDouble(2), 10.3, 10e-5);
+        tfr.readLineUndo();
+        tfr.readLine(set);
+        std::cout << " 4: " << set << std::endl;
+        BOOST_REQUIRE_CLOSE(set.getDouble(2), 10.3, 10e-5);
+    }
 }

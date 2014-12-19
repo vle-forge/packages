@@ -49,12 +49,13 @@ class TableFileReader
 public:
 
     TableFileReader() :
-        file_path(), filestream(0), params_parser(), report()
+        file_path(), filestream(0), params_parser(), report(), stream_place(0)
     {
     }
 
     TableFileReader(const std::string& filepath) :
-        file_path(filepath), filestream(0), params_parser(), report()
+        file_path(filepath), filestream(0), params_parser(), report(),
+        stream_place()
     {
         boost::replace_all(file_path, "\r\n", "");
         boost::replace_all(file_path, "\n", "");
@@ -114,6 +115,17 @@ public:
         }
         return true;
     }
+
+    bool readLineUndo()
+    {
+        if (filestream != 0) {
+            filestream->seekg(stream_place);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     bool readFile(vv::Matrix& matrixToFill)
     {
         clearFileStream();
@@ -160,10 +172,12 @@ private:
     std::ifstream* filestream;
     vle_reader_params params_parser;
     std::vector<std::string> report;
+    int stream_place;
 
 
     bool parseLine(TFR_line_grammar& g, std::string& line)
     {
+        stream_place = filestream->tellg();
         std::getline(*filestream, line);
         if (not line.empty()) {
             parse_info<> resParsing =
@@ -191,6 +205,7 @@ private:
             delete filestream;
             filestream = 0;
         }
+        stream_place = -1;
     }
     void openFileStream()
     {
@@ -199,6 +214,7 @@ private:
             throw vu::ArgError(vle::fmt("vle.reader: fails to topen %1% ") %
                     file_path);
         }
+        stream_place = filestream->tellg();
     }
 };
 
