@@ -71,8 +71,17 @@ DiscreteTimeDyn::DiscreteTimeDyn(const vd::DynamicsInit& model,
                 !event_name.compare(0, prefix.size(), prefix)) {
             var_name.assign(event_name.substr(prefix.size()+1,
                     event_name.size()));
-            devs_options.syncs.insert(std::make_pair(var_name,
-                    itb->second->toInteger().value()));
+            int sync;
+            if (itb->second->isInteger()) {
+                sync = itb->second->toInteger().value();
+            } else {
+                if (itb->second->toBoolean().value()) {
+                    sync = 1;
+                } else {
+                    sync = 0;
+                }
+            }
+            devs_options.syncs.insert(std::make_pair(var_name, sync));
         }
     }
 }
