@@ -224,6 +224,7 @@ public:
 
     void history_size(unsigned int s);
     void dim(unsigned int s);
+    unsigned int dim() const;
 
     Vect_i operator[](unsigned int i);
 };

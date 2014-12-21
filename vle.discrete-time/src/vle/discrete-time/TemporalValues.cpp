@@ -54,7 +54,6 @@ VectUpdate::VectUpdate(const vle::devs::Time& t, const vle::value::Tuple& val):
 
 VectUpdate::~VectUpdate()
 {
-
 }
 
 void
@@ -296,6 +295,11 @@ double
 VarMulti::getVal(unsigned int i, const vle::devs::Time& t,
         double delay) const
 {
+    if (i >= dim) {
+        throw vle::utils::ModellingError(vle::fmt("[%1%] tried to access "
+                "to index `%2%` of a Vect of size `%4%`.")
+        % tvp->get_model_name() % i % dim);
+    }
     const std::vector<double>& value = getVal(t,delay);
     return value[i];
 }
@@ -698,9 +702,20 @@ Vect::dim(unsigned int s)
     dynamic_cast<VarMulti*>(itVar)->dim = s;
 }
 
+unsigned int
+Vect::dim() const
+{
+    return dynamic_cast<const VarMulti*>(itVar)->dim;
+}
+
 Vect_i
 Vect::operator[](unsigned int i)
 {
+    if (i >= dim()) {
+        throw vle::utils::ModellingError(vle::fmt("[%1%] error access to index"
+                " `%2%` of Vect `%3%` which has size `%4%`.") %
+                itVar->tvp->get_model_name() % i % name % dim());
+    }
     return Vect_i(itVar,i);
 }
 
