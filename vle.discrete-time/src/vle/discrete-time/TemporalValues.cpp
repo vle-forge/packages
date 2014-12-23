@@ -587,12 +587,11 @@ Var::operator=(double v)
                 vle::fmt("Operator= cannot be used before init \n"));
     }
     if (itVar->history.size() == 0) {
-        throw vle::utils::ModellingError(
-                vle::fmt("[%1%] update of variable cannot be performed "
-                        "with a empty history (use init_value if possible) \n")
-        % itVar->tvp->get_model_name());
+        delete itVar->init_value;
+        itVar->init_value = new vle::value::Double(v);
+    } else {
+        itVar->update(itVar->tvp->getCurrentTime(), v);
     }
-    itVar->update(itVar->tvp->getCurrentTime(), v);
 }
 
 Vect_i::Vect_i(VarMulti* itv, unsigned int d):
@@ -610,14 +609,34 @@ Vect_i::operator()(double delay)
 double
 Vect_i::operator()()
 {
-    return itVar->getVal(dim, itVar->tvp->getCurrentTime(), 0);
+    if (itVar->history.size() == 0) {
+        //get init value
+        if (!(itVar->init_value && itVar->init_value->isTuple()
+                && itVar->init_value->toTuple().size() == itVar->dim)) {
+            return VarMono::getDefaultInit();
+        } else {
+           return itVar->init_value->toTuple().value()[dim];
+        }
+    } else {
+        return itVar->getVal(dim, itVar->tvp->getCurrentTime(), 0);
+    }
 }
 
 
 void
 Vect_i::operator=(double val)
 {
-    itVar->update(itVar->tvp->getCurrentTime(), dim, val);
+    if (itVar->history.size() == 0) {
+        //update init value
+        if (!(itVar->init_value && itVar->init_value->isTuple()
+                && itVar->init_value->toTuple().size() == itVar->dim)) {
+            delete itVar->init_value;
+            itVar->init_value = new vle::value::Tuple(itVar->dim, 0);
+        }
+        itVar->init_value->toTuple().value()[dim] = val;
+    } else {
+        itVar->update(itVar->tvp->getCurrentTime(), dim, val);
+    }
 }
 
 
