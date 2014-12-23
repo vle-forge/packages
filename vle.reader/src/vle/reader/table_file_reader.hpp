@@ -93,11 +93,11 @@ public:
         TFR_set_tofill tofill(params_parser, lineToFill);
         TFR_line_grammar g(params_parser, tofill);
         std::string line;
-        parseLine(g, line);
+        bool res = parseLine(g, line);
         if (filestream->eof() or not filestream->good()) {
             clearFileStream();
         }
-        return true;
+        return res;
     }
 
     bool readLine(vv::Set& lineToFill)
@@ -105,15 +105,14 @@ public:
         if (filestream == 0) {
             openFileStream();
         }
-
         TFR_set_tofill tofill(params_parser, lineToFill);
         TFR_line_grammar g(params_parser, tofill);
         std::string line;
-        parseLine(g, line);
+        bool res = parseLine(g, line);
         if (filestream->eof() or not filestream->good()) {
             clearFileStream();
         }
-        return true;
+        return res;
     }
 
     bool readLineUndo()
@@ -134,14 +133,13 @@ public:
         TFR_matrix_tofill tofill(params_parser, matrixToFill);
         TFR_line_grammar g(params_parser, tofill);
         std::string line;
-
+        bool res = true;
         do {
-            parseLine(g,line);
+            res = res & parseLine(g,line);
             tofill.nextRow();
         } while (not filestream->eof() and filestream->good());
-
         clearFileStream();
-        return true;
+        return res;
     }
     bool hasError()
     {
@@ -179,6 +177,9 @@ private:
     {
         stream_place = filestream->tellg();
         std::getline(*filestream, line);
+        if (line.empty()) {
+            return false;
+        }
         if (not line.empty()) {
             parse_info<> resParsing =
                     BOOST_SPIRIT_CLASSIC_NS::parse(line.c_str(), g);
@@ -187,12 +188,15 @@ private:
                 report_line << line << " (failed to parse, reason: "
                         << resParsing.stop << ")";
                 report.push_back(report_line.str());
-            } else if (g.tofill.params.col_types.size() != g.tofill.currColIndex){
+                return false;
+            } else if ((g.tofill.params.col_types.size() > 0) &&
+                    (g.tofill.params.col_types.size()!= g.tofill.currColIndex)){
                 std::ostringstream report_line;
                 report_line << line << " (wrong number of elements, expected: "
                         << g.tofill.params.col_types.size() <<  "; got "
                         << g.tofill.currColIndex << ")";
                 report.push_back(report_line.str());
+                return false;
             }
         }
         return true;

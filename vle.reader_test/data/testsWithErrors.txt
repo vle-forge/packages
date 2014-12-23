@@ -1,6 +1,0 @@
-vle.examples equation1.vpz view "m:A.a" 11 10e-5 10
-vle.examples equation1.vpz view "m:B.b" 11 10e-5 52
-vle.examples equation1.vpz view "m:C.c" 11 10e-5 146
-vle.examples equation1.vpz view "m:D.d" 11 10e-5 461
-vle.examples equation1.vpz view "m:sum.s" 11 10e-5 670
-
