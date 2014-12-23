@@ -26,6 +26,6 @@
 //@@tagdepends: vle.tester, vle.reader @@endtagdepends
 
 #include <vle/tester/package_tester.hpp>
-//VLE_UTILS_TEST("vle.reader_test","testsWithErrors.txt");
-VLE_UTILS_TEST("vle.reader_test","testsWithoutErrors.txt");
+//VLE_UTILS_TEST("vle.tester_test","testsWithErrors.txt");
+VLE_UTILS_TEST("vle.tester_test","testsWithoutErrors.txt");
 
