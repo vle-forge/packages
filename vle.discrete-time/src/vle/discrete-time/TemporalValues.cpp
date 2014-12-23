@@ -233,7 +233,7 @@ VarMono::update(const vle::devs::Time& t, double val)
         }
     } else {
         history.push_back(new VarUpdate(t,val));
-        if((t-history.front()->timeOfUpdate) > history_size){
+        if (history.size() > history_size) {
             delete history.front();
             history.pop_front();
         }
@@ -331,7 +331,7 @@ VarMulti::update(const vle::devs::Time& t, const vle::value::Value& val)
         }
     } else {
         history.push_back(new VectUpdate(t,val.toTuple()));
-        if((t-history.front()->timeOfUpdate) > history_size){
+        if(history.size() > history_size){
             delete history.front();
             history.pop_front();
         }
@@ -350,7 +350,7 @@ VarMulti::update(const vle::devs::Time& t, unsigned int d, double val)
         VectUpdate* vu = new VectUpdate(t, dim, false);
         vu->value[d] = val;
         history.push_back(vu);
-        if((t-history.front()->timeOfUpdate) > history_size){
+        if(history.size() > history_size){
             delete history.front();
             history.pop_front();
         }
@@ -413,7 +413,7 @@ VarValue::update(const vle::devs::Time& t, const vle::value::Value& val)
         }
     } else {
         history.push_back(new VarValueUpdate(t,val.clone()));
-        if((t-history.front()->timeOfUpdate) > history_size){
+        if(history.size() > history_size){
             history.pop_front();
         }
     }
@@ -499,7 +499,7 @@ Var::init(TemporalValuesProvider* tvpin, const std::string& varName,
     port.assign("history_size_");
     port += name;
     itf = initMap.find(port);
-    itVar->history_size = 1;
+    itVar->history_size = 3;
     itVar->history_size_given = false;
     if (itf != ite) {
         itVar->history_size = itf->second->toInteger().value();
@@ -776,7 +776,7 @@ ValueVle::init(TemporalValuesProvider* tvpin, const std::string& varName,
     port.assign("history_size_");
     port += name;
     itf = initMap.find(port);
-    itVar->history_size = 1;//Default
+    itVar->history_size = 3;//Default
     itVar->history_size_given = false;
     if (itf != ite) {
         itVar->history_size = itf->second->toInteger().value();
