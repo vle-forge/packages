@@ -36,9 +36,16 @@ namespace vle { namespace extension { namespace decision {
 class Rule
 {
 public:
-    void add(const Predicate& pred) { m_predicats.add(pred); }
+    void add(const Predicate& pred)
+    {
+        m_predicats.add(pred);
+    }
 
-    bool isAvailable() const { return m_predicats.isAvailable(); }
+    bool isAvailable(const std::string& activity,
+                     const std::string& rule) const
+    {
+        return m_predicats.isAvailable(activity, rule);
+    }
 
 private:
     Predicates m_predicats;

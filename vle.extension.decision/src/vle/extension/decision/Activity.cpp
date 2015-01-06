@@ -32,10 +32,10 @@
 
 namespace vle { namespace extension { namespace decision {
 
-bool Activity::validRules() const
+bool Activity::validRules(const std::string& activity) const
 {
     if (not m_rules.empty()) {
-        Rules::result_t result = m_rules.apply();
+        Rules::result_t result = m_rules.apply(activity);
         return not result.empty();
     }
     return true;
@@ -218,4 +218,3 @@ bool Activity::isAfterTimeConstraint(const devs::Time& time) const
 }
 
 }}} // namespace vle model decision
-

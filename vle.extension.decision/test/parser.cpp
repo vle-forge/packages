@@ -312,7 +312,8 @@ void parser()
     EnsuresEqual(
         b.activities().get("activity2")->second.rules().size(), 2);
     EnsuresEqual(
-        b.activities().get("activity5")->second.rules().get("rule 4").isAvailable(),
+        b.activities().get("activity5")->second.rules().get("rule 4").
+        isAvailable("activity5", "rule 4"),
         false);
 }
 

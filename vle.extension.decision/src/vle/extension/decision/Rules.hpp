@@ -35,6 +35,8 @@
 
 namespace vle { namespace extension { namespace decision {
 
+class Activity;
+
 class Rules
 {
 public:
@@ -49,7 +51,7 @@ public:
 
     Rule& add(const std::string& name, const Predicate& pred);
 
-    result_t apply() const;
+    result_t apply(const std::string& activity) const;
 
     const Rule& get(const std::string& name) const;
 
@@ -69,7 +71,7 @@ inline std::ostream& operator<<(std::ostream& s, const Rules& o)
     std::ios_base::fmtflags fl = s.flags();
     s << std::boolalpha << "rules:";
     for (Rules::const_iterator it = o.begin(); it != o.end(); ++it) {
-        s << " (" << it->first << "," << it->second.isAvailable() << ")";
+        s << " (" << it->first << ")";
     }
     s.flags(fl);
     return s;

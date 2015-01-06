@@ -190,14 +190,11 @@ std::unique_ptr<vle::value::Value> Agent::observation(
         const Activity& act(activities().get(activity)->second);
         std::stringstream out;
         out << act.state();
-        return std::unique_ptr<vle::value::Value>(new value::String(out.str()));
-    } else if ((port.compare(0, 6, "Rules_") == 0) and port.size() > 6) {
-        std::string rule(port, 6, std::string::npos);
-        const Rule& ru(rules().get(rule));
-        return std::unique_ptr<vle::value::Value>(
-                new value::Boolean(ru.isAvailable()));
+        return  std::unique_ptr<vle::value::Value>(
+            new value::String(out.str()));
     }
-    return 0;
+
+    return vle::devs::Dynamics::observation(event);
 }
 
 void Agent::finish()
@@ -205,4 +202,3 @@ void Agent::finish()
 }
 
 }}} // namespace vle ext decision
-

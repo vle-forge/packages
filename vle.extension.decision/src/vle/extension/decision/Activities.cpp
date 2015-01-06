@@ -449,7 +449,7 @@ Activities::processWaitState(iterator activity,
     switch (newstate.first) {
     case PrecedenceConstraint::Valid:
     case PrecedenceConstraint::Inapplicable:
-        if (activity->second.validRules()) {
+        if (activity->second.validRules(activity->first)) {
             activity->second.start(time);
             m_startedAct.push_back(activity);
             m_latestStartedAct.push_back(activity);
@@ -614,4 +614,3 @@ PrecedenceConstraint::Result Activities::updateState(iterator activity,
 }
 
 }}} // namespace vle model decision
-

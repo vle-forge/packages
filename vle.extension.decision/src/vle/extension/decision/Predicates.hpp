@@ -39,7 +39,8 @@ namespace vle { namespace extension { namespace decision {
  * @brief Defines a Predicate like a function which returns a boolean
  * without parameter.
  */
-typedef std::function < bool (void) > Predicate;
+
+typedef std::function < bool (const std::string&, const std::string&) > Predicate;
 
 class Predicates
 {
@@ -51,7 +52,7 @@ public:
 
     void add(const Predicate& pred) { m_lst.push_back(pred); }
 
-    bool isAvailable() const;
+    bool isAvailable(const std::string& activity, const std::string& rule) const;
 
     iterator begin() { return m_lst.begin(); }
     const_iterator begin() const { return m_lst.begin(); }
