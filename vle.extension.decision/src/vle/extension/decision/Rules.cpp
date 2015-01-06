@@ -58,17 +58,14 @@ Rule& Rules::add(const std::string& name, const Predicate& pred)
     }
 }
 
-Rules::result_t Rules::apply() const
+Rules::result_t Rules::apply(const std::string& activity) const
 {
     result_t result;
-    const_iterator it(m_lst.begin());
 
-    while (it != m_lst.end()) {
-        if (it->second.isAvailable()) {
+    for (const_iterator it = m_lst.begin(), et = m_lst.end(); it != et; ++it)
+        if (it->second.isAvailable(activity, it->first))
             result.push_back(it);
-        }
-        ++it;
-    }
+
     return result;
 }
 
@@ -85,4 +82,3 @@ const Rule& Rules::get(const std::string& name) const
 }
 
 }}} // namespace vle model decision
-

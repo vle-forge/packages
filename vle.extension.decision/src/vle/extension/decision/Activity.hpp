@@ -159,7 +159,7 @@ public:
     void setRules(const Rules& rules)
     { m_rules = rules; }
 
-    bool validRules() const;
+    bool validRules(const std::string& activity) const;
 
     //
     // manage time constraint

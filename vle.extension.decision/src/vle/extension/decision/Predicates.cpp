@@ -30,13 +30,12 @@
 
 namespace vle { namespace extension { namespace decision {
 
-bool Predicates::isAvailable() const
+bool Predicates::isAvailable(const std::string& activity, const std::string& rule) const
 {
-    for (const_iterator it = m_lst.begin(); it != m_lst.end(); ++it) {
-        if ((*it)() == false) {
+    for (const_iterator it = m_lst.begin(); it != m_lst.end(); ++it)
+        if ((*it)(activity, rule) == false)
             return false;
-        }
-    }
+
     return true;
 }
 
