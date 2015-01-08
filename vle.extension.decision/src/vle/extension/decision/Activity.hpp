@@ -193,6 +193,8 @@ public:
     bool isValidTimeConstraint(const devs::Time& time) const;
     bool isBeforeTimeConstraint(const devs::Time& time) const;
     bool isAfterTimeConstraint(const devs::Time& time) const;
+    bool isValidHorizonTimeConstraint(const devs::Time& lowerBound,
+                                      const devs::Time& upperBound) const;
 
     const State& state() const { return m_state; }
     bool isInWaitState() const { return m_state == WAIT; }
