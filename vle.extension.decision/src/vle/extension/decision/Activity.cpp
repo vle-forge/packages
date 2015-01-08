@@ -215,4 +215,27 @@ bool Activity::isAfterTimeConstraint(const devs::Time& time) const
             _("Decision: activity time type invalid: %1%")) % (int)m_date);
 }
 
+bool Activity::isValidHorizonTimeConstraint(const devs::Time& lowerBound,
+                                            const devs::Time& upperBound) const
+{
+    switch (m_date & (START | FINISH | MINS | MAXS | MINF | MAXF)) {
+    case START | FINISH:
+        return m_start <= upperBound and lowerBound <= m_finish;
+
+    case START | MINF | MAXF:
+        return m_start <= upperBound  and lowerBound <= m_maxfinish;
+
+    case MINS | MAXS | FINISH:
+        return m_minstart <= upperBound and lowerBound <= m_maxfinish;
+
+    case MINS | MAXS | MINF | MAXF:
+        return m_minstart <= upperBound and lowerBound <= m_maxfinish;
+
+    default:
+        break;
+    }
+    throw utils::InternalError(fmt(
+            _("Decision: activity time type invalid: %1%")) % (int)m_date);
+}
+
 }}} // namespace vle model decision

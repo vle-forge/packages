@@ -223,6 +223,10 @@ public:
     const Activities::result_t& latestEndedAct() const
     { return m_latestEndedAct; }
 
+    Activities::const_result_t beforeTimeHorizonAct(
+        const devs::Time& lowerBound,
+        const devs::Time& upperBound) const;
+
     void removeWaitedAct(Activities::iterator it);
     void removeStartedAct(Activities::iterator it);
     void removeFailedAct(Activities::iterator it);
