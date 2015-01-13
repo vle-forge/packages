@@ -145,6 +145,7 @@ private:
                        const devs::Time& loadTime) const;
 
     KnowledgeBase& mKb;
+    Predicates mPredicates;
     Rules mRules;
     Activities mActivities;
 };

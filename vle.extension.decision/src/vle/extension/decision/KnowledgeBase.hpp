@@ -39,7 +39,7 @@
 namespace vle { namespace extension { namespace decision {
 
 typedef Table < Fact > FactsTable;
-typedef Table < Predicate > PredicatesTable;
+typedef Table < PredicateFunction > PredicatesTable;
 typedef Table < Activity::AckFct > AcknowledgeFunctions;
 typedef Table < Activity::OutFct > OutputFunctions;
 typedef Table < Activity::UpdateFct > UpdateFunctions;
@@ -585,14 +585,18 @@ AddFacts < X > operator,(AddFacts < X > add, f < F > pred)
 template < typename X, typename F >
 AddPredicates < X > operator+=(AddPredicates < X > add, p < F > pred)
 {
-    add.kb->predicates().add(pred.name, std::bind(pred.func, add.kb));
+    add.kb->predicates().add(pred.name,
+            std::bind(pred.func, add.kb, std::placeholders::_1,
+                      std::placeholders::_2, std::placeholders::_3));
     return add;
 }
 
 template < typename X, typename F >
 AddPredicates < X > operator,(AddPredicates < X > add, p < F > pred)
 {
-    add.kb->predicates().add(pred.name, std::bind(pred.func, add.kb));
+    add.kb->predicates().add(pred.name,
+            std::bind(pred.func, add.kb,std::placeholders::_1,
+                    std::placeholders::_2, std::placeholders::_3));
     return add;
 }
 
