@@ -1,5 +1,5 @@
 /*
- * @file vle/extension/decision/Rule.hpp
+ * @file vle/extension/decision/Rule.cpp
  *
  * This file is part of VLE, a framework for multi-modeling, simulation
  * and analysis of complex dynamical systems
@@ -26,34 +26,46 @@
  */
 
 
-#ifndef VLE_EXT_DECISION_RULE_HPP
-#define VLE_EXT_DECISION_RULE_HPP
+#include <vle/extension/decision/Rule.hpp>
 
-#include <vle/extension/decision/Predicates.hpp>
-#include <vector>
-#include <string>
 
 namespace vle { namespace extension { namespace decision {
 
-class Rule
+Rule::Rule()
 {
-public:
-    Rule();
+    m_predicates.reserve(4u);
+    m_predicates_function.reserve(4u);
+}
 
-    void add(const Predicate *pred);
+void Rule::add(const Predicate *pred)
+{
+    if (not pred)
+        throw vle::utils::ArgError(_("Add a null Predicate"));
 
-    /**
-     * To keep compatiblity with oldest API.
-     */
-    void add(const PredicateFunction& function);
+    m_predicates.push_back(pred);
+}
 
-    bool isAvailable(const std::string& activity, const std::string& rule) const;
+void Rule::add(const PredicateFunction& function)
+{
+    m_predicates_function.push_back(function);
+}
 
-private:
-    std::vector <const Predicate *> m_predicates;
-    std::vector <PredicateFunction> m_predicates_function;
-};
+bool Rule::isAvailable(const std::string& activity,
+                       const std::string& rule) const
+{
+    for (size_t i = 0, e = m_predicates.size(); i != e; ++i)
+        if (not m_predicates[i]->isAvailable(activity, rule))
+            return false;
+
+    if (not m_predicates_function.empty()) {
+        PredicateParameters empty;
+
+        for (size_t i = 0, e = m_predicates_function.size(); i != e; ++i)
+            if (not m_predicates_function[i](activity, rule, empty))
+                return false;
+    }
+
+    return true;
+}
 
 }}} // namespace vle model decision
-
-#endif

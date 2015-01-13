@@ -109,12 +109,14 @@ public:
         mNbUpdate++;
     }
 
-    bool isAlwaysTrue() const
+    bool isAlwaysTrue(const std::string&, const std::string&,
+                      const PredicateParameters&) const
     {
         return true;
     }
 
-    bool isAlwaysFalse() const
+    bool isAlwaysFalse(const std::string&, const std::string&,
+                       const PredicateParameters&) const
     {
         return false;
     }

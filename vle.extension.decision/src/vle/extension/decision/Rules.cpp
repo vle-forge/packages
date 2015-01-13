@@ -50,10 +50,10 @@ Rule& Rules::add(const std::string& name, const Predicate& pred)
 
     if (it == m_lst.end()) {
         Rule& r(add(name));
-        r.add(pred);
+        r.add(&pred);
         return r;
     } else {
-        it->second.add(pred);
+        it->second.add(&pred);
         return it->second;
     }
 }
