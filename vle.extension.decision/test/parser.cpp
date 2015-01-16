@@ -47,8 +47,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 class KnowledgeBase : public vmd::KnowledgeBase
 {
 public:
-    KnowledgeBase()
-        : vmd::KnowledgeBase(), mNbUpdate(0), mNbAck(0), mNbOut(0)
+    KnowledgeBase(vle::utils::ContextPtr ctxp)
+        : vmd::KnowledgeBase(ctxp), mNbUpdate(0), mNbAck(0), mNbOut(0)
     {
         addFacts(this) +=
             F("fact 1", &KnowledgeBase::updateFact1),
@@ -296,8 +296,9 @@ std::string Block(
 void parser_00()
 {
     vle::Init app;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
 
-    vmd::ex::KnowledgeBase b;
+    vmd::ex::KnowledgeBase b(ctxp);
 
     EnsuresNotThrow(b.library().add("main", vmd::ex::Block), std::exception);
     EnsuresNotThrow(b.library().add("main2", vmd::ex::Plan1), std::exception);
@@ -306,8 +307,9 @@ void parser_00()
 void parser()
 {
     vle::Init app;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
 
-    vmd::ex::KnowledgeBase b;
+    vmd::ex::KnowledgeBase b(ctxp);
     b.plan().fill(std::string(vmd::ex::Plan1));
 
     EnsuresEqual(b.activities().size(), (vmd::Activities::size_type)9);
@@ -323,8 +325,9 @@ void parser()
 void test_stringdates()
 {
     vle::Init app;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
 
-    vmd::ex::KnowledgeBase b;
+    vmd::ex::KnowledgeBase b(ctxp);
     b.plan().fill(std::string(vmd::ex::Plan1));
 
     const vmd::Activity& act6 = b.activities().get("activity6")->second;
@@ -339,15 +342,16 @@ void test_stringdates()
 void test_relativedates()
 {
     vle::Init app;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     {
-        vmd::ex::KnowledgeBase b;
+        vmd::ex::KnowledgeBase b(ctxp);
         b.plan().fill(std::string(vmd::ex::Plan1), 0);
         const vmd::Activity& act8 = b.activities().get("activity8")->second;
         EnsuresEqual(act8.start(),10.0);
         EnsuresEqual(act8.finish(),23.5);
     }
     {
-        vmd::ex::KnowledgeBase b;
+        vmd::ex::KnowledgeBase b(ctxp);
         b.plan().fill(std::string(vmd::ex::Plan1), 5);
         const vmd::Activity& act8 = b.activities().get("activity8")->second;
         EnsuresEqual(act8.start(),15.0);
@@ -358,15 +362,16 @@ void test_relativedates()
 void test_relativehumandates()
 {
     vle::Init app;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     {
-        vmd::ex::KnowledgeBase b;
+        vmd::ex::KnowledgeBase b(ctxp);
         b.plan().fill(std::string(vmd::ex::Plan1), 0);
         const vmd::Activity& act9 = b.activities().get("activity9")->second;
         EnsuresEqual(act9.start(), 2.0);
         EnsuresEqual(act9.finish(), 365.0 * 3 + 31.0 + 1.0);
     }
     {
-        vmd::ex::KnowledgeBase b;
+        vmd::ex::KnowledgeBase b(ctxp);
         b.plan().fill(std::string(vmd::ex::Plan1), vu::DateTime::toJulianDayNumber("1966-11-08"));
         const vmd::Activity& act9 = b.activities().get("activity9")->second;
         EnsuresEqual(act9.start(), vu::DateTime::toJulianDayNumber("1966-01-02"));

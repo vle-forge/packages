@@ -33,6 +33,7 @@
 #include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/utils/Tools.hpp>
+#include <vle/utils/Context.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 
 struct F
@@ -55,7 +56,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class SStest: public vmd::KnowledgeBase
     {
     public:
-        SStest()
+        SStest(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
         {
             addActivity("A", 1.0, 10.0);
             addActivity("B", 0.0, 10.0);
@@ -80,7 +82,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
  */
 void ss()
 {
-    vmd::ex::SStest base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::SStest base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);

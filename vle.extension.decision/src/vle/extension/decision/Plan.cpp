@@ -30,6 +30,7 @@
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/Parser.hpp>
 #include <vle/utils/Tools.hpp>
+#include <vle/devs/Dynamics.hpp>
 #include <vle/utils/DateTime.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -46,8 +47,8 @@ typedef utils::Block::Reals UBR;
 
 using boost::lexical_cast;
 
-Plan::Plan(KnowledgeBase& kb, const std::string& buffer)
-    : mKb(kb)
+Plan::Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, const std::string& buffer)
+    : ctx(ctxp), mKb(kb)
 {
     try {
         std::istringstream in(buffer);
@@ -59,8 +60,8 @@ Plan::Plan(KnowledgeBase& kb, const std::string& buffer)
     }
 }
 
-Plan::Plan(KnowledgeBase& kb, std::istream& stream)
-    : mKb(kb)
+Plan::Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, std::istream& stream)
+    : ctx(ctxp), mKb(kb)
 {
     try {
         utils::Parser parser(stream);
@@ -175,7 +176,8 @@ struct AssignDoubleParameter
     }
 };
 
-void __fill_predicate(const utils::Block::BlocksResult& root,
+void __fill_predicate(utils::ContextPtr ctx,
+                      const utils::Block::BlocksResult& root,
                       Predicates& predicates,
                       const PredicatesTable& table)
 {
@@ -186,37 +188,50 @@ void __fill_predicate(const utils::Block::BlocksResult& root,
         if (id.first == id.second)
             throw utils::ArgError("Decision: predicate needs id");
 
-        UB::StringsResult type = block.strings.equal_range("type");
-        if (type.first == type.second)
-            throw utils::ArgError("Decision: predicate needs type");
+        if (not predicates.exist(id.first->second)) {
+            UB::StringsResult type = block.strings.equal_range("type");
+            if (type.first == type.second)
+                throw utils::ArgError("Decision: predicate needs type");
 
-        PredicatesTable::const_iterator fctit = table.get(type.first->second);
-        if (fctit == table.end())
-            throw utils::ArgError(
-                vle::utils::format("Decision: unknown predicate function %s in knowledgebase",
-                                   (type.first->second).c_str()));
+            PredicatesTable::const_iterator fctit = table.get(type.first->second);
+            if (fctit == table.end())
+                throw utils::ArgError(
+                    vle::utils::format("Decision: unknown predicate function %s in knowledgebase",
+                                       (type.first->second).c_str()));
 
-        utils::Block::BlocksResult parameters = block.blocks.equal_range("parameters");
-        if (parameters.first == parameters.second) {
-            predicates.add(id.first->second, fctit->second);
+            utils::Block::BlocksResult parameters = block.blocks.equal_range("parameter");
+            if (parameters.first == parameters.second) {
+                Trace(ctx, 6, "predicate %s added",
+                      (id.first->second).c_str());
+
+                predicates.add(id.first->second, fctit->second);
+            } else {
+                PredicateParameters params;
+
+                std::for_each(parameters.first->second.strings.begin(),
+                              parameters.first->second.strings.end(),
+                              AssignStringParameter(params));
+
+                std::for_each(parameters.first->second.reals.begin(),
+                              parameters.first->second.reals.end(),
+                              AssignDoubleParameter(params));
+
+                params.sort();
+
+                Trace(ctx, 6, "Predicate %s added with parameters:",
+                      (id.first->second).c_str());
+
+
+                for (PredicateParameters::const_iterator it = params.begin();
+                     it != params.end(); ++it)
+                    Trace(ctx, 6, "    - %s",
+                          (it->first).c_str());
+
+                predicates.add(id.first->second, fctit->second, params);
+            }
         } else {
-            PredicateParameters params;
-
-            std::for_each(parameters.first->second.strings.begin(),
-                          parameters.first->second.strings.end(),
-                          AssignStringParameter(params));
-
-            std::for_each(parameters.first->second.reals.begin(),
-                          parameters.first->second.reals.end(),
-                          AssignDoubleParameter(params));
-
-            params.sort();
-
-            std::cout << "add: " << id.first->second << " into predicate list" << std::endl;
-            for (PredicateParameters::const_iterator it = params.begin(); it != params.end(); ++it)
-                std::cout << "- " << it->first << std::endl;
-
-            predicates.add(id.first->second, fctit->second, params);
+            Trace(ctx, 4, "Predicate %s already exists, we forget the new",
+                  (id.first->second).c_str());
         }
     }
 }
@@ -235,7 +250,7 @@ void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
     utils::Block::Blocks::const_iterator it;
 
     for (it = mainpredicates.first; it != mainpredicates.second; ++it)
-        __fill_predicate(it->second.blocks.equal_range("predicate"),
+        __fill_predicate(ctx, it->second.blocks.equal_range("predicate"),
                          mPredicates, mKb.predicates());
 
     for (it = mainrules.first; it != mainrules.second; ++it) {
@@ -263,36 +278,43 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
         const utils::Block& block = it->second;
 
         UB::StringsResult id = block.strings.equal_range("id");
-        if (id.first == id.second) {
+        if (id.first == id.second)
             throw utils::ArgError("Decision: rule needs id");
-        }
 
-        Rule& rule = mRules.add(id.first->second);
+        if (not mRules.exist(id.first->second))  {
+            Rule& rule = mRules.add(id.first->second);
 
-        UB::StringsResult preds = block.strings.equal_range("predicates");
-        for (UB::Strings::const_iterator jt = preds.first;
-             jt != preds.second; ++jt) {
+            UB::StringsResult preds = block.strings.equal_range("predicates");
+            for (UB::Strings::const_iterator jt = preds.first;
+                 jt != preds.second; ++jt) {
 
-            // Trying to found a parametred parameter in this plan.
-            Predicates::const_iterator p = mPredicates.find(jt->second);
-            if (p != mPredicates.end()) {
-                std::cout << "Rules " << id.first->second << " add predicate "
-                          << jt->second << std::endl;
-                rule.add(&*p);
-            } else {
-                // If it fails, trying to use the oldtest API to use
-                // directly the predicate function.
-                PredicatesTable::const_iterator p2 = mKb.predicates().get(jt->second);
-                if (p2 == mKb.predicates().end())
-                    throw vle::utils::ArgError(
-                        vle::utils::format("Decision: unknown predicate function %s",
-                                           jt->second.c_str()));
+                // Trying to found a parametred parameter in this plan.
+                Predicates::const_iterator p = mPredicates.find(jt->second);
+                if (p != mPredicates.end()) {
+                    Trace(ctx, 6, "rule %s adds predicate %s",
+                          (id.first->second).c_str(),
+                          (jt->second).c_str());
 
-                std::cout << "Rules " << id.first->second
-                          << " add old predicate (function) " << jt->second << std::endl;
+                    rule.add(&*p);
+                } else {
+                    // If it fails, trying to use the oldtest API to use
+                    // directly the predicate function.
+                    PredicatesTable::const_iterator p2 = mKb.predicates().get(jt->second);
+                    if (p2 == mKb.predicates().end())
+                        throw vle::utils::ArgError(
+                            vle::utils::format("Decision: unknown predicate function %s", (jt->second).c_str()));
 
-                rule.add(p2->second);
+                    Trace(ctx, 6, "rule %s adds old predicate (c++ function) %s",
+                          (id.first->second).c_str(),
+                          (jt->second).c_str());
+
+                    rule.add(p2->second);
+                }
             }
+        } else {
+            Trace(ctx, 4, "Rule %s already exists, we forget the new",
+                  (id.first->second).c_str());
+
         }
     }
 }

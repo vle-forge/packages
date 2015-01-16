@@ -35,7 +35,7 @@ namespace vle { namespace extension { namespace decision {
 
 void Library::add(const std::string& name, const std::string& content)
 {
-    Plan p(mKb, content);
+    Plan p(ctx, mKb, content);
 
     std::pair < iterator, bool > r;
     r = mLst.insert(std::make_pair(name, p));
@@ -49,7 +49,7 @@ void Library::add(const std::string& name, const std::string& content)
 
 void Library::add(const std::string& name, std::istream& stream)
 {
-    Plan p(mKb, stream);
+    Plan p(ctx, mKb, stream);
 
     std::pair < iterator, bool > r;
     r = mLst.insert(std::make_pair(name, p));

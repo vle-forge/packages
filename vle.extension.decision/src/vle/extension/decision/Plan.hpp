@@ -33,6 +33,7 @@
 #include <vle/extension/decision/Facts.hpp>
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/utils/Parser.hpp>
+#include <vle/utils/Context.hpp>
 #include <vle/devs/Time.hpp>
 #include <string>
 #include <istream>
@@ -52,21 +53,23 @@ class Plan
     typedef std::pair<bool, devs::Time> DateResult;
 
 public:
-    Plan(KnowledgeBase& kb)
-        : mKb(kb)
+    Plan(utils::ContextPtr ctxp, KnowledgeBase& kb)
+        :  ctx(ctxp), mKb(kb)
     {}
     /**
      * @brief Plan constructor
+     * @param ctxp, pointer to the context
      * @param kb, ref to the knowledge base
      * @param buffer, string representation of the plan
      */
-    Plan(KnowledgeBase& kb, const std::string& buffer);
+    Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, const std::string& buffer);
     /**
      * @brief Plan constructor
+     * @param ctxp, pointer to the context
      * @param kb, ref to the knowledge base
      * @param stream, stream containing the representation of the plan
      */
-    Plan(KnowledgeBase& kb, std::istream& stream);
+    Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, std::istream& stream);
     /**
      * @brief Fill a plan from a string
      * @param buffer, string representation of the plan
@@ -144,6 +147,7 @@ private:
                        const utils::Block& block,
                        const devs::Time& loadTime) const;
 
+    utils::ContextPtr ctx;
     KnowledgeBase& mKb;
     Predicates mPredicates;
     Rules mRules;

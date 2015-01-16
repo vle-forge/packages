@@ -30,6 +30,7 @@
 #include <iostream>
 #include <iterator>
 #include <vle/value/Double.hpp>
+#include <vle/utils/Context.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/vle.hpp>
 
@@ -40,8 +41,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class KnowledgeBase : public vmd::KnowledgeBase
     {
     public:
-        KnowledgeBase()
-            : vmd::KnowledgeBase(), today(0), yesterday(0)
+        KnowledgeBase(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp), today(0), yesterday(0)
         {
             addFact("today", std::bind(&vmd::ex::KnowledgeBase::date, this,
                     std::placeholders::_1));
@@ -92,8 +93,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 void kb()
 {
     vle::Init app;
-
-    vmd::ex::KnowledgeBase base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::KnowledgeBase base(ctxp);
 
     vmd::Activities::result_t lst;
 

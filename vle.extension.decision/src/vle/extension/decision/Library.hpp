@@ -32,6 +32,7 @@
 #include <vle/extension/decision/Plan.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/Tools.hpp>
+#include <vle/utils/Context.hpp>
 #include <string>
 #include <map>
 
@@ -48,8 +49,8 @@ public:
     typedef LibraryT::iterator iterator;
     typedef LibraryT::size_type size_type;
 
-    Library(KnowledgeBase& kb)
-        : mKb(kb)
+    Library(utils::ContextPtr ctxp, KnowledgeBase& kb)
+        : ctx(ctxp), mKb(kb)
     {}
 
     void add(const std::string& name, const std::string& content);
@@ -129,6 +130,7 @@ public:
     size_type size() const { return mLst.size(); }
 
 private:
+    utils::ContextPtr ctx;
     LibraryT mLst;
     KnowledgeBase& mKb;
 };
@@ -136,4 +138,3 @@ private:
 }}} // namespace vle model decision
 
 #endif
-

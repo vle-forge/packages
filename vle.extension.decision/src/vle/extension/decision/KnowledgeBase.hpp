@@ -29,6 +29,7 @@
 #ifndef VLE_EXT_DECISION_KNOWLEDGEBASE_HPP
 #define VLE_EXT_DECISION_KNOWLEDGEBASE_HPP 1
 
+#include <vle/utils/Context.hpp>
 #include <vle/extension/decision/Activities.hpp>
 #include <vle/extension/decision/Facts.hpp>
 #include <vle/extension/decision/Library.hpp>
@@ -183,8 +184,8 @@ public:
      */
     typedef std::pair < bool, devs::Time > Result;
 
-    KnowledgeBase()
-        : mPlan(*this), mLibrary(*this)
+    KnowledgeBase(utils::ContextPtr ctxp)
+        : mPlan(ctxp, *this), mLibrary(ctxp, *this)
     {}
 
     /**

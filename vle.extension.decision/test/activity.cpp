@@ -33,6 +33,7 @@
 #include <iterator>
 #include <vle/value/Double.hpp>
 #include <vle/utils/Tools.hpp>
+#include <vle/utils/Context.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/vle.hpp>
 
@@ -44,8 +45,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 class KnowledgeBase : public vmd::KnowledgeBase
 {
 public:
-    KnowledgeBase()
-        : vmd::KnowledgeBase(), today(0), yesterday(0)
+    KnowledgeBase(vle::utils::ContextPtr ctxp)
+        : vmd::KnowledgeBase(ctxp), today(0), yesterday(0)
     {
         addFact("today", std::bind(&vmd::ex::KnowledgeBase::date,
                                      this, std::placeholders::_1));
@@ -101,7 +102,8 @@ public:
 class KnowledgeBaseGraph : public vmd::KnowledgeBase
 {
 public:
-    KnowledgeBaseGraph()
+    KnowledgeBaseGraph(vle::utils::ContextPtr ctxp)
+        : vmd::KnowledgeBase(ctxp)
     {
         addActivity("act1");
         addActivity("act2");
@@ -120,7 +122,8 @@ public:
 class KnowledgeBaseGraph2 : public vmd::KnowledgeBase
 {
 public:
-    KnowledgeBaseGraph2()
+    KnowledgeBaseGraph2(vle::utils::ContextPtr ctxp)
+        : vmd::KnowledgeBase(ctxp)
     {
         addActivity("A");
         addActivity("B");
@@ -149,7 +152,8 @@ public:
 class KnowledgeBaseGraph3 : public vmd::KnowledgeBase
 {
 public:
-    KnowledgeBaseGraph3()
+    KnowledgeBaseGraph3(vle::utils::ContextPtr ctxp)
+        : vmd::KnowledgeBase(ctxp)
     {
         addActivity("A");
         addActivity("B");
@@ -173,7 +177,8 @@ public:
 class KB4 : public vmd::KnowledgeBase
 {
 public:
-    KB4()
+    KB4(vle::utils::ContextPtr ctxp)
+        : vmd::KnowledgeBase(ctxp)
     {
         addActivity("A", 0.0, vd::infinity);
         addActivity("B", 1.0, vd::infinity);
@@ -191,8 +196,9 @@ class KB5 : public vmd::KnowledgeBase
     int mNbUpdate, mNbAck, mNbOut;
 
 public:
-    KB5() :
-        vmd::KnowledgeBase(), mNbUpdate(0), mNbAck(0), mNbOut(0)
+    KB5(vle::utils::ContextPtr ctxp) :
+        vmd::KnowledgeBase(ctxp),
+        mNbUpdate(0), mNbAck(0), mNbOut(0)
     {
         std::cout << "KB5 start\n";
         vmd::Activity& a = addActivity("A", 0.0, vd::infinity);
@@ -266,8 +272,8 @@ public:
 void kb()
 {
     vle::Init app;
-
-    vmd::ex::KnowledgeBase base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::KnowledgeBase base(ctxp);
 
     vmd::Activities::result_t lst;
     double date = 0.0;
@@ -306,8 +312,8 @@ void kb()
 void kb2()
 {
     vle::Init app;
-
-    vmd::ex::KnowledgeBaseGraph base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::KnowledgeBaseGraph base(ctxp);
 
     vmd::Activities::result_t lst;
 
@@ -354,8 +360,8 @@ void kb2()
 void kb3()
 {
     vle::Init app;
-
-    vmd::ex::KnowledgeBaseGraph2 base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::KnowledgeBaseGraph2 base(ctxp);
 
     vmd::Activities::result_t lst;
 
@@ -409,8 +415,8 @@ void kb3()
 void Activity4()
 {
     vle::Init app;
-
-    vmd::ex::KnowledgeBaseGraph3 base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::KnowledgeBaseGraph3 base(ctxp);
 
     vmd::Activities::result_t lst;
 
@@ -428,8 +434,8 @@ void Activity4()
 void ActivitiesnextDate1()
 {
     vle::Init app;
-
-    vmd::ex::KB4 base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::KB4 base(ctxp);
 
     vmd::Activities::result_t lst;
 
@@ -456,8 +462,8 @@ void ActivitiesnextDate1()
 void ActivitiesnextDate2()
 {
     vle::Init app;
-
-    vmd::ex::KB4 base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::KB4 base(ctxp);
 
     vmd::Activities::result_t lst;
 
@@ -484,8 +490,8 @@ void ActivitiesnextDate2()
 void activitiesExist()
 {
     vle::Init app;
-
-    vmd::ex::KB4 base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::KB4 base(ctxp);
 
     bool b = base.activities().exist("A");
     EnsuresEqual(b, true);
@@ -496,8 +502,8 @@ void activitiesExist()
 void Activities_test_slot_function()
 {
     vle::Init app;
-
-    vmd::ex::KB5 base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::KB5 base(ctxp);
 
     vmd::Activities::result_t lst;
 

@@ -40,7 +40,8 @@ class Agent : public devs::Dynamics,
 public:
     Agent(const devs::DynamicsInit& mdl,
           const devs::InitEventList& evts)
-        : devs::Dynamics(mdl, evts), mState(Init), mCurrentTime(0.0),
+        : devs::Dynamics(mdl, evts), decision::KnowledgeBase(context()),
+          mState(Init), mCurrentTime(0.0),
         mPortMode(true)
     {}
 

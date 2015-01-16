@@ -54,7 +54,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class Before: public vmd::KnowledgeBase
     {
     public:
-        Before()
+        Before(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
         {
             addActivity("A", 0.0, 2.0);
             addActivity("B", 3.0, 5.0);
@@ -69,7 +70,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class Meets : public vmd::KnowledgeBase
     {
     public:
-        Meets()
+        Meets(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
         {
             addActivity("A");
             addActivity("B");
@@ -84,7 +86,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class Overlaps: public vmd::KnowledgeBase
     {
     public:
-        Overlaps()
+        Overlaps(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
         {
             addActivity("A");
             addActivity("B");
@@ -99,7 +102,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class During: public vmd::KnowledgeBase
     {
     public:
-        During()
+        During(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
         {
             addActivity("A");
             addActivity("B");
@@ -116,7 +120,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class Starts: public vmd::KnowledgeBase
     {
     public:
-        Starts()
+        Starts(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
         {
             addActivity("A");
             addActivity("B");
@@ -131,7 +136,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class StartsFailed: public vmd::KnowledgeBase
     {
     public:
-        StartsFailed()
+        StartsFailed(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
         {
             addActivity("A", 1.0, 2.0);
             addActivity("B");
@@ -147,7 +153,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class Finishes: public vmd::KnowledgeBase
     {
     public:
-        Finishes()
+        Finishes(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
         {
             addActivity("A");
             addActivity("B");
@@ -162,7 +169,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     class Equal: public vmd::KnowledgeBase
     {
     public:
-        Equal()
+        Equal(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
         {
             addActivity("A");
             addActivity("B");
@@ -179,7 +187,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
 void Before1()
 {
-    vmd::ex::Before base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Before base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -212,7 +221,8 @@ void Before1()
 
 void Before2()
 {
-    vmd::ex::Before base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Before base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -258,7 +268,8 @@ void Before2()
 
 void Meets1()
 {
-    vmd::ex::Meets base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Meets base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -295,7 +306,8 @@ void Meets1()
 
 void Overlaps1()
 {
-    vmd::ex::Overlaps base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Overlaps base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -327,7 +339,8 @@ void Overlaps1()
 
 void Overlaps2()
 {
-    vmd::ex::Overlaps base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Overlaps base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -366,7 +379,8 @@ void Overlaps2()
 
 void During1()
 {
-    vmd::ex::During base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::During base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -408,7 +422,8 @@ void During1()
 
 void During2()
 {
-    vmd::ex::During base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::During base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -446,7 +461,8 @@ void During2()
 
 void Starts1()
 {
-    vmd::ex::Starts base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Starts base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -474,7 +490,8 @@ void Starts1()
 
 void Starts2()
 {
-    vmd::ex::StartsFailed base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::StartsFailed base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -488,7 +505,8 @@ void Starts2()
 
 void finishes()
 {
-    vmd::ex::Finishes base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Finishes base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -520,7 +538,8 @@ void finishes()
 
 void Equal()
 {
-    vmd::ex::Equal base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Equal base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
@@ -543,7 +562,8 @@ void Equal()
 
 void EqualFail()
 {
-    vmd::ex::Equal base;
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Equal base(ctxp);
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
