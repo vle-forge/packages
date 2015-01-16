@@ -31,6 +31,7 @@
 #include <vle/utils/Parser.hpp>
 #include <vle/utils/i18n.hpp>
 #include <vle/utils/DateTime.hpp>
+#include <vle/utils/Trace.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <string>
@@ -178,37 +179,48 @@ void __fill_predicate(const utils::Block::BlocksResult& root,
         if (id.first == id.second)
             throw utils::ArgError(_("Decision: predicate needs id"));
 
-        UB::StringsResult type = block.strings.equal_range("type");
-        if (type.first == type.second)
-            throw utils::ArgError(_("Decision: predicate needs type"));
+        if (not predicates.exist(id.first->second)) {
+            UB::StringsResult type = block.strings.equal_range("type");
+            if (type.first == type.second)
+                throw utils::ArgError(_("Decision: predicate needs type"));
 
-        PredicatesTable::const_iterator fctit = table.get(type.first->second);
-        if (fctit == table.end())
-            throw utils::ArgError(
-                vle::fmt(_("Decision: unknown predicate function %1% in knowledgebase"))
-                % type.first->second);
+            PredicatesTable::const_iterator fctit = table.get(type.first->second);
+            if (fctit == table.end())
+                throw utils::ArgError(
+                    vle::fmt(_("Decision: unknown predicate function %1% in knowledgebase"))
+                    % type.first->second);
 
-        utils::Block::BlocksResult parameters = block.blocks.equal_range("parameters");
-        if (parameters.first == parameters.second) {
-            predicates.add(id.first->second, fctit->second);
+            utils::Block::BlocksResult parameters = block.blocks.equal_range("parameter");
+            if (parameters.first == parameters.second) {
+                TraceModel(vle::fmt("predicate %1% added")
+                           % id.first->second);
+
+                predicates.add(id.first->second, fctit->second);
+            } else {
+                PredicateParameters params;
+
+                std::for_each(parameters.first->second.strings.begin(),
+                              parameters.first->second.strings.end(),
+                              AssignStringParameter(params));
+
+                std::for_each(parameters.first->second.reals.begin(),
+                              parameters.first->second.reals.end(),
+                              AssignDoubleParameter(params));
+
+                params.sort();
+
+                TraceModel(vle::fmt("Predicate %1% added with parameters:") %
+                            id.first->second);
+
+                for (PredicateParameters::const_iterator it = params.begin();
+                     it != params.end(); ++it)
+                    TraceModel(vle::fmt("    - %1%") % it->first);
+
+                predicates.add(id.first->second, fctit->second, params);
+            }
         } else {
-            PredicateParameters params;
-
-            std::for_each(parameters.first->second.strings.begin(),
-                          parameters.first->second.strings.end(),
-                          AssignStringParameter(params));
-
-            std::for_each(parameters.first->second.reals.begin(),
-                          parameters.first->second.reals.end(),
-                          AssignDoubleParameter(params));
-
-            params.sort();
-
-            std::cout << "add: " << id.first->second << " into predicate list" << std::endl;
-            for (PredicateParameters::const_iterator it = params.begin(); it != params.end(); ++it)
-                std::cout << "- " << it->first << std::endl;
-
-            predicates.add(id.first->second, fctit->second, params);
+            TraceModel(vle::fmt("Predicate %1% already exists, we forget the new") %
+                        id.first->second);
         }
     }
 }
@@ -255,36 +267,41 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
         const utils::Block& block = it->second;
 
         UB::StringsResult id = block.strings.equal_range("id");
-        if (id.first == id.second) {
+        if (id.first == id.second)
             throw utils::ArgError(_("Decision: rule needs id"));
-        }
 
-        Rule& rule = mRules.add(id.first->second);
+        if (not mRules.exist(id.first->second))  {
+            Rule& rule = mRules.add(id.first->second);
 
-        UB::StringsResult preds = block.strings.equal_range("predicates");
-        for (UB::Strings::const_iterator jt = preds.first;
-             jt != preds.second; ++jt) {
+            UB::StringsResult preds = block.strings.equal_range("predicates");
+            for (UB::Strings::const_iterator jt = preds.first;
+                 jt != preds.second; ++jt) {
 
-            // Trying to found a parametred parameter in this plan.
-            Predicates::const_iterator p = mPredicates.find(jt->second);
-            if (p != mPredicates.end()) {
-                std::cout << "Rules " << id.first->second << " add predicate "
-                          << jt->second << std::endl;
-                rule.add(&*p);
-            } else {
-                // If it fails, trying to use the oldtest API to use
-                // directly the predicate function.
-                PredicatesTable::const_iterator p2 = mKb.predicates().get(jt->second);
-                if (p2 == mKb.predicates().end())
-                    throw vle::utils::ArgError(
-                        vle::fmt(_("Decision: unknown predicate function %1%")) %
-                        jt->second);
+                // Trying to found a parametred parameter in this plan.
+                Predicates::const_iterator p = mPredicates.find(jt->second);
+                if (p != mPredicates.end()) {
+                    TraceModel(vle::fmt("rule %1% adds predicate %2%") %
+                                id.first->second % jt->second);
 
-                std::cout << "Rules " << id.first->second
-                          << " add old predicate (function) " << jt->second << std::endl;
+                    rule.add(&*p);
+                } else {
+                    // If it fails, trying to use the oldtest API to use
+                    // directly the predicate function.
+                    PredicatesTable::const_iterator p2 = mKb.predicates().get(jt->second);
+                    if (p2 == mKb.predicates().end())
+                        throw vle::utils::ArgError(
+                            vle::fmt(_("Decision: unknown predicate function %1%")) %
+                            jt->second);
 
-                rule.add(p2->second);
+                    TraceModel(vle::fmt("rule %1% adds old predicate (c++ function) %2%")
+                                % id.first->second % jt->second);
+
+                    rule.add(p2->second);
+                }
             }
+        } else {
+            TraceModel(vle::fmt("Rule %1% already exists, we forget the new") %
+                       id.first->second);
         }
     }
 }

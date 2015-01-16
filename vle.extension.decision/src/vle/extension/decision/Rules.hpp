@@ -47,6 +47,21 @@ public:
     typedef rules_t::size_type size_type;
     typedef std::vector < const_iterator > result_t;
 
+    bool exist(const std::string& name) const
+    {
+        return find(name) != end();
+    }
+
+    const_iterator find(const std::string& name) const
+    {
+        return m_lst.find(name);
+    }
+
+    iterator find(const std::string& name)
+    {
+        return m_lst.find(name);
+    }
+
     Rule& add(const std::string& name, const Rule& rule = Rule());
 
     Rule& add(const std::string& name, const Predicate& pred);

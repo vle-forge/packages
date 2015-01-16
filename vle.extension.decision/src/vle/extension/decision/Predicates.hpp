@@ -175,24 +175,25 @@ public:
     typedef container_type::iterator iterator;
     typedef container_type::size_type size_type;
 
-    void add(const Predicate& pred)
+    bool add(const Predicate& pred)
     {
-        std::pair <iterator, bool> r = m_lst.insert(pred);
-        if (not r.second) {
-            m_lst.erase(r.first);
-            m_lst.insert(pred);
-        }
+        return m_lst.insert(pred).second;
     }
 
-    void add(const std::string& name, const PredicateFunction& function)
+    bool add(const std::string& name, const PredicateFunction& function)
     {
-        add(Predicate(name, function));
+        return m_lst.insert(Predicate(name, function)).second;
     }
 
-    void add(const std::string& name, const PredicateFunction& function,
+    bool add(const std::string& name, const PredicateFunction& function,
              const PredicateParameters& params)
     {
-        add(Predicate(name, function, params));
+        return m_lst.insert(Predicate(name, function, params)).second;
+    }
+
+    bool exist(const std::string& name) const
+    {
+        return find(name) != end();
     }
 
     const_iterator find(const std::string& name) const
