@@ -28,6 +28,7 @@
 
 #include <fstream>
 
+#define BOOST_SPIRIT_THREADSAFE
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/spirit/include/classic_core.hpp>
