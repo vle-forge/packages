@@ -203,12 +203,12 @@ private:
                 return false;
             }
         } else {
-            double prec = boost::lexical_cast<double>(precision);
-            double valExpect = boost::lexical_cast<double>(valExpected);
-            double valSim = boost::lexical_cast<double>(res.toDouble().value());
+            double prec = boost::lexical_cast<double>(precision);            
+            double valSim = res.toDouble().value();
             if (isnan(valSim)) {
-                return isnan(valExpect);
+                return (valExpected == "nan");
             }
+            double valExpect = boost::lexical_cast<double>(valExpected);
             if ((valSim < valExpect - prec) || (valSim > valExpect + prec)) {
                 return false;
             }

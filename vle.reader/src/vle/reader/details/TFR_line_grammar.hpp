@@ -79,7 +79,7 @@ struct TFR_data_tofill
             } case vv::Value::INTEGER : {
                 int val;
                 if (valStr.empty()) {
-                    val = NAN;
+                    val = -999;
                 } else {
                     val = boost::lexical_cast<int>(valStr);
                 }
