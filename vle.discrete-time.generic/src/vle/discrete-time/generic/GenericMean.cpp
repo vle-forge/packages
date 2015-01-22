@@ -30,8 +30,8 @@
 
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -40,7 +40,7 @@ namespace generic {
 class GenericMean : public DiscreteTimeDyn
 {
 public:
-    GenericMean(const vd::DynamicsInit& init, const vd::InitEventList& events)
+    GenericMean(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
         : DiscreteTimeDyn(init, events)
     {
         Mean.init(this, "Mean", events);
@@ -66,7 +66,7 @@ public:
 
     }
 
-    void compute(const vd::Time& /*t*/)
+    void compute(const vle::devs::Time& /*t*/)
     {
         std::vector<Var*>::iterator itb = inputs.begin();
         std::vector<Var*>::iterator ite = inputs.end();

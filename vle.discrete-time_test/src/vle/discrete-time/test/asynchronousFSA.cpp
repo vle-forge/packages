@@ -30,8 +30,8 @@
 #include <vle/devs/DynamicsDbg.hpp>
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 namespace ve = vle::extension;
 
 namespace vle {
@@ -41,7 +41,7 @@ namespace test {
 class FSA :  public ve::fsa::Statechart
 {
 public:
-    FSA(const vd::DynamicsInit& init, const vd::InitEventList& evts)
+    FSA(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& evts)
         :  ve::fsa::Statechart(init, evts)
     {
         states(this) << 0;
@@ -53,11 +53,11 @@ public:
     virtual ~FSA()
     {
     }
-    void out(const vd::Time& /*time*/, vd::ExternalEventList& output) const
+    void out(const vle::devs::Time& /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vd::ExternalEvent* evt = new vd::ExternalEvent("fsa");
-        evt->putAttribute("name", new vv::String("fsa"));
-        evt->putAttribute("value", new vv::Double(1.0));
+        vle::devs::ExternalEvent* evt = new vle::devs::ExternalEvent("fsa");
+        evt->putAttribute("name", new vle::value::String("fsa"));
+        evt->putAttribute("value", new vle::value::Double(1.0));
         output.push_back(evt);
     }
 };

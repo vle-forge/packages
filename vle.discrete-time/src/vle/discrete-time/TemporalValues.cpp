@@ -42,7 +42,8 @@ VectUpdate::VectUpdate(const vle::devs::Time& t, unsigned int dim):
 {
 }
 
-VectUpdate::VectUpdate(const vle::devs::Time& t, unsigned int dim, bool complet):
+VectUpdate::VectUpdate(const vle::devs::Time& t, unsigned int dim,
+        bool complet):
     timeOfUpdate(t), value(dim, 0.0), complete(complet)
 {
 }

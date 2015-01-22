@@ -27,8 +27,8 @@
 #include <vle/devs/DynamicsDbg.hpp>
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -40,8 +40,8 @@ class vectorAndValues_y : public DiscreteTimeDyn
 {
 
 public:
-    vectorAndValues_y(const vd::DynamicsInit& model,
-       const vd::InitEventList& events) :
+    vectorAndValues_y(const vle::devs::DynamicsInit& model,
+       const vle::devs::InitEventList& events) :
            DiscreteTimeDyn(model, events)
     {
         x.init(this, "x", events);
@@ -56,7 +56,7 @@ public:
     {
     }
 
-    void compute(const vd::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/)
     {
         for (unsigned int i =0; i<dim(y); i++ ) {
             y[i] = x[0]() - x[1]() + x[2]() + i;

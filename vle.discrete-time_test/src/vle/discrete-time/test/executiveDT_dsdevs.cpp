@@ -32,8 +32,8 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <sstream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 namespace vz = vle::vpz;
 
 namespace vle {
@@ -43,13 +43,13 @@ namespace test {
 
 
 
-class executiveDT_dsdevs : public vd::Executive
+class executiveDT_dsdevs : public vle::devs::Executive
 {
 
 public:
-    executiveDT_dsdevs(const vd::ExecutiveInit& mdl,
-                 const vd::InitEventList& events) :
-        vd::Executive(mdl, events), num_model(0)
+    executiveDT_dsdevs(const vle::devs::ExecutiveInit& mdl,
+                 const vle::devs::InitEventList& events) :
+        vle::devs::Executive(mdl, events), num_model(0)
     {
     }
 

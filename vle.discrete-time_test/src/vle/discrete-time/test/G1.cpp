@@ -31,8 +31,8 @@
 
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -43,7 +43,7 @@ namespace test {
 class G1 : public DiscreteTimeDyn
 {
 public:
-    G1(const vd::DynamicsInit& init, const vd::InitEventList& events)
+    G1(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
         : DiscreteTimeDyn(init, events)
     {
         g.init(this, "g", events);
@@ -53,7 +53,7 @@ public:
     {
     }
 
-    void compute(const vd::Time& /*t*/)
+    void compute(const vle::devs::Time& /*t*/)
     {
         g = g(-1) - 1;
     }

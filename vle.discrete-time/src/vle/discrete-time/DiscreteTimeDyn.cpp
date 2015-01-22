@@ -29,7 +29,7 @@
 namespace vle {
 namespace discrete_time {
 
-namespace vd = vle::devs;
+
 namespace vu = vle::utils;
 namespace vz = vle::vpz;
 
@@ -50,14 +50,14 @@ DiscreteTimeDyn::DEVS_Options::~DEVS_Options()
 }
 
 
-DiscreteTimeDyn::DiscreteTimeDyn(const vd::DynamicsInit& model,
-    const vd::InitEventList& events) : vd::Dynamics(model, events),
+DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
+    const vle::devs::InitEventList& events): vle::devs::Dynamics(model, events),
     TemporalValuesProvider(getModelName(), events), devs_state(INIT),
     devs_options(), devs_guards(), devs_internal(), declarationOn(true),
     currentTimeStep(0)
 {
-    vd::InitEventList::const_iterator itb = events.begin();
-    vd::InitEventList::const_iterator ite = events.end();
+    vle::devs::InitEventList::const_iterator itb = events.begin();
+    vle::devs::InitEventList::const_iterator ite = events.end();
     std::string prefix;
     std::string var_name;
     //first init
@@ -103,19 +103,22 @@ DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
             switch (v->getType()) {
             case MONO:{
                 VarMono* vmono = static_cast < VarMono* >(v);
-                vd::ExternalEvent* e = new vd::ExternalEvent(var_name);
-                //e->putAttribute("name", new vv::String(var_name));
+                vle::devs::ExternalEvent* e =
+                        new vle::devs::ExternalEvent(var_name);
+                //e->putAttribute("name", new vle::value::String(var_name));
                 e->putAttribute("value",
-                        new vv::Double(vmono->getVal(time,0)));
+                        new vle::value::Double(vmono->getVal(time,0)));
                 output.push_back(e);
                 break;
             } case MULTI: {
                 VarMulti* vmulti = static_cast < VarMulti* >(v);
-                vd::ExternalEvent* e = new vd::ExternalEvent(var_name);
-                //e->putAttribute("name", new vv::String(var_name));
-                vv::Tuple* extTuple = new vv::Tuple(vmulti->dim);
-                vv::Tuple::iterator itb = extTuple->value().begin();
-                vv::Tuple::iterator ite = extTuple->value().end();
+                vle::devs::ExternalEvent* e =
+                        new vle::devs::ExternalEvent(var_name);
+                //e->putAttribute("name", new vle::value::String(var_name));
+                vle::value::Tuple* extTuple =
+                        new vle::value::Tuple(vmulti->dim);
+                vle::value::Tuple::iterator itb = extTuple->value().begin();
+                vle::value::Tuple::iterator ite = extTuple->value().end();
                 std::vector<double>::const_iterator itval =
                         vmulti->getVal(time,0).begin();
                 for (; itb!=ite; itb++, itval++) {
@@ -126,7 +129,8 @@ DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
                 break;
             } case VALUE_VLE: {
                 VarValue* vval = static_cast < VarValue* >(v);
-                vd::ExternalEvent* e = new vd::ExternalEvent(var_name);
+                vle::devs::ExternalEvent* e =
+                        new vle::devs::ExternalEvent(var_name);
                 e->putAttribute("value", vval->getVal(time,0).clone());
                 output.push_back(e);
                 break;
@@ -197,15 +201,15 @@ DiscreteTimeDyn::isSync(const std::string& var_name,
     return (currTimeStep % itf->second) == 0 ;
 }
 
-vd::Time
-DiscreteTimeDyn::init(const vd::Time& t)
+vle::devs::Time
+DiscreteTimeDyn::init(const vle::devs::Time& t)
 {
     devs_state = INIT;
     processIn(t, INTERNAL);
     return timeAdvance();
 }
 
-vd::Time
+vle::devs::Time
 DiscreteTimeDyn::timeAdvance() const
 {
     switch (devs_state) {
@@ -230,7 +234,7 @@ DiscreteTimeDyn::timeAdvance() const
 
 
 void
-DiscreteTimeDyn::internalTransition(const vd::Time& t)
+DiscreteTimeDyn::internalTransition(const vle::devs::Time& t)
 {
     processOut(t, INTERNAL);
     updateGuards(t, INTERNAL);
@@ -279,8 +283,8 @@ DiscreteTimeDyn::internalTransition(const vd::Time& t)
 
 void
 DiscreteTimeDyn::externalTransition(
-    const vd::ExternalEventList& event,
-    const vd::Time& t)
+    const vle::devs::ExternalEventList& event,
+    const vle::devs::Time& t)
 {
     processOut(t, EXTERNAL);
     handleExtEvt(t, event);
@@ -324,8 +328,8 @@ DiscreteTimeDyn::externalTransition(
 
 void
 DiscreteTimeDyn::confluentTransitions(
-    const vd::Time& t,
-    const vd::ExternalEventList& event)
+    const vle::devs::Time& t,
+    const vle::devs::ExternalEventList& event)
 {
     processOut(t, CONFLUENT);
     handleExtEvt(t, event);
@@ -426,7 +430,7 @@ DiscreteTimeDyn::observation(const vle::devs::ObservationEvent& event) const
 
 
 void
-DiscreteTimeDyn::processIn(const vd::Time& t,
+DiscreteTimeDyn::processIn(const vle::devs::Time& t,
         DEVS_TransitionType /*trans*/)
 {
     switch (devs_state) {
@@ -452,7 +456,7 @@ DiscreteTimeDyn::processIn(const vd::Time& t,
 }
 
 void
-DiscreteTimeDyn::processOut(const vd::Time& t,
+DiscreteTimeDyn::processOut(const vle::devs::Time& t,
         DEVS_TransitionType /*trans*/)
 {
     switch (devs_state) {
@@ -480,7 +484,7 @@ DiscreteTimeDyn::processOut(const vd::Time& t,
 }
 
 void
-DiscreteTimeDyn::updateGuards(const vd::Time& t,
+DiscreteTimeDyn::updateGuards(const vle::devs::Time& t,
         DEVS_TransitionType /*trans*/)
 {
     switch (devs_state) {
@@ -506,19 +510,19 @@ DiscreteTimeDyn::updateGuards(const vd::Time& t,
 }
 
 void
-DiscreteTimeDyn::handleExtEvt(const vd::Time& t,
-        const vd::ExternalEventList& ext)
+DiscreteTimeDyn::handleExtEvt(const vle::devs::Time& t,
+        const vle::devs::ExternalEventList& ext)
 {
-    vd::ExternalEventList::const_iterator itb = ext.begin();
-    vd::ExternalEventList::const_iterator ite = ext.end();
+    vle::devs::ExternalEventList::const_iterator itb = ext.begin();
+    vle::devs::ExternalEventList::const_iterator ite = ext.end();
     for (; itb != ite; itb++) {
         handleExtEvt(t, (*itb)->getPortName(), (*itb)->attributes());
     }
 }
 
 void
-DiscreteTimeDyn::handleExtEvt(const vd::Time& t,
-        const std::string& port, const vv::Map& attrs)
+DiscreteTimeDyn::handleExtEvt(const vle::devs::Time& t,
+        const std::string& port, const vle::value::Map& attrs)
 {
     Variables::iterator it = getVariables().find(port);
     if(it == getVariables().end()){
@@ -529,7 +533,7 @@ DiscreteTimeDyn::handleExtEvt(const vd::Time& t,
     }
     VarInterface* var = it->second;
     if (attrs.exist("value")) {
-        const vv::Value& varValue = *attrs.get("value");
+        const vle::value::Value& varValue = *attrs.get("value");
         var->update(t,varValue);
     }
 }

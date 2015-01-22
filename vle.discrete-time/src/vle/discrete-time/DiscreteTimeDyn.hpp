@@ -32,11 +32,11 @@
 namespace vle {
 namespace discrete_time {
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
 
 
-class  DiscreteTimeDyn : public vd::Dynamics,
+
+
+class  DiscreteTimeDyn : public vle::devs::Dynamics,
                          public TemporalValuesProvider
 
 {
@@ -47,24 +47,24 @@ public:
 
     virtual ~DiscreteTimeDyn();
 
-    virtual void compute(const vd::Time& t) = 0;
+    virtual void compute(const vle::devs::Time& t) = 0;
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-    virtual vd::Time init(const vd::Time& time);
+    virtual vle::devs::Time init(const vle::devs::Time& time);
 
-    virtual vd::Time timeAdvance() const;
+    virtual vle::devs::Time timeAdvance() const;
 
     virtual void internalTransition(
-        const vd::Time& time);
+        const vle::devs::Time& time);
 
     virtual void externalTransition(
-        const vd::ExternalEventList& event,
-        const vd::Time& time);
+        const vle::devs::ExternalEventList& event,
+        const vle::devs::Time& time);
 
     virtual void confluentTransitions(
-        const vd::Time& internal,
-        const vd::ExternalEventList& extEventlist);
+        const vle::devs::Time& internal,
+        const vle::devs::ExternalEventList& extEventlist);
 
     virtual void output(const vle::devs::Time& /* time */,
                         vle::devs::ExternalEventList& /* output */) const;
@@ -150,29 +150,29 @@ public:
      * @param t, the current time
      * @param trans, the type of the transition
      */
-    void processIn(const vd::Time& t, DEVS_TransitionType trans);
+    void processIn(const vle::devs::Time& t, DEVS_TransitionType trans);
 
     /**
      * @brief Process method used for DEVS state exit
      * @param t, the current time
      * @param trans, the type of the transition
      */
-    void processOut(const vd::Time& t, DEVS_TransitionType trans);
+    void processOut(const vle::devs::Time& t, DEVS_TransitionType trans);
 
     /**
      * @brief Update guards for internal transition
      * @param t, the current time
      * @param trans, the type of the transition
      */
-    void updateGuards(const vd::Time& t, DEVS_TransitionType trans);
+    void updateGuards(const vle::devs::Time& t, DEVS_TransitionType trans);
 
     /**
      * @brief Handles the list of external even
      * @param t, the current time
      * @param ext, the list of external event
      */
-    virtual void handleExtEvt(const vd::Time& t,
-            const vd::ExternalEventList& ext);
+    virtual void handleExtEvt(const vle::devs::Time& t,
+            const vle::devs::ExternalEventList& ext);
 
     /**
      * @brief Handles one external even
@@ -180,8 +180,8 @@ public:
      * @param port, the name of the port
      * @param attr, a map of attributes
      */
-    virtual void handleExtEvt(const vd::Time& t,
-            const std::string& port, const vv::Map& attrs);
+    virtual void handleExtEvt(const vle::devs::Time& t,
+            const std::string& port, const vle::value::Map& attrs);
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
     ////////////////////

@@ -30,8 +30,8 @@
 
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -42,7 +42,7 @@ namespace test {
 class incremental_A : public DiscreteTimeDyn
 {
 public:
-    incremental_A(const vd::DynamicsInit& init, const vd::InitEventList& events)
+    incremental_A(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
         : DiscreteTimeDyn(init, events)
     {
         vars.push_back(new Var());
@@ -61,7 +61,7 @@ public:
         }
     }
 
-    void compute(const vd::Time& t)
+    void compute(const vle::devs::Time& t)
     {
         for (unsigned int i=0; i < vars.size(); i++) {
             Var& v = *vars[i];
@@ -78,7 +78,7 @@ public:
         vlast.init_history(t);
     }
     std::vector<Var*> vars;
-    vv::Map initMap;
+    vle::value::Map initMap;
 };
 
 }}}

@@ -33,14 +33,14 @@ namespace test {
 
 namespace ve = vle::extension;
 namespace vf = vle::extension::fsa;
-namespace vd = vle::devs;
+
 
 enum State { A, B };
 
 class Perturb7 : public vf::Statechart
 {
 public:
-    Perturb7(const vd::DynamicsInit& init, const vd::InitEventList& events) :
+    Perturb7(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events) :
         vf::Statechart(init, events), a(0)
     {
         states(this) << A;
@@ -52,16 +52,16 @@ public:
 
     virtual ~Perturb7() { }
 
-    void out(const vd::Time&  /*time*/, vd::ExternalEventList& output) const
+    void out(const vle::devs::Time&  /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vd::ExternalEvent* e = new vd::ExternalEvent("a");
+        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("a");
         e->attributes().addString("name","a");
         e->attributes().addDouble("value",a+3);
         output.push_back(e);
     }
 
-    void a_in(const vd::Time&  /*time*/,
-            const vd::ExternalEvent*  event )
+    void a_in(const vle::devs::Time&  /*time*/,
+            const vle::devs::ExternalEvent*  event )
     {
         a = event->getAttributeValue("value").toDouble().value();
     }

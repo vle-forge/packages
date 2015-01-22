@@ -52,13 +52,13 @@ public:
     const devs::Time& currentTime() const;
 
     //DicreteTimeDyn functions overload
-    virtual void compute(const vd::Time& t);
+    virtual void compute(const vle::devs::Time& t);
 
     void outputVar(const vle::devs::Time& time,
             vle::devs::ExternalEventList& output) const;
 
-    void handleExtEvt(const vd::Time& t,
-                const vd::ExternalEventList& ext);
+    void handleExtEvt(const vle::devs::Time& t,
+                const vle::devs::ExternalEventList& ext);
 
     //Dynamics functions overload
     vle::value::Value* observation(

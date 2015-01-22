@@ -35,14 +35,14 @@ namespace test {
 
 namespace ve = vle::extension;
 namespace vf = vle::extension::fsa;
-namespace vd = vle::devs;
+
 
 enum State { A, B };
 
 class Perturb10 : public vf::Statechart
 {
 public:
-    Perturb10(const vd::DynamicsInit& init, const vd::InitEventList& events) :
+    Perturb10(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events) :
         vf::Statechart(init, events)
     {
         states(this) << A << B;
@@ -54,26 +54,26 @@ public:
 
     virtual ~Perturb10() { }
 
-    void out1(const vd::Time&  /*time*/, vd::ExternalEventList& output) const
+    void out1(const vle::devs::Time&  /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vd::ExternalEvent* e = new vd::ExternalEvent("g");
+        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("g");
         e->attributes().addString("name","g");
         e->attributes().addDouble("value",10);
         output.push_back(e);
-        e = new vd::ExternalEvent("b");
+        e = new vle::devs::ExternalEvent("b");
         e->attributes().addString("name","b");
         e->attributes().addDouble("value",10);
         output.push_back(e);
 //        std::cout << " FSA send out1 " << time << std::endl;
     }
 
-    void out2(const vd::Time& /* time */, vd::ExternalEventList& output) const
+    void out2(const vle::devs::Time& /* time */, vle::devs::ExternalEventList& output) const
     {
-        vd::ExternalEvent* e = new vd::ExternalEvent("g");
+        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("g");
         e->attributes().addString("name","g");
         e->attributes().addDouble("value",0);
         output.push_back(e);
-        e = new vd::ExternalEvent("b");
+        e = new vle::devs::ExternalEvent("b");
         e->attributes().addString("name","b");
         e->attributes().addDouble("value",0);
         output.push_back(e);

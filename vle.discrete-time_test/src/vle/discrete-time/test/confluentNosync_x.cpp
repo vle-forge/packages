@@ -30,8 +30,8 @@
 #include <vle/devs/DynamicsDbg.hpp>
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -43,8 +43,8 @@ class confluentNosync_x : public DiscreteTimeDyn
 {
 
 public:
-    confluentNosync_x(const vd::DynamicsInit& model,
-       const vd::InitEventList& events) :
+    confluentNosync_x(const vle::devs::DynamicsInit& model,
+       const vle::devs::InitEventList& events) :
            DiscreteTimeDyn(model, events)
     {
         x.init(this, "x", events);
@@ -55,7 +55,7 @@ public:
     {
     }
 
-    void compute(const vd::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/)
     {
         x =  x(-1) + 1;
     }

@@ -29,35 +29,35 @@
 #include <vle/devs/DynamicsDbg.hpp>
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
 namespace test {
 
-namespace vd = vle::devs;
+
 namespace vu = vle::utils;
 
-class confluentNosync_output : public vd::Dynamics
+class confluentNosync_output : public vle::devs::Dynamics
 {
 public:
-    confluentNosync_output(const vd::DynamicsInit& model,
-        const vd::InitEventList& events):
-         vd::Dynamics(model,events)
+    confluentNosync_output(const vle::devs::DynamicsInit& model,
+        const vle::devs::InitEventList& events):
+         vle::devs::Dynamics(model,events)
     {
-        lastWakeUp = vd::negativeInfinity;
+        lastWakeUp = vle::devs::negativeInfinity;
     }
     ~confluentNosync_output()
     {
     }
     virtual vle::devs::Time init(const vle::devs::Time& /* time */)
     {
-        return vd::infinity;
+        return vle::devs::infinity;
     }
     vle::devs::Time timeAdvance() const
     {
-        return vd::infinity;
+        return vle::devs::infinity;
     }
     void externalTransition(
         const vle::devs::ExternalEventList& /* event */,
@@ -68,7 +68,7 @@ public:
         }
         lastWakeUp = time;
     }
-    vd::Time lastWakeUp;
+    vle::devs::Time lastWakeUp;
 };
 
 DECLARE_DYNAMICS_DBG(confluentNosync_output)

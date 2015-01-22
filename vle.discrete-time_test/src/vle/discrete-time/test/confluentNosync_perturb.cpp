@@ -29,20 +29,20 @@
 #include <vle/devs/DynamicsDbg.hpp>
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
 namespace test {
 
-class confluentNosync_perturb : public vd::Dynamics
+class confluentNosync_perturb : public vle::devs::Dynamics
 {
 public:
     enum State {BeforeOutput, Output, AfterOutput};
-    confluentNosync_perturb(const vd::DynamicsInit& model,
-        const vd::InitEventList& events):
-         vd::Dynamics(model,events)
+    confluentNosync_perturb(const vle::devs::DynamicsInit& model,
+        const vle::devs::InitEventList& events):
+         vle::devs::Dynamics(model,events)
     {
     }
     ~confluentNosync_perturb()
@@ -55,15 +55,15 @@ public:
 
     vle::devs::Time timeAdvance() const
     {
-        return vd::infinity;
+        return vle::devs::infinity;
     }
 
     void output(const vle::devs::Time& /* time */,
         vle::devs::ExternalEventList& output) const
     {
-        vd::ExternalEvent* ev = new vd::ExternalEvent("y_nosync");
-        ev->putAttribute("value", new vv::String("y_nosync"));
-        ev->putAttribute("value", new vv::Double(10));
+        vle::devs::ExternalEvent* ev = new vle::devs::ExternalEvent("y_nosync");
+        ev->putAttribute("value", new vle::value::String("y_nosync"));
+        ev->putAttribute("value", new vle::value::Double(10));
         output.push_back(ev);
     }
 };

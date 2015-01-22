@@ -30,8 +30,8 @@
 #include <vle/devs/DynamicsDbg.hpp>
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -42,7 +42,7 @@ namespace test {
 class E2 : public DiscreteTimeDyn
 {
 public:
-    E2(const vd::DynamicsInit& init, const vd::InitEventList& events)
+    E2(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
         :  DiscreteTimeDyn(init, events)
     {
         fsa.init(this, "fsa", events);
@@ -52,7 +52,7 @@ public:
     {
     }
 
-    void compute(const vd::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/)
     {
         //can be perturbated
         fsa = 0;

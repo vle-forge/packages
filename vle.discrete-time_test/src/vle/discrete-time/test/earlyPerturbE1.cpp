@@ -30,8 +30,8 @@
 
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -42,7 +42,7 @@ namespace test {
 class earlyPerturbE1 : public DiscreteTimeDyn
 {
 public:
-    earlyPerturbE1(const vd::DynamicsInit& init, const vd::InitEventList& evts)
+    earlyPerturbE1(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& evts)
         : DiscreteTimeDyn(init,evts)
     {
         e1.init(this, "e1",evts);
@@ -53,7 +53,7 @@ public:
     { }
 
 
-    void compute(const vd::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/)
     { e1 = e0() + e1(-1) + 1; }
 
 private:

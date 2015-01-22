@@ -30,8 +30,8 @@
 
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -42,7 +42,7 @@ namespace test {
 class earlyPerturbE2 : public DiscreteTimeDyn
 {
 public:
-    earlyPerturbE2(const vd::DynamicsInit& init, const vd::InitEventList& evts)
+    earlyPerturbE2(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& evts)
         : DiscreteTimeDyn(init,evts)
     {
         fsa.init(this, "fsa",evts);
@@ -53,7 +53,7 @@ public:
     virtual ~earlyPerturbE2()
     { }
 
-    void compute(const vd::Time& /* time */)
+    void compute(const vle::devs::Time& /* time */)
     {
         //can be perturbated
         fsa = 0;

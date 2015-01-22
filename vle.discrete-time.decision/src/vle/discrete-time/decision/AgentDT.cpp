@@ -53,7 +53,7 @@ AgentDT::currentTime() const
 }
 
 void
-AgentDT::compute(const vd::Time& t)
+AgentDT::compute(const vle::devs::Time& t)
 {
     KnowledgeBase::processChanges(t);
 }
@@ -94,8 +94,8 @@ AgentDT::outputVar(const vle::devs::Time& time,
 }
 
 void
-AgentDT::handleExtEvt(const vd::Time& t,
-            const vd::ExternalEventList& ext)
+AgentDT::handleExtEvt(const vle::devs::Time& t,
+            const vle::devs::ExternalEventList& ext)
 {
 
     for (devs::ExternalEventList::const_iterator it = ext.begin();

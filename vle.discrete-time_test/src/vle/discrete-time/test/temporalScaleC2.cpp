@@ -28,8 +28,8 @@
 
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -40,7 +40,7 @@ namespace test {
 class temporalScaleC2 : public DiscreteTimeDyn
 {
 public:
-    temporalScaleC2(const vd::DynamicsInit& init, const vd::InitEventList& events)
+    temporalScaleC2(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
         : DiscreteTimeDyn(init, events)
     {
         a.init(this, "a", events);
@@ -52,7 +52,7 @@ public:
     {
     }
 
-    void compute(const vd::Time& /*t*/)
+    void compute(const vle::devs::Time& /*t*/)
     {
         //std::cout << " A1::compute  use operator "  << t << std::endl;
         c = b() + a() + 1;

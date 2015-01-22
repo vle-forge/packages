@@ -32,8 +32,8 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <stack>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 namespace vz = vle::vpz;
 
 namespace vle {
@@ -43,13 +43,13 @@ namespace test {
 
 
 
-class InitModel4 : public vd::Executive
+class InitModel4 : public vle::devs::Executive
 {
 
 public:
-    InitModel4(const vd::ExecutiveInit& mdl,
-                 const vd::InitEventList& events) :
-        vd::Executive(mdl, events), a_0(0), b_0(0), c_0(0), d_0(0)
+    InitModel4(const vle::devs::ExecutiveInit& mdl,
+                 const vle::devs::InitEventList& events) :
+        vle::devs::Executive(mdl, events), a_0(0), b_0(0), c_0(0), d_0(0)
     {
         a_0 = events.getDouble("init_value_a");
         b_0 = events.getDouble("init_value_b");
@@ -60,22 +60,22 @@ public:
     {
     }
 
-    virtual vd::Time init(const vd::Time& /* time */)
+    virtual vle::devs::Time init(const vle::devs::Time& /* time */)
     {
         {//init d(0) = a(0) + c(0)
             vz::Condition& cond = conditions().get("cond_init_d");
             cond.clearValueOfPort("init_value_d");
             d_0 = a_0 + c_0;
-            cond.setValueToPort("init_value_d", vv::Double(d_0));
+            cond.setValueToPort("init_value_d", vle::value::Double(d_0));
         }
         {//init sum a + b + c + d;
             vz::Condition& cond = conditions().get("cond_init_sum_res");
             cond.clearValueOfPort("init_value_sum_res");
             cond.setValueToPort("init_value_sum_res",
-                    vv::Double(a_0 + b_0 + c_0 + d_0));
+                    vle::value::Double(a_0 + b_0 + c_0 + d_0));
         }
         createModelFromClass("model4", "model4");
-        return vd::infinity;
+        return vle::devs::infinity;
     }
 
     double a_0;

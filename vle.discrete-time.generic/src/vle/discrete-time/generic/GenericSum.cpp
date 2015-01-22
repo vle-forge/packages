@@ -30,8 +30,8 @@
 
 #include <iostream>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 
 namespace vle {
 namespace discrete_time {
@@ -40,7 +40,7 @@ namespace generic {
 class GenericSum : public DiscreteTimeDyn
 {
 public:
-    GenericSum(const vd::DynamicsInit& init, const vd::InitEventList& events)
+    GenericSum(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
         : DiscreteTimeDyn(init, events)
     {
         Sum.init(this, "Sum", events);
@@ -67,7 +67,7 @@ public:
 
     }
 
-    void compute(const vd::Time& /*t*/)
+    void compute(const vle::devs::Time& /*t*/)
     {
 
         std::vector<Var*>::iterator itb = inputs.begin();

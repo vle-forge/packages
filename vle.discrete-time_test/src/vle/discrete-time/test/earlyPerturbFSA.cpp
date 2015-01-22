@@ -28,8 +28,8 @@
 
 #include <vle/extension/fsa/Statechart.hpp>
 
-namespace vd = vle::devs;
-namespace vv = vle::value;
+
+
 namespace ve = vle::extension;
 
 namespace vle {
@@ -39,7 +39,7 @@ namespace test {
 class earlyPerturbFSA : public ve::fsa::Statechart
 {
 public:
-    earlyPerturbFSA(const vd::DynamicsInit& init, const vd::InitEventList& evts)
+    earlyPerturbFSA(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& evts)
         : ve::fsa::Statechart(init, evts)
     {
         states(this) << 0;
@@ -52,12 +52,12 @@ public:
     virtual ~earlyPerturbFSA()
     { }
 
-    void out(const vd::Time& /*time*/, vd::ExternalEventList& output) const
+    void out(const vle::devs::Time& /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vd::ExternalEvent* evt = new vd::ExternalEvent("fsa");
+        vle::devs::ExternalEvent* evt = new vle::devs::ExternalEvent("fsa");
 
-        evt->putAttribute("name", new vv::String("fsa"));
-        evt->putAttribute("value", new vv::Double(1.0));
+        evt->putAttribute("name", new vle::value::String("fsa"));
+        evt->putAttribute("value", new vle::value::Double(1.0));
         output.push_back(evt);
     }
 };
