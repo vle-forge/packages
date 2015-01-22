@@ -152,10 +152,12 @@ following:
   the dimension of the vector.
 * 'history_size_myvar' (uint, default 1) : it gives the size of the
   history of internal variable 'myvar'.
+* 'syncs' (set of strings, default empty): each variable into this set are
+  parameterized with a value of 1 for sync parameter.
 * 'sync_myvar' (uint, default 0): if sync_myvar > 0, the value of
   'myvar' at times n * sync_myvar * time_step, with n > 0$ is
   expected to be provided by an external event before calling the _compute_
-  function.
+  function. This option has priority on 'syncs'.
 * 'allow_update_myvar' (bool, default false): if false, the first
   value set for 'myvar' at a given time step is kept. The following updates for
   'myvar' at this time step are ignored. 

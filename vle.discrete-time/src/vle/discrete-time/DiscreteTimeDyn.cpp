@@ -67,9 +67,23 @@ DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
             devs_options.bags_to_eat = itb->second->toInteger().value();
         } else if (event_name == "time_step") {
             devs_options.dt = itb->second->toDouble().value();
-        } else if (!prefix.assign("sync").empty() and
+        } else if (event_name == "syncs") {
+            const vle::value::Set& syncs = itb->second->toSet();
+            vle::value::Set::const_iterator isb = syncs.begin();
+            vle::value::Set::const_iterator ise = syncs.end();
+            for (; isb != ise; isb++) {
+                devs_options.syncs.insert(
+                        std::make_pair((*isb)->toString().value(), true));
+            }
+        }
+    }
+    //2nd init (prior)
+    itb = events.begin();
+    for (; itb != ite; itb++) {
+        const std::string& event_name = itb->first;
+        if (!prefix.assign("sync_").empty() and
                 !event_name.compare(0, prefix.size(), prefix)) {
-            var_name.assign(event_name.substr(prefix.size()+1,
+            var_name.assign(event_name.substr(prefix.size(),
                     event_name.size()));
             int sync;
             if (itb->second->isInteger()) {

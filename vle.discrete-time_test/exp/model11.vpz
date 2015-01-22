@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
 <vle_project version="1.0" date="2014-May-02 10:46:30" author="Ronan Trépos">
 <structures>
-<model name="model11" type="coupled" x="0" y="0" width="1504" height="501"  >
+<model name="model11" type="coupled" x="0" y="0" width="732" height="303"  >
 <submodels>
 <model name="D1" type="atomic" conditions="condD1,cond_time_step" dynamics="dynD1" observables="obsD1" x="601" y="55" width="100" height="60" >
 <in>
@@ -79,14 +79,11 @@
 <dynamic name="dynPerturb2" library="Perturb2" package="vle.discrete-time_test"  />
 <dynamic name="dynPerturb4" library="Perturb4" package="vle.discrete-time_test"  />
 </dynamics>
-<experiment name="model11" duration="20.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="model11" combination="linear"  >
 <conditions>
 <condition name="condD1" >
- <port name="sync_a" >
-<integer>1</integer>
-</port>
- <port name="sync_c" >
-<integer>1</integer>
+ <port name="syncs" >
+<set><string>a</string><string>b</string></set>
 </port>
 </condition>
 <condition name="condE3" >
@@ -97,6 +94,14 @@
 <condition name="cond_time_step" >
  <port name="time_step" >
 <double>1.000000000000000</double>
+</port>
+</condition>
+<condition name="simulation_engine" >
+ <port name="begin" >
+<double>0.000000000000000</double>
+</port>
+ <port name="duration" >
+<double>20.000000000000000</double>
 </port>
 </condition>
 </conditions>
