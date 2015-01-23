@@ -154,6 +154,14 @@ public:
         return ios;
     }
 
+    void fillWithError(std::string& s)
+    {
+        for (unsigned int i=0; i < report.size(); i++) {
+            s.append(report[i]);
+            s.append("\n");
+        }
+    }
+
     void setFilePath(const std::string& filePath)
     {
         clearFileStream();
