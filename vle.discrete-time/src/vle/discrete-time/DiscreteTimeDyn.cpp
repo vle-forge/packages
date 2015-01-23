@@ -53,8 +53,8 @@ DiscreteTimeDyn::DEVS_Options::~DEVS_Options()
 DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
     const vle::devs::InitEventList& events): vle::devs::Dynamics(model, events),
     TemporalValuesProvider(getModelName(), events), devs_state(INIT),
-    devs_options(), devs_guards(), devs_internal(), declarationOn(true),
-    currentTimeStep(0)
+    devs_options(), devs_guards(), devs_internal(), mfirstCompute(true),
+    declarationOn(true), currentTimeStep(0)
 {
     vle::devs::InitEventList::const_iterator itb = events.begin();
     vle::devs::InitEventList::const_iterator ite = events.end();
@@ -102,6 +102,11 @@ DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
 
 DiscreteTimeDyn::~DiscreteTimeDyn()
 {
+}
+
+bool DiscreteTimeDyn::firstCompute() const
+{
+    return mfirstCompute;
 }
 
 void
@@ -464,6 +469,7 @@ DiscreteTimeDyn::processIn(const vle::devs::Time& t,
         currentTimeStep ++;
         setCurrentTime(t);
         compute(t);
+        mfirstCompute=false;
         snapshot();
         break;
     }

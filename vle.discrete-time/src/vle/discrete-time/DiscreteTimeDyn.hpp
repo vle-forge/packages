@@ -49,7 +49,18 @@ public:
 
     virtual void compute(const vle::devs::Time& t) = 0;
 
+
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
+    //////////////////////
+    //User API
+    //////////////////////
+
+    bool firstCompute() const;
+
+    /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
+    //////////////////////
+    //DEVS implementation
+    //////////////////////
 
     virtual vle::devs::Time init(const vle::devs::Time& time);
 
@@ -200,6 +211,7 @@ public:
     DEVS_TransitionGuards devs_guards;
     DEVS_Internal devs_internal;
 
+    bool mfirstCompute;
     bool declarationOn;
     unsigned int currentTimeStep;
 };
