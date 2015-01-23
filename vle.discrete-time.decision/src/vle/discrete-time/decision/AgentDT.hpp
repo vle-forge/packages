@@ -64,7 +64,7 @@ public:
     vle::value::Value* observation(
             const vle::devs::ObservationEvent& event) const;
 
-    //double mCurrentTime;
+    vle::value::Map mdefaultValues;
 
 };
 

@@ -36,9 +36,35 @@ namespace discrete_time {
 namespace decision {
 
 AgentDT::AgentDT(const devs::DynamicsInit& mdl,
-      const devs::InitEventList& evts)
-    : DiscreteTimeDyn(mdl, evts)//, mCurrentTime(0)
+      const devs::InitEventList& events)
+    : DiscreteTimeDyn(mdl, events), mdefaultValues()
 {
+    vle::devs::InitEventList::const_iterator itb = events.begin();
+    vle::devs::InitEventList::const_iterator ite = events.end();
+    std::string prefix;
+    std::string var_name;
+    //first init
+    for (; itb != ite; itb++) {
+        const std::string& event_name = itb->first;
+        if (event_name == "default_values") {
+            vle::value::Map::const_iterator idb = itb->second->toMap().begin();
+            vle::value::Map::const_iterator ide = itb->second->toMap().end();
+            for (; idb != ide; idb++) {
+                mdefaultValues.add(idb->first, idb->second->clone());
+            }
+        }
+    }
+    //2nd init (prior)
+    itb = events.begin();
+    for (; itb != ite; itb++) {
+        const std::string& event_name = itb->first;
+        if (!prefix.assign("default_value_").empty() and
+                !event_name.compare(0, prefix.size(), prefix)) {
+            var_name.assign(event_name.substr(prefix.size(),
+                    event_name.size()));
+            mdefaultValues.set(var_name, itb->second->clone());
+        }
+    }
 
 }
 
@@ -56,6 +82,30 @@ void
 AgentDT::compute(const vle::devs::Time& t)
 {
     KnowledgeBase::processChanges(t);
+    Variables&  vars = getVariables();
+    Variables::const_iterator itb = vars.begin();
+    Variables::const_iterator ite = vars.end();
+
+    for (; itb !=ite; itb++) {
+        if ((itb->second->lastUpdateTime() < t)
+                && (mdefaultValues.exist(itb->first))) {
+            switch (itb->second->getType()) {
+            case MONO: {
+                VarMono* vmono = static_cast < VarMono* >(itb->second);
+                vmono->update(t, *mdefaultValues.get(itb->first));
+                break;
+            } case MULTI: {
+                VarMulti* vmulti = static_cast < VarMulti* >(itb->second);
+                vmulti->update(t, *mdefaultValues.get(itb->first));
+                break;
+            } case VALUE_VLE: {
+                VarValue* vvalue = static_cast < VarValue* >(itb->second);
+                vvalue->update(t, *mdefaultValues.get(itb->first));
+                break;
+            }}
+
+        }
+    }
 }
 
 void
