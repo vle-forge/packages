@@ -101,6 +101,31 @@ VarInterface::~VarInterface()
     delete init_value;
 }
 
+bool VarInterface::isVarMono() const
+{
+    return getType() == MONO;
+}
+bool VarInterface::isVarMulti() const
+{
+    return getType() == MULTI;
+}
+bool VarInterface::isVarValue() const
+{
+    return getType() == VALUE_VLE;
+}
+const VarMono& VarInterface::toVarMono() const
+{
+    return static_cast < const VarMono& >(*this);
+}
+const VarMulti& VarInterface::toVarMulti() const
+{
+    return static_cast < const VarMulti& >(*this);
+}
+const VarValue& VarInterface::toVarValue() const
+{
+    return static_cast < const VarValue& >(*this);
+}
+
 void
 VarInterface::initHistoryVar(const std::string& varName,
         const vle::devs::Time& t)

@@ -74,6 +74,10 @@ struct VarValueUpdate
     vle::value::Value* value;
 };
 
+struct VarMono;
+struct VarMulti;
+struct VarValue;
+
 struct VarInterface
 {
     bool error_no_sync;
@@ -85,6 +89,13 @@ struct VarInterface
 
     VarInterface(TemporalValuesProvider* eq);
     virtual ~VarInterface();
+
+    bool isVarMono() const;
+    bool isVarMulti() const;
+    bool isVarValue() const;
+    const VarMono& toVarMono() const;
+    const VarMulti& toVarMulti() const;
+    const VarValue& toVarValue() const;
 
     void initHistoryVar(const std::string& varName, const vle::devs::Time& t);
 
