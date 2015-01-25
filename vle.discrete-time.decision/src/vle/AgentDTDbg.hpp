@@ -1,10 +1,9 @@
 /*
- *
  * This file is part of VLE, a framework for multi-modeling, simulation
  * and analysis of complex dynamical systems
  * http://www.vle-project.org
  *
- * Copyright (c) 2013-2013 INRA http://www.inra.fr
+ * Copyright (c) 2014-2014 INRA http://www.inra.fr
  *
  * See the AUTHORS or Authors.txt file for copyright owners and contributors
  *
@@ -21,7 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #ifndef VLE_DISCRETE_TIME_DEC_AGENT_DBG_HPP
 #define VLE_DISCRETE_TIME_DEC_AGENT_DBG_HPP 1

@@ -132,14 +132,36 @@ public:
      */
     struct  DEVS_Options
     {
+        //for a given variable: gives the sync parameter
         typedef std::map <std::string, unsigned int> SyncsType;
+        //for a given variable: gives the output period parameter
+        typedef std::map <std::string, unsigned int> OutputPeriods;
+        //for a given variable: gives the type of output, if true, then outputs
+        //nill if the last update time is not the current time
+        typedef std::map <std::string, bool> OutputNils;
 
         unsigned int bags_to_eat;
         double dt;
         SyncsType syncs;
+        OutputPeriods outputPeriods;
+        OutputNils outputNils;
+
+        vle::value::Integer* outputPeriodsGlobal;
+        vle::value::Boolean* outputNilsGlobal;
+
 
         DEVS_Options();
         ~DEVS_Options();
+
+        void setGlobalOutputNils(const DiscreteTimeDyn& dtd, bool type);
+        void setGlobalOutputPeriods(const DiscreteTimeDyn& dtd, int period);
+        void finishInitialization(const DiscreteTimeDyn& dtd);
+        bool shouldOutput(const DiscreteTimeDyn& dtd,
+                const std::string& varname) const;
+        bool shouldOutputNil(const DiscreteTimeDyn& dtd,
+                double lastUpdateTime,
+                double currentTime,
+                const std::string& varname) const;
 
     };
 

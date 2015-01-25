@@ -143,28 +143,37 @@ public:
 The common structure of the conditions for configuring atomic models is the
 following:
 
-* 'time_step' (double, default 1.0) : the time step of the discrete time
+* **time_step** (double, default 1.0) : the time step of the discrete time
   atomic model.
-* 'init_value\_myvar' (vle::Value, default vle::Double(0.0)) :
-  the initial value of the internal variable 'myvar'. It also contains
-  the historic values if history_size_myvar > 0 using e.g. vv::Set.
-* 'dim_myvar' (int, default 2) : if myvar is a vector, it defines
+* **init_value_myvar** (vle::Value, default vle::Double(0.0)) :
+  the initial value of the internal variable *myvar*. It also contains
+  the historic values if **history_size_myvar** > 0 using e.g. vv::Set.
+* **dim_myvar** (int, default 2) : if *myvar* is a vector, it defines
   the dimension of the vector.
-* 'history_size_myvar' (uint, default 1) : it gives the size of the
+* **history_size_myvar** (uint, default 1) : it gives the size of the
   history of internal variable 'myvar'.
-* 'syncs' (set of strings, default empty): each variable into this set are
+* **syncs** (set of strings, default empty): each variable into this set are
   parameterized with a value of 1 for sync parameter.
-* 'sync_myvar' (uint, default 0): if sync_myvar > 0, the value of
-  'myvar' at times n * sync_myvar * time_step, with n > 0$ is
+* **sync_myvar** (uint, default 0): if **sync_myvar** > 0, the value of
+  *myvar* at times n * **sync_myvar** * **time_step**, with n > 0 is
   expected to be provided by an external event before calling the _compute_
-  function. This option has priority on 'syncs'.
-* 'allow_update_myvar' (bool, default false): if false, the first
-  value set for 'myvar' at a given time step is kept. The following updates for
-  'myvar' at this time step are ignored. 
-* 'error_no_sync_myvar' (bool, default false) : if true, the
-  access to 'myvar' at the current time _myvar()_ will send an error if the
-  last time of update of 'myvar' is before the current time.
-* 'bags_to_eat' (int, default 0) : the number of bags to wait before
+  function. This option has priority on **syncs**.
+* **output_nil** (bool, default false): if true, the output function will
+  produce a Null value for a variable which last update is not equals to
+  current time, otherwise it will gives the last updated value.
+* **output_nil_myvar** (bool, default false): a specific value of output_nil
+  for variable my_var. This option has priority on **output_nil**.
+* **output_period** (uint, default 1): gives the time step of output.
+  Output will produce values each **time_step** * output_period.
+* 'output_period_myvar' (uint, default 1): a specific value of output_period
+  for variable my_var. This option has priority on **output_period**.
+* **allow_update_myvar** (bool, default false): if false, the first
+  value set for *myvar* at a given time step is kept. The following updates for
+  *myvar* at this time step are ignored.
+* **error_no_sync_myvar** (bool, default false) : if true, the
+  access to *myvar* at the current time _myvar()_ will send an error if the
+  last time of update of *myvar* is before the current time.
+* **bags_to_eat** (int, default 0) : the number of bags to wait before
   computing the values of variables (calls of _compute_ user function).
 
 ### Technical details

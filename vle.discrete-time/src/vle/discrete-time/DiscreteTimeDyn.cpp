@@ -41,14 +41,85 @@ DiscreteTimeDyn::DEVS_TransitionGuards::DEVS_TransitionGuards():
 }
 
 DiscreteTimeDyn::DEVS_Options::DEVS_Options():
-        bags_to_eat(0), dt(1.0), syncs()
+        bags_to_eat(0), dt(1.0), syncs(), outputPeriods(), outputNils(),
+        outputPeriodsGlobal(0), outputNilsGlobal(0)
 {
 }
 
 DiscreteTimeDyn::DEVS_Options::~DEVS_Options()
 {
+    delete outputNilsGlobal;
+    delete outputPeriodsGlobal;
 }
 
+void
+DiscreteTimeDyn::DEVS_Options::setGlobalOutputNils(
+        const DiscreteTimeDyn& /*dtd*/, bool nil)
+{
+    delete outputNilsGlobal;
+    outputNilsGlobal = new vle::value::Boolean(nil);
+}
+
+void
+DiscreteTimeDyn::DEVS_Options::setGlobalOutputPeriods(
+        const DiscreteTimeDyn& dtd, int period)
+{
+    if (period <= 0) {
+        throw vle::utils::ArgError(vle::fmt("[%1%] output_period parameter "
+                "must be positive") % dtd.getModelName());
+    }
+    delete outputPeriodsGlobal;
+    outputPeriodsGlobal = new vle::value::Integer(period);
+}
+
+void
+DiscreteTimeDyn::DEVS_Options::finishInitialization(
+        const DiscreteTimeDyn& dtd)
+{
+    if (outputPeriodsGlobal) {
+        Variables::const_iterator itb = dtd.getVariables().begin();
+        Variables::const_iterator ite = dtd.getVariables().end();
+        for (;itb != ite; itb++) {
+            if (outputPeriods.find(itb->first) != outputPeriods.end()) {
+                outputPeriods.insert(std::pair<std::string, unsigned int>(
+                        itb->first,
+                        (unsigned int) outputPeriodsGlobal->value()));
+            }
+        }
+    }
+    if (outputNilsGlobal) {
+        Variables::const_iterator itb = dtd.getVariables().begin();
+        Variables::const_iterator ite = dtd.getVariables().end();
+        for (;itb != ite; itb++) {
+            if (outputNils.find(itb->first) != outputNils.end()) {
+                outputNils.insert(std::pair<std::string, bool>(
+                        itb->first, outputNilsGlobal->value()));
+            }
+        }
+    }
+}
+
+bool
+DiscreteTimeDyn::DEVS_Options::shouldOutput(
+        const DiscreteTimeDyn& dtd, const std::string& varname) const
+{
+    OutputPeriods::const_iterator itf = outputPeriods.find(varname);
+    if (itf == outputPeriods.end()) {
+        return true;
+    }
+    return ((dtd.currentTimeStep % itf->second) == 0);
+}
+
+bool
+DiscreteTimeDyn::DEVS_Options::shouldOutputNil(const DiscreteTimeDyn& /*dtd*/,
+        double lastUpdateTime,
+        double currentTime,
+        const std::string& varname) const
+{
+    if (!(lastUpdateTime < currentTime)) return false;
+    OutputNils::const_iterator itf = outputNils.find(varname);
+    return (itf != outputNils.end() && itf->second);
+}
 
 DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
     const vle::devs::InitEventList& events): vle::devs::Dynamics(model, events),
@@ -75,6 +146,12 @@ DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
                 devs_options.syncs.insert(
                         std::make_pair((*isb)->toString().value(), true));
             }
+        } else if (event_name == "output_nil") {
+            devs_options.setGlobalOutputNils(*this,
+                    itb->second->toBoolean().value());
+        } else if (event_name == "output_period") {
+            devs_options.setGlobalOutputPeriods(*this,
+                    itb->second->toInteger().value());
         }
     }
     //2nd init (prior)
@@ -96,6 +173,18 @@ DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
                 }
             }
             devs_options.syncs.insert(std::make_pair(var_name, sync));
+        } else if (!prefix.assign("output_nil_").empty() and
+                !event_name.compare(0, prefix.size(), prefix)) {
+            var_name.assign(event_name.substr(prefix.size(),
+                    event_name.size()));
+            devs_options.outputNils.insert(std::pair<std::string, bool>(
+                    var_name, itb->second->toBoolean().value()));
+        } else if (!prefix.assign("output_period_").empty() and
+                !event_name.compare(0, prefix.size(), prefix)) {
+            var_name.assign(event_name.substr(prefix.size(),
+                    event_name.size()));
+            devs_options.outputPeriods.insert(std::pair<std::string, bool>(
+                    var_name, itb->second->toInteger().value()));
         }
     }
 }
@@ -117,43 +206,41 @@ DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
     Variables::const_iterator ite = getVariables().end();
     for (; itb!=ite; itb++) {
         const std::string& var_name = itb->first;
-        if (getModel().existOutputPort(var_name)) {
+        if (getModel().existOutputPort(var_name) &&
+                devs_options.shouldOutput(*this, var_name)) {
+            vle::devs::ExternalEvent* e =
+                    new vle::devs::ExternalEvent(var_name);
             VarInterface* v = itb->second;
-            switch (v->getType()) {
-            case MONO:{
-                VarMono* vmono = static_cast < VarMono* >(v);
-                vle::devs::ExternalEvent* e =
-                        new vle::devs::ExternalEvent(var_name);
-                //e->putAttribute("name", new vle::value::String(var_name));
-                e->putAttribute("value",
-                        new vle::value::Double(vmono->getVal(time,0)));
-                output.push_back(e);
-                break;
-            } case MULTI: {
-                VarMulti* vmulti = static_cast < VarMulti* >(v);
-                vle::devs::ExternalEvent* e =
-                        new vle::devs::ExternalEvent(var_name);
-                //e->putAttribute("name", new vle::value::String(var_name));
-                vle::value::Tuple* extTuple =
-                        new vle::value::Tuple(vmulti->dim);
-                vle::value::Tuple::iterator itb = extTuple->value().begin();
-                vle::value::Tuple::iterator ite = extTuple->value().end();
-                std::vector<double>::const_iterator itval =
-                        vmulti->getVal(time,0).begin();
-                for (; itb!=ite; itb++, itval++) {
-                    *itb = *itval;
-                }
-                e->putAttribute("value", extTuple);
-                output.push_back(e);
-                break;
-            } case VALUE_VLE: {
-                VarValue* vval = static_cast < VarValue* >(v);
-                vle::devs::ExternalEvent* e =
-                        new vle::devs::ExternalEvent(var_name);
-                e->putAttribute("value", vval->getVal(time,0).clone());
-                output.push_back(e);
-                break;
-            }}
+            if (devs_options.shouldOutputNil(
+                    *this, v->lastUpdateTime(), time, var_name)) {
+                e->putAttribute("value", new vle::value::Null);
+            } else {
+                switch (v->getType()) {
+                case MONO:{
+                    VarMono* vmono = static_cast < VarMono* >(v);
+                    e->putAttribute("value",
+                            new vle::value::Double(vmono->getVal(time,0)));
+                    break;
+                } case MULTI: {
+                    VarMulti* vmulti = static_cast < VarMulti* >(v);
+                    vle::value::Tuple* extTuple =
+                            new vle::value::Tuple(vmulti->dim);
+                    vle::value::Tuple::iterator itb = extTuple->value().begin();
+                    vle::value::Tuple::iterator ite = extTuple->value().end();
+                    std::vector<double>::const_iterator itval =
+                            vmulti->getVal(time,0).begin();
+                    for (; itb!=ite; itb++, itval++) {
+                        *itb = *itval;
+                    }
+                    e->putAttribute("value", extTuple);
+                    break;
+                } case VALUE_VLE: {
+                    VarValue* vval = static_cast < VarValue* >(v);
+                    e->putAttribute("value", vval->getVal(time,0).clone());
+                    break;
+                }}
+            }
+            output.push_back(e);
         }
     }
 }
@@ -223,6 +310,7 @@ DiscreteTimeDyn::isSync(const std::string& var_name,
 vle::devs::Time
 DiscreteTimeDyn::init(const vle::devs::Time& t)
 {
+    devs_options.finishInitialization(*this);
     devs_state = INIT;
     processIn(t, INTERNAL);
     return timeAdvance();

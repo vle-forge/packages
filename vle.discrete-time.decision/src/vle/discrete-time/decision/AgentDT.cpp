@@ -1,13 +1,9 @@
 /*
- * @file vle/extension/decision/Agent.cpp
- *
  * This file is part of VLE, a framework for multi-modeling, simulation
  * and analysis of complex dynamical systems
  * http://www.vle-project.org
  *
- * Copyright (c) 2003-2007 Gauthier Quesnel <quesnel@users.sourceforge.net>
- * Copyright (c) 2003-2011 ULCO http://www.univ-littoral.fr
- * Copyright (c) 2007-2011 INRA http://www.inra.fr
+ * Copyright (c) 2014-2014 INRA http://www.inra.fr
  *
  * See the AUTHORS or Authors.txt file for copyright owners and contributors
  *
@@ -39,6 +35,9 @@ AgentDT::AgentDT(const devs::DynamicsInit& mdl,
       const devs::InitEventList& events)
     : DiscreteTimeDyn(mdl, events), mdefaultValues()
 {
+    if (! events.exist("output_nil")) {
+        devs_options.setGlobalOutputNils(*this, true);
+    }
     vle::devs::InitEventList::const_iterator itb = events.begin();
     vle::devs::InitEventList::const_iterator ite = events.end();
     std::string prefix;
@@ -65,7 +64,6 @@ AgentDT::AgentDT(const devs::DynamicsInit& mdl,
             mdefaultValues.set(var_name, itb->second->clone());
         }
     }
-
 }
 
 AgentDT::~AgentDT()
