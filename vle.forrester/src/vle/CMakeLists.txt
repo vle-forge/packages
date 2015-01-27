@@ -1,3 +1,3 @@
-if (WITH_GLVE)
+if (WITH_GVLE)
   add_subdirectory(forrester)
 endif ()
