@@ -107,6 +107,7 @@ bool DecisionDrawingArea::addActivity(guint x, guint y)
             newActivity->maxfinish(dialog.maxfinish());
         }
         newActivity->setRelativeDate(dialog.isRelativeDate());
+        newActivity->setHumanDate(dialog.isHumanDate());
 
         int newWidth = x + newActivity->width() + OFFSET;
         int newHeight = y + newActivity->height() + OFFSET;
