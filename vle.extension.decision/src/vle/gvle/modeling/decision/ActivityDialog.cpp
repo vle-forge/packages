@@ -87,15 +87,13 @@ ActivityDialog::ActivityDialog(const Glib::RefPtr < Gtk::Builder >& xml,
 }
 
 ActivityDialog::ActivityDialog(const Glib::RefPtr < Gtk::Builder >& xml,
-            Decision* decision,
-            std::map < std::string, strings_t > rule,
-            strings_t outputFunctionName,
-            strings_t ackFunctionName) :
-    mXml(xml), mDecision(decision)
+                               Decision* decision,
+                               std::map < std::string, strings_t > rule,
+                               strings_t outputFunctionName,
+                               strings_t ackFunctionName) :
+    mXml(xml), mDecision(decision), mActivityModel(0),
+    mRule(rule), mOutput(outputFunctionName), mAck(ackFunctionName)
 {
-    mOutput = outputFunctionName;
-    mAck = ackFunctionName;
-    mRule = rule;
 
     xml->get_widget("TreeViewActRule", mTreeViewActRules);
     mRefTreeActRules = Gtk::TreeStore::create(mColumnsActRules);
@@ -353,39 +351,54 @@ void ActivityDialog::onCalendarFinish()
 
 int ActivityDialog::run()
 {
-    mRelativeButton->set_active(mActivityModel->getRelativeDate());
-    mNameEntry->set_text(mActivityModel->name());
-    mOriginalName = mActivityModel->name();
+    mNameEntry->get_buffer()->set_text("");
+    mDateStartEntry->get_buffer()->set_text("");
+    mDateFinishEntry->get_buffer()->set_text("");
 
-    if (mActivityModel->getRelativeDate()) {
-        mDateStartEntry->set_text(mActivityModel->minstart());
-        mDateFinishEntry->set_text(mActivityModel->maxfinish());
+    if (mActivityModel) {
+
+        mRelativeButton->set_active(mActivityModel->getRelativeDate());
+        mNameEntry->set_text(mActivityModel->name());
+        mOriginalName = mActivityModel->name();
+
+        if (mActivityModel->getRelativeDate()) {
+            mDateStartEntry->set_text(mActivityModel->minstart());
+            mDateFinishEntry->set_text(mActivityModel->maxfinish());
+        } else {
+            if (mActivityModel->minstart() != "") {
+                double x = vle::utils::convert < double >(
+                    mActivityModel->minstart(),
+                    true);
+                mDateStartEntry->set_text(utils::DateTime::toJulianDayNumber(x));
+            }
+            if (mActivityModel->maxfinish() != "") {
+                double x = vle::utils::convert < double >(
+                    mActivityModel->maxfinish(),
+                    true);
+                mDateFinishEntry->set_text(utils::DateTime::toJulianDayNumber(x));
+            }
+        }
+
+        mActRule = mActivityModel->getRules();
+        makeActRules();
+        mActOut = mActivityModel->getOutputFunc();
+        makeActOutput();
+        mActAck = mActivityModel->getAckFunc();
+        makeActAck();
+
+        mDialog->set_default_response(Gtk::RESPONSE_ACCEPT);
+        mOkButton->set_sensitive(true);
+        onChangeName();
+        mDialog->set_title(mActivityModel->name() + " Activity");
     } else {
-        if (mActivityModel->minstart() != "") {
-            double x = vle::utils::convert < double >(
-                mActivityModel->minstart(),
-                true);
-            mDateStartEntry->set_text(utils::DateTime::toJulianDayNumber(x));
-        }
-        if (mActivityModel->maxfinish() != "") {
-            double x = vle::utils::convert < double >(
-                mActivityModel->maxfinish(),
-                true);
-            mDateFinishEntry->set_text(utils::DateTime::toJulianDayNumber(x));
-        }
+        makeActRules();
+        mDialog->set_default_response(Gtk::RESPONSE_ACCEPT);
+        onChangeName();
+        mOkButton->set_sensitive(false);
+        mDialog->set_title("New Activity Dialog");
+        mRelativeButton->set_active(false);
     }
 
-    mActRule = mActivityModel->getRules();
-    makeActRules();
-    mActOut = mActivityModel->getOutputFunc();
-    makeActOutput();
-    mActAck = mActivityModel->getAckFunc();
-    makeActAck();
-
-    mDialog->set_default_response(Gtk::RESPONSE_ACCEPT);
-    mOkButton->set_sensitive(true);
-    onChangeName();
-    mDialog->set_title(mActivityModel->name() + " Activity");
     int response = mDialog->run();
     mDialog->hide();
     return response;

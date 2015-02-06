@@ -383,46 +383,6 @@ private:
     void initActivityDialogActions();
 };
 
-
-class NewActivityDialog : public ActivityDialog
-{
-public:
-/**
- * @brief Constructor of the NewsActivityDialog
- * @param reference to the xml builder
- * @param reference to the Decision model
- * @param reference to a rule vector
- */
-    NewActivityDialog(const Glib::RefPtr < Gtk::Builder >& xml,
-            Decision* decision,
-            std::map < std::string, strings_t > rule,
-            strings_t outputFunctionName,
-            strings_t ackFunctionName) :
-        ActivityDialog(xml, decision, rule, outputFunctionName,
-                ackFunctionName)
-{
-}
-
-/**
- * @brief Launch the window
- */
-int run()
-{
-    mNameEntry->set_text("");
-    mDateStartEntry->set_text("");
-    mDateFinishEntry->set_text("");
-    makeActRules();
-    mDialog->set_default_response(Gtk::RESPONSE_ACCEPT);
-    onChangeName();
-    mOkButton->set_sensitive(false);
-    mDialog->set_title("New Activity Dialog");
-    mRelativeButton->set_active(false);
-    int response = mDialog->run();
-    mDialog->hide();
-    return response;
-}
-};
-
 }
 }
 }

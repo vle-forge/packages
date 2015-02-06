@@ -88,8 +88,9 @@ void DecisionDrawingArea::initMenuPopupModels()
 
 bool DecisionDrawingArea::addActivity(guint x, guint y)
 {
-    NewActivityDialog dialog(mXml, mDecision, *mDecision->getRule(),
-            *mDecision->getOutputFunc(), *mDecision->getAckFunc());
+    ActivityDialog dialog(mXml, mDecision, *mDecision->getRule(),
+                          *mDecision->getOutputFunc(),
+                          *mDecision->getAckFunc());
 
     if (dialog.run() == Gtk::RESPONSE_ACCEPT) {
 
