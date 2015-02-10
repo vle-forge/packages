@@ -127,8 +127,8 @@ public:
         if (ref) {
             Gtk::TreeModel::iterator iter = ref->get_selected();
             if (iter && Question(_("Are you sure you want to delete this param?"))) {
-                mNameParam->set_text("");
-                mValueParam->set_text("");
+                mNameParam->get_buffer()->set_text("");
+                mValueParam->get_buffer()->set_text("");
 
                 Gtk::TreeModel::Row row = *iter;
                 std::string name(row.get_value(m_viewscolumnrecord.name));

@@ -49,7 +49,7 @@ namespace decision {
     xml->get_widget("AckFunction", mTextViewFunction);
     xml->get_widget("HeaderAck", mHeaderAck);
 
-    mAckNameEntry->set_text("");
+    mAckNameEntry->get_buffer()->set_text("");
     mHeaderAck->set_text("");
     mTextViewFunction->get_buffer()->set_text("");
 
@@ -193,7 +193,7 @@ void AckFunctionDialog::onDeleteAck()
         Gtk::TreeModel::iterator iter = ref->get_selected();
         if (iter) {
             if (Question(_("Are you sure you want to delete this function?"))) {
-                mAckNameEntry->set_text("");
+                mAckNameEntry->get_buffer()->set_text("");
                 mTextViewFunction->get_buffer()->set_text("");
                 mHeaderAck->set_text("");
 

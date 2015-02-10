@@ -54,7 +54,7 @@ namespace decision {
     xml->get_widget("factFunction", mTextViewFunction);
     xml->get_widget("HeaderFact", mHeaderFact);
 
-    mFactNameEntry->set_text("");
+    mFactNameEntry->get_buffer()->set_text("");
     mHeaderFact->set_text("");
     mTextViewFunction->get_buffer()->set_text("");
 
@@ -197,7 +197,7 @@ void FactDialog::onDeleteFact()
     if (ref) {
         Gtk::TreeModel::iterator iter = ref->get_selected();
         if (iter && Question(_("Are you sure you want to delete this fact?"))) {
-            mFactNameEntry->set_text("");
+            mFactNameEntry->get_buffer()->set_text("");
             mTextViewFunction->get_buffer()->set_text("");
             mTextViewAttributes->get_buffer()->set_text("");
             mTextViewInit->get_buffer()->set_text("");

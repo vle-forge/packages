@@ -52,7 +52,7 @@ namespace decision {
     mHeaderPred->set_justify(Gtk::JUSTIFY_LEFT);
     xml->get_widget("HeaderPred", mHeaderPred);
 
-    mPredicateNameEntry->set_text("");
+    mPredicateNameEntry->get_buffer()->set_text("");
     mHeaderPred->set_text("");
     mTextViewFunction->get_buffer()->set_text("");
 
@@ -190,7 +190,7 @@ void PredicateDialog::onDeletePredicate()
         Gtk::TreeModel::iterator iter = ref->get_selected();
         if (iter) {
             if (Question(_("Are you sure you want to delete this predicate?"))) {
-                mPredicateNameEntry->set_text("");
+                mPredicateNameEntry->get_buffer()->set_text("");
                 mTextViewFunction->get_buffer()->set_text("");
                 mHeaderPred->set_text("");
                 Gtk::TreeModel::Row row = *iter;

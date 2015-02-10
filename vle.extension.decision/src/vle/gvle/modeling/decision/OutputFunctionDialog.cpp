@@ -49,7 +49,7 @@ namespace decision {
     xml->get_widget("OFFunction", mTextViewFunction);
     xml->get_widget("HeaderOutput", mHeaderOutput);
 
-    mOFNameEntry->set_text("");
+    mOFNameEntry->get_buffer()->set_text("");
     mHeaderOutput->set_text("");
     mTextViewFunction->get_buffer()->set_text("");
 
@@ -197,7 +197,7 @@ void OutputFunctionDialog::onDeleteOF()
         Gtk::TreeModel::iterator iter = ref->get_selected();
         if (iter) {
             if (Question(_("Are you sure you want to delete this function?"))) {
-                mOFNameEntry->set_text("");
+                mOFNameEntry->get_buffer()->set_text("");
                 mTextViewFunction->get_buffer()->set_text("");
                 mHeaderOutput->set_text("");
 
