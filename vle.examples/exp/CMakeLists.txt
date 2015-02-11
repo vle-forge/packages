@@ -5,9 +5,9 @@ install(FILES agentonlyc.vpz agentonly.vpz agentonlywakeup.vpz
   equation14.vpz equation15.vpz equation1.vpz equation2.vpz
   equation3.vpz equation4.vpz equation5.vpz equation6.vpz
   equation7.vpz equation8.vpz equation9.vpz fddevs.vpz gensdelete.vpz
-  gensgraph.vpz gensnetview.vpz gens.vpz genswithclass.vpz
-  lifegame_txt.vpz lifegame.vpz lifegamewithclass_txt.vpz
-  lifegamewithclass.vpz mealy2.vpz mealy.vpz moore2.vpz moore.vpz
+  gensgraph.vpz gens.vpz genswithclass.vpz
+  lifegame_txt.vpz lifegamewithclass_txt.vpz
+  mealy2.vpz mealy.vpz moore2.vpz moore.vpz
   petrinet-and-timed.vpz petrinet-and.vpz petrinet-conflict.vpz
   petrinet-inout.vpz petrinet-meteo.vpz petrinet-mult.vpz
   petrinet-nand1.vpz petrinet-nand2.vpz petrinet-or-priority.vpz
