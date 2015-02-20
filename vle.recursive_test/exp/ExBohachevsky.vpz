@@ -17,6 +17,9 @@
 <experiment name="Bohachevsky" combination="linear"  >
 <conditions>
 <condition name="cond" >
+ <port name="seed" >
+<integer>1236</integer>
+</port>
  <port name="x1" >
 <double>0.000000000000000</double>
 </port>
@@ -41,6 +44,10 @@
 <observables>
 <observable name="obs" >
 <port name="y" >
+ <attachedview name="view" />
+</port>
+
+<port name="y_noise" >
  <attachedview name="view" />
 </port>
 

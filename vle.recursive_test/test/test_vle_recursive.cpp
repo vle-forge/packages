@@ -25,6 +25,7 @@
 //@@tagtest@@
 //@@tagdepends: vle.recursive @@endtagdepends
 
+#include <iostream>
 #define BOOST_TEST_MAIN
 #define BOOST_AUTO_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
@@ -34,32 +35,43 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/utils/Package.hpp>
-#include <vle/recursive/EmbeddedSimulatorSingle.hpp>
+#include <vle/recursive/MetaManager.hpp>
 
 
-//rr::EmbeddedSimulatorPlan
-BOOST_AUTO_TEST_CASE(test_simulator)
+BOOST_AUTO_TEST_CASE(test_api)
 {
-    namespace rr = vle::recursive;
+    namespace vr = vle::recursive;
     namespace vv = vle::value;
 
     vv::Map init;
-    init.addString("package","vle.recursive_test");
-    init.addString("vpz","ExBohachevsky.vpz");
-    vv::Set& inputs = init.addSet("inputs");
-    inputs.addString("cond/x1");
-    inputs.addString("cond/x2");
-    vv::Set& outputs = init.addSet("outputs");
-    outputs.addString("view/ExBohachevsky:ExBohachevsky.y");
-    rr::EmbeddedSimulatorSingle sim;
-    sim.init(init);
-    vv::Set point;
-    point.addDouble(3);
-    point.addDouble(-10);
-    vv::Double res;
-    sim.simulate(point);
-    sim.fillWithLastValuesOfOutputs(res);
-    double out = res.value();
-    BOOST_REQUIRE_CLOSE(out,209.6,10e-4);
+    init.addString("config_parallel_type","threads");
+    init.addInt("config_parallel_nbslots",2);
+    init.addString("id_package","vle.recursive_test");
+    init.addString("id_vpz","ExBohachevsky.vpz");
+    init.addString("id_input_x1", "cond/x1");
+    init.addString("id_input_x2", "cond/x2");
+    init.addString("id_output_y", "last[view/ExBohachevsky:ExBohachevsky.y]");
+    init.addString("id_output_y_noise",
+            "last[view/ExBohachevsky:ExBohachevsky.y_noise]");
+    init.addString("id_replica_r","cond/seed");
+    vv::Tuple x1(2);
+    x1[0] = 3.0;
+    x1[1] = 0.0;
+    vv::Tuple x2(2);
+    x2[0] = -10.0;
+    x2[1] = 0.0;
+    vv::Set r;
+    r.addInt(1235);
+    r.addInt(7234);
+    r.addInt(9531);
+    init.add("values_x1",x1);
+    init.add("values_x2",x2);
+    init.add("values_r",r);
+    vr::MetaManager meta;
+    meta.init(init);
+    const vv::Matrix& res = meta.launchSimulations().toMatrix();
+    BOOST_REQUIRE_CLOSE(res.getDouble(0/*col*/,0),209.6,10e-4);
+    BOOST_REQUIRE_CLOSE(res.getDouble(1,0),209.6486,10e-4);
+    BOOST_REQUIRE_CLOSE(res.getDouble(0,1),0.0,10e-4);
+    BOOST_REQUIRE_CLOSE(res.getDouble(1,1),0.04861,10e-3);
 }
-

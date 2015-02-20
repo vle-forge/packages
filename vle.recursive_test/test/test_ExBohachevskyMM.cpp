@@ -23,7 +23,8 @@
  */
 
 //@@tagtest@@
-//@@tagdepends: vle.tester, vle.reader, vle.recursive @@endtagdepends
+//@@tagdepends: vle.tester, vle.reader @@endtagdepends
 
 #include <vle/tester/package_tester.hpp>
-VLE_UTILS_TEST("vle.recursive_test","testsSimulatorMPI.txt");
+VLE_UTILS_TEST("vle.recursive_test","test_ExBohachevskyMM.txt");
+

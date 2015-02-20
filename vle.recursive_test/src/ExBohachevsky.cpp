@@ -21,6 +21,8 @@
 #include <vle/devs/DynamicsDbg.hpp>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Double.hpp>
+#include <vle/utils/Rand.hpp>
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327
@@ -51,6 +53,9 @@ public:
         double x2 = events.getDouble("x2");
         my = pow(x1,2) + 2 * pow(x2,2) - 0.3 * cos(3 * M_PI * x1)
                 - 0.4 * cos(4 * M_PI * x2) + 0.7;
+        mrand.seed(events.getInt("seed"));
+        double noise = mrand.normal(0,0.1);
+        my_noise = my + noise;
     }
 
     virtual ~ExBohachevsky()
@@ -65,6 +70,9 @@ public:
         if (event.onPort("y")) {
                 return buildDouble(my);
         }
+        if (event.onPort("y_noise")) {
+            return buildDouble(my_noise);
+        }
         return 0;
     }
 private:
@@ -72,6 +80,8 @@ private:
      * @brief Output of the ExBohachevsky function
      */
     double my;
+    double my_noise;
+    vle::utils::Rand mrand;
 
 };
 
