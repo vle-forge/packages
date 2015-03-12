@@ -1,0 +1,112 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc} % Prendre en compte les caractères accentués
+\usepackage[francais]{babel} % Prendre en compte les particularités de la typographie française.
+\usepackage{geometry}         % marges
+\usepackage{graphicx}         % images
+\usepackage{setspace}
+\usepackage[french]{varioref}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{listings}
+\usepackage{pgfgantt}
+\usepackage{lscape}
+\usepackage{pdfpages}
+
+\lstdefinestyle{myLuastyle}
+{
+  language         = {[5.0]Lua},
+  basicstyle       = \ttfamily,
+  showstringspaces = false,
+  upquote          = true,
+  commentstyle     =\color{gray},
+  stringstyle=\color{blue}
+}
+
+\lstset{style=myLuastyle}
+
+\lstset{emph={%  
+    ibm, addModel, getNumber, getModelValue, setModelValue, getName, addEvent%
+    },emphstyle={\color{red}\bfseries}%
+}
+
+\newgantttimeslotformat{stardate}{%
+	\def\decomposestardate##1.##2\relax{%
+		\def\stardateyear{##1}\def\stardateday{##2}%
+	}%
+	\decomposestardate#1\relax%
+	\pgfcalendardatetojulian{\stardateyear-01-01}{#2}%
+	\advance#2 by-1\relax%
+	\advance#2 by\stardateday\relax%
+}
+
+\titlespacing{\chapter}{0pt}{*-5}{*5}
+\titlespacing{\section}{0pt}{*2}{*2}
+\titleformat{\chapter}[hang]{\bf\huge}{\thechapter}{2pc}{}
+%\titleformat{\chapter}[hang]{\bf\huge}{\thechapter}{14pt}{\LARGE}
+\renewcommand{\baselinestretch}{1.2}
+\setlength{\parskip}{1.5ex plus .4ex minus .4ex}
+\setlength{\parindent}{15pt} 
+\setlength{\topmargin}{-35pt}
+\setlength{\textheight}{600pt}
+
+\makeatletter
+% subsubsubsection
+\newcounter{subsubsubsection}[subsubsection] 
+\renewcommand\thesubsubsubsection{\@roman\c@subsubsubsection}
+\newcommand\subsubsubsection{\@startsection{subsubsubsection}{4}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\small\bfseries}}
+\newcommand*\l@subsubsubsection{\@dottedtocline{3}{5.2em}{1em}}
+\newcommand*{\subsubsubsectionmark}[1]{}
+\setcounter{secnumdepth}{2}
+\makeatother
+
+\begin{document}
+\sloppy % Justification moins stricte : des mots ne dépasseront pas des paragraphes
+
+\include{title} 
+
+\include{remerciements}
+
+\tableofcontents % Table des matières
+
+\include{introduction}
+
+\include{context}
+
+\include{travailPropose}
+
+\include{travailRealise} 
+
+\include{conclusion}
+
+\chapter{Bibliographie}
+\noindent Documentation de VLE :\\
+\url{http://www.vle-project.org/doxygen/dev/}\\
+\vspace{0.5cm}
+
+\noindent Tutorials VLE :\\
+\url{http://www.vle-project.org/wiki/Tutorials}\\
+\vspace{0.5cm}
+
+\noindent Documentation utilisateur GVLE :\\
+\url{http://record-elearning.inra.fr/record/}
+
+\chapter{Abstract}
+I did this internship with the RECORD team in the National Institute for Research Agronomics in Toulouse, a french institute founded in 1946.\\
+I learnt the DEVS dynamics using VLE software. After that, I autonomously started develop a software extension in C++ programming language to provide new features to GVLE software. The objective is to give new modelisation possibilities to the user like cloning and manage individuals during a simulation.\\
+I saw differents aspects of developpement: the definition of the users needs, developpement of functionalities, grafic interface, debug, tests...
+
+\include{annexe}
+
+\appendix
+
+\end{document}

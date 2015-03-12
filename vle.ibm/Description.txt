@@ -1,0 +1,12 @@
+Package: vle.ibm
+Version: 0.1.0
+Depends:
+Build-Depends: ext.lua (=0.1.0), vle.extension.differential-equation (=0.1.0)
+Conflicts:
+Maintainer: Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
+Description: A plugin enabling Individual Based Modelling
+ .
+Tags: modelling
+Url: http://www.vle-project.org/pub/1.1
+Size: 0
+MD5sum: xxxx

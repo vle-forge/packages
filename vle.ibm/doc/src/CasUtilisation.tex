@@ -1,0 +1,347 @@
+\documentclass[a4paper,11pt,final]{article}
+\usepackage[utf8]{inputenc} % Prendre en compte les caractères accentués
+\usepackage[francais]{babel} % Prendre en compte les particularités de la typographie française.
+\usepackage{geometry}         % marges
+\usepackage{graphicx}         % images
+\usepackage{setspace}
+\usepackage[french]{varioref}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usepackage{xcolor}
+%\usepackage{listing}
+%\usepackage[T1]{fontenc}
+%\usepackage{inconsolata}
+\usepackage{textcomp}
+\usepackage{listings}
+%\usepackage{enumerate}
+
+
+\lstdefinestyle{myLuastyle}
+{
+  language         = {[5.0]Lua},
+  basicstyle       = \ttfamily,
+  showstringspaces = false,
+  upquote          = true,
+  commentstyle     =\color{gray},
+  stringstyle=\color{blue}
+}
+
+\lstset{style=myLuastyle}
+
+\lstset{emph={%  
+    ibm, addModel, getNumber, getModelValue, setModelValue, getName, addEvent, addModelWithParam, delModel, getTime, getModelName%
+    },emphstyle={\color{red}\bfseries}%
+}
+
+\titlespacing{\section}{0pt}{*2}{*2}
+\titleformat{\section}[hang]{\bf\large}{Cas \thesection ~:}{0.5pc}{}
+\renewcommand{\baselinestretch}{1.2}
+\setlength{\parskip}{1.5ex plus .4ex minus .4ex}
+\setlength{\parindent}{15pt} 
+\setlength{\topmargin}{-35pt}
+\setlength{\textheight}{650pt}
+\renewcommand{\theenumii}{\arabic{enumi}.\arabic{enumii}}
+
+\title{\textbf{Cas d'utilisations plugin IBM}}
+\author{}
+\date{}
+\begin{document}
+
+\maketitle
+
+\section{Créer un nouveau projet et vpz, simuler la création d'un individu}
+
+\begin{enumerate}
+  \item Créer un nouveau projet
+  \item Créer un nouveau Vpz test\_0
+  \item Ouvrir test\_0.vpz avec le plugin IBM
+  \item Créer une nouvelle classe Loup avec un compartiment C1 = 1
+  \begin{enumerate}
+  	\item Clique-droit sur la colonne des classes, add.
+  	\item Entrer le nom ``Loup''
+  	\item Le plugin Forrester s'ouvre, définir la dynamique de l'individu ici
+  	\item Valider
+  \end{enumerate}
+  \item Ajouter au Script principal
+\begin{lstlisting}[frame=single]
+ibm:addModel(1,"Loup")
+\end{lstlisting}
+  \item Valider, le Controleur se crée
+  \item Mettre en place un observable avec une vue
+  \begin{enumerate}
+	  \item Créer une vue test\_0View, type file. Valider
+	  \item Ajouter la vue au compartiment C1 de Loup : Aller dans Atomic Model Loup, éditer obs\_DTE\_Loup
+	  \item Cocher le bouton radio, valider
+	  \item Enregistrer
+  \end{enumerate}
+  \item Lancer la simulation /!\ Il manque vle.extension.differential-equation dans les Build-Depends de Description.txt
+\end{enumerate}
+
+\section{Simuler la création de plusieurs individus}
+\begin{enumerate}
+	  \item Ouvrir le test\_0.vpz avec le plugin IBM
+	  \item Modifier la commande ibm\string:addModel(1,"Loup") pour créer 10 individus
+	  \begin{lstlisting}[frame=single]
+ibm:addModel(10,"Loup")
+\end{lstlisting}
+	  \item Lancer la simulation
+\end{enumerate}
+
+\section{Création de plusieurs individus grâce aux conditions expérimentales} 
+\begin{enumerate}
+	  \item Ouvrir les conditions expérimentales
+	  \item Ajouter un paramètre ``nb\_Loup'' avec pour valeur 5.
+	  \item Ouvrir ``test\_0.vpz'' avec le plugin
+	  \item Mettre dans le script
+	  \begin{lstlisting}[frame=single]
+ibm:addModel("nb_Loup","Loup")
+\end{lstlisting}
+	  \item Simuler, remarquer 5 loups créés.
+\end{enumerate}
+
+\section{Création de plusieurs individus grâce aux conditions expérimentales} 
+\begin{enumerate}
+	  \item Ouvrir test\_0.vpz avec le plugin IBM
+	  \item Mettre dans le script
+	  \begin{lstlisting}[frame=single]
+ibm:addModelWithParam(3,"Loup", "C1", 15)
+\end{lstlisting}
+	  \item Simuler, remarquer le changement de valeur de C1
+\end{enumerate}
+
+\section{Plusieurs individus, modification d'un paramètre grâce aux conditions expérimentales} 
+\begin{enumerate}
+	  \item Ouvrir les conditions expérimentales
+	  \item Ajouter le paramètre ``dix'' = 10 à cond\_Controleur
+	  \item Ouvrir test\_0.vpz avec le plugin IBM
+	  \item Mettre dans le script 
+	  \begin{lstlisting}[frame=single]
+ibm:addModelWithParam(3,"Loup", "C1", "dix")
+\end{lstlisting}
+	\item Simuler, remarquer le changement de valeur de C1
+\end{enumerate}
+
+\section{Plusieurs individus avec des paramètres distincts} 
+\begin{enumerate}
+	  \item Ouvrir le test\_0.vpz avec le plugin IBM
+	  \item Mettre dans le script 
+	  \begin{lstlisting}[frame=single]
+for i=1,5,1 do
+	ibm:addModelWithParam(1,"Loup", "C1", i)
+end
+\end{lstlisting}
+	\item Simuler, remarquer le changement de valeur de C1
+\end{enumerate}
+
+\section{Plusieurs individus, modification de plusieurs paramètres} 
+\begin{enumerate}
+	  \item Ouvrir test\_0.vpz avec le plugin IBM
+	\item Sélectionner Loup
+	\item Faire un clique droit et selectionner Modify
+	\item Ajouter un compartiment C2 = 0
+	\item Mettre dans le script 
+\begin{lstlisting}[frame=single]
+for i=1,5,1 do
+	ibm:addModelWithParam(1,"Loup", "C1", i, "C2", 3)
+end
+\end{lstlisting}
+\item Ajouter un observable de C2
+\begin{enumerate}
+	  \item Ouvrir la fenêtre de dialogue Atomic Model de Loup
+	  \item Aller dans l'onglet Observable et Editer obs\_DTE\_Loup
+	  \item Ajouter une vue à C2
+\end{enumerate}
+\item Simuler, remarquer le changement de valeur de C1 et de C2
+\end{enumerate}
+
+\section{Créer un évènement d'initialisation}
+\begin{enumerate}
+	\item Ouvrir test\_0.vpz avec le plugin IBM
+	\item Ajouter un script grâce au bouton ``+'', l'appeler ``init'', valider
+	\item Une nouvelle ligne s'affiche avec le nom ``init'', cliquer sur la flèche, une zone de texte apparait, c'est là que l'évènement ``init'' doit être décrit.
+	\item Couper-coller le texte du Script principal dans le script init.
+	\item Mettre dans le Script principal
+	\begin{lstlisting}[frame=single]
+ibm:addEvent("INIT", "init")
+\end{lstlisting} 
+	\item Simuler, remarquer le non changement depuis le cas précédent
+\end{enumerate}
+
+\section{Modifier les scripts depuis les conditions expériementales}
+\begin{enumerate}
+	\item Ouvrir les conditions expérimentales
+	\item Dans cond\_Controleur remarquer les paramètres Script et init qui correspondent au script principal et à l'évènement ``init'' créés.
+	\item Modifier init par
+	\begin{lstlisting}[frame=single]
+for i=1,5,1 do
+	ibm:addModelWithParam(1,"Loup", "C1", i)
+end
+	\end{lstlisting}  
+
+	Seuls les paramètres C1 seront modifiés
+	\item Valider
+	\item Simuler, remarquer que tous les C2 ont la valeur par défaut 0
+\end{enumerate}
+
+\section{Ajouter un évènement SINGLE}
+\begin{enumerate}
+	\item Ouvrir test\_0.vpz avec le plugin IBM
+	\item Ajouter un nouveau Script. L'appeler ``single''
+	\item Dans la zone de script de "single" mettre 
+	\begin{lstlisting}[frame=single]
+print("Il est : ", ibm:getTime());
+	\end{lstlisting} 
+	\item Dans la zone de Script principal mettre 
+	\begin{lstlisting}[frame=single]
+ibm:addEvent("SINGLE",50,"single");
+	\end{lstlisting}
+	\item Simuler, remarquer l'affichage de "Il est : 50" dans la console à la date 50.
+\end{enumerate}
+
+\section{Envoyer une valeur à un individu}
+\begin{enumerate}
+\item Ouvrir le test\_0.vpz avec le plugin IBM
+\item Dans le script de ``single'' créé précédemment ajouter 
+\begin{lstlisting}[frame=single]
+ibm:setModelValue("Loup", 3, "C1", 0)
+	\end{lstlisting} 
+\item Simuler, remarquer le changement de la valeur C1 du 3ème Loup à partir de la date 50.
+\end{enumerate}
+
+\section{Envoyer une valeur des conditions expérimentales à un modèle}
+\begin{enumerate}
+\item Ouvrir le test\_0.vpz avec le plugin IBM
+\item Dans le script de ``single'' créé précédemment ajouter
+\begin{lstlisting}[frame=single]
+ibm:setModelValue("Loup", 3, "C1", "dix")
+	\end{lstlisting} 
+\item Simuler, remarquer le changement de la valeur C1 du 3ème Loup à partir de la date 50.
+\end{enumerate}
+
+\section{Envoyer une valeur à un individu grâce à son nom}
+\begin{enumerate}
+\item Ouvrir le test\_0.vpz avec le plugin IBM
+\item Dans le script de ``single'' créé précédemment ajouter 
+\begin{lstlisting}[frame=single]
+ibm:setModelValue("Loup_0", "C1", "dix")
+	\end{lstlisting} 
+\item Simuler, remarquer le changement de la valeur C1 de ``Loup\_0'' à partir de la date 50.
+\end{enumerate}
+
+\section{Obtenir la valeur d'un paramètre d'un individu et appel à plusieurs évènements SINGLE}
+\begin{enumerate}
+\item Ouvrir le test\_0.vpz avec le plugin IBM
+\item Créer un nouvel évènement SINGLE appelé ``single2''
+\item Dans le script de ``single2'' nouvellement créé, ajouter
+\begin{lstlisting}[frame=single]
+print("valeur de C1:", ibm:getModelValue("Loup", 1,"C1"))
+	\end{lstlisting} 
+\item Modifier le Script principal par
+\begin{lstlisting}[frame=single]
+ibm:addEvent("INIT","init")
+ibm:addEvent("SINGLE",49,"single2");
+ibm:addEvent("SINGLE",50,"single");
+ibm:addEvent("SINGLE",51,"single2");
+	\end{lstlisting} 
+\item Simuler, remarquer la trace dans la console. /!\ Modifier une valeur et lui demander directement après sa valeur ne fonctionne pas.
+\end{enumerate}
+
+\section{Obtenir la valeur d'un paramètre d'un individu et appel à plusieurs évènements SINGLE à partir du nom d'un individu}
+\begin{enumerate}
+\item Reprendre le cas 14 et  
+\item Mettre dans le script de "single2"
+\begin{lstlisting}[frame=single]
+print("valeur de C1 :", ibm:getModelValue("Loup_0","C1"))
+	\end{lstlisting} 
+\item Simuler, remarquer le changement de la valeur C1 de ``Loup\_0'' à partir de la date 50.
+\end{enumerate}
+
+\section{Obtenir le nom d'un individu}
+\begin{enumerate}
+\item Ouvrir le test\_0.vpz avec le plugin IBM 
+\item Nettoyer les évènements SINGLE des cas précédents, suppression de single2 (selectionner la ligne de single2 et cliquer sur ``-'') et des lignes ibm\string:addEvent(``SINGLE'',49,``single2''); et ibm\string:addEvent(``SINGLE'',51,``single2'');
+\item Mettre dans single
+\begin{lstlisting}[frame=single]
+print(ibm:getModelName("Loup", 4))
+	\end{lstlisting} 
+\item Simuler, remarquer la trace dans la console à la date 50, c'est le nom du 4ème Loup.
+\end{enumerate}
+
+\section{Obtenir le nom de tous les individus}
+\begin{enumerate}
+	\item Ouvrir le test\_0.vpz avec le plugin IBM 
+	\item Mettre dans single le script qui itère tous les individus Loup, ibm\string:getNumber renvoie le nombre de loup vivants
+	\begin{lstlisting}[frame=single]
+for i=1,ibm:getNumber("Loup"), 1 do 
+	print(ibm:getModelName("Loup", i))
+end
+		\end{lstlisting} 
+	\item Simuler, remarquer la trace dans la console à la date 50, nom de tous les loups vivants.
+\end{enumerate}
+
+\section{Supprimer un individu}
+\begin{enumerate}
+	\item Ouvrir le test\_0.vpz avec le plugin IBM 
+	\item Mettre dans single
+	\begin{lstlisting}[frame=single]
+ibm:delModel("Loup_0")
+		\end{lstlisting} 
+	\item Simuler, remarquer la mort de l'individu nommé ``Loup\_0'' dans les observables
+\end{enumerate}
+
+\section{Évènements réguliers}
+\begin{enumerate}
+	\item Ouvrir le test\_0.vpz avec le plugin IBM 
+	\item Mettre dans single
+	\begin{lstlisting}[frame=single]
+print(ibm:getTime())
+		\end{lstlisting} 
+	\item Mettre dans le script principal
+	\begin{lstlisting}[frame=single]
+ibm:addEvent("INIT","init")
+ibm:addEvent("RECUR",10,2,"single");
+		\end{lstlisting}
+	\item Simuler, remarquer la trace dans la console
+\end{enumerate}
+
+\section{Observer une variable lua}
+\begin{enumerate}
+	\item Ouvrir le test\_0.vpz avec le plugin IBM 
+	\item Mettre dans single
+	\begin{lstlisting}[frame=single]
+acc = 0
+for i=1,ibm:getNumber("Loup"),1 do
+	acc = acc + ibm:getModelValue("Loup",i,"C1");
+end
+		\end{lstlisting} 
+	\item Mettre dans le script principal
+	\begin{lstlisting}[frame=single]
+ibm:addEvent("INIT","init")
+ibm:addEvent("RECUR",10,1,"single");
+		\end{lstlisting} 
+	\item Laisser init du Cas 9. Valider.
+	\item Ouvrir Atomic Model du Controleur
+	\item Aller dans l'onglet Observables et ajouter obs\_Controleur
+	\item Editer obs\_Controleur
+	\begin{enumerate}
+		\item Clique-droit dans la colonne Observable, add
+		\item Entrer le nom ``acc'' de notre nom de variable. Valider.
+		\item Ajouter la vue test\_0View à acc. Valider.
+	\end{enumerate}
+	\item Cocher le bouton radio de obs\_Controleur
+	\item Enregister, simuler
+\end{enumerate}
+
+\section{Se servir d'un évènement comme fonction}
+\begin{enumerate}
+	\item Ouvrir le test\_0.vpz avec le plugin IBM 
+	\item Diminuer le nombre d'individus créés dans init à 2 ou 1
+	\item Mettre dans le single init (), ce qui appellera la fonction init
+	\item Simuler
+\end{enumerate}
+\end{document}

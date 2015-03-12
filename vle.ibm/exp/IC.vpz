@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
+<vle_project version="1.3.0" date="2014-Aug-07 08:19:27" author="Genevieve Cirera">
+<structures>
+<model name="Top model" type="coupled" x="0" y="0" width="475" height="480"  >
+<submodels>
+<model name="Controleur" type="atomic" conditions="cond_Controleur" dynamics="dynControleur" x="166" y="70" width="40" height="30" >
+</model>
+</submodels>
+<connections>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic name="Y" library="Y" package="vle.ibm"  />
+<dynamic name="dynControleur" library="Controleur" package="vle.ibm"  />
+</dynamics>
+<classes>
+<class name="Y" >
+<model name="Y" type="atomic" conditions="cond_DTE_Y,cond_DTE_Y_integration" dynamics="Y" observables="obs_DTE_Y" >
+<in>
+ <port name="perturb" />
+</in>
+<out>
+ <port name="X" />
+ <port name="masse" />
+ <port name="maturing" />
+</out>
+</model>
+</class>
+</classes>
+<experiment name="exp" duration="20000.000000000000000" begin="0.000000000000000" combination="linear"  >
+<conditions>
+<condition name="cond_Controleur" >
+ <port name="Script" >
+<xml>
+<![CDATA[lastMature = "";
+poidsMax = 0;
+lastMatures = {}
+ibm:addEvent("INIT","birth");
+ibm:addEvent("RECUR",300, 1,"dyn");]]>
+</xml>
+</port>
+ <port name="birth" >
+<xml>
+<![CDATA[-- Générer naissance
+for i=1,10,1 do
+	ibm:addModelWithParam(1,"Y","KG",0.04+(0.06-0.04)*math.random());
+end
+ lastMature = "";
+ poidsMax = 0;
+ibm:addEvent("SINGLE",ibm:getTime()+300,"findMax");]]>
+</xml>
+</port>
+ <port name="death" >
+<xml>
+<![CDATA[--Gestion des morts
+a = {};
+k=1;
+for i=1,  ibm:getNumber("Y"), 1 do
+if ibm:getModelValue("Y",i, "maturing") ~= 1  and  ibm:getModelValue("Y",i, "masse") <= 0.001 then -- Check celles qui doivent mourir
+                a[k] =ibm:getModelName("Y",i);
+                k = k + 1;
+        end
+end
+for i=1, k-1, 1 do
+        ibm:delModel(a[i]);
+end]]>
+</xml>
+</port>
+ <port name="dyn" >
+<xml>
+<![CDATA[death ()
+-- Générer naissance
+if lastMature~="" and ibm:getModelValue(lastMature, "masse") >= 0.99 then
+        birth()
+end]]>
+</xml>
+</port>
+ <port name="findMax" >
+<xml>
+<![CDATA[for i=1, ibm:getNumber("Y"), 1 do
+        poidDeI = ibm:getModelValue("Y",i, "masse");
+        if poidDeI >= poidsMax and ibm:getModelValue("Y",i, "maturing") == 1 and lastMatures[ibm:getModelName("Y",i)]==nil then
+                poidsMax = poidDeI;
+                lastMature = ibm:getModelName("Y",i);
+        end
+end
+for i=1,  ibm:getNumber("Y"), 1 do
+        if ibm:getModelValue("Y",i, "maturing") == 1 and ibm:getModelValue("Y",i,"masse") < poidsMax and lastMatures[ibm:getModelName("Y",i)]==nil then
+                ibm:setModelValue("Y",i,"maturing",0.0);
+	end
+end
+lastMatures[lastMature] = lastMature;]]>
+</xml>
+</port>
+</condition>
+<condition name="cond_DTE_Y" >
+ <port name="KG" >
+<double>0.000000000000000</double>
+</port>
+ <port name="KS" >
+<double>0.010000000000000</double>
+</port>
+ <port name="X" >
+<double>1.000000000000000</double>
+</port>
+ <port name="masse" >
+<double>0.000001000000000</double>
+</port>
+ <port name="maturing" >
+<double>1.000000000000000</double>
+</port>
+ <port name="variables" >
+<map><key name="X"><double>1.000000000000000</double></key><key name="masse"><double>0.000001000000000</double></key><key name="maturing"><double>1.000000000000000</double></key></map>
+</port>
+</condition>
+<condition name="cond_DTE_Y_integration" >
+ <port name="method" >
+<string>rk4</string>
+</port>
+ <port name="method-parameters" >
+<map><key name="timestep"><double>0.010000000000000</double></key></map>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="CellView" location="" format="local" package="vle.output"  plugin="file" />
+
+</outputs>
+<observables>
+<observable name="obs_DTE_Y" >
+<port name="Growth" />
+
+<port name="KG" />
+
+<port name="Senescence" />
+
+<port name="X" />
+
+<port name="masse" >
+ <attachedview name="CellView" />
+</port>
+
+<port name="maturing" />
+
+</observable>
+
+</observables>
+<view name="CellView" output="CellView" type="timed" timestep="1.000000000000000" />
+
+</views>
+</experiment>
+</vle_project>
