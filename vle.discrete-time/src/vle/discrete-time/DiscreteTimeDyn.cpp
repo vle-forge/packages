@@ -193,7 +193,163 @@ DiscreteTimeDyn::~DiscreteTimeDyn()
 {
 }
 
-bool DiscreteTimeDyn::firstCompute() const
+void
+DiscreteTimeDyn::time_step(double val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error time_step can be set only in the "
+                        "constructor '\n") % getModelName());
+    }
+    devs_options.dt = val;
+}
+
+void
+DiscreteTimeDyn::init_value(const std::string& v, const vle::value::Value& val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error init_value can be used only in the "
+                        "constructor '\n") % getModelName());
+    }
+    Variables::iterator itf = getVariables().find(v);
+    if (itf == getVariables().end()) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Cannot initialize variable '%2%' because "
+                        "it is not found '\n") % getModelName() % v);
+    }
+    delete itf->second->init_value;
+    itf->second->init_value = val.clone();
+}
+
+void
+DiscreteTimeDyn::dim(const std::string& v, unsigned int val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error dim can be used only in the "
+                        "constructor '\n") % getModelName());
+    }
+    Variables::iterator itf = getVariables().find(v);
+    if (itf == getVariables().end()) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Cannot initialize dim of variable '%2%' "
+                        "because it is not found '\n") % getModelName() % v);
+    }
+    if(! itf->second->isVarMulti()) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Cannot initialize dim of variable '%2%' "
+                        "because it is not a vect '\n") % getModelName() % v);
+    }
+    itf->second->toVarMulti().dim = val;
+}
+
+void
+DiscreteTimeDyn::history_size(const std::string& v, unsigned int val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error history_size can be used only in the "
+                        "constructor '\n") % getModelName());
+    }
+    Variables::iterator itf = getVariables().find(v);
+    if (itf == getVariables().end()) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Cannot initialize history_size of variable "
+                        "'%2%' because it is not found '\n")
+                        % getModelName() % v);
+    }
+    itf->second->history_size = val;
+}
+
+void
+DiscreteTimeDyn::sync(const std::string& v, unsigned int val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error sync can be used only in the "
+                        "constructor '\n") % getModelName());
+    }
+    devs_options.syncs.insert(std::make_pair(v,val));
+}
+
+void
+DiscreteTimeDyn::output_nil(const std::string& v, bool val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error output_nil can be used only in the "
+                        "constructor '\n") % getModelName());
+    }
+    devs_options.outputNils.insert(std::make_pair(v,val));
+}
+
+void
+DiscreteTimeDyn::output_period(const std::string& v, unsigned int val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error output_period can be used only in the "
+                        "constructor '\n") % getModelName());
+    }
+    devs_options.outputPeriods.insert(std::make_pair(v,val));
+}
+
+void
+DiscreteTimeDyn::allow_update(const std::string& v, bool val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error allow_update can be used only in the "
+                        "constructor '\n") % getModelName());
+    }
+    Variables::iterator itf = getVariables().find(v);
+    if (itf == getVariables().end()) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Cannot initialize allow_update of variable "
+                        "'%2%' because it is not found '\n")
+                        % getModelName() % v);
+    }
+    itf->second->allow_update = val;
+}
+
+void
+DiscreteTimeDyn::error_no_sync(const std::string& v, bool val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error error_no_sync can be used only in the "
+                        "constructor '\n") % getModelName());
+    }
+    Variables::iterator itf = getVariables().find(v);
+    if (itf == getVariables().end()) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Cannot initialize error_no_sync of variable "
+                        "'%2%' because it is not found '\n")
+        % getModelName() % v);
+    }
+    itf->second->error_no_sync = val;
+}
+
+void
+DiscreteTimeDyn::bags_to_eat(unsigned int val)
+{
+    if (devs_internal.initialized) {
+        throw vu::ModellingError(
+                vle::fmt("[%1%] Error bags_to_eat can be used only in the "
+                        "constructor '\n") % getModelName());
+    }
+    devs_options.bags_to_eat= val;
+}
+
+unsigned int
+DiscreteTimeDyn::dim(const Vect& v)
+{
+    return v.itVar->dim;
+}
+
+bool
+DiscreteTimeDyn::firstCompute() const
 {
     return mfirstCompute;
 }
@@ -311,6 +467,7 @@ vle::devs::Time
 DiscreteTimeDyn::init(const vle::devs::Time& t)
 {
     devs_options.finishInitialization(*this);
+    devs_internal.initialized = true;
     devs_state = INIT;
     processIn(t, INTERNAL);
     return timeAdvance();
@@ -338,7 +495,6 @@ DiscreteTimeDyn::timeAdvance() const
     }
     return 0;
 }
-
 
 void
 DiscreteTimeDyn::internalTransition(const vle::devs::Time& t)

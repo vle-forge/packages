@@ -125,6 +125,18 @@ const VarValue& VarInterface::toVarValue() const
 {
     return static_cast < const VarValue& >(*this);
 }
+VarMono& VarInterface::toVarMono()
+{
+    return static_cast <VarMono& >(*this);
+}
+VarMulti& VarInterface::toVarMulti()
+{
+    return static_cast <VarMulti& >(*this);
+}
+VarValue& VarInterface::toVarValue()
+{
+    return static_cast <VarValue& >(*this);
+}
 
 void
 VarInterface::initHistoryVar(const std::string& varName,

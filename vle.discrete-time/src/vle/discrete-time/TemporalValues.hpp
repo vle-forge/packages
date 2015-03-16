@@ -96,6 +96,9 @@ struct VarInterface
     const VarMono& toVarMono() const;
     const VarMulti& toVarMulti() const;
     const VarValue& toVarValue() const;
+    VarMono& toVarMono();
+    VarMulti& toVarMulti();
+    VarValue& toVarValue();
 
     void initHistoryVar(const std::string& varName, const vle::devs::Time& t);
 

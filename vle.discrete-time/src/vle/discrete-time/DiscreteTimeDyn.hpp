@@ -51,10 +51,26 @@ public:
 
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
-    //////////////////////
-    //User API
-    //////////////////////
+    /////////////////////////////
+    //User API Overwrite options
+    /////////////////////////////
 
+    void time_step(double val) ;
+    void init_value(const std::string& v, const vle::value::Value& val);
+    void dim(const std::string& v, unsigned int val);
+    void history_size(const std::string& v, unsigned int val);
+    void sync(const std::string& v, unsigned int val);
+    void output_nil(const std::string& v, bool val);
+    void output_period(const std::string& v, unsigned int val);
+    void allow_update(const std::string& v, bool val);
+    void error_no_sync(const std::string& v, bool val);
+    void bags_to_eat(unsigned int val);
+
+    /////////////////////////////
+    //User API miscelenaous
+    /////////////////////////////
+
+    unsigned int dim(const Vect&);
     bool firstCompute() const;
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
@@ -170,10 +186,11 @@ public:
      */
     struct  DEVS_Internal
     {
+        bool initialized; //true if initialization is finished
         unsigned bags_eaten;
         double NCt; //next compute time
         double LWUt; //last wake up time
-        DEVS_Internal() : bags_eaten(0), NCt(0), LWUt(0)
+        DEVS_Internal() : initialized(false), bags_eaten(0), NCt(0), LWUt(0)
         {
         }
     };
