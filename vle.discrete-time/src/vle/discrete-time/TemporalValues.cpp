@@ -233,6 +233,7 @@ VarMono::~VarMono()
     for (; itb!=ite; itb++) {
         delete *itb;
     }
+    delete snapshot;
 }
 
 double
@@ -282,6 +283,7 @@ void
 VarMono::update(const vle::devs::Time& t,
         const vle::value::Value& val)
 {
+
     this->update(t,val.toDouble().value());
 }
 
@@ -309,6 +311,45 @@ VarMono::lastVal(const vle::devs::Time& beg, const vle::devs::Time& end)
             % tvp->get_model_name() % beg % end);
 }
 
+
+void
+VarMono::addSnapshot(SNAPSHOT_ID idSnap,  double val)
+{
+    if (snapshot == 0) {
+        snapshot = new Snapshot();
+    }
+    (*snapshot)[idSnap] = val;
+}
+
+bool
+VarMono::hasSnapshot(SNAPSHOT_ID idSnap)
+{
+    if (snapshot == 0) {
+        return false;
+    }
+    return (snapshot->find(idSnap) != snapshot->end());
+}
+
+double
+VarMono::getSnapshot(SNAPSHOT_ID idSnap)
+{
+    if (snapshot == 0) {
+        throw "error";
+    }
+    Snapshot::const_iterator itf = snapshot->find(idSnap);
+    if (itf == snapshot->end()) {
+        throw "error";
+    }
+    return itf->second;
+}
+
+void VarMono::clearSnapshot()
+{
+    if (snapshot) {
+        snapshot->clear();
+    }
+}
+
 VarMulti::VarMulti(TemporalValuesProvider* tvpin, unsigned int dimension):
         VarInterface(tvpin), history(),  snapshot(0), dim(dimension)
 {
@@ -321,6 +362,7 @@ VarMulti::~VarMulti()
     for (; itb!=ite; itb++) {
         delete *itb;
     }
+    delete snapshot;
 }
 
 VAR_TYPE
@@ -401,6 +443,52 @@ VarMulti::lastUpdateTime() const
     return history.back()->timeOfUpdate;
 }
 
+void
+VarMulti::addSnapshot(SNAPSHOT_ID idSnap, const std::vector<double>& val)
+{
+    if (snapshot == 0) {
+        snapshot = new Snapshot();
+    }
+    std::vector<double>& v = (*snapshot)[idSnap];
+    v.clear();
+    std::vector<double>::const_iterator itb = val.begin();
+    std::vector<double>::const_iterator ite = val.end();
+    for (; itb != ite; itb++) {
+        v.push_back(*itb);
+    }
+}
+
+bool
+VarMulti::hasSnapshot(SNAPSHOT_ID idSnap)
+{
+    if (snapshot == 0) {
+        return false;
+    }
+    Snapshot::iterator itf = snapshot->find(idSnap);
+    return (itf != snapshot->end());
+}
+
+const std::vector<double>&
+VarMulti::getSnapshot(SNAPSHOT_ID idSnap)
+{
+    if (snapshot == 0) {
+        throw "error";
+    }
+    Snapshot::iterator itf = snapshot->find(idSnap);
+    if (itf == snapshot->end()) {
+        throw "error";
+    }
+    return itf->second;
+}
+
+void
+VarMulti::clearSnapshot()
+{
+    if (snapshot == 0) {
+       snapshot->clear();
+    }
+}
+
 VarValue::VarValue(TemporalValuesProvider* tvpin):
         VarInterface(tvpin), history(), snapshot(0)
 {
@@ -409,12 +497,22 @@ VarValue::VarValue(TemporalValuesProvider* tvpin):
 
 VarValue::~VarValue()
 {
-    History::iterator itb = history.begin();
-    History::iterator ite = history.end();
-    for (; itb!=ite; itb++) {
-        delete *itb;
+    {
+        History::iterator itb = history.begin();
+        History::iterator ite = history.end();
+        for (; itb!=ite; itb++) {
+            delete *itb;
+        }
     }
-    delete snapshot;
+    {
+        if (snapshot) {
+            clearSnapshot();
+            delete snapshot;
+        }
+    }
+
+
+
 }
 
 VAR_TYPE
@@ -480,6 +578,56 @@ VarValue::lastVal(const vle::devs::Time& beg, const vle::devs::Time& end)
     % tvp->get_model_name() % beg % end);
 }
 
+void
+VarValue::addSnapshot(SNAPSHOT_ID idSnap, const vle::value::Value& val)
+{
+    if (snapshot == 0) {
+        snapshot = new Snapshot();
+    }
+    Snapshot::iterator itf = snapshot->find(idSnap);
+    if (itf == snapshot->end()) {
+        (*snapshot)[idSnap] = val.clone();
+    } else {
+        delete itf->second;
+        itf->second = val.clone();
+    }
+}
+
+bool
+VarValue::hasSnapshot(SNAPSHOT_ID idSnap)
+{
+    if (snapshot == 0) {
+        return false;
+    }
+    Snapshot::iterator itf = snapshot->find(idSnap);
+    return (itf != snapshot->end());
+}
+
+const vle::value::Value&
+VarValue::getSnapshot(SNAPSHOT_ID idSnap)
+{
+    if (snapshot == 0) {
+        throw "error";
+    }
+    Snapshot::iterator itf = snapshot->find(idSnap);
+    if (itf == snapshot->end()) {
+        throw "error";
+    }
+    return *(itf->second);
+}
+
+void
+VarValue::clearSnapshot()
+{
+    if (snapshot != 0) {
+        Snapshot::iterator itb = snapshot->begin();
+        Snapshot::iterator ite = snapshot->end();
+        for (; itb!=ite; itb++) {
+            delete itb->second;
+        }
+        snapshot->clear();
+    }
+}
 
 Var::Var(): name(""), itVar(0)
 {
@@ -917,7 +1065,7 @@ TemporalValuesProvider::initHistory(const vle::devs::Time& t)
 }
 
 void
-TemporalValuesProvider::snapshot()
+TemporalValuesProvider::snapshot(SNAPSHOT_ID idSnap)
 {
     Variables::iterator itb = variables.begin();
     Variables::iterator ite = variables.end();
@@ -931,7 +1079,7 @@ TemporalValuesProvider::snapshot()
                                 " (maybe you forgot to call initHistory)\n")
                 % get_model_name() % itb->first);
             }
-            itv->snapshot = itv->history.back()->value;
+            itv->addSnapshot(idSnap, itv->history.back()->value);
             break;
         } case MULTI: {
             VarMulti* itv = dynamic_cast<VarMulti*>(itb->second);
@@ -941,12 +1089,11 @@ TemporalValuesProvider::snapshot()
                                 " (maybe you forgot to call initHistory)\n")
                 % get_model_name() % itb->first);
             }
-            itv->snapshot = itv->history.back()->value;
+            itv->addSnapshot(idSnap, itv->history.back()->value);
             break;
         } case VALUE_VLE: {
             VarValue* itv = dynamic_cast<VarValue*>(itb->second);
-            delete itv->snapshot;
-            itv->snapshot = itv->history.back()->value->clone();
+            itv->addSnapshot(idSnap, *(itv->history.back()->value));
             break;
         }}
     }

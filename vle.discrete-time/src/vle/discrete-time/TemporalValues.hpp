@@ -38,6 +38,7 @@ namespace discrete_time {
 
 
 enum VAR_TYPE {MONO, MULTI, VALUE_VLE};
+enum SNAPSHOT_ID {SNAP1, SNAP2};
 
 class TemporalValuesProvider;
 
@@ -117,9 +118,10 @@ struct VarMono : public VarInterface
     static double getDefaultInit();
 
     typedef std::deque<VarUpdate*> History;
+    typedef std::map<SNAPSHOT_ID, double> Snapshot;
 
     History history;
-    double snapshot;
+    Snapshot* snapshot;
 
     VarMono(TemporalValuesProvider* eq);
     virtual ~VarMono();
@@ -130,14 +132,21 @@ struct VarMono : public VarInterface
     void update(const vle::devs::Time& t, const vle::value::Value& val);
     vle::devs::Time lastUpdateTime() const;
     double lastVal(const vle::devs::Time& beg, const vle::devs::Time& end);
+
+    void addSnapshot(SNAPSHOT_ID idSnap, double val);
+    bool hasSnapshot(SNAPSHOT_ID idSnap);
+    double getSnapshot(SNAPSHOT_ID idSnap);
+    void clearSnapshot();
+
 };
 
 struct VarMulti : public VarInterface
 {
     typedef std::deque<VectUpdate*> History;
+    typedef std::map<SNAPSHOT_ID, std::vector<double> > Snapshot;
 
     History history;
-    std::vector<double> snapshot;
+    Snapshot* snapshot;
     unsigned int dim;
 
     VarMulti(TemporalValuesProvider* eq, unsigned int dimension);
@@ -149,17 +158,22 @@ struct VarMulti : public VarInterface
             double delay) const;
     void update(const vle::devs::Time& /*t*/, const vle::value::Value& /*val*/);
     void update(const vle::devs::Time& /*t*/, unsigned int dim, double val);
-
     vle::devs::Time lastUpdateTime() const;
+
+    void addSnapshot(SNAPSHOT_ID idSnap, const std::vector<double>& val);
+    bool hasSnapshot(SNAPSHOT_ID idSnap);
+    const std::vector<double>& getSnapshot(SNAPSHOT_ID idSnap);
+    void clearSnapshot();
 };
 
 
 struct VarValue : public VarInterface
 {
     typedef std::deque<VarValueUpdate*> History;
+    typedef std::map<SNAPSHOT_ID, vle::value::Value*> Snapshot;
 
     History history;
-    vle::value::Value* snapshot;
+    Snapshot* snapshot;
 
     VarValue(TemporalValuesProvider* eq);
     virtual ~VarValue();
@@ -172,6 +186,11 @@ struct VarValue : public VarInterface
     vle::devs::Time lastUpdateTime() const;
     const vle::value::Value& lastVal(const vle::devs::Time& beg,
             const vle::devs::Time& end);
+
+    void addSnapshot(SNAPSHOT_ID idSnap, const vle::value::Value& val);
+    bool hasSnapshot(SNAPSHOT_ID idSnap);
+    const vle::value::Value& getSnapshot(SNAPSHOT_ID idSnap);
+    void clearSnapshot();
 
 };
 
@@ -276,7 +295,7 @@ public:
      virtual ~TemporalValuesProvider();
 
      void initHistory(const vle::devs::Time& t);
-     void snapshot();
+     void snapshot(SNAPSHOT_ID idSnap);
 
      unsigned int dim(const Vect& v) const;
      const std::string& get_model_name() const;

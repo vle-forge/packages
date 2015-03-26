@@ -29,7 +29,6 @@
 namespace vle {
 namespace discrete_time {
 
-
 namespace vu = vle::utils;
 namespace vz = vle::vpz;
 
@@ -42,7 +41,8 @@ DiscreteTimeDyn::DEVS_TransitionGuards::DEVS_TransitionGuards():
 
 DiscreteTimeDyn::DEVS_Options::DEVS_Options():
         bags_to_eat(0), dt(1.0), syncs(), outputPeriods(), outputNils(),
-        outputPeriodsGlobal(0), outputNilsGlobal(0)
+        forcingEvents(0), allowUpdates(0), outputPeriodsGlobal(0),
+        outputNilsGlobal(0), snapshot_before(false), snapshot_after(false)
 {
 }
 
@@ -50,6 +50,8 @@ DiscreteTimeDyn::DEVS_Options::~DEVS_Options()
 {
     delete outputNilsGlobal;
     delete outputPeriodsGlobal;
+    delete forcingEvents;
+    delete allowUpdates;
 }
 
 void
@@ -73,8 +75,50 @@ DiscreteTimeDyn::DEVS_Options::setGlobalOutputPeriods(
 }
 
 void
-DiscreteTimeDyn::DEVS_Options::finishInitialization(
-        const DiscreteTimeDyn& dtd)
+DiscreteTimeDyn::DEVS_Options::addForcingEvents(const DiscreteTimeDyn& dtd,
+        const vle::value::Value& fe, const std::string& varname)
+{
+    switch (fe.getType()) {
+    case vle::value::Value::MAP: {
+        if (forcingEvents == 0) {
+            forcingEvents = new ForcingEvents();
+        }
+        vle::value::Set& fevents = (*forcingEvents)[varname];
+        fevents.add(fe.toMap().clone());
+        break;
+    } case vle::value::Value::SET: {
+        if (forcingEvents == 0) {
+            forcingEvents = new ForcingEvents();
+        }
+        vle::value::Set& fevents = (*forcingEvents)[varname];
+        fevents.clear();
+        vle::value::Set::const_iterator itb = fe.toSet().begin();
+        vle::value::Set::const_iterator ite = fe.toSet().end();
+        for (; itb != ite; itb++) {
+            fevents.add((*itb)->clone());
+        }
+        break;
+    } default: {
+        throw vle::utils::ArgError(vle::fmt("[%1%] forcing_%2% parameter "
+                "must be a vle::value::Set or a vle::value::Map")
+            % dtd.getModelName() % varname);
+        break;
+    }}
+    addAllowUpdate(dtd, true, varname);
+}
+
+void
+DiscreteTimeDyn::DEVS_Options::addAllowUpdate(const DiscreteTimeDyn& /*dtd*/,
+                bool allowUpdate,  const std::string& varname)
+{
+    if (allowUpdates == 0) {
+        allowUpdates = new AllowUpdates();
+    }
+    (*allowUpdates)[varname] = allowUpdate;
+}
+
+void
+DiscreteTimeDyn::DEVS_Options::finishInitialization(DiscreteTimeDyn& dtd)
 {
     if (outputPeriodsGlobal) {
         Variables::const_iterator itb = dtd.getVariables().begin();
@@ -94,6 +138,16 @@ DiscreteTimeDyn::DEVS_Options::finishInitialization(
             if (outputNils.find(itb->first) != outputNils.end()) {
                 outputNils.insert(std::pair<std::string, bool>(
                         itb->first, outputNilsGlobal->value()));
+            }
+        }
+    }
+    if (allowUpdates) {
+        AllowUpdates::const_iterator itb = allowUpdates->begin();
+        AllowUpdates::const_iterator ite = allowUpdates->end();
+        for (;itb != ite; itb++) {
+            Variables::iterator itf = dtd.getVariables().find(itb->first);
+            if (itf != dtd.getVariables().end()) {
+                itf->second->allow_update = itb->second;
             }
         }
     }
@@ -120,6 +174,37 @@ DiscreteTimeDyn::DEVS_Options::shouldOutputNil(const DiscreteTimeDyn& /*dtd*/,
     OutputNils::const_iterator itf = outputNils.find(varname);
     return (itf != outputNils.end() && itf->second);
 }
+
+vle::value::Value*
+DiscreteTimeDyn::DEVS_Options::getForcingEvent(const DiscreteTimeDyn& /*dtd*/,
+        double currentTime, bool beforeCompute,
+        const std::string& varname) const
+{
+    if (forcingEvents == 0){
+        return 0;
+    }
+    ForcingEvents::const_iterator itf = forcingEvents->find(varname);
+    if (itf ==  forcingEvents->end()) {
+        return 0;
+    }
+    vle::value::Set::const_iterator itb = itf->second.begin();
+    vle::value::Set::const_iterator ite = itf->second.end();
+    for (; itb != ite; itb++) {
+        const vle::value::Map& m = (*itb)->toMap();
+        //TODO manage double errors
+        if (std::abs(m.getDouble("time") - currentTime) < dt/std::pow(10,9)) {
+            if (m.exist("before_output") and
+                    (m.getBoolean("before_output") == beforeCompute)) {
+                return m.get("value")->clone();
+            }
+            if (! beforeCompute) {
+                return m.get("value")->clone();
+            }
+        }
+    }
+    return 0;
+}
+
 
 DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
     const vle::devs::InitEventList& events): vle::devs::Dynamics(model, events),
@@ -152,6 +237,10 @@ DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
         } else if (event_name == "output_period") {
             devs_options.setGlobalOutputPeriods(*this,
                     itb->second->toInteger().value());
+        } else if (event_name == "snapshot_before") {
+            devs_options.snapshot_before = itb->second->toBoolean().value();
+        } else if (event_name == "snapshot_after") {
+            devs_options.snapshot_after = itb->second->toBoolean().value();
         }
     }
     //2nd init (prior)
@@ -185,6 +274,18 @@ DiscreteTimeDyn::DiscreteTimeDyn(const vle::devs::DynamicsInit& model,
                     event_name.size()));
             devs_options.outputPeriods.insert(std::pair<std::string, bool>(
                     var_name, itb->second->toInteger().value()));
+        } else if (!prefix.assign("forcing_").empty() and
+                !event_name.compare(0, prefix.size(), prefix)) {
+            var_name.assign(event_name.substr(prefix.size(),
+                    event_name.size()));
+            std::string tmpEvt = "allow_update_";
+            tmpEvt += var_name;
+            if (events.exist(tmpEvt)) {
+                throw vle::utils::ArgError(vle::fmt("[%1%] forcing_%2% "
+                        "parameter cannot be used with allow_update_%2%")
+                % getModelName() % var_name);
+            }
+            devs_options.addForcingEvents(*this, *itb->second, var_name);
         }
     }
 }
@@ -310,7 +411,7 @@ DiscreteTimeDyn::allow_update(const std::string& v, bool val)
                         "'%2%' because it is not found '\n")
                         % getModelName() % v);
     }
-    itf->second->allow_update = val;
+    devs_options.addAllowUpdate(*this, val, v);
 }
 
 void
@@ -362,11 +463,17 @@ DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
     Variables::const_iterator ite = getVariables().end();
     for (; itb!=ite; itb++) {
         const std::string& var_name = itb->first;
+        VarInterface* v = itb->second;
+        vle::value::Value* fe = devs_options.getForcingEvent(*this, time,
+                true, var_name);
+        if (fe) {
+            v->update(time, *fe);
+            delete fe;
+        }
         if (getModel().existOutputPort(var_name) &&
                 devs_options.shouldOutput(*this, var_name)) {
             vle::devs::ExternalEvent* e =
                     new vle::devs::ExternalEvent(var_name);
-            VarInterface* v = itb->second;
             if (devs_options.shouldOutputNil(
                     *this, v->lastUpdateTime(), time, var_name)) {
                 e->putAttribute("value", new vle::value::Null);
@@ -397,6 +504,11 @@ DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
                 }}
             }
             output.push_back(e);
+        }
+        fe = devs_options.getForcingEvent(*this, time, false, var_name);
+        if (fe) {
+            v->update(time, *fe);
+            delete fe;
         }
     }
 }
@@ -660,30 +772,74 @@ vle::value::Value*
 DiscreteTimeDyn::observation(const vle::devs::ObservationEvent& event) const
 {
     const std::string& port = event.getPortName();
-    Variables::const_iterator itf =
-            getVariables().find(port);
-
+    Variables::const_iterator itf = getVariables().find(port);
+    //identify variable name and observation type
+    std::string var;
+    bool snapshot = false;
+    SNAPSHOT_ID snap = SNAP1;
     if (itf != getVariables().end()) {
+        var.assign(port);
+        snapshot = false;
+    } else {
+        std::size_t found = port.find("_before");
+        if (found != std::string::npos) {
+            itf = getVariables().find(port.substr(0, found));
+            if (itf != getVariables().end()) {
+                var.assign(port.substr(0, found));
+                snapshot = true;
+                snap = SNAP1;
+            }
+        } else {
+            std::size_t found = port.find("_after");
+            if (found != std::string::npos) {
+                itf = getVariables().find(port.substr(0, found));
+                if (itf != getVariables().end()) {
+                    var.assign(port.substr(0, found));
+                    snapshot = true;
+                    snap = SNAP2;
+                }
+            }
+        }
+    }
+    //build observation
+    if (not var.empty()) {
         VarInterface* v = itf->second;
         switch (v->getType()) {
         case MONO: {
-            VarMono* vmono =
-                    static_cast < VarMono* >(v);
-            return new vle::value::Double(vmono->snapshot);
+            VarMono* vmono = static_cast < VarMono* >(v);
+            if (! snapshot) {
+                return new vle::value::Double(vmono->getVal(event.getTime(),0));
+            } else if (vmono->hasSnapshot(snap)) {
+                return new vle::value::Double(vmono->getSnapshot(snap));
+            }
             break;
         } case MULTI: {
-            VarMulti* vmulti =
-                    static_cast < VarMulti* >(v);
+            VarMulti* vmulti = static_cast < VarMulti* >(v);
             vle::value::Tuple* res = new  vle::value::Tuple(vmulti->dim);
-            for (unsigned int i=0; i < vmulti->dim; i++) {
-                (*res)[i] = vmulti->snapshot[i];
+            if (! snapshot) {
+                const std::vector<double>& v =
+                        vmulti->getVal(event.getTime(), 0);
+                for (unsigned int i=0; i < vmulti->dim; i++) {
+                    (*res)[i] = v[i];
+                }
+                return res;
+            } else if (vmulti->hasSnapshot(snap)) {
+                const std::vector<double>& v = vmulti->getSnapshot(snap);
+                for (unsigned int i=0; i < vmulti->dim; i++) {
+                    (*res)[i] = v[i];
+                }
+                return res;
             }
-            return res;
+            delete res;
             break;
         } case VALUE_VLE: {
-            VarValue* vvalue =
-                    static_cast < VarValue* >(v);
-                return vvalue->snapshot->clone();
+            VarValue* vvalue = static_cast < VarValue* >(v);
+            if (! snapshot) {
+                vvalue->getVal(event.getTime(),0).clone();
+            } else if (vvalue->hasSnapshot(snap)) {
+                const vle::value::Value& v = vvalue->getSnapshot(snap);
+                return v.clone();
+            }
             break;
         }}
     }
@@ -701,7 +857,9 @@ DiscreteTimeDyn::processIn(const vle::devs::Time& t,
         declarationOn = false;
         setCurrentTime(t);
         initHistory(t);
-        snapshot();
+        if (devs_options.snapshot_after) {
+            snapshot(SNAP2);
+        }
         break;
     case WAIT:
         break;
@@ -712,9 +870,14 @@ DiscreteTimeDyn::processIn(const vle::devs::Time& t,
     case COMPUTE:
         currentTimeStep ++;
         setCurrentTime(t);
+        if (devs_options.snapshot_before) {
+            snapshot(SNAP1);
+        }
         compute(t);
         mfirstCompute=false;
-        snapshot();
+        if (devs_options.snapshot_after) {
+            snapshot(SNAP2);
+        }
         break;
     }
 }

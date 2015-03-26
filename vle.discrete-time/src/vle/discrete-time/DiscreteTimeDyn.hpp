@@ -155,15 +155,28 @@ public:
         //for a given variable: gives the type of output, if true, then outputs
         //nill if the last update time is not the current time
         typedef std::map <std::string, bool> OutputNils;
+        //for a given variable: gives the set of forcing event
+        //a forcing event is a map containing
+        //- time: time of forcing event (double)
+        //- value: forcing value (either a double or a tuple)
+        //- before_output (optionnal): true if event occurs before output
+        typedef std::map <std::string, vle::value::Set> ForcingEvents;
+        //for a given variable: tells if updates are allowed
+        typedef std::map <std::string, bool> AllowUpdates;
 
         unsigned int bags_to_eat;
         double dt;
         SyncsType syncs;
         OutputPeriods outputPeriods;
         OutputNils outputNils;
+        ForcingEvents* forcingEvents;
+        AllowUpdates* allowUpdates;
 
         vle::value::Integer* outputPeriodsGlobal;
         vle::value::Boolean* outputNilsGlobal;
+        bool snapshot_before;
+        bool snapshot_after;
+
 
 
         DEVS_Options();
@@ -171,14 +184,21 @@ public:
 
         void setGlobalOutputNils(const DiscreteTimeDyn& dtd, bool type);
         void setGlobalOutputPeriods(const DiscreteTimeDyn& dtd, int period);
-        void finishInitialization(const DiscreteTimeDyn& dtd);
+        void addForcingEvents(const DiscreteTimeDyn& dtd,
+                const vle::value::Value& fe, const std::string& varname);
+        void addAllowUpdate(const DiscreteTimeDyn& dtd,
+                        bool allowUpdate,  const std::string& varname);
         bool shouldOutput(const DiscreteTimeDyn& dtd,
                 const std::string& varname) const;
         bool shouldOutputNil(const DiscreteTimeDyn& dtd,
                 double lastUpdateTime,
                 double currentTime,
                 const std::string& varname) const;
-
+        vle::value::Value* getForcingEvent(const DiscreteTimeDyn& dtd,
+                double currentTime, bool beforeCompute,
+                const std::string& varname) const;
+        //internal function called after user constructor
+        void finishInitialization(DiscreteTimeDyn& dtd);
     };
 
     /**
