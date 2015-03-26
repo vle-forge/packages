@@ -1,0 +1,12 @@
+Package: gvle2.experimentalConditions
+Version: 0.1.0
+Depends:
+Build-Depends:
+Conflicts:
+Maintainer: Ronan Trépos <ronan.trepos@toulouse.inra.fr>
+Description: A set of plugins helping to manage experimental conditions
+ .
+Tags: experimental condition
+Url: http://www.vle-project.org/pub/1.1
+Size: 0
+MD5sum: xxxx
