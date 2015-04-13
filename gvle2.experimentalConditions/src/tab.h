@@ -26,7 +26,7 @@
 
 #include <QObject>
 #include <QWidget>
-#include <vle/gvle2/vpzexpcond.h>
+#include <vle/gvle2/vlevpz.h>
 
 namespace Ui {
 class MainTab;
@@ -39,21 +39,22 @@ class MainTab : public QWidget
 public:
     explicit MainTab(QWidget *parent = 0);
     ~MainTab();
-    void setExpCond(vpzExpCond *cond);
+    void setExpCond(const QString& cond);
 
 signals:
-    void valueChanged(vpzExpCond *cond);
+    void valueChanged(const QString& cond);
 
 private slots:
     void dateSelected(QDate date);
 
 private:
     Ui::MainTab *ui;
-    vpzExpCond  *mExpCond;
-private:
-    vpzExpCondValue *mEcValueDay;
-    vpzExpCondValue *mEcValueMonth;
-    vpzExpCondValue *mEcValueYear;
+    QString      mExpCond;
+    vleVpz*      mVpz;
+//private:
+//    vpzExpCondValue *mEcValueDay;
+//    vpzExpCondValue *mEcValueMonth;
+//    vpzExpCondValue *mEcValueYear;
 };
 
 #endif // TAB_H

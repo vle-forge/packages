@@ -32,12 +32,11 @@
  * @brief ExpCondDummy::ExpCondDummy
  *        Default constructor
  */
-ExpCondDummy::ExpCondDummy() {
-    mExpCond   = 0;
-    mLogger    = 0;
-    mSettings  = 0;
-    mWidgetTab = 0;
-    mWidgetToolbar = 0;
+ExpCondDummy::ExpCondDummy() :
+  mSettings(0), mLogger(0), mWidgetTab(0), mWidgetToolbar(0),
+  mExpCond(), mVpz(0)
+
+{
 }
 
 /**
@@ -61,7 +60,7 @@ QString ExpCondDummy::getname() {
  * @brief ExpCondDummy::setExpCond
  *        Set the current Experimental Condition tu use
  */
-void ExpCondDummy::setExpCond(vpzExpCond *cond)
+void ExpCondDummy::setExpCond(const QString& cond)
 {
     mExpCond = cond;
 }

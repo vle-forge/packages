@@ -22,6 +22,7 @@
  */
 
 #include <QDebug>
+#include <vle/value/String.hpp>
 #include "tab.h"
 #include "ui_tab.h"
 
@@ -30,12 +31,8 @@
  *        Default constructor
  */
 MainTab::MainTab(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::MainTab)
+    QWidget(parent), ui(new Ui::MainTab), mExpCond(), mVpz(0)
 {
-    mEcValueDay   = 0;
-    mEcValueMonth = 0;
-    mEcValueYear  = 0;
 
     ui->setupUi(this);
     QObject::connect(ui->calendar, SIGNAL(clicked(QDate)),
@@ -55,99 +52,45 @@ MainTab::~MainTab()
  * @brief MainTab::setExpCond
  *        Set the Experimental Condition to use
  */
-void MainTab::setExpCond(vpzExpCond *cond)
+void MainTab::setExpCond(const QString&  cond)
 {
     // Save it
     mExpCond = cond;
 
-    // In case of a nul pointer, nothing to do
-    if (cond == 0)
-        return;
-
-    vpzExpCondPort *datePort = 0;
+    QDomNode datePort;
 
     // Search the "date" port of the experimental condition
-    QList <vpzExpCondPort *> *ports = cond->getPorts();
-    for (int i = 0; i < ports->count(); i++)
-    {
-        vpzExpCondPort *port = ports->at(i);
-        if (port->getName().toLower() == "date")
-        {
-            datePort = port;
-            break;
-        }
+    QDomNode condXml = mVpz->condFromConds(mVpz->condsFromDoc(), cond);
+    if (not mVpz->existPortFromCond(condXml, "day")) {
+        mVpz->addCondPortToDoc(cond, "day");
+        mVpz->addValuePortCondToDoc(cond, "day", vle::value::String("9"));
     }
-    // If no "date" port found, create it !
-    if (datePort == 0)
-    {
-        datePort = new vpzExpCondPort();
-        datePort->setName("date");
-        cond->addPort(datePort);
-        qDebug() << "ExpCond-Dummy-Plugin: Add date port";
+    if (not mVpz->existPortFromCond(condXml, "month")) {
+        mVpz->addCondPortToDoc(cond, "month");
+        mVpz->addValuePortCondToDoc(cond, "month", vle::value::String("4"));
     }
+    if (not mVpz->existPortFromCond(condXml, "year")) {
+        mVpz->addCondPortToDoc(cond, "year");
+        mVpz->addValuePortCondToDoc(cond, "year", vle::value::String("2015"));
+    }
+    vle::value::Value* dayV = mVpz->vleVpz::buildValue(cond, "day",0);
+    vle::value::Value* monthV = mVpz->vleVpz::buildValue(cond, "month",0);
+    vle::value::Value* yearV = mVpz->vleVpz::buildValue(cond, "year",0);
 
-    int vDay   = -1;
-    int vMonth = -1;
-    int vYear  = -1;
+    int dayI = QVariant(dayV->toString().value().c_str()).toInt();
+    int monthI = QVariant(monthV->toString().value().c_str()).toInt();
+    int yearI = QVariant(yearV->toString().value().c_str()).toInt();
 
-    vpzExpCondValue *v;
-    for (v = datePort->getValue(); v != 0; v = datePort->getNextValue())
-    {
-        if (v->type() != vpzExpCondValue::TypeString)
-            continue;
+    delete dayV;
+    delete monthV;
+    delete yearV;
 
-        QStringList strList = v->getString().split(":");
-
-        if ( (strList.count() == 2) && (strList.at(0) == "day") )
-        {
-            vDay = strList.at(1).toInt();
-            mEcValueDay = v;
-        }
-        if ( (strList.count() == 2) && (strList.at(0) == "month") )
-        {
-            vMonth = strList.at(1).toInt();
-            mEcValueMonth = v;
-        }
-        if ( (strList.count() == 2) && (strList.at(0) == "year") )
-        {
-            vYear = strList.at(1).toInt();
-            mEcValueYear = v;
-        }
-    }
-    if (vDay < 0)
-    {
-        vpzExpCondValue *ecValue;
-        ecValue = datePort->createValue(vpzExpCondValue::TypeString);
-        // Set default test value to 8 June 1949 : George Orwell - 1984 ;-)
-        ecValue->setString("day:8");
-        vDay = 8;
-        // Save a copy of this ExpCondValue
-        mEcValueDay = ecValue;
-        qDebug() << "ExpCond-Dummy-Plugin:   Add day value to date port: " << vDay;
-    }
-    if (vMonth < 0)
-    {
-        vpzExpCondValue *ecValue;
-        ecValue = datePort->createValue(vpzExpCondValue::TypeString);
-        ecValue->setString("month:6");
-        vMonth = 6;
-        mEcValueMonth = ecValue;
-        qDebug() << "ExpCond-Dummy-Plugin:   Add month value to date port: " << vMonth;
-    }
-    if (vYear < 0)
-    {
-        vpzExpCondValue *ecValue;
-        ecValue = datePort->createValue(vpzExpCondValue::TypeString);
-        ecValue->setString("year:1949");
-        vYear = 1949;
-        mEcValueYear = ecValue;
-        qDebug() << "ExpCond-Dummy-Plugin:   Add year value to date port: " << vYear;
-    }
 
     QDate selDate;
-    selDate.setDate(vYear, vMonth, vDay);
+    selDate.setDate(dayI, monthI, yearI);
 
     ui->calendar->setSelectedDate(selDate);
+
 }
 
 /**
@@ -156,17 +99,11 @@ void MainTab::setExpCond(vpzExpCond *cond)
  */
 void MainTab::dateSelected(QDate date)
 {
-    // Update the day
-    QString strDay = QString("day:%1").arg(date.day());
-    mEcValueDay->setString(strDay);
-
-    // Update the month
-    QString strMonth = QString("month:%1").arg(date.month());
-    mEcValueMonth->setString(strMonth);
-
-    // Update the year
-    QString strYear = QString("year:%1").arg(date.year());
-    mEcValueYear->setString(strYear);
-
+    mVpz->fillWithValue(mExpCond, "day", 0, vle::value::String(
+            QVariant(date.day()).toString().toStdString()));
+    mVpz->fillWithValue(mExpCond, "month", 0, vle::value::String(
+            QVariant(date.month()).toString().toStdString()));
+    mVpz->fillWithValue(mExpCond, "year", 0, vle::value::String(
+            QVariant(date.year()).toString().toStdString()));
     emit valueChanged(mExpCond);
 }

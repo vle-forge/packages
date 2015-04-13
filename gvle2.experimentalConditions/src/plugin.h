@@ -29,7 +29,6 @@
 #include <vle/gvle2/plugin_cond.h>
 #include <vle/gvle2/logger.h>
 #include <vle/gvle2/vlevpz.h>
-#include <vle/gvle2/vpzexpcond.h>
 #include "tab.h"
 #include "toolbar.h"
 
@@ -46,7 +45,7 @@ public:
     void     delWidget();
     QWidget *getWidgetToolbar();
     void     delWidgetToolbar();
-    void setExpCond(vpzExpCond *cond);
+    void setExpCond(const QString& cond);
     void setSettings(QSettings *s);
     void setLogger(Logger *logger);
     void setVpz(vleVpz*vpz);
@@ -57,11 +56,12 @@ public slots:
     void onTabDeleted(QObject *obj);
 
 private:
-    QSettings     *mSettings;
-    Logger        *mLogger;
-    MainTab       *mWidgetTab;
-    widToolbar    *mWidgetToolbar;
-    vpzExpCond    *mExpCond;
+    QSettings*  mSettings;
+    Logger*     mLogger;
+    MainTab*    mWidgetTab;
+    widToolbar* mWidgetToolbar;
+    QString     mExpCond;
+    vleVpz*     mVpz;
 };
 
 #endif // EXPCOND_DUMMY_H
