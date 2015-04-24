@@ -41,7 +41,7 @@ void generateParenthesis(std::string& equation, const Forrester& forrester)
 {
     std::vector<utilities::Tokenizer::token> elements;
     int insertedCaracters = 0;
-    utilities::Tokenizer tokenizer(equation,"<>=&| +-*/()\t\n\r");
+    utilities::Tokenizer tokenizer(equation,",<>=&| +-*/()\t\n\r");
 
     while(tokenizer.nextToken())
         elements.push_back(tokenizer.getToken());
@@ -65,7 +65,7 @@ void generateStdPrefix(std::string& equation)
 {
     std::vector<utilities::Tokenizer::token> elements;
     int insertedCaracters = 0;
-    utilities::Tokenizer tokenizer(equation," +-*/()\t\n\r");
+    utilities::Tokenizer tokenizer(equation," ,+-*/()\t\n\r");
 
     while(tokenizer.nextToken())
         elements.push_back(tokenizer.getToken());

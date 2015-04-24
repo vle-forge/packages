@@ -52,10 +52,13 @@ Flow::Flow(const std::string& confTag, const Forrester& f):GraphicalItem(f)
     mWidth = boost::lexical_cast < int > (flowInformation[3]);
     mHeight = boost::lexical_cast < int > (flowInformation[4]);
     mValue = flowInformation[5];
+    std::replace(mValue.begin(), mValue.end(), '\'', ',');
     mConditionnality = (flowInformation[6] == "true")? true : false;
     mPredicate = flowInformation[7];
     mTrueValue = flowInformation[8];
+    std::replace(mTrueValue.begin(), mTrueValue.end(), '\'', ',');
     mFalseValue = flowInformation[9];
+    std::replace(mFalseValue.begin(), mFalseValue.end(), '\'', ',');
     computeAnchors();
 }
 
@@ -168,10 +171,18 @@ void Flow::drawName(const Cairo::RefPtr<Cairo::Context>& context)
 std::string Flow::toString() const
 {
     std::string isConditionnal = (mConditionnality)? "true" : "false";
+
+    std::string qvalue = mValue;
+    std::replace(qvalue.begin(), qvalue.end(), ',', '\'');
+    std::string qtruevalue = mTrueValue;
+    std::replace(qtruevalue.begin(), qtruevalue.end(), ',', '\'');
+    std::string qfalsevalue = mFalseValue;
+    std::replace(qfalsevalue.begin(), qfalsevalue.end(), ',', '\'');
+
     return (fmt("%1%,%2%,%3%,%4%,%5%,%6%,%7%,%8%,%9%,%10%")
-            % mName % mX % mY % mWidth % mHeight % mValue
-            % isConditionnal % mPredicate % mTrueValue
-            % mFalseValue).str();
+            % mName % mX % mY % mWidth % mHeight % qvalue
+            % isConditionnal % mPredicate % qtruevalue
+            % qfalsevalue).str();
 }
 
 bool Flow::launchCreationWindow(

@@ -37,8 +37,8 @@ namespace modeling {
 namespace forrester {
 namespace utilities {
 
-    const std::string STL_FUNCTION[] = {"sin","cos","tan","exp","abs","sqrt"};
-    const int STL_FUNCTION_COUNT = 6;
+    const std::string STL_FUNCTION[] = {"pow","sin","cos","tan","exp","abs","sqrt"};
+    const int STL_FUNCTION_COUNT = 7;
 
     void generateParenthesis(std::string&, const Forrester&);
     void generateStdPrefix(std::string&);

@@ -44,6 +44,7 @@ ComputeParser::ComputeParser() {
     DefineFun("exp", exp);
     DefineFun("abs", abs);
     DefineFun("sqrt", sqrt);
+    DefineFun("pow", pow);
 
     //Adding operators
     DefineOprt("+", addition, mu::prADD_SUB, mu::oaLEFT, true);
@@ -126,6 +127,11 @@ mu::value_type ComputeParser::abs(mu::value_type v){
 
 mu::value_type ComputeParser::sqrt(mu::value_type v){
     return std::sqrt(v);
+}
+
+mu::value_type ComputeParser::power(mu::value_type a,
+                                    mu::value_type b){
+    return std::pow(a, b);
 }
 
 ComputeParser::~ComputeParser ()

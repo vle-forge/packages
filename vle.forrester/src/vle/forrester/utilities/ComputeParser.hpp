@@ -64,6 +64,7 @@ protected:
     static mu::value_type  exp(mu::value_type);
     static mu::value_type  abs(mu::value_type);
     static mu::value_type  sqrt(mu::value_type);
+    static mu::value_type power(mu::value_type, mu::value_type);
 
     //Operators
     static mu::value_type addition(mu::value_type, mu::value_type);
