@@ -26,6 +26,7 @@
  */
 
 #include <vle/gvle/modeling/decision/SourceDialog.hpp>
+#include <iostream>
 
 namespace vle {
 namespace gvle {
@@ -46,6 +47,7 @@ SourceDialog::SourceDialog(Glib::RefPtr < Gtk::Builder >& xml,
     xml->get_widget("MembersText", mMembers);
     xml->get_widget("addParam", mAddParam);
     xml->get_widget("delParam", mDelParam);
+    xml->get_widget("buttonOkSourceDialog", mOkButton);
     xml->get_widget("nameParam", mNameParam);
     mNameParam->set_editable(false);
     xml->get_widget("valueParam", mValueParam);
@@ -60,9 +62,12 @@ SourceDialog::SourceDialog(Glib::RefPtr < Gtk::Builder >& xml,
     initMenuPopupTreeParam();
 
     mList.push_back(mAddParam->signal_clicked().connect(
-        sigc::mem_fun(*this, &SourceDialog::onAddParam)));
+                        sigc::mem_fun(*this, &SourceDialog::onAddParam)));
     mList.push_back(mDelParam->signal_clicked().connect(
-        sigc::mem_fun(*this, &SourceDialog::onDeleteParam)));
+                        sigc::mem_fun(*this, &SourceDialog::onDeleteParam)));
+    mList.push_back(mValueParam->signal_changed().connect(
+                        sigc::mem_fun(*this, &SourceDialog::onChangeParamValue)));
+
 
     m_cntParamButtonRelease = mTreeViewParam->
             signal_button_release_event().connect(
@@ -133,6 +138,18 @@ void SourceDialog::initMenuPopupTreeParam()
                 *this, &SourceDialog::onRenameParam)));
 
     mMenuTreeViewItems.accelerate(*mTreeViewParam);
+}
+
+void SourceDialog::onChangeParamValue()
+{
+    std::string stringValue = mValueParam->get_text();
+    try {
+        boost::lexical_cast<double>(stringValue);
+        mParam[mNameParam->get_text()] = stringValue;
+        mOkButton->set_sensitive(true);
+    } catch (boost::bad_lexical_cast &) {
+        mOkButton->set_sensitive(false);
+    }
 }
 
 }

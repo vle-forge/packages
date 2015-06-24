@@ -37,6 +37,7 @@
 #include <vle/gvle/Message.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <vle/gvle/modeling/decision/Utils.hpp>
 
@@ -71,6 +72,8 @@ public:
  * @brief This function initialize the popup menu in the tree view.
  */
     void initMenuPopupTreeParam();
+
+    void onChangeParamValue();
 
     void onAddParam()
     {
@@ -255,6 +258,7 @@ private:
     Gtk::TextView* mMembers;
     Gtk::Button* mAddParam;
     Gtk::Button* mDelParam;
+    Gtk::Button* mOkButton;
     Gtk::Entry* mNameParam;
     Gtk::Entry* mValueParam;
     std::map < std::string, DocumentText* > mFunctions;

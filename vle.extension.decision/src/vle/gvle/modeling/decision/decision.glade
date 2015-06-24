@@ -395,13 +395,13 @@
             </child>
             <child>
               <object class="GtkCheckButton" id="buttonRelativeDate">
-		<property name="label" translatable="yes">Relative Dates</property>
-		<property name="visible">True</property>
-		<property name="can_focus">True</property>
-		<property name="receives_default">False</property>
-		<property name="tooltip_text" translatable="yes">To set Dates as Relatives.</property>
-		<property name="use_action_appearance">False</property>
-		<property name="draw_indicator">True</property>
+                <property name="label" translatable="yes">Relative Dates</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="tooltip_text" translatable="yes">To set Dates as Relatives.</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -2620,12 +2620,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="buttonOkDialogViewOutput1">
+              <object class="GtkButton" id="buttonOkSourceDialog">
                 <property name="label">gtk-ok</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
+                <property name="focus_on_click">False</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -2645,7 +2646,7 @@
     </child>
     <action-widgets>
       <action-widget response="-6">buttonCancelDialogViewOutput1</action-widget>
-      <action-widget response="-3">buttonOkDialogViewOutput1</action-widget>
+      <action-widget response="-3">buttonOkSourceDialog</action-widget>
     </action-widgets>
   </object>
   <object class="GtkDialog" id="PrecedenceConstraintDialog">
