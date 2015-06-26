@@ -27,6 +27,7 @@
 
 #include <vle/gvle/modeling/decision/Plugin.hpp>
 #include <vle/utils/Package.hpp>
+#include <boost/regex.hpp>
 
 namespace vle {
 namespace gvle {
@@ -212,10 +213,17 @@ const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
     "std::string suffixRetourNum;\n"                                    \
     "m{{activity}}Counter++;\n"                                         \
     "suffixRetourNum = getSuffixName(m{{activity}}Counter);\n"          \
-    "{\n"                                                               \
+    "if (m{{activity}}MaxIter == 0 ||\n"                                \
+    "    m{{activity}}Counter < m{{activity}}MaxIter){\n"               \
     "   ved::Activity& a =\n"                                           \
     "      addActivity(\"{{activity}}\" + suffixRetourNum);\n"          \
-    "   a.initStartRangeFinishRange(activity.minstart(),\n"             \
+    "   double minstart;\n"                                             \
+    "   if (m{{activity}}TimeLag == 0.0) {\n"                           \
+    "      minstart = activity.minstart();\n"                           \
+    "   } else {\n"                                                     \
+    "      minstart = currentTime()+ m{{activity}}TimeLag;\n"           \
+    "   }\n"                                                            \
+    "   a.initStartRangeFinishRange(minstart,\n"                        \
     "                               vd::infinity,\n"                    \
     "                               vd::negativeInfinity,\n"            \
     "                               activity.maxfinish());\n"           \
@@ -1146,6 +1154,8 @@ void PluginDecision::writePlanFile(std::string filename)
         std::string ackFunc = "";
         std::string relDate = "";
         std::string repeated = "";
+        std::string maxIter = "";
+        std::string timeLag = "";
         if (!it->second->getOutputFunc().empty()) {
             outputFunc = it->second->getOutputFunc().at(0);
         }
@@ -1161,9 +1171,12 @@ void PluginDecision::writePlanFile(std::string filename)
         }
         if (it->second->isRepeated()) {
             repeated = "R";
+            maxIter = it->second->maxIter();
+            timeLag = it->second->timeLag();
         }
         templateSave.listSymbol().append("activities", it->second->toString() +
-                "," + outputFunc + "," + ackFunc +  "," + relDate + "," + repeated);
+            "," + outputFunc + "," + ackFunc +  "," + relDate + "," + repeated +
+            "," + maxIter + "," + timeLag);
     }
 
     //ruleAndPred
@@ -2224,12 +2237,43 @@ void PluginDecision::onRepeatedActivityAsked(
     ActivityDialog& dialogActivityDialog)
 {
     std::string aname =  dialogActivityDialog.name();
+    std::string amaxiter =  dialogActivityDialog.maxIter();
+
+    if (amaxiter == "") {
+        amaxiter = "0";
+    }
+    std::string atimelag =  dialogActivityDialog.timeLag();
+
+    if (atimelag == "") {
+         atimelag = "0.0";
+    }
 
     std::size_t found = mMembers.find("int m" + aname + "Counter;\n");
     if (found == std::string::npos) {
         mMembers += "int m" + aname + "Counter;\n";
         mCustomConstructor += "m" + aname + "Counter = 0;\n";
     }
+
+    found = mMembers.find("int m" + aname + "MaxIter;\n");
+    if (found == std::string::npos) {
+        mMembers += "int m" + aname + "MaxIter;\n";
+        mCustomConstructor += "m" + aname + "MaxIter = " + amaxiter + ";\n";
+    } else {
+        boost::regex expr("m" + aname + "MaxIter = \\d+;");
+        mCustomConstructor =
+            boost::regex_replace(mCustomConstructor, expr, "m" + aname + "MaxIter = " + amaxiter + ";");
+    }
+
+    found = mMembers.find("int m" + aname + "TimeLag;\n");
+    if (found == std::string::npos) {
+        mMembers += "int m" + aname + "TimeLag;\n";
+        mCustomConstructor += "m" + aname + "TimeLag = " + atimelag + ";\n";
+    } else {
+        boost::regex expr("m" + aname + "TimeLag = \\d*\\.{0,1}\\d*;");
+        mCustomConstructor =
+            boost::regex_replace(mCustomConstructor, expr, "m" + aname + "TimeLag = " + atimelag + ";");
+    }
+
 
     strings_t::iterator it = find(mOutputFunctionName.begin(),
                                   mOutputFunctionName.end(),

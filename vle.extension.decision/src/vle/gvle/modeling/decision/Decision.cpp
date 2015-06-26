@@ -73,6 +73,10 @@ ActivityModel::ActivityModel(const std::string& conf):
     } else {
         if (activityModel[8] == "R") {
             mIsRepeated = true;
+            if (activityModel.size() > 10) {
+                mMaxIterations = activityModel[9];
+                mTimeLag = activityModel[10];
+            }
         }
         else {
             mIsRepeated = false;

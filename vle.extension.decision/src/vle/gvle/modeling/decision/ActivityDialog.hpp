@@ -264,6 +264,15 @@ public:
         return mRepeatedCheckButton->get_active();
     }
 
+    std::string maxIter() const
+    {
+        return mMaxIterEntry->get_text();
+    }
+
+    std::string timeLag() const
+    {
+        return mTimeLagEntry->get_text();
+    }
 protected:
 /**
  * @brief Function called when the name into the mNameEntry is modified.
@@ -291,6 +300,10 @@ protected:
  */
     void onRepeated();
 
+    void onTimeLagChange();
+
+    void onMaxIterChange();
+
     bool mIsRelativeDate;
 
 /**
@@ -315,6 +328,9 @@ protected:
     Gtk::ToggleButton* mRelativeButton;
 
     Gtk::CheckButton* mRepeatedCheckButton;
+    Gtk::Expander* mRepeatParam;
+    Gtk::Entry* mMaxIterEntry;
+    Gtk::Entry* mTimeLagEntry;
 
     Gtk::Button* mAddButtonOut;
     Gtk::Button* mDelButtonOut;
