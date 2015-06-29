@@ -22,7 +22,7 @@
  */
 
 
-#include <vle/discrete-time/DiscreteTimeDyn.hpp>
+#include <vle/discrete-time/DiscreteTimeExec.hpp>
 #include <vle/value/Tuple.hpp>
 
 namespace vle {
@@ -31,166 +31,166 @@ namespace discrete_time {
 namespace vu = vle::utils;
 namespace vz = vle::vpz;
 
-DiscreteTimeDyn::DiscreteTimeDyn(
-        const vle::devs::DynamicsInit& model,
+DiscreteTimeExec::DiscreteTimeExec(
+        const vle::devs::ExecutiveInit& model,
         const vle::devs::InitEventList& events):
-        vle::devs::Dynamics(model, events),
+        vle::devs::Executive(model, events),
         TemporalValuesProvider(this->getModelName(), events),
         mpimpl(new Pimpl(static_cast<TemporalValuesProvider&>(*this), events))
 
 {
 }
 
-DiscreteTimeDyn::~DiscreteTimeDyn()
+DiscreteTimeExec::~DiscreteTimeExec()
 {
     delete mpimpl;
 }
 
 void
-DiscreteTimeDyn::time_step(double val)
+DiscreteTimeExec::time_step(double val)
 {
     mpimpl->time_step(val);
 }
 
  void
-DiscreteTimeDyn::init_value(const std::string& v,
+DiscreteTimeExec::init_value(const std::string& v,
         const vle::value::Value& val)
 {
      mpimpl->init_value(v, val);
 }
 
  void
-DiscreteTimeDyn::dim(const std::string& v, unsigned int val)
+DiscreteTimeExec::dim(const std::string& v, unsigned int val)
 {
      mpimpl->dim(v, val);
 }
 
  void
-DiscreteTimeDyn::history_size(const std::string& v, unsigned int val)
+DiscreteTimeExec::history_size(const std::string& v, unsigned int val)
 {
      mpimpl->history_size(v, val);
 }
 
  void
-DiscreteTimeDyn::sync(const std::string& v, unsigned int val)
+DiscreteTimeExec::sync(const std::string& v, unsigned int val)
 {
      mpimpl->sync(v, val);
 }
 
  void
-DiscreteTimeDyn::output_nil(const std::string& v, bool val)
+DiscreteTimeExec::output_nil(const std::string& v, bool val)
 {
      mpimpl->output_nil(v, val);
 }
 
  void
-DiscreteTimeDyn::output_period(const std::string& v, unsigned int val)
+DiscreteTimeExec::output_period(const std::string& v, unsigned int val)
 {
      mpimpl->output_period(v, val);
 }
 
  void
-DiscreteTimeDyn::allow_update(const std::string& v, bool val)
+DiscreteTimeExec::allow_update(const std::string& v, bool val)
 {
      mpimpl->allow_update(v, val);
 }
 
  void
-DiscreteTimeDyn::error_no_sync(const std::string& v, bool val)
+DiscreteTimeExec::error_no_sync(const std::string& v, bool val)
 {
      mpimpl->error_no_sync(v, val);
 }
 
 void
-DiscreteTimeDyn::bags_to_eat(unsigned int val)
+DiscreteTimeExec::bags_to_eat(unsigned int val)
 {
     mpimpl->bags_to_eat(val);
 }
 
 void
-DiscreteTimeDyn::global_output_nils(bool val)
+DiscreteTimeExec::global_output_nils(bool val)
 {
     mpimpl->global_output_nils(val);
 }
 
 
 unsigned int
-DiscreteTimeDyn::dim(const Vect& v) const
+DiscreteTimeExec::dim(const Vect& v) const
 {
     return mpimpl->dim(v);
 }
 
 bool
-DiscreteTimeDyn::firstCompute() const
+DiscreteTimeExec::firstCompute() const
 {
     return mpimpl->firstCompute();
 }
 
 DEVS_Options&
-DiscreteTimeDyn::getOptions()
+DiscreteTimeExec::getOptions()
 {
     return mpimpl->getOptions();
 }
 
  void
-DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
+DiscreteTimeExec::outputVar(const vle::devs::Time& time,
         vle::devs::ExternalEventList& output) const
 {
      mpimpl->outputVar(getModel(), time, output);
 }
 
  void
-DiscreteTimeDyn::updateGuardAllSynchronized(const vle::devs::Time& t)
+DiscreteTimeExec::updateGuardAllSynchronized(const vle::devs::Time& t)
 {
      mpimpl->updateGuardAllSynchronized(t);
 }
 
 void
-DiscreteTimeDyn::updateGuardHasSync(const vle::devs::Time& t)
+DiscreteTimeExec::updateGuardHasSync(const vle::devs::Time& t)
 {
      mpimpl->updateGuardHasSync(t);
 }
 
 void
-DiscreteTimeDyn::varOnSyncError(std::string& v)
+DiscreteTimeExec::varOnSyncError(std::string& v)
 {
     mpimpl->varOnSyncError(v);
 }
 
 bool
-DiscreteTimeDyn::isSync(const std::string& var_name,
+DiscreteTimeExec::isSync(const std::string& var_name,
         unsigned int currTimeStep) const
 {
     return mpimpl->isSync(var_name, currTimeStep);
 }
 
 void
-DiscreteTimeDyn::initializeFromInitEventList(
+DiscreteTimeExec::initializeFromInitEventList(
         const vle::devs::InitEventList&  events)
 {
      mpimpl->initializeFromInitEventList(events);
 }
 
 vle::devs::Time
-DiscreteTimeDyn::init(const vle::devs::Time& t)
+DiscreteTimeExec::init(const vle::devs::Time& t)
 {
     return mpimpl->init(this, t);
 }
 
 vle::devs::Time
-DiscreteTimeDyn::timeAdvance() const
+DiscreteTimeExec::timeAdvance() const
 {
     return mpimpl->timeAdvance();
 }
 
  void
-DiscreteTimeDyn::internalTransition(const vle::devs::Time& t)
+DiscreteTimeExec::internalTransition(const vle::devs::Time& t)
 {
      mpimpl->internalTransition(this, t);
 }
 
  void
-DiscreteTimeDyn::externalTransition(
+DiscreteTimeExec::externalTransition(
     const vle::devs::ExternalEventList& event,
     const vle::devs::Time& t)
 {
@@ -198,7 +198,7 @@ DiscreteTimeDyn::externalTransition(
 }
 
  void
-DiscreteTimeDyn::confluentTransitions(
+DiscreteTimeExec::confluentTransitions(
     const vle::devs::Time& t,
     const vle::devs::ExternalEventList& event)
 {
@@ -207,48 +207,48 @@ DiscreteTimeDyn::confluentTransitions(
 
 
  void
-DiscreteTimeDyn::output(const vle::devs::Time& time,
+DiscreteTimeExec::output(const vle::devs::Time& time,
                         vle::devs::ExternalEventList& output) const
 {
      mpimpl->output(getModel(), time, output);
 }
 
 vle::value::Value*
-DiscreteTimeDyn::observation(const vle::devs::ObservationEvent& event) const
+DiscreteTimeExec::observation(const vle::devs::ObservationEvent& event) const
 {
      return mpimpl->observation(event);
 }
 
 void
-DiscreteTimeDyn::processIn(const vle::devs::Time& t,
+DiscreteTimeExec::processIn(const vle::devs::Time& t,
         DEVS_TransitionType trans)
 {
      mpimpl->processIn(this, t, trans);
 }
 
 void
-DiscreteTimeDyn::processOut(const vle::devs::Time& t,
+DiscreteTimeExec::processOut(const vle::devs::Time& t,
         DEVS_TransitionType trans)
 {
      mpimpl->processOut(t, trans);
 }
 
 void
-DiscreteTimeDyn::updateGuards(const vle::devs::Time& t,
+DiscreteTimeExec::updateGuards(const vle::devs::Time& t,
         DEVS_TransitionType trans)
 {
      mpimpl->updateGuards(t, trans);
 }
 
 void
-DiscreteTimeDyn::handleExtEvt(const vle::devs::Time& t,
+DiscreteTimeExec::handleExtEvt(const vle::devs::Time& t,
         const vle::devs::ExternalEventList& ext)
 {
      mpimpl->handleExtEvt(t, ext);
 }
 
 void
-DiscreteTimeDyn::handleExtEvt(const vle::devs::Time& t,
+DiscreteTimeExec::handleExtEvt(const vle::devs::Time& t,
         const std::string& port, const vle::value::Map& attrs)
 {
      mpimpl->handleExtEvt(t, port, attrs);

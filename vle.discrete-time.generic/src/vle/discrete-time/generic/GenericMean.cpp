@@ -51,7 +51,7 @@ public:
         for (; itb != ite; itb++) {
             Var* v = new Var();
             v->init(this, itb->first, events);
-            devs_options.syncs.insert(std::make_pair(itb->first, 1));
+            getOptions().syncs.insert(std::make_pair(itb->first, 1));
             inputs.push_back(v);
         }
     }

@@ -23,10 +23,10 @@
  */
 
 
-#ifndef VLE_DISCRETE_TIME_DYN_HPP
-#define VLE_DISCRETE_TIME_DYN_HPP 1
+#ifndef VLE_DISCRETE_TIME_EXEC_HPP
+#define VLE_DISCRETE_TIME_EXEC_HPP 1
 
-#include <vle/devs/Dynamics.hpp>
+#include <vle/devs/Executive.hpp>
 #include <vle/discrete-time/details/DiscreteTimeGen.hpp>
 #include <vle/discrete-time/details/ComputeInterface.hpp>
 
@@ -38,16 +38,16 @@ struct Pimpl;
 /**
  * @brief Discrete time for a dynamic
  */
-class  DiscreteTimeDyn : public vle::devs::Dynamics,
+class  DiscreteTimeExec : public vle::devs::Executive,
                          public TemporalValuesProvider,
                          public ComputeInterface
 {
 public:
 
-    DiscreteTimeDyn(const vle::devs::DynamicsInit& init,
+    DiscreteTimeExec(const vle::devs::ExecutiveInit& init,
             const vle::devs::InitEventList&  events);
 
-    virtual ~DiscreteTimeDyn();
+    virtual ~DiscreteTimeExec();
 
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
@@ -156,7 +156,6 @@ public:
     void varOnSyncError(std::string& v);
     bool isSync(const std::string& var_name, unsigned int currTimeStep) const;
     void initializeFromInitEventList(const vle::devs::InitEventList&  events);
-
 
     Pimpl* mpimpl;
 };

@@ -36,7 +36,7 @@ AgentDT::AgentDT(const devs::DynamicsInit& mdl,
     : DiscreteTimeDyn(mdl, events), mdefaultValues()
 {
     if (! events.exist("output_nil")) {
-        devs_options.setGlobalOutputNils(*this, true);
+        global_output_nils(true);
     }
     vle::devs::InitEventList::const_iterator itb = events.begin();
     vle::devs::InitEventList::const_iterator ite = events.end();
@@ -68,12 +68,6 @@ AgentDT::AgentDT(const devs::DynamicsInit& mdl,
 
 AgentDT::~AgentDT()
 {
-}
-
-const devs::Time&
-AgentDT::currentTime() const
-{
-    return TemporalValuesProvider::getCurrentTime();
 }
 
 void

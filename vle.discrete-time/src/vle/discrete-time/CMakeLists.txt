@@ -3,8 +3,12 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
-ADD_LIBRARY(vle.discrete-time STATIC DiscreteTimeDyn.cpp TemporalValues.cpp
-               DiscreteTimeDyn.hpp TemporalValues.hpp)
+ADD_LIBRARY(vle.discrete-time STATIC 
+  TemporalValues.hpp details/DiscreteTimeGen.hpp 
+  DiscreteTimeDyn.hpp DiscreteTimeExec.hpp
+  TemporalValues.cpp details/DiscreteTimeGen.cpp 
+  DiscreteTimeDyn.cpp DiscreteTimeExec.cpp
+)
 
 IF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
@@ -25,5 +29,7 @@ CONFIGURE_FILE(Version.hpp.in
 install(FILES
   ${CMAKE_BINARY_DIR}/src/vle/discrete-time/Version.hpp
   DESTINATION src/vle/discrete-time/)
-install(FILES DiscreteTimeDyn.hpp TemporalValues.hpp 
+install(FILES TemporalValues.hpp DiscreteTimeDyn.hpp DiscreteTimeExec.hpp
         DESTINATION src/vle/discrete-time)
+install(FILES details/DiscreteTimeGen.hpp details/ComputeInterface.hpp
+        DESTINATION src/vle/discrete-time/details)
