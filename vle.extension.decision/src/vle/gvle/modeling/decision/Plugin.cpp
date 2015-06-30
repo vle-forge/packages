@@ -739,7 +739,9 @@ void PluginDecision::generateSource(const std::string& classname,
             itParPred++;
             std::string pred;
             generatePred(&pred, &itParPred, &it->second, 0, "");
-            pred = "bool " + it->first + "() const\n{\n    return (" + pred;
+            pred = "bool " + it->first + "(const std::string& activity, const std::string& rule," \
+                "const vle::extension::decision::PredicateParameters& param)" \
+                "const\n{\n    return (" + pred;
             pred += ");\n}";
             tpl_.listSymbol().append("hierPred", pred);
         }
@@ -840,13 +842,15 @@ void PluginDecision::generateSource(const std::string& classname,
             it != mPredicateName.end(); ++it) {
         std::string function;
         if ( mPredicateFunction.find(*it) != mPredicateFunction.end() ) {
-            function = "bool " + *it + "() const\n{";
+            function = "bool " + *it + "(const std::string& activity, const std::string& rule," \
+                "const vle::extension::decision::PredicateParameters& param) const\n{";
             function += "//@@begin:predicatesFunction" + *it + "@@\n";
             function += mPredicateFunction[*it];
             function += "//@@end:predicatesFunction" + *it + "@@\n}";
         }
         else {
-            function = "bool " + *it + "() const\n{";
+            function = "bool " + *it + "(const std::string& activity, const std::string& rule," \
+                "const vle::extension::decision::PredicateParameters& param) const\n{";
             function = "//@@begin:predicatesFunction" + *it + "@@ ";
             function += "//@@end:predicatesFunction" + *it + "@@\n}";
         }
