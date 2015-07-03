@@ -162,6 +162,11 @@ public:
         }
     }
 
+    const std::string& getFilePath() const
+    {
+        return file_path;
+    }
+
     void setFilePath(const std::string& filePath)
     {
         clearFileStream();
