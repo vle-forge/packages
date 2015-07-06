@@ -65,7 +65,8 @@ VleCheckPackage(vle.reader vle.reader)
 
 SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
-FIND_PACKAGE(Boost COMPONENTS unit_test_framework date_time thread system)
+FIND_PACKAGE(Boost COMPONENTS unit_test_framework date_time thread system 
+  filesystem)
 
 IF (Boost_UNIT_TEST_FRAMEWORK_FOUND)
   SET(HAVE_UNITTESTFRAMEWORK 1 CACHE INTERNAL "" FORCE)

@@ -56,6 +56,9 @@
  <port name="values_xs" >
 <set><integer>1235</integer><integer>7234</integer><integer>9531</integer></set>
 </port>
+ <port name="working_dir" >
+<string>/tmp/</string>
+</port>
 </condition>
 <condition name="simulation_engine" >
  <port name="begin" >

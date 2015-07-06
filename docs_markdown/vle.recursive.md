@@ -10,7 +10,8 @@ The goals are:
 * to provide both an API and a PDEVS dynamic for multi simulation, based on the
 same approach for configuration.
 * to use the same approach for configuring MPI and thread parallelization 
-provided into vle (only a parameter to set) TODO finish implementation
+provided into vle. Use either the vle implementation of vle (if available)
+or native threading parallelization. 
 * to facilitate the stochastic simulation.
 * to provide simple tools for aggregating simulation results.
 * to provide an alternative to multi simulation with R, with less memory
@@ -80,6 +81,9 @@ take for all simulations. It cannot be used simultaneously with *values_X*.
 sets the type of parallelization to perform.
 * **config_parallel_nb_slots** (int > 0). it gives the number of slots to
 use for parallelization.
+* **working_dir** (string). Required only if *config_parallel_type* is set to
+*mvle*. It gives the working directory where are produced result file of single
+simulations.
  
 
 To use the MetaManager API:

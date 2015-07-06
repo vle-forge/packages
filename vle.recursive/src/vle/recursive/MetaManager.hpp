@@ -88,19 +88,15 @@ private:
     CONFIG_PARALLEL_TYPE mConfigParallelType;
     unsigned int mConfigParallelNbSlots;
     unsigned int mConfigParallelMaxExpes;
-//    std::vector<std::string> mIdInputs;
-//    std::vector<std::pair<std::string, std::string> > mInputs;//cond * port
-//    std::vector<vle::value::Value*> mInputValues;//values are Tuple or Set
     std::vector<VleInput*> mInputs;
     std::string mIdReplica;
     std::pair<std::string, std::string> mReplica; //cond * port
     vle::value::Set* mReplicaValues;//values are Tuple or Set
-//    std::vector<std::string> mIdOutputs;
     std::vector<VleOutput> mOutputs;//view * port
- //   std::vector<OUTPUT_INTEGRATION_TYPE> mOutputIntTypes;
     std::vector<OUTPUT_STAT> mOutputStats;
     std::vector<vle::value::Value*> mOutputValues;//values are Tuple or Set
     vle::value::Matrix* mResults;
+    std::string mWorkingDir; //only for mvle
 
 
 public:

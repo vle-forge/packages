@@ -21,6 +21,7 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/filesystem.hpp>
 
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Exception.hpp>
@@ -45,7 +46,8 @@ namespace recursive {
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(), mConfigParallelType(THREADS),
         mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
         mInputs(), mIdReplica(), mReplica(), mReplicaValues(),
-        mOutputs(), mOutputStats(), mOutputValues(), mResults(0)
+        mOutputs(), mOutputStats(), mOutputValues(), mResults(0),
+        mWorkingDir("")
 {
 }
 
@@ -79,6 +81,11 @@ MetaManager::init(const vle::value::Map& init)
             mConfigParallelType = THREADS;
         } else if (tmp == "mvle") {
             mConfigParallelType = MVLE;
+            if (! init.exist("working_dir")) {
+                throw vle::utils::ArgError("[MetaManager] error for "
+                        "mvle config, missing 'working_dir' parameter");
+            }
+            mWorkingDir.assign(init.getString("working_dir"));
         }  else if (tmp == "single") {
             mConfigParallelType = SINGLE;
         } else {
@@ -314,7 +321,7 @@ MetaManager::launchSimulations()
         model.write(tempvpzPath);
         vu::Spawn mspawn;
         std::string exe = vu::Path::findProgram("mpirun");
-        std::string workingDir="/tmp/";//TODO shopuld be parameterized
+
         std::vector < std::string > argv;
         argv.push_back("-np");
         std::stringstream ss;
@@ -326,15 +333,19 @@ MetaManager::launchSimulations()
         argv.push_back("-P");//TODO should be simulated outside the rr package
         argv.push_back("vle.recursive");
         argv.push_back("temp_gen_MPI.vpz");
+        boost::system::error_code fsPathError;
+        boost::filesystem::path currentPath(
+                boost::filesystem::current_path(fsPathError));
 
-        bool started = mspawn.start(exe, workingDir, argv);
+        bool started = mspawn.start(exe, mWorkingDir, argv);
         if (not started) {
             throw vu::ArgError(vle::fmt(_("Failed to start `%1%'")) % exe);
         }
         std::string message;
-        bool is_success = true;;
+        bool is_success = true;
         mspawn.wait();
         mspawn.status(&message, &is_success);
+        boost::filesystem::current_path(currentPath, fsPathError);
 
         if (! is_success) {
             throw vu::ArgError(vle::fmt(_("Error launching `%1%' : %2% "))
