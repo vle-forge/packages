@@ -358,7 +358,7 @@ MetaManager::launchSimulations()
             for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
                 double sum = 0.0;
                 for (unsigned int j = 0; j < repSize; j++) {
-                    std::string vleResultFilePath = "/tmp/";
+                    std::string vleResultFilePath = mWorkingDir;
                     vleResultFilePath.append(model.project().experiment().name());
                     vleResultFilePath.append("-");
                     vleResultFilePath.append(boost::lexical_cast<std::string>(i+j));
