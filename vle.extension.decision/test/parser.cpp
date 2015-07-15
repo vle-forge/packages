@@ -85,11 +85,13 @@ public:
 
     virtual ~KnowledgeBase() {}
 
-    void updateFact1(const value::Value&)
+    void updateFact1(const std::string&,
+                     const value::Value&)
     {
     }
 
-    void updateFact2(const value::Value&)
+    void updateFact2(const std::string&,
+                     const value::Value&)
     {
     }
 

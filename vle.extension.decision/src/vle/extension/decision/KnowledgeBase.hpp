@@ -196,7 +196,7 @@ public:
     { facts().add(name, fact); }
 
     void applyFact(const std::string& name, const value::Value& value)
-    { facts()[name](value); }
+    { facts()[name](name, value); }
 
     Rule& addRule(const std::string& name)
     { return mPlan.rules().add(name); }
@@ -569,14 +569,14 @@ private:
 template < typename X, typename F >
 AddFacts < X > operator+=(AddFacts < X > add, f < F > pred)
 {
-    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1));
+    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
     return add;
 }
 
 template < typename X, typename F >
 AddFacts < X > operator,(AddFacts < X > add, f < F > pred)
 {
-    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1));
+    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
     return add;
 }
 

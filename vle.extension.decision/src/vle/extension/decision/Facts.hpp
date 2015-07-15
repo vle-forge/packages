@@ -38,7 +38,8 @@ namespace vle { namespace extension { namespace decision {
  * @brief Fact is a function which take a value from an external event an
  * change the state of the KnowledgeBase.
  */
-typedef boost::function < void (const vle::value::Value&) > Fact;
+typedef boost::function < void (const std::string&,
+                                const vle::value::Value&) > Fact;
 
 }}} // namespace vle model decision
 

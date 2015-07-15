@@ -774,13 +774,13 @@ void PluginDecision::generateSource(const std::string& classname,
             it != mFactName.end(); ++it) {
         std::string function;
         if ( mFactFunction.find(*it) != mFactFunction.end() ) {
-            function = "void " + *it + "(const vv::Value& value)\n{";
+            function = "void " + *it + "(const std::string& portName, const vv::Value& value)\n{";
             function += "//@@begin:factsFunction" + *it + "@@\n";
             function += mFactFunction[*it];
             function += "//@@end:factsFunction" + *it + "@@\n}";
         }
         else {
-            function = "void " + *it + "(const vv::Value& value)\n{";
+            function = "void " + *it + "(const std::string& portName, const vv::Value& value)\n{";
             function = "//@@begin:factsFunction" + *it + "@@ ";
             function += "//@@end:factsFunction" + *it + "@@\n}";
         }

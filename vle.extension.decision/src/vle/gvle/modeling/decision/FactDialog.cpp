@@ -164,7 +164,7 @@ void FactDialog::onAddFact() {
                 row[m_viewscolumnrecord.name] = name;
 
                 mHeaderFact->set_text("void " + name
-                + "(const vv::Value& value) {");
+                + "(const std::string& portName, const vv::Value& value) {");
                 mTextViewFunction->get_buffer()->set_text("var" + name +
                         " = value.toDouble().value();");
                 mTextViewAttributes->get_buffer()->set_text( "double var" +
@@ -295,7 +295,7 @@ void FactDialog::onRenameFact() {
                 }
                 mTreeFactList->set_cursor(m_model->get_path(iter));
                 mHeaderFact->set_text("void " + name
-                        + "(const vv::Value& value) {");
+                        + "(const std::string& portName, const vv::Value& value) {");
                 setSensitiveFact(true);
             }
             else {
@@ -327,12 +327,12 @@ void FactDialog::onCursorChangeTreeFactList() {
                 mTextViewFunction->get_buffer()->
                         set_text(mFactFunction[ name ]);
                 mHeaderFact->set_text("void " + name
-                        + "(const vv::Value& value) {");
+                        + "(const std::string& portName, const vv::Value& value) {");
             }
             else {
                 mTextViewFunction->get_buffer()->set_text("");
                 mHeaderFact->set_text("void " + name
-                        + "(const vv::Value& value) {");
+                        + "(const std::string& portName, const vv::Value& value) {");
             }
 
             if ( mFactAttribute.find(name) != mFactAttribute.end()) {
