@@ -552,12 +552,12 @@ void PluginDecision::generateSource(const std::string& classname,
         std::string esp12 = esp8 + "    ";
         if (it == mFactName.begin() && it == (mFactName.end() - 1)) {
         tpl_.listSymbol().append("addFactsList", "\n" + esp8 +
-            "addFacts(this) +=\n" + esp12 + ""\
+            "addPortFacts(this) +=\n" + esp12 + ""\
             "F(\"" + *it + "\", &" + classname + "::" + *it + ");\n");
         }
         else if (it == mFactName.begin()) {
             tpl_.listSymbol().append("addFactsList", "\n" + esp8 +
-            "addFacts(this) +=\n" + esp12 + ""\
+            "addPortFacts(this) +=\n" + esp12 + ""\
             "F(\"" + *it + "\", &" + classname + "::" + *it + "),\n");
         }
         else if (it == (mFactName.end() - 1) ) {
@@ -774,13 +774,13 @@ void PluginDecision::generateSource(const std::string& classname,
             it != mFactName.end(); ++it) {
         std::string function;
         if ( mFactFunction.find(*it) != mFactFunction.end() ) {
-            function = "void " + *it + "(const vv::Value& value)\n{";
+            function = "void " + *it + "(const std::string& portName, const vv::Value& value)\n{";
             function += "//@@begin:factsFunction" + *it + "@@\n";
             function += mFactFunction[*it];
             function += "//@@end:factsFunction" + *it + "@@\n}";
         }
         else {
-            function = "void " + *it + "(const vv::Value& value)\n{";
+            function = "void " + *it + "(const std::string& portName, const vv::Value& value)\n{";
             function = "//@@begin:factsFunction" + *it + "@@ ";
             function += "//@@end:factsFunction" + *it + "@@\n}";
         }

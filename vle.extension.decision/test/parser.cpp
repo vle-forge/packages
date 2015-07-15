@@ -59,7 +59,7 @@ public:
     KnowledgeBase()
         : vmd::KnowledgeBase(), mNbUpdate(0), mNbAck(0), mNbOut(0)
     {
-        addFacts(this) +=
+        addPortFacts(this) +=
             F("fact 1", &KnowledgeBase::updateFact1),
             F("fact 2", &KnowledgeBase::updateFact2);
 
@@ -85,11 +85,13 @@ public:
 
     virtual ~KnowledgeBase() {}
 
-    void updateFact1(const value::Value&)
+    void updateFact1(const std::string&,
+                     const value::Value&)
     {
     }
 
-    void updateFact2(const value::Value&)
+    void updateFact2(const std::string&,
+                     const value::Value&)
     {
     }
 
