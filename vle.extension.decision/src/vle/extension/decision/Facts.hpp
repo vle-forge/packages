@@ -39,6 +39,8 @@ namespace vle { namespace extension { namespace decision {
  * change the state of the KnowledgeBase.
  */
 typedef std::function < void (const vle::value::Value&) > Fact;
+typedef std::function < void (const std::string&,
+                              const vle::value::Value&) > PortFact;
 
 }}} // namespace vle model decision
 

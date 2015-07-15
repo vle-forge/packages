@@ -44,8 +44,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
         KnowledgeBase(vle::utils::ContextPtr ctxp)
             : vmd::KnowledgeBase(ctxp), today(0), yesterday(0)
         {
-            addFact("today", std::bind(&vmd::ex::KnowledgeBase::date, this,
-                    std::placeholders::_1));
+            addPortFact("today", std::bind(&vmd::ex::KnowledgeBase::date, this,
+                            std::placeholders::_1, std::placeholders::_2));
 
             vmd::Rule& r1 = addRule("Rule 1");
             r1.add(std::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
@@ -65,7 +65,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
          * list of facts
          */
 
-        void date(const vle::value::Value& val)
+        void date(const std::string& /*port*/,
+                  const vle::value::Value& val)
         {
             yesterday = today;
             today = val.toDouble().value();

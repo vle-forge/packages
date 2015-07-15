@@ -40,6 +40,7 @@
 namespace vle { namespace extension { namespace decision {
 
 typedef Table < Fact > FactsTable;
+typedef Table < PortFact > PortFactsTable;
 typedef Table < PredicateFunction > PredicatesTable;
 typedef Table < Activity::AckFct > AcknowledgeFunctions;
 typedef Table < Activity::OutFct > OutputFunctions;
@@ -54,10 +55,30 @@ inline std::ostream& operator<<(std::ostream& o, const FactsTable& kb)
     return o;
 }
 
+inline std::ostream& operator<<(std::ostream& o, const PortFactsTable& kb)
+{
+    o << "facts: ";
+    for (PortFactsTable::const_iterator it = kb.begin(); it != kb.end(); ++it) {
+        o << " (" << it->first << ")";
+    }
+    return o;
+}
+
 template < typename F >
 struct f
 {
     f(const std::string& name, F func)
+        : name(name), func(func)
+    {}
+
+    std::string name;
+    F func;
+};
+
+template < typename F >
+struct pf
+{
+    pf(const std::string& name, F func)
         : name(name), func(func)
     {}
 
@@ -117,6 +138,13 @@ struct AddFacts
     X kb;
 };
 
+template < typename X >
+struct AddPortFacts
+{
+    AddPortFacts(X kb) : kb(kb) {}
+
+    X kb;
+};
 
 template < typename X >
 struct AddPredicates
@@ -196,8 +224,18 @@ public:
     void addFact(const std::string& name, const Fact& fact)
     { facts().add(name, fact); }
 
+    void addPortFact(const std::string& name, const PortFact& fact)
+    { portfacts().add(name, fact); }
+
     void applyFact(const std::string& name, const value::Value& value)
-    { facts()[name](value); }
+    {
+        if  (facts().find(name) == facts().end()) {
+            portfacts()[name](name, value);
+        } else {
+            facts()[name](value);
+        }
+    }
+
 
     Rule& addRule(const std::string& name)
     { return mPlan.rules().add(name); }
@@ -392,6 +430,9 @@ public:
     const FactsTable& facts() const
     { return mFactsTable; }
 
+    const PortFactsTable& portfacts() const
+    { return mPortFactsTable; }
+
     /**
      * @brief Get the table of available predicates.
      * @return Table of available predicates.
@@ -426,6 +467,9 @@ public:
      */
     FactsTable& facts()
     { return mFactsTable; }
+
+    PortFactsTable& portfacts()
+    { return mPortFactsTable; }
 
     /**
      * @brief Get the table of available predicates.
@@ -462,9 +506,21 @@ public:
         }
 
     template < typename X >
+        AddPortFacts < X > addPortFacts(X obj)
+        {
+            return AddPortFacts < X >(obj);
+        }
+
+    template < typename X >
         f < X > F(const std::string& name, X func)
         {
             return f < X >(name, func);
+        }
+
+    template < typename X >
+        pf < X > PF(const std::string& name, X func)
+        {
+            return pf < X >(name, func);
         }
 
     template < typename X >
@@ -558,6 +614,7 @@ private:
                         this decision knowledge base. */
 
     FactsTable mFactsTable;
+    PortFactsTable mPortFactsTable;
     PredicatesTable mPredicatesTable;
     AcknowledgeFunctions mAckFunctions;
     OutputFunctions mOutFunctions;
@@ -575,11 +632,27 @@ AddFacts < X > operator+=(AddFacts < X > add, f < F > pred)
     return add;
 }
 
+template < typename X, typename PF >
+AddPortFacts < X > operator+=(AddPortFacts < X > add, f < PF > pred)
+{
+    add.kb->portfacts().add(pred.name, std::bind(pred.func, add.kb,
+                        std::placeholders::_1, std::placeholders::_2));
+    return add;
+}
+
 template < typename X, typename F >
 AddFacts < X > operator,(AddFacts < X > add, f < F > pred)
 {
     add.kb->facts().add(pred.name, std::bind(pred.func, add.kb,
             std::placeholders::_1));
+    return add;
+}
+
+template < typename X, typename PF >
+AddPortFacts < X > operator,(AddPortFacts < X > add, f < PF > pred)
+{
+    add.kb->portfacts().add(pred.name, std::bind(pred.func, add.kb,
+                        std::placeholders::_1, std::placeholders::_2));
     return add;
 }
 
@@ -663,7 +736,7 @@ AddUpdateFunctions < X > operator,(AddUpdateFunctions < X > add,
 
 inline std::ostream& operator<<(std::ostream& o, const KnowledgeBase& kb)
 {
-    return o << kb.facts() << "\n" << kb.rules() << "\n"
+    return o << kb.facts() << kb.portfacts() << "\n" << kb.rules() << "\n"
         << kb.activities() << "\n";
 }
 
