@@ -28,10 +28,58 @@
 
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/Tools.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <algorithm>
 #include <cassert>
+#include<iostream>
 
 namespace vle { namespace extension { namespace decision {
+
+ResourcesExtended KnowledgeBase::extendResources(const std::string& resources) const
+{
+    ResourceSolution line;
+    ResourcesExtended listOfline;
+
+    std::vector<std::string> strs;
+
+    boost::split(strs, resources, boost::is_any_of("+"));
+
+    for (unsigned i=0; i < strs.size(); i++) {
+        boost::trim(strs[i]);
+
+        if (not resourceTypeExist(strs[i])) {
+            throw utils::ArgError(
+                vle::utils::format("Decision: resource '%s' is not defined", strs[i].c_str()));
+        } else {
+            ResourceSolution resTypeList = getResources(strs[i]);
+            ResourcesExtended listOflineLocal;
+            for (ResourceSolution::iterator it = resTypeList.begin();
+                 it != resTypeList.end(); it++) {
+                if (listOfline.empty()) {
+                    ResourceSolution line;
+                    line.push_back(*it);
+                    listOflineLocal.push_back(line);
+                } else {
+                    for (ResourcesExtended::iterator jt = listOfline.begin();
+                         jt != listOfline.end(); jt++) {
+                        ResourceSolution line;
+                        line.push_back(*it);
+                        for (ResourceSolution::iterator kt = (*jt).begin();
+                             kt != (*jt).end(); kt++) {
+                            line.push_back(*kt);
+                        }
+                        listOflineLocal.push_back(line);
+                    }
+                }
+            }
+            listOfline.clear();
+            listOfline = listOflineLocal;
+        }
+    }
+
+    return listOfline;
+}
 
 void KnowledgeBase::setActivityDone(const std::string& name,
                                     const devs::Time& date)

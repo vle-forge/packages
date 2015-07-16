@@ -37,6 +37,7 @@
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/extension/decision/Table.hpp>
 #include <vle/extension/decision/Plan.hpp>
+#include<iostream>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -217,8 +218,27 @@ public:
         : mPlan(ctxp, *this), mLibrary(ctxp, *this)
     {}
 
-    void addRessource(const std::string& type, const std::string& name)
-    { mRessources.insert(Ressource(type, name)); }
+    void addResources(const std::string& type, const std::string& name)
+    { mResources.insert(Resource(type, name)); }
+
+    bool resourceTypeExist(const std::string& type) const
+    { return mResources.find(type) != mResources.end();}
+
+    ResourceSolution getResources (const std::string& type) const
+    {
+        ResourceSolution resources;
+        ResourcesConstIteratorPair pit;
+
+        pit = mResources.equal_range(type);
+        for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
+        {
+            resources.push_back((*it).second);
+        }
+        return resources;
+    }
+
+
+    ResourcesExtended extendResources(const std::string& resources) const;
 
     /**
      * @brief Add a fac into the facts tables.
@@ -617,7 +637,7 @@ private:
     Library mLibrary; /**< The plan library. It stocks all plans available for
                         this decision knowledge base. */
 
-    Ressources mRessources;
+    Resources mResources;
     FactsTable mFactsTable;
     PortFactsTable mPortFactsTable;
     PredicatesTable mPredicatesTable;

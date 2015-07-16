@@ -95,6 +95,9 @@ private:
     container_type m_lst;
 };
 
+typedef std::list < std::string > ResourceSolution;
+typedef std::list < ResourceSolution > ResourcesExtended;
+
 class Activity
 {
 public:
@@ -159,6 +162,9 @@ public:
     // Slot functions to acknowledge an change of state, to send and output or
     // to update the state of an activity.
     //
+
+    void addResources(const ResourcesExtended& res)
+    { mResourcesExtended = res; }
 
     /**
      * @brief Assign an acknowledge function to this activity.
@@ -331,6 +337,8 @@ private:
     UpdateFct mUpdateFct;
 
     ActivityParameters m_parameters;
+
+    ResourcesExtended mResourcesExtended;
 };
 
 inline std::ostream& operator<<(
