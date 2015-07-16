@@ -30,6 +30,7 @@
 #define VLE_EXT_DECISION_KNOWLEDGEBASE_HPP 1
 
 #include <vle/utils/Context.hpp>
+#include <vle/extension/decision/Ressources.hpp>
 #include <vle/extension/decision/Activities.hpp>
 #include <vle/extension/decision/Facts.hpp>
 #include <vle/extension/decision/Library.hpp>
@@ -215,6 +216,9 @@ public:
     KnowledgeBase(utils::ContextPtr ctxp)
         : mPlan(ctxp, *this), mLibrary(ctxp, *this)
     {}
+
+    void addRessource(const std::string& type, const std::string& name)
+    { mRessources.insert(Ressource(type, name)); }
 
     /**
      * @brief Add a fac into the facts tables.
@@ -613,6 +617,7 @@ private:
     Library mLibrary; /**< The plan library. It stocks all plans available for
                         this decision knowledge base. */
 
+    Ressources mRessources;
     FactsTable mFactsTable;
     PortFactsTable mPortFactsTable;
     PredicatesTable mPredicatesTable;
