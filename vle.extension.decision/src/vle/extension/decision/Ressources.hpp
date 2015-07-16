@@ -26,17 +26,24 @@
  */
 
 
-#ifndef VLE_EXT_DECISION_RESSOURCES_HPP
-#define VLE_EXT_DECISION_RESSOURCES_HPP
+#ifndef VLE_EXT_DECISION_RESOURCES_HPP
+#define VLE_EXT_DECISION_RESOURCES_HPP
 
 #include <string>
 #include <map>
 
 namespace vle { namespace extension { namespace decision {
 
-typedef std::pair < std::string, std::string > Ressource;
+typedef std::pair < std::string, std::string > Resource;
 
-typedef std::multimap < std::string, std::string > Ressources;
+typedef std::multimap < std::string, std::string > Resources;
+
+typedef  Resources::iterator ResourcesIterator;
+typedef  Resources::const_iterator ResourcesConstIterator;
+
+typedef std::pair < ResourcesIterator, ResourcesIterator> ResourcesIteratorPair;
+typedef std::pair < ResourcesConstIterator, ResourcesConstIterator> ResourcesConstIteratorPair;
+
 
 }}} // namespace vle model decision
 
