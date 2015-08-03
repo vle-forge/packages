@@ -44,6 +44,20 @@ typedef  Resources::const_iterator ResourcesConstIterator;
 typedef std::pair < ResourcesIterator, ResourcesIterator> ResourcesIteratorPair;
 typedef std::pair < ResourcesConstIterator, ResourcesConstIterator> ResourcesConstIteratorPair;
 
+typedef std::map < std::string, bool> ResourceAvailability;
+
+typedef std::pair < std::string, std::string > ActivityResource;
+
+typedef std::multimap < std::string, std::string > ActivitiesResources;
+
+typedef  Resources::iterator ActivitiesResourcesIterator;
+typedef  Resources::const_iterator ActivitiesResourcesConstIterator;
+
+typedef std::pair < ActivitiesResourcesIterator,
+                    ActivitiesResourcesIterator> ActivitiesResourcesIteratorPair;
+typedef std::pair < ActivitiesResourcesConstIterator,
+                    ActivitiesResourcesConstIterator> ActivitiesResourcesConstIteratorPair;
+
 
 }}} // namespace vle model decision
 

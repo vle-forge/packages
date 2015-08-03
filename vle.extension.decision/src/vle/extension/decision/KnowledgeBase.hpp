@@ -37,7 +37,6 @@
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/extension/decision/Table.hpp>
 #include <vle/extension/decision/Plan.hpp>
-#include<iostream>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -219,7 +218,10 @@ public:
     {}
 
     void addResources(const std::string& type, const std::string& name)
-    { mResources.insert(Resource(type, name)); }
+    {
+        mResources.insert(Resource(type, name));
+        mPlan.activities().setResourceAvailable(name);
+    }
 
     bool resourceTypeExist(const std::string& type) const
     { return mResources.find(type) != mResources.end();}
