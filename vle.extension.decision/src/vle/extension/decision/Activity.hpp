@@ -145,16 +145,17 @@ public:
 
     Activity()
         : m_state(WAIT), m_waitall(true),
-        m_date((Activity::DateType)(Activity::START | Activity::FINISH)),
-        m_start(devs::negativeInfinity),
-        m_finish(devs::infinity),
-        m_minstart(devs::negativeInfinity),
-        m_maxstart(devs::negativeInfinity),
-        m_minfinish(devs::infinity),
-        m_maxfinish(devs::infinity),
-        m_started(devs::negativeInfinity),
-        m_ff(devs::negativeInfinity),
-        m_done(devs::negativeInfinity)
+          m_date((Activity::DateType)(Activity::START | Activity::FINISH)),
+          m_start(devs::negativeInfinity),
+          m_finish(devs::infinity),
+          m_minstart(devs::negativeInfinity),
+          m_maxstart(devs::negativeInfinity),
+          m_minfinish(devs::infinity),
+          m_maxfinish(devs::infinity),
+          m_started(devs::negativeInfinity),
+          m_ff(devs::negativeInfinity),
+          m_done(devs::negativeInfinity),
+          m_hasRessources(true)
     {}
 
     //
@@ -163,8 +164,10 @@ public:
     //
 
     void addResources(const ResourcesExtended& res)
-    { mResourcesExtended = res; }
+    { mResourcesExtended = res; m_hasRessources = false;}
 
+    const ResourcesExtended& getResources()
+    { return mResourcesExtended;}
     /**
      * @brief Assign an acknowledge function to this activity.
      * @param fct An acknowledge function.
@@ -224,6 +227,11 @@ public:
 
     bool validRules(const std::string& activity) const;
 
+    bool hasRessources() const
+    { return m_hasRessources; }
+
+    void takeRessources()
+    { m_hasRessources = true; }
     //
     //
     //
@@ -338,6 +346,7 @@ private:
     ActivityParameters m_parameters;
 
     ResourcesExtended mResourcesExtended;
+    bool m_hasRessources;
 };
 
 inline std::ostream& operator<<(

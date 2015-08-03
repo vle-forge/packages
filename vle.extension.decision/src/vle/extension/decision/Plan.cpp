@@ -36,7 +36,6 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 #include <sstream>
-#include <iostream>
 
 namespace vle { namespace extension { namespace decision {
 

@@ -31,7 +31,6 @@
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
 #include <cassert>
-#include<iostream>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -62,13 +61,15 @@ ResourcesExtended KnowledgeBase::extendResources(const std::string& resources) c
                 } else {
                     for (ResourcesExtended::iterator jt = listOfline.begin();
                          jt != listOfline.end(); jt++) {
-                        ResourceSolution line;
-                        line.push_back(*it);
-                        for (ResourceSolution::iterator kt = (*jt).begin();
-                             kt != (*jt).end(); kt++) {
-                            line.push_back(*kt);
+                        if (std::find((*jt).begin(), (*jt).end(), *it) ==  (*jt).end()) {
+                            ResourceSolution line;
+                            line.push_back(*it);
+                            for (ResourceSolution::iterator kt = (*jt).begin();
+                                 kt != (*jt).end(); kt++) {
+                                line.push_back(*kt);
+                            }
+                            listOflineLocal.push_back(line);
                         }
-                        listOflineLocal.push_back(line);
                     }
                 }
             }
@@ -90,6 +91,7 @@ void KnowledgeBase::setActivityDone(const std::string& name,
                 _("Decision: activity '%1%' is not started")) % name);
     }
 
+    mPlan.activities().freeRessources(name);
     mPlan.activities().setFFAct(it);
     it->second.ff(date);
     it->second.acknowledge(name);

@@ -409,6 +409,32 @@ Activities::process(const devs::Time& time)
     Result update = std::make_pair(false, devs::infinity);
     bool isUpdated = false;
 
+    for (iterator activity = begin(); activity != end(); ++activity) {
+        if (activity->second.state() == Activity::WAIT) {
+            PrecedenceConstraint::Result newstate = updateState(activity, time);
+            switch (newstate.first) {
+            case PrecedenceConstraint::Valid:
+            case PrecedenceConstraint::Inapplicable:
+                if (activity->second.validRules(activity->first)) {
+                        ResourcesExtended resources = activity->second.getResources();
+                    for (ResourcesExtended::const_iterator it = resources.begin();
+                         it != resources.end(); it++) {
+                        if (areRessourcesAvailable(*it)) {
+                            getRessources(activity->first, *it);
+                            activity->second.takeRessources();
+                            break;
+                        }
+                    }
+                    break;
+                }
+            case PrecedenceConstraint::Wait:
+            case PrecedenceConstraint::Failed:
+                break;
+            }
+        }
+    }
+
+
     do {
         m_waitedAct.clear();
         m_startedAct.clear();
@@ -476,7 +502,8 @@ Activities::processWaitState(iterator activity,
     switch (newstate.first) {
     case PrecedenceConstraint::Valid:
     case PrecedenceConstraint::Inapplicable:
-        if (activity->second.validRules(activity->first)) {
+        if (activity->second.validRules(activity->first) &&
+            activity->second.hasRessources()) {
             activity->second.start(time);
             m_startedAct.push_back(activity);
             m_latestStartedAct.push_back(activity);

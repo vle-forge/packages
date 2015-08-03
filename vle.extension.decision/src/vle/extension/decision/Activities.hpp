@@ -32,6 +32,7 @@
 #include <vle/extension/decision/Activity.hpp>
 #include <vle/extension/decision/PrecedenceConstraint.hpp>
 #include <vle/extension/decision/PrecedencesGraph.hpp>
+#include <vle/extension/decision/Ressources.hpp>
 #include <vle/utils/Exception.hpp>
 
 namespace vle { namespace extension { namespace decision {
@@ -253,6 +254,47 @@ public:
 
     void clearLatestActivitiesLists();
 
+    void setResourceAvailable(const std::string& resourcename)
+    {
+        mResourceAvailability[resourcename] = true;
+    }
+
+    bool areRessourcesAvailable(const ResourceSolution& resourcelist) const
+    {
+        for (ResourceSolution::const_iterator it = resourcelist.begin();
+             it != resourcelist.end(); it++) {
+            if (not mResourceAvailability.find(*it)->second) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void getRessources(const std::string& activityname, const ResourceSolution& resourcelist)
+    {
+        for (ResourceSolution::const_iterator it = resourcelist.begin();
+             it != resourcelist.end(); it++) {
+            mResourceAvailability[*it] = false;
+            mActivitiesResources.insert(ActivityResource(activityname, *it));
+        }
+    }
+
+    void freeRessources(std::string activityname)
+    {
+        ActivitiesResourcesIteratorPair pit;
+
+        pit = mActivitiesResources.equal_range(activityname);
+        for (ActivitiesResourcesConstIterator it = pit.first; it != pit.second; ++it)
+        {
+            mResourceAvailability[(*it).second] = true;
+        }
+
+        while (mActivitiesResources.find(activityname) != mActivitiesResources.end()) {
+            mActivitiesResources.erase(mActivitiesResources.find(activityname));
+        }
+    }
+
+
 private:
     activities_t     m_lst;
     PrecedencesGraph m_graph;
@@ -269,6 +311,8 @@ private:
     Activities::result_t m_latestFFAct;
     Activities::result_t m_latestEndedAct;
 
+    ResourceAvailability mResourceAvailability;
+    ActivitiesResources mActivitiesResources;
 
     Result processWaitState(iterator activity, const devs::Time& time);
     Result processStartedState(iterator activity, const devs::Time& time);
