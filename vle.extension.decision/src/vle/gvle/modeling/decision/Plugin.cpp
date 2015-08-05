@@ -64,6 +64,8 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "#include <vle/extension/decision/Activity.hpp>\n"                  \
     "#include <vle/extension/decision/KnowledgeBase.hpp>\n"             \
     "#include <vle/utils/Package.hpp>\n"                                \
+    "#include <boost/algorithm/string/split.hpp>\n"                     \
+    "#include <boost/algorithm/string.hpp>\n"                           \
     "#include <sstream>\n"                                              \
     "#include <numeric>\n"                                              \
     "#include <fstream>\n"                                              \
@@ -76,6 +78,8 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "namespace vu = vle::utils;\n"                                      \
     "namespace vmd = vle::extension::decision;\n"                       \
     "namespace {{namespace}} {\n\n"                                     \
+    "typedef std::vector < std::string > strings_t;\n"                  \
+    "typedef strings_t::iterator strings_it;\n\n"                       \
     "class {{classname}} : public vmd::Agent\n"                         \
     "{\n"                                                               \
     "public:\n"                                                         \
@@ -154,6 +158,9 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{end for}}"                                                       \
     "private:\n"                                                        \
     "   std::string mDataPackageParam;\n"                               \
+    "   std::map < std::string, int > mCounter;\n"                      \
+    "   std::map < std::string, int > mMaxIter;\n"                             \
+    "   std::map < std::string, double > mTimeLag;\n"                   \
     "//Custom members"                                                  \
     "//@@begin:custommembers@@\n"                                       \
     "{{custommembers}}"                                                 \
@@ -167,9 +174,29 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{hierarchicalPreds}}"                                             \
     "std::string getSuffixName(int n) const\n"                          \
     "{\n"                                                               \
-    "   std::stringstream ret(\"_\");\n"                                \
+    "   std::stringstream ret(\"#\");\n"                                \
     "   ret << boost::format(\"%1$02d\") % n;\n"                        \
     "   return ret.str();\n"                                            \
+    "}\n"                                                               \
+    "std::string getPrefixName(const std::string activity) const\n"     \
+    "{\n"                                                               \
+    "   strings_t lst;"                                                 \
+    "   boost::split(lst, activity, boost::is_any_of(\"#\"));"          \
+    "   if (lst.empty()) {\n"                                           \
+    "      return activity;\n"                                          \
+    "   } else {\n"                                                     \
+    "      return lst[0];\n"                                            \
+    "   }\n"                                                            \
+    "}\n"                                                               \
+    "std::string getPortName(const std::string activity) const\n"     \
+    "{\n"                                                               \
+    "   strings_t lst;"                                                 \
+    "   boost::split(lst, activity, boost::is_any_of(\"#:\"));"          \
+    "   if (lst.empty()) {\n"                                           \
+    "      return activity;\n"                                          \
+    "   } else {\n"                                                     \
+    "      return lst[0];\n"                                            \
+    "   }\n"                                                            \
     "}\n"                                                               \
     "\n};\n\n"                                                          \
     "} // namespace {{namespace}}\n\n"                                  \
@@ -211,17 +238,20 @@ const std::string PluginDecision::PLAN_TEMPLATE_DEFINITION =
 //Template : ack function
 const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
     "std::string suffixRetourNum;\n"                                    \
-    "m{{activity}}Counter++;\n"                                         \
-    "suffixRetourNum = getSuffixName(m{{activity}}Counter);\n"          \
-    "if (m{{activity}}MaxIter == 0 ||\n"                                \
-    "    m{{activity}}Counter < m{{activity}}MaxIter){\n"               \
+    "std::string activityPrefix = getPrefixName(activityname);\n"       \
+    "mCounter[activityPrefix]++;\n"                                     \
+    "int counter = mCounter.find(activityPrefix)->second;\n"            \
+    "int maxIter = mMaxIter.find(activityPrefix)->second;\n"            \
+    "double timeLag = mTimeLag.find(activityPrefix)->second;\n"         \
+    "suffixRetourNum = getSuffixName(mCounter[activityPrefix]);\n"      \
+    "if (maxIter== 0 || counter < maxIter){\n"                          \
     "   ved::Activity& a =\n"                                           \
-    "      addActivity(\"{{activity}}\" + suffixRetourNum);\n"          \
+    "      addActivity(activityPrefix + \"#\" + suffixRetourNum);\n" \
     "   double minstart;\n"                                             \
-    "   if (m{{activity}}TimeLag == 0.0) {\n"                           \
+    "   if (timeLag == 0.0) {\n"                                        \
     "      minstart = activity.minstart();\n"                           \
     "   } else {\n"                                                     \
-    "      minstart = currentTime()+ m{{activity}}TimeLag;\n"           \
+    "      minstart = currentTime() + timeLag;\n"       \
     "   }\n"                                                            \
     "   a.initStartRangeFinishRange(minstart,\n"                        \
     "                               vd::infinity,\n"                    \
@@ -243,7 +273,7 @@ const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
 const std::string PluginDecision::OUT_TEMPLATE_DEFINITION =
     "if (activity.isInStartedState()) {\n"                              \
     "   vd::ExternalEvent* evt = new vd::ExternalEvent(\n"              \
-    "      \"out_{{activity}}\");\n"                                    \
+    "      \"out_\" + getPortName(name));\n"                            \
     "   evt->putAttribute(\"name\", new vv::String(name));\n"           \
     "   evt->putAttribute(\"activity\", new vv::String(name));\n"       \
     "   evt->putAttribute(\"value\", new vv::String(\"done\"));\n"      \
@@ -2252,32 +2282,29 @@ void PluginDecision::onRepeatedActivityAsked(
          atimelag = "0.0";
     }
 
-    std::size_t found = mMembers.find("int m" + aname + "Counter;\n");
+
+    std::size_t found = mCustomConstructor.find("mCounter[\"" + aname + "\"] = 0 ;\n");
     if (found == std::string::npos) {
-        mMembers += "int m" + aname + "Counter;\n";
-        mCustomConstructor += "m" + aname + "Counter = 0;\n";
+        mCustomConstructor += "mCounter[\"" + aname + "\"] = 0 ;\n";
     }
 
-    found = mMembers.find("int m" + aname + "MaxIter;\n");
+    found = mCustomConstructor.find("mMaxIter[\""+ aname + "\"] = ");
     if (found == std::string::npos) {
-        mMembers += "int m" + aname + "MaxIter;\n";
-        mCustomConstructor += "m" + aname + "MaxIter = " + amaxiter + ";\n";
+        mCustomConstructor += "mMaxIter[\""+ aname + "\"] = " + amaxiter + ";\n";
     } else {
-        boost::regex expr("m" + aname + "MaxIter = \\d+;");
+        boost::regex expr("mMaxIter\\[\""+ aname + "\"\\] = \\d+;");
         mCustomConstructor =
-            boost::regex_replace(mCustomConstructor, expr, "m" + aname + "MaxIter = " + amaxiter + ";");
+            boost::regex_replace(mCustomConstructor, expr, "mMaxIter[\"" + aname + "\"] = " + amaxiter + ";");
     }
 
-    found = mMembers.find("int m" + aname + "TimeLag;\n");
+    found = mCustomConstructor.find("mTimeLag[\""+ aname + "\"] = ");
     if (found == std::string::npos) {
-        mMembers += "int m" + aname + "TimeLag;\n";
-        mCustomConstructor += "m" + aname + "TimeLag = " + atimelag + ";\n";
+        mCustomConstructor += "mTimeLag[\"" + aname + "\"] = " + atimelag + ";\n";
     } else {
-        boost::regex expr("m" + aname + "TimeLag = \\d*\\.{0,1}\\d*;");
+        boost::regex expr("mTimeLag\\[\"" + aname  + "\"\\] = \\d*\\.{0,1}\\d*;");
         mCustomConstructor =
-            boost::regex_replace(mCustomConstructor, expr, "m" + aname + "TimeLag = " + atimelag + ";");
+            boost::regex_replace(mCustomConstructor, expr, "mTimeLag[\"" + aname + "\"] = " + atimelag + ";");
     }
-
 
     strings_t::iterator it = find(mOutputFunctionName.begin(),
                                   mOutputFunctionName.end(),
