@@ -168,6 +168,34 @@ struct AssignDoubleParameter
     }
 };
 
+struct AssignActivityStringParameter
+{
+    ActivityParameters& m_params;
+
+    AssignActivityStringParameter(ActivityParameters& params)
+        : m_params(params)
+    {}
+
+    void operator()(const vle::utils::Block::Strings::value_type& p)
+    {
+        m_params.addString(p.first, p.second);
+    }
+};
+
+struct AssignActivityDoubleParameter
+{
+    ActivityParameters& m_params;
+
+    AssignActivityDoubleParameter(ActivityParameters& params)
+        : m_params(params)
+    {}
+
+    void operator()(const vle::utils::Block::Reals::value_type& p)
+    {
+        m_params.addDouble(p.first, p.second);
+    }
+};
+
 void __fill_predicate(const utils::Block::BlocksResult& root,
                       Predicates& predicates,
                       const PredicatesTable& table)
@@ -352,6 +380,30 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
         UB::BlocksResult temporal = block.blocks.equal_range("temporal");
         if (temporal.first != temporal.second) {
             fillTemporal(temporal, act, loadTime);
+        }
+
+        utils::Block::BlocksResult parameters = block.blocks.equal_range("parameter");
+        if (parameters.first != parameters.second) {
+            ActivityParameters params;
+
+            std::for_each(parameters.first->second.strings.begin(),
+                          parameters.first->second.strings.end(),
+                          AssignActivityStringParameter(params));
+
+            std::for_each(parameters.first->second.reals.begin(),
+                          parameters.first->second.reals.end(),
+                          AssignActivityDoubleParameter(params));
+
+            params.sort();
+
+            act.addParams(params);
+
+            TraceModel(vle::fmt("Activity %1% added with parameters:") %
+                       id.first->second);
+
+            for (ActivityParameters::const_iterator it = params.begin();
+                 it != params.end(); ++it)
+                TraceModel(vle::fmt("    - %1%") % it->first);
         }
     }
 }

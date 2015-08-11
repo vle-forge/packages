@@ -34,8 +34,65 @@
 #include <vle/devs/Time.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/variant.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
+#include <vector>
+#include <map>
+#include <ostream>
 
 namespace vle { namespace extension { namespace decision {
+
+/**
+ * @brief Defines parameter type for activities.
+ */
+typedef boost::variant <double, std::string> ActivityParameterType;
+
+class ActivityParameters
+{
+public:
+    typedef std::pair <std::string, ActivityParameterType> name_parameter_type;
+    typedef std::vector <name_parameter_type> container_type;
+    typedef container_type::const_iterator const_iterator;
+    typedef container_type::iterator iterator;
+    typedef container_type::size_type size_type;
+
+    void addDouble(const std::string& name, double param);
+    void addString(const std::string& name, const std::string& param);
+
+    /**
+     * Sort the container by string. After, you can use getDouble and
+     * getString functions.
+     */
+    void sort();
+
+    /**
+     * Get a double from container.
+     *
+     * @attention O(log(n)) operation, but container must be sorted with
+     * the @e sort function.
+     * end().
+     */
+    double getDouble(const std::string& name) const;
+
+    /**
+     * Get a string from the container.
+     *
+     * @attention O(log(n)) operation, but container must be sorted with
+     * the @e sort function.
+     */
+    std::string getString(const std::string& name) const;
+
+    iterator begin() { return m_lst.begin(); }
+    const_iterator begin() const { return m_lst.begin(); }
+    iterator end() { return m_lst.end(); }
+    const_iterator end() const { return m_lst.end(); }
+    size_type size() const { return m_lst.size(); }
+    bool empty() const { return m_lst.empty(); }
+
+private:
+    container_type m_lst;
+};
 
 class Activity
 {
@@ -162,6 +219,13 @@ public:
     bool validRules(const std::string& activity) const;
 
     //
+    //
+    //
+
+    void addParams(const ActivityParameters& params)
+    { m_parameters = params; }
+
+    //
     // manage time constraint
     //
 
@@ -235,6 +299,8 @@ public:
      */
     devs::Time nextTime(const devs::Time& time);
 
+    const ActivityParameters& params() const { return m_parameters; }
+
 private:
     void startedDate(const devs::Time& date) { m_started = date; }
     void ffDate(const devs::Time& date) { m_ff = date; }
@@ -262,6 +328,8 @@ private:
     AckFct mAckFct;
     OutFct mOutFct;
     UpdateFct mUpdateFct;
+
+    ActivityParameters m_parameters;
 };
 
 inline std::ostream& operator<<(
