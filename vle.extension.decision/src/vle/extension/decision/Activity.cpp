@@ -30,8 +30,90 @@
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/i18n.hpp>
 #include <boost/format.hpp>
+#include <boost/variant/get.hpp>
 
 namespace vle { namespace extension { namespace decision {
+
+struct ActivityParametersFind
+{
+    bool operator()(const ActivityParameters::name_parameter_type& p,
+                    const std::string& str) const
+    {
+        return p.first < str;
+    }
+
+    bool operator()(const std::string& str,
+                    const ActivityParameters::name_parameter_type& p) const
+    {
+        return str < p.first;
+    }
+};
+
+struct ActivityParametersCompare
+{
+    bool operator()(const ActivityParameters::name_parameter_type& a,
+                    const ActivityParameters::name_parameter_type& b) const
+    {
+        return a.first < b.first;
+    }
+};
+
+template <typename T>
+void addParam(ActivityParameters::container_type& p,
+              const std::string& name,
+              const T& param)
+{
+    p.push_back(
+        std::make_pair <std::string, ActivityParameterType> (
+            name, param));
+}
+
+template <typename T>
+T getParam(const ActivityParameters::container_type& p,
+           const std::string& name)
+{
+    ActivityParameters::const_iterator it =
+        std::lower_bound(p.begin(),
+                         p.end(),
+                         name,
+                         ActivityParametersFind());
+
+    if (it == p.end() or it->first != name)
+        throw vle::utils::ModellingError(
+            vle::fmt("Decision fails to get parameter %1%") % name);
+
+    const T* ret = boost::get <T>(&it->second);
+    if (ret)
+        return *ret;
+
+    throw vle::utils::ModellingError(
+        vle::fmt("Decision fails to convert parameter %1%") % name);
+}
+
+void ActivityParameters::addDouble(const std::string& name, double param)
+{
+    addParam <double>(m_lst, name, param);
+}
+
+void ActivityParameters::addString(const std::string& name, const std::string& param)
+{
+    addParam <std::string>(m_lst, name, param);
+}
+
+void ActivityParameters::sort()
+{
+    std::sort(m_lst.begin(), m_lst.end(), ActivityParametersCompare());
+}
+
+double ActivityParameters::getDouble(const std::string& name) const
+{
+    return getParam <double>(m_lst, name);
+}
+
+std::string ActivityParameters::getString(const std::string& name) const
+{
+    return getParam <std::string>(m_lst, name);
+}
 
 bool Activity::validRules(const std::string& activity) const
 {
