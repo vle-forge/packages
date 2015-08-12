@@ -165,6 +165,7 @@ struct AssignDoubleParameter
     void operator()(const vle::utils::Block::Reals::value_type& p)
     {
         m_params.addDouble(p.first, p.second);
+
     }
 };
 
