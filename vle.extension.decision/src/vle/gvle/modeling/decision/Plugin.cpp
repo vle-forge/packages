@@ -116,6 +116,11 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "        else\n"                                                    \
     "          throw vle::utils::ModellingError(\n"                     \
     "             \"Package where to find the data is not set\");\n"    \
+    "        if (evts.exist(\"planFile\")) { \n"                        \
+    "          mPlanFileParam = evts.getString(\"planFile\");\n"        \
+    "          mPlanFileParam += \".txt\";\n"                           \
+    "        } else\n"                                                  \
+    "          mPlanFileParam = \"{{classname}}.txt\";\n"               \
     "    }\n"                                                           \
     "\n"                                                                \
     "    virtual ~{{classname}}()\n"                                    \
@@ -124,7 +129,7 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "    {\n"                                                           \
     "        vle::utils::Package mPack(mDataPackageParam);\n"           \
     "        std::string filePath =\n"                                  \
-    "        mPack.getDataFile(\"{{classname}}.txt\");\n"               \
+    "        mPack.getDataFile(mPlanFileParam);\n"                      \
     "        std::ifstream fileStream(filePath.c_str());\n"             \
     "        KnowledgeBase::plan().fill(fileStream, time);\n"           \
     "        return Agent::init(time);\n"                               \
@@ -158,6 +163,7 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{end for}}"                                                       \
     "private:\n"                                                        \
     "   std::string mDataPackageParam;\n"                               \
+    "   std::string mPlanFileParam;\n"                                  \
     "   std::map < std::string, int > mCounter;\n"                      \
     "//Custom members"                                                  \
     "//@@begin:custommembers@@\n"                                       \
