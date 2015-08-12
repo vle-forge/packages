@@ -159,8 +159,6 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "private:\n"                                                        \
     "   std::string mDataPackageParam;\n"                               \
     "   std::map < std::string, int > mCounter;\n"                      \
-    "   std::map < std::string, int > mMaxIter;\n"                             \
-    "   std::map < std::string, double > mTimeLag;\n"                   \
     "//Custom members"                                                  \
     "//@@begin:custommembers@@\n"                                       \
     "{{custommembers}}"                                                 \
@@ -240,9 +238,14 @@ const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
     "std::string suffixRetourNum;\n"                                    \
     "std::string activityPrefix = getPrefixName(activityname);\n"       \
     "mCounter[activityPrefix]++;\n"                                     \
-    "int counter = mCounter.find(activityPrefix)->second;\n"            \
-    "int maxIter = mMaxIter.find(activityPrefix)->second;\n"            \
-    "double timeLag = mTimeLag.find(activityPrefix)->second;\n"         \
+    "int counter;\n"                                                    \
+    "if (mCounter.find(activityPrefix) != mCounter.end()) {\n"          \
+    "   counter = mCounter.find(activityPrefix)->second;\n"             \
+    "} else {\n"                                                        \
+    "   mCounter[activityPrefix] = counter = 0;\n"                      \
+    "}\n"                                                               \
+    "int maxIter = activity.params().getDouble(\"maxIter\");\n"         \
+    "double timeLag = activity.params().getDouble(\"timeLag\");\n"      \
     "suffixRetourNum = getSuffixName(mCounter[activityPrefix]);\n"      \
     "if (maxIter== 0 || counter < maxIter){\n"                          \
     "   ved::Activity& a =\n"                                           \
@@ -251,7 +254,7 @@ const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
     "   if (timeLag == 0.0) {\n"                                        \
     "      minstart = activity.minstart();\n"                           \
     "   } else {\n"                                                     \
-    "      minstart = currentTime() + timeLag;\n"       \
+    "      minstart = currentTime() + timeLag;\n"                       \
     "   }\n"                                                            \
     "   a.initStartRangeFinishRange(minstart,\n"                        \
     "                               vd::infinity,\n"                    \
@@ -267,6 +270,7 @@ const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
     "   a.addRule(\"{{addRules^i}}\","                                  \
     "      KnowledgeBase::rules().get(\"{{addRules^i}}\"));\n"          \
     "   {{end for}}"                                                    \
+    "   a.addParams(activity.params());\n"                              \
     "}\n";
 
 //Template : out function
@@ -1270,6 +1274,9 @@ void PluginDecision::writePlanFile(std::string filename)
     for (activitiesModel_t::const_iterator it = mDecision->
              activitiesModel().begin(); it != mDecision->
              activitiesModel().end(); ++it) {
+        std::string maxIter = "";
+        std::string timeLag = "";
+
         std::string esp16 = "                ";
         std::string actListElem = it->second->name() + "\";\n";
         if (it->second->getRelativeDate()) {
@@ -1344,6 +1351,23 @@ void PluginDecision::writePlanFile(std::string filename)
         if (it->second->getOutputFunc().size() != 0) {
             actListElem += "\n        output = \"" +
                     it->second->getOutputFunc().at(0) + "\";";
+        }
+
+        if (it->second->isRepeated()) {
+            maxIter = it->second->maxIter();
+            timeLag = it->second->timeLag();
+            if (maxIter == "") {
+                maxIter = "0";
+            }
+            if (timeLag == "") {
+                timeLag = "0";
+            }
+            actListElem =  actListElem + "\n        parameter {\n";
+            actListElem =  actListElem +
+                esp16 + "maxIter = " + maxIter + ";\n";
+            actListElem =  actListElem +
+                esp16 + "timeLag = " + timeLag + ";\n";
+            actListElem =  actListElem + "        }\n";
         }
 
         templateSave.listSymbol().append("activitiesList", actListElem);
@@ -2271,39 +2295,10 @@ void PluginDecision::onRepeatedActivityAsked(
     ActivityDialog& dialogActivityDialog)
 {
     std::string aname =  dialogActivityDialog.name();
-    std::string amaxiter =  dialogActivityDialog.maxIter();
-
-    if (amaxiter == "") {
-        amaxiter = "0";
-    }
-    std::string atimelag =  dialogActivityDialog.timeLag();
-
-    if (atimelag == "") {
-         atimelag = "0.0";
-    }
-
 
     std::size_t found = mCustomConstructor.find("mCounter[\"" + aname + "\"] = 0 ;\n");
     if (found == std::string::npos) {
         mCustomConstructor += "mCounter[\"" + aname + "\"] = 0 ;\n";
-    }
-
-    found = mCustomConstructor.find("mMaxIter[\""+ aname + "\"] = ");
-    if (found == std::string::npos) {
-        mCustomConstructor += "mMaxIter[\""+ aname + "\"] = " + amaxiter + ";\n";
-    } else {
-        boost::regex expr("mMaxIter\\[\""+ aname + "\"\\] = \\d+;");
-        mCustomConstructor =
-            boost::regex_replace(mCustomConstructor, expr, "mMaxIter[\"" + aname + "\"] = " + amaxiter + ";");
-    }
-
-    found = mCustomConstructor.find("mTimeLag[\""+ aname + "\"] = ");
-    if (found == std::string::npos) {
-        mCustomConstructor += "mTimeLag[\"" + aname + "\"] = " + atimelag + ";\n";
-    } else {
-        boost::regex expr("mTimeLag\\[\"" + aname  + "\"\\] = \\d*\\.{0,1}\\d*;");
-        mCustomConstructor =
-            boost::regex_replace(mCustomConstructor, expr, "mTimeLag[\"" + aname + "\"] = " + atimelag + ";");
     }
 
     strings_t::iterator it = find(mOutputFunctionName.begin(),
