@@ -6,9 +6,10 @@ LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 ADD_LIBRARY(decision STATIC Activities.cpp Activities.hpp Activity.cpp
   Activity.hpp Agent.cpp Agent.hpp Facts.hpp KnowledgeBase.cpp
   KnowledgeBase.hpp Library.cpp Library.hpp Plan.cpp Plan.hpp
-  PrecedenceConstraint.cpp PrecedenceConstraint.hpp PrecedencesGraph.cpp
-  PrecedencesGraph.hpp Predicates.cpp Predicates.hpp Rule.hpp Rules.cpp
-  Rules.hpp Table.hpp Version.hpp)
+  PrecedenceConstraint.cpp PrecedenceConstraint.hpp
+  PrecedencesGraph.cpp PrecedencesGraph.hpp Predicates.cpp
+  Predicates.hpp Rule.cpp Rule.hpp Rules.cpp Rules.hpp Table.hpp
+  Version.hpp)
 
 IF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)

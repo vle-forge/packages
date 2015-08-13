@@ -85,11 +85,13 @@ public:
 
     virtual ~KnowledgeBase() {}
 
-    void updateFact1(const value::Value&)
+    void updateFact1(const std::string&,
+                     const value::Value&)
     {
     }
 
-    void updateFact2(const value::Value&)
+    void updateFact2(const std::string&,
+                     const value::Value&)
     {
     }
 
@@ -109,12 +111,14 @@ public:
         mNbUpdate++;
     }
 
-    bool isAlwaysTrue() const
+    bool isAlwaysTrue(const std::string&, const std::string&,
+                      const PredicateParameters&) const
     {
         return true;
     }
 
-    bool isAlwaysFalse() const
+    bool isAlwaysFalse(const std::string&, const std::string&,
+                       const PredicateParameters&) const
     {
         return false;
     }
@@ -324,7 +328,8 @@ BOOST_AUTO_TEST_CASE(parser)
     BOOST_REQUIRE_EQUAL(
         b.activities().get("activity2")->second.rules().size(), 2);
     BOOST_REQUIRE_EQUAL(
-        b.activities().get("activity5")->second.rules().get("rule 4").isAvailable(),
+        b.activities().get("activity5")->second.rules().get("rule 4").isAvailable(
+            "activity5", "rule 4"),
         false);
 }
 
@@ -382,4 +387,3 @@ BOOST_AUTO_TEST_CASE(test_relativehumandates)
         BOOST_REQUIRE_EQUAL(act9.finish(), vu::DateTime::toJulianDayNumber("1969-02-01"));
     }
 }
-

@@ -32,7 +32,7 @@
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/i18n.hpp>
 #include <string>
-#include <map>
+#include <boost/unordered_map.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -44,11 +44,11 @@ template < typename T >
 class Table
 {
 public:
-    typedef std::map < std::string, T > Dict;
-    typedef typename std::map < std::string, T >::value_type value_type;
-    typedef typename std::map < std::string, T >::const_iterator const_iterator;
-    typedef typename std::map < std::string, T >::iterator iterator;
-    typedef typename std::map < std::string, T >::size_type size_type;
+    typedef boost::unordered_map <std::string, T> container_type;
+    typedef typename container_type::value_type value_type;
+    typedef typename container_type::const_iterator const_iterator;
+    typedef typename container_type::iterator iterator;
+    typedef typename container_type::size_type size_type;
 
     /**
      * @brief Add a new value_type to the Table.
@@ -217,7 +217,7 @@ public:
     size_type size() const { return mLst.size(); }
 
 private:
-    Dict mLst;
+    container_type  mLst;
 };
 
 }}} // namespace vle model decision

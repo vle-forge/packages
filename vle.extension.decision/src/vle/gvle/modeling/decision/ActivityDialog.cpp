@@ -85,6 +85,9 @@ ActivityDialog::ActivityDialog(const Glib::RefPtr < Gtk::Builder >& xml,
     xml->get_widget("buttonRelativeDate", mRelativeButton);
 
     xml->get_widget("checkRepeated", mRepeatedCheckButton);
+    xml->get_widget("ExpanderRepeat", mRepeatParam);
+    xml->get_widget("valueMaxIteration", mMaxIterEntry);
+    xml->get_widget("valueTimeLag", mTimeLagEntry);
 
     initActivityDialogActions();
 }
@@ -142,6 +145,9 @@ ActivityDialog::ActivityDialog(const Glib::RefPtr < Gtk::Builder >& xml,
     xml->get_widget("buttonRelativeDate", mRelativeButton);
 
     xml->get_widget("checkRepeated", mRepeatedCheckButton);
+    xml->get_widget("ExpanderRepeat", mRepeatParam);
+    xml->get_widget("valueMaxIteration", mMaxIterEntry);
+    xml->get_widget("valueTimeLag", mTimeLagEntry);
 
     initActivityDialogActions();
 }
@@ -187,10 +193,69 @@ void ActivityDialog::initActivityDialogActions() {
 
     mList.push_back(mRepeatedCheckButton->signal_clicked().connect(
             sigc::mem_fun(*this, &ActivityDialog::onRepeated)));
+    mList.push_back(mMaxIterEntry->signal_changed().connect(
+            sigc::mem_fun(*this, &ActivityDialog::onMaxIterChange)));
+    mList.push_back(mTimeLagEntry->signal_changed().connect(
+            sigc::mem_fun(*this, &ActivityDialog::onTimeLagChange)));
 
     makePlanRules();
     makeOutput();
     makeAck();
+}
+
+void ActivityDialog::onMaxIterChange()
+{
+    std::string maxi = mMaxIterEntry->get_text();
+    if (maxi != "") {
+        try {
+            int imaxi = boost::lexical_cast<int>(maxi);
+            if (imaxi > 2) {
+                mOkButton->set_sensitive(true);
+                if (mRepeatedCheckButton->get_active()) {
+                    sendSignalRepeatedActivity();
+                }
+                return;
+            } else {
+                mOkButton->set_sensitive(false);
+                return;
+            }
+        } catch (...) {
+            mOkButton->set_sensitive(false);
+            return;
+        }
+    }
+    mOkButton->set_sensitive(true);
+    if (mRepeatedCheckButton->get_active()) {
+        sendSignalRepeatedActivity();
+    }
+}
+
+void ActivityDialog::onTimeLagChange()
+{
+    std::string timel = mTimeLagEntry->get_text();
+    if (timel != "") {
+        try {
+            double dtimel = boost::lexical_cast<double>(timel);
+            if (dtimel > 0.) {
+                mOkButton->set_sensitive(true);
+                if (mRepeatedCheckButton->get_active()) {
+                    sendSignalRepeatedActivity();
+                }
+                return;
+            } else {
+                mOkButton->set_sensitive(false);
+                return;
+            }
+        } catch (...) {
+            mOkButton->set_sensitive(false);
+            return;
+        }
+    }
+    mOkButton->set_sensitive(true);
+    if (mRepeatedCheckButton->get_active()) {
+        sendSignalRepeatedActivity();
+    }
+
 }
 
 void ActivityDialog::onDateRangeChange()
@@ -302,6 +367,7 @@ void ActivityDialog::onChangeName()
             mRepeatedCheckButton->set_sensitive(false);
         }
     }
+    mRepeatParam->set_sensitive(mRepeatedCheckButton->get_active());
 }
 
 void ActivityDialog::onCalendarStart()
@@ -364,12 +430,17 @@ void ActivityDialog::onCalendarFinish()
 
 int ActivityDialog::run()
 {
-     mDateStartEntry->get_buffer()->set_text("");
+    mDateStartEntry->get_buffer()->set_text("");
     mDateFinishEntry->get_buffer()->set_text("");
+    mMaxIterEntry->get_buffer()->set_text("");
+    mTimeLagEntry->get_buffer()->set_text("");
 
     if (mActivityModel) {
         mNameEntry->set_text(mActivityModel->name());
         mRepeatedCheckButton->set_active(mActivityModel->isRepeated());
+        mRepeatParam->set_sensitive(mActivityModel->isRepeated());
+        mMaxIterEntry->set_text(mActivityModel->maxIter());
+        mTimeLagEntry->set_text(mActivityModel->timeLag());
         mRelativeButton->set_active(mActivityModel->getRelativeDate());
         mOriginalName = mActivityModel->name();
 
@@ -410,6 +481,7 @@ int ActivityDialog::run()
         mDialog->set_title("New Activity Dialog");
         mRelativeButton->set_active(false);
     }
+    mRepeatParam->set_sensitive(mRepeatedCheckButton->get_active());
 
     int response = mDialog->run();
     mDialog->hide();
@@ -625,6 +697,7 @@ void ActivityDialog::onRepeated()
         on_del_ack();
         on_del_output();
     }
+    mRepeatParam->set_sensitive(mRepeatedCheckButton->get_active());
 }
 }
 }

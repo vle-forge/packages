@@ -151,6 +151,34 @@ devs::Time Activities::nextDate(const devs::Time& time)
     return result;
 }
 
+Activities::const_result_t
+Activities::beforeTimeHorizonAct(
+    const devs::Time& lowerBound,
+    const devs::Time& upperBound) const
+{
+    Activities::const_result_t beforeHorizonAct;
+
+    for (const_iterator activity = begin(); activity != end(); ++activity) {
+        switch (activity->second.state()) {
+        case Activity::WAIT:
+            if (activity->second.isValidHorizonTimeConstraint(lowerBound,
+                                                              upperBound))
+            {
+                beforeHorizonAct.push_back(activity);
+            }
+            break;
+        case Activity::STARTED:
+        case Activity::FF:
+        case Activity::DONE:
+        case Activity::FAILED:
+            break;
+        default:
+            throw utils::InternalError(_("Decision: unknown state"));
+        }
+    }
+    return beforeHorizonAct;
+}
+
 void Activities::removeWaitedAct(Activities::iterator it)
 {
     removeAct(m_waitedAct, it);
@@ -448,7 +476,7 @@ Activities::processWaitState(iterator activity,
     switch (newstate.first) {
     case PrecedenceConstraint::Valid:
     case PrecedenceConstraint::Inapplicable:
-        if (activity->second.validRules()) {
+        if (activity->second.validRules(activity->first)) {
             activity->second.start(time);
             m_startedAct.push_back(activity);
             m_latestStartedAct.push_back(activity);
@@ -613,4 +641,3 @@ PrecedenceConstraint::Result Activities::updateState(iterator activity,
 }
 
 }}} // namespace vle model decision
-

@@ -52,7 +52,7 @@ public:
         : vmd::KnowledgeBase(), today(0), yesterday(0)
     {
         addFact("today", boost::bind(&vmd::ex::KnowledgeBase::date,
-                                     this, _1));
+                                     this, _1, _2));
 
         vmd::Rule& r1 = addRule("Rule 1");
         r1.add(boost::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
@@ -79,7 +79,8 @@ public:
      * list of facts
      */
 
-    void date(const vle::value::Value& val)
+    void date(const std::string& /*port*/,
+              const vle::value::Value& val)
     {
         yesterday = today;
         today = val.toDouble().value();

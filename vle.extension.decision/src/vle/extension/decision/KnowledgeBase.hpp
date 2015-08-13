@@ -39,7 +39,7 @@
 namespace vle { namespace extension { namespace decision {
 
 typedef Table < Fact > FactsTable;
-typedef Table < Predicate > PredicatesTable;
+typedef Table < PredicateFunction > PredicatesTable;
 typedef Table < Activity::AckFct > AcknowledgeFunctions;
 typedef Table < Activity::OutFct > OutputFunctions;
 typedef Table < Activity::UpdateFct > UpdateFunctions;
@@ -196,7 +196,7 @@ public:
     { facts().add(name, fact); }
 
     void applyFact(const std::string& name, const value::Value& value)
-    { facts()[name](value); }
+    { facts()[name](name, value); }
 
     Rule& addRule(const std::string& name)
     { return mPlan.rules().add(name); }
@@ -569,28 +569,28 @@ private:
 template < typename X, typename F >
 AddFacts < X > operator+=(AddFacts < X > add, f < F > pred)
 {
-    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1));
+    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
     return add;
 }
 
 template < typename X, typename F >
 AddFacts < X > operator,(AddFacts < X > add, f < F > pred)
 {
-    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1));
+    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
     return add;
 }
 
 template < typename X, typename F >
 AddPredicates < X > operator+=(AddPredicates < X > add, p < F > pred)
 {
-    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb));
+    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb, _1, _2, _3));
     return add;
 }
 
 template < typename X, typename F >
 AddPredicates < X > operator,(AddPredicates < X > add, p < F > pred)
 {
-    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb));
+    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb, _1, _2, _3));
     return add;
 }
 

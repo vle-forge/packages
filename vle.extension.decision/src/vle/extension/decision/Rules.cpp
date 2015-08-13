@@ -50,25 +50,22 @@ Rule& Rules::add(const std::string& name, const Predicate& pred)
 
     if (it == m_lst.end()) {
         Rule& r(add(name));
-        r.add(pred);
+        r.add(&pred);
         return r;
     } else {
-        it->second.add(pred);
+        it->second.add(&pred);
         return it->second;
     }
 }
 
-Rules::result_t Rules::apply() const
+Rules::result_t Rules::apply(const std::string& activity) const
 {
     result_t result;
-    const_iterator it(m_lst.begin());
 
-    while (it != m_lst.end()) {
-        if (it->second.isAvailable()) {
+    for (const_iterator it = m_lst.begin(), et = m_lst.end(); it != et; ++it)
+        if (it->second.isAvailable(activity, it->first))
             result.push_back(it);
-        }
-        ++it;
-    }
+
     return result;
 }
 
@@ -85,4 +82,3 @@ const Rule& Rules::get(const std::string& name) const
 }
 
 }}} // namespace vle model decision
-

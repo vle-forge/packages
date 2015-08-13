@@ -190,12 +190,9 @@ value::Value* Agent::observation(
         std::stringstream out;
         out << act.state();
         return new value::String(out.str());
-    } else if ((port.compare(0, 6, "Rules_") == 0) and port.size() > 6) {
-        std::string rule(port, 6, std::string::npos);
-        const Rule& ru(rules().get(rule));
-        return new value::Boolean(ru.isAvailable());
     }
-    return 0;
+
+    return vle::devs::Dynamics::observation(event);
 }
 
 void Agent::finish()
@@ -203,4 +200,3 @@ void Agent::finish()
 }
 
 }}} // namespace vle ext decision
-

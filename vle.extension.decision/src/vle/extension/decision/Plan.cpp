@@ -31,10 +31,12 @@
 #include <vle/utils/Parser.hpp>
 #include <vle/utils/i18n.hpp>
 #include <vle/utils/DateTime.hpp>
+#include <vle/utils/Trace.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -138,16 +140,136 @@ void Plan::fill(const utils::Block& root, const devs::Time& loadTime)
     fill(root, loadTime, "");
 }
 
+struct AssignStringParameter
+{
+    PredicateParameters& m_params;
+
+    AssignStringParameter(PredicateParameters& params)
+        : m_params(params)
+    {}
+
+    void operator()(const vle::utils::Block::Strings::value_type& p)
+    {
+        m_params.addString(p.first, p.second);
+    }
+};
+
+struct AssignDoubleParameter
+{
+    PredicateParameters& m_params;
+
+    AssignDoubleParameter(PredicateParameters& params)
+        : m_params(params)
+    {}
+
+    void operator()(const vle::utils::Block::Reals::value_type& p)
+    {
+        m_params.addDouble(p.first, p.second);
+
+    }
+};
+
+struct AssignActivityStringParameter
+{
+    ActivityParameters& m_params;
+
+    AssignActivityStringParameter(ActivityParameters& params)
+        : m_params(params)
+    {}
+
+    void operator()(const vle::utils::Block::Strings::value_type& p)
+    {
+        m_params.addString(p.first, p.second);
+    }
+};
+
+struct AssignActivityDoubleParameter
+{
+    ActivityParameters& m_params;
+
+    AssignActivityDoubleParameter(ActivityParameters& params)
+        : m_params(params)
+    {}
+
+    void operator()(const vle::utils::Block::Reals::value_type& p)
+    {
+        m_params.addDouble(p.first, p.second);
+    }
+};
+
+void __fill_predicate(const utils::Block::BlocksResult& root,
+                      Predicates& predicates,
+                      const PredicatesTable& table)
+{
+    for (UBB::const_iterator it = root.first; it != root.second; ++it) {
+        const utils::Block& block = it->second;
+
+        UB::StringsResult id = block.strings.equal_range("id");
+        if (id.first == id.second)
+            throw utils::ArgError(_("Decision: predicate needs id"));
+
+        if (not predicates.exist(id.first->second)) {
+            UB::StringsResult type = block.strings.equal_range("type");
+            if (type.first == type.second)
+                throw utils::ArgError(_("Decision: predicate needs type"));
+
+            PredicatesTable::const_iterator fctit = table.get(type.first->second);
+            if (fctit == table.end())
+                throw utils::ArgError(
+                    vle::fmt(_("Decision: unknown predicate function %1% in knowledgebase"))
+                    % type.first->second);
+
+            utils::Block::BlocksResult parameters = block.blocks.equal_range("parameter");
+            if (parameters.first == parameters.second) {
+                TraceModel(vle::fmt("predicate %1% added")
+                           % id.first->second);
+
+                predicates.add(id.first->second, fctit->second);
+            } else {
+                PredicateParameters params;
+
+                std::for_each(parameters.first->second.strings.begin(),
+                              parameters.first->second.strings.end(),
+                              AssignStringParameter(params));
+
+                std::for_each(parameters.first->second.reals.begin(),
+                              parameters.first->second.reals.end(),
+                              AssignDoubleParameter(params));
+
+                params.sort();
+
+                TraceModel(vle::fmt("Predicate %1% added with parameters:") %
+                            id.first->second);
+
+                for (PredicateParameters::const_iterator it = params.begin();
+                     it != params.end(); ++it)
+                    TraceModel(vle::fmt("    - %1%") % it->first);
+
+                predicates.add(id.first->second, fctit->second, params);
+            }
+        } else {
+            TraceModel(vle::fmt("Predicate %1% already exists, we forget the new") %
+                        id.first->second);
+        }
+    }
+}
+
 void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
                 const std::string suffixe)
 {
-    utils::Block::BlocksResult mainrules, mainactivities, mainprecedences;
+    utils::Block::BlocksResult mainpredicates, mainrules, mainactivities,
+        mainprecedences;
 
+    mainpredicates = root.blocks.equal_range("predicates");
     mainrules = root.blocks.equal_range("rules");
     mainactivities = root.blocks.equal_range("activities");
     mainprecedences = root.blocks.equal_range("precedences");
 
     utils::Block::Blocks::const_iterator it;
+
+    for (it = mainpredicates.first; it != mainpredicates.second; ++it)
+        __fill_predicate(it->second.blocks.equal_range("predicate"),
+                         mPredicates, mKb.predicates());
 
     for (it = mainrules.first; it != mainrules.second; ++it) {
         utils::Block::BlocksResult rules;
@@ -174,16 +296,41 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
         const utils::Block& block = it->second;
 
         UB::StringsResult id = block.strings.equal_range("id");
-        if (id.first == id.second) {
+        if (id.first == id.second)
             throw utils::ArgError(_("Decision: rule needs id"));
-        }
 
-        Rule& rule = mRules.add(id.first->second);
-        UB::StringsResult preds = block.strings.equal_range("predicates");
+        if (not mRules.exist(id.first->second))  {
+            Rule& rule = mRules.add(id.first->second);
 
-        for (UB::Strings::const_iterator jt = preds.first;
-             jt != preds.second; ++jt) {
-            rule.add((mKb.predicates().get(jt->second))->second);
+            UB::StringsResult preds = block.strings.equal_range("predicates");
+            for (UB::Strings::const_iterator jt = preds.first;
+                 jt != preds.second; ++jt) {
+
+                // Trying to found a parametred parameter in this plan.
+                Predicates::const_iterator p = mPredicates.find(jt->second);
+                if (p != mPredicates.end()) {
+                    TraceModel(vle::fmt("rule %1% adds predicate %2%") %
+                                id.first->second % jt->second);
+
+                    rule.add(&*p);
+                } else {
+                    // If it fails, trying to use the oldtest API to use
+                    // directly the predicate function.
+                    PredicatesTable::const_iterator p2 = mKb.predicates().get(jt->second);
+                    if (p2 == mKb.predicates().end())
+                        throw vle::utils::ArgError(
+                            vle::fmt(_("Decision: unknown predicate function %1%")) %
+                            jt->second);
+
+                    TraceModel(vle::fmt("rule %1% adds old predicate (c++ function) %2%")
+                                % id.first->second % jt->second);
+
+                    rule.add(p2->second);
+                }
+            }
+        } else {
+            TraceModel(vle::fmt("Rule %1% already exists, we forget the new") %
+                       id.first->second);
         }
     }
 }
@@ -234,6 +381,30 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
         UB::BlocksResult temporal = block.blocks.equal_range("temporal");
         if (temporal.first != temporal.second) {
             fillTemporal(temporal, act, loadTime);
+        }
+
+        utils::Block::BlocksResult parameters = block.blocks.equal_range("parameter");
+        if (parameters.first != parameters.second) {
+            ActivityParameters params;
+
+            std::for_each(parameters.first->second.strings.begin(),
+                          parameters.first->second.strings.end(),
+                          AssignActivityStringParameter(params));
+
+            std::for_each(parameters.first->second.reals.begin(),
+                          parameters.first->second.reals.end(),
+                          AssignActivityDoubleParameter(params));
+
+            params.sort();
+
+            act.addParams(params);
+
+            TraceModel(vle::fmt("Activity %1% added with parameters:") %
+                       id.first->second);
+
+            for (ActivityParameters::const_iterator it = params.begin();
+                 it != params.end(); ++it)
+                TraceModel(vle::fmt("    - %1%") % it->first);
         }
     }
 }
