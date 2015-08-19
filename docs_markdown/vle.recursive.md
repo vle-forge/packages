@@ -72,13 +72,14 @@ It can contains:
 * **output_stat_X** (string amongst *mean*, *min* and *max*, default *mean*).
  it gives for the output *X* the function for aggregating replicated 
  simulations outputs.
-* **value_X** (vle::value::Value). it gives for the input X the value to 
-take for all simulations. It cannot be used simultaneously with *values_X*. 
-* **values_X** (vle::value::Tuple or vle::value::Set). it gives for 
- the input (stochastic or not) the set of value to simulate. It cannot
- be used simultaneously with *value_X*.
-* **config_parallel_type** (string amongst *threads* and *mvle*). it
-sets the type of parallelization to perform.
+* **values_X** (vle::value::Value). it gives for the input (stochastic or not)
+the set of value to simulate. If a *vle::value::Set* or *vle:value::Tuple* 
+is given, it is understodd as multiple simulation inputs. 
+* **config_parallel_type** (string amongst *threads*, *mvle* and *single*;
+default *single*). It sets the type of parallelization to perform.
+* **config_parallel_rm_files** (bool; default *true*). Used only if 
+*config_parallel_type* is set to *mvle*. Simulation files created into 
+directory *working_dir* are removed after analysis. 
 * **config_parallel_nb_slots** (int > 0). it gives the number of slots to
 use for parallelization.
 * **working_dir** (string). Required only if *config_parallel_type* is set to

@@ -86,6 +86,7 @@ private:
     std::string mIdVpz;
     std::string mIdPackage;
     CONFIG_PARALLEL_TYPE mConfigParallelType;
+    bool mRemoveSimulationFiles;
     unsigned int mConfigParallelNbSlots;
     unsigned int mConfigParallelMaxExpes;
     std::vector<VleInput*> mInputs;

@@ -43,7 +43,8 @@
 namespace vle {
 namespace recursive {
 
-MetaManager::MetaManager(): mIdVpz(), mIdPackage(), mConfigParallelType(THREADS),
+MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
+        mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
         mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
         mInputs(), mIdReplica(), mReplica(), mReplicaValues(),
         mOutputs(), mOutputStats(), mOutputValues(), mResults(0),
@@ -121,6 +122,9 @@ MetaManager::init(const vle::value::Map& init)
                  "configuration type of parallel max expes, got '%1%'")
             % (*init.get("config_parallel_max_expes")));
         }
+    }
+    if (init.exist("config_parallel_rm_files")) {
+        mRemoveSimulationFiles = init.getBoolean("config_parallel_rm_files");
     }
     if (init.exist("id_package")) {
         mIdPackage = init.getString("id_package");
@@ -373,6 +377,9 @@ MetaManager::launchSimulations()
                             sum += mat.getDouble(k,mat.rows()-1);
                         }
                     }
+                    if (mRemoveSimulationFiles and out == (outputSize-1)) {
+                        boost::filesystem::remove(vleResultFilePath.c_str());
+                    }
                 }
                 mResults->set(out, i % inputSize,
                         new vle::value::Double(sum/(double) repSize));
@@ -416,25 +423,17 @@ VleInput::VleInput(const std::string& id, const std::string& str,
         switch (initVal->getType()) {
         case vle::value::Value::TUPLE:
         case vle::value::Value::SET:
-        case vle::value::Value::DOUBLE:
             inputValues = initVal->clone();
+            type = MULTI;
             break;
         default:
-            throw vle::utils::ArgError(vle::fmt("[MetaManager] wrong"
-                    " type of value on port '%1%'") % tmp);
-        }
-        type = MULTI;
-    } else {
-        tmp.assign("value_");
-        tmp += id;
-        if (config.exist(tmp)) {
-            const vle::value::Value* initVal = config.get(tmp);
             inputValues = initVal->clone();
             type = MONO;
-        } else {
-            throw vle::utils::ArgError(vle::fmt("[MetaManager] error"
-                    " missing port '%1%'") % tmp);
+            break;
         }
+    } else {
+        throw vle::utils::ArgError(vle::fmt("[MetaManager] error"
+                " missing port '%1%'") % tmp);
     }
 }
 
