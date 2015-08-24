@@ -377,11 +377,6 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                         upd.first->second))->second);
         }
 
-        UB::StringsResult resources = block.strings.equal_range("resources");
-        if (resources.first != resources.second) {
-            act.addResources(mKb.extendResources(resources.first->second));
-        }
-
         UB::BlocksResult temporal = block.blocks.equal_range("temporal");
         if (temporal.first != temporal.second) {
             fillTemporal(temporal, act, loadTime);
@@ -409,6 +404,12 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
             for (ActivityParameters::const_iterator it = params.begin();
                  it != params.end(); ++it)
                 TraceModel(vle::fmt("    - %1%") % it->first);
+
+            try {
+                std::string resources = act.params().getString("resources");
+                act.addResources(mKb.extendResources(resources));
+            } catch (const std::exception& e) {
+            }
         }
     }
 }

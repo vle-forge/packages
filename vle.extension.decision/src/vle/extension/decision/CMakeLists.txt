@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
-ADD_LIBRARY(decision STATIC Ressources.hpp Activities.cpp
+ADD_LIBRARY(decision STATIC Resources.hpp Activities.cpp
   Activities.hpp Activity.cpp Activity.hpp Agent.cpp Agent.hpp
   Facts.hpp KnowledgeBase.cpp KnowledgeBase.hpp Library.cpp
   Library.hpp Plan.cpp Plan.hpp PrecedenceConstraint.cpp
@@ -24,7 +24,7 @@ TARGET_LINK_LIBRARIES(decision ${VLE_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS decision ARCHIVE DESTINATION lib)
 
-install(FILES Ressources.hpp Activities.hpp Activity.hpp Agent.hpp
+install(FILES Resources.hpp Activities.hpp Activity.hpp Agent.hpp
   Facts.hpp KnowledgeBase.hpp Library.hpp Plan.hpp
   PrecedenceConstraint.hpp PrecedencesGraph.hpp Predicates.hpp
   Rule.hpp Rules.hpp Table.hpp DESTINATION src/vle/extension/decision)

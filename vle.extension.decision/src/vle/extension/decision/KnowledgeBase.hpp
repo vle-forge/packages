@@ -29,7 +29,7 @@
 #ifndef VLE_EXT_DECISION_KNOWLEDGEBASE_HPP
 #define VLE_EXT_DECISION_KNOWLEDGEBASE_HPP 1
 
-#include <vle/extension/decision/Ressources.hpp>
+#include <vle/extension/decision/Resources.hpp>
 #include <vle/extension/decision/Activities.hpp>
 #include <vle/extension/decision/Facts.hpp>
 #include <vle/extension/decision/Library.hpp>
