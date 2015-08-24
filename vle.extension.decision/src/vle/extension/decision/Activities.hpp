@@ -32,7 +32,7 @@
 #include <vle/extension/decision/Activity.hpp>
 #include <vle/extension/decision/PrecedenceConstraint.hpp>
 #include <vle/extension/decision/PrecedencesGraph.hpp>
-#include <vle/extension/decision/Ressources.hpp>
+#include <vle/extension/decision/Resources.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/Tools.hpp>
 

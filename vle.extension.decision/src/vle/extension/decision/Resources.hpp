@@ -1,5 +1,5 @@
 /*
- * @file vle/extension/decision/Facts.hpp
+ * @file vle/extension/decision/Resources.hpp
  *
  * This file is part of VLE, a framework for multi-modeling, simulation
  * and analysis of complex dynamical systems
