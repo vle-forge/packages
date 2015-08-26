@@ -58,9 +58,9 @@ StoragePluginGUItab::init(vleVpz* vpz, const QString& viewName)
     outputNode = mvleVpz->outputFromOutputs(
             mvleVpz->outputsFromViews(
                     mvleVpz->viewsFromDoc()), viewName);
-    QDomNode mapConfig = mvleVpz->mapFromOutput(outputNode);
+    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
     outputNodeConfig = dynamic_cast<vle::value::Map*>(
-            mvleVpz->buildValue(mapConfig));
+            mvleVpz->buildValue(mapConfig, true));
     if (not wellFormed()) {
         buildDefaultConfig();
         bool res = mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
@@ -79,7 +79,7 @@ StoragePluginGUItab::init(vleVpz* vpz, const QString& viewName)
 void
 StoragePluginGUItab::rowsChanged(int v)
 {
-    QDomNode mapConfig = mvleVpz->mapFromOutput(outputNode);
+    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
     int& toUp = outputNodeConfig->getInt("rows");
     toUp = v;
     mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
@@ -88,7 +88,7 @@ StoragePluginGUItab::rowsChanged(int v)
 void
 StoragePluginGUItab::columnsChanged(int v)
 {
-    QDomNode mapConfig = mvleVpz->mapFromOutput(outputNode);
+    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
     int& toUp = outputNodeConfig->getInt("columns");
     toUp = v;
     mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
@@ -97,7 +97,7 @@ StoragePluginGUItab::columnsChanged(int v)
 void
 StoragePluginGUItab::incRowsChanged(int v)
 {
-    QDomNode mapConfig = mvleVpz->mapFromOutput(outputNode);
+    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
     int& toUp = outputNodeConfig->getInt("inc_rows");
     toUp = v;
     mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
@@ -106,7 +106,7 @@ StoragePluginGUItab::incRowsChanged(int v)
 void
 StoragePluginGUItab::incColumnsChanged(int v)
 {
-    QDomNode mapConfig = mvleVpz->mapFromOutput(outputNode);
+    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
     int& toUp = outputNodeConfig->getInt("inc_columns");
     toUp = v;
     mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
