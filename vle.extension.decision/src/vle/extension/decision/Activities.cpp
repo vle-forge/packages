@@ -30,6 +30,9 @@
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/i18n.hpp>
 #include <numeric>
+#include <iostream>
+#include <algorithm>
+
 
 namespace vle { namespace extension { namespace decision {
 
@@ -402,12 +405,49 @@ void Activities::clearLatestActivitiesLists()
     m_latestEndedAct.clear();
 }
 
+struct compareByPriority {
+    bool operator() (const Activities::activities_t::iterator& i,
+                     const Activities::activities_t::iterator& j) const {
+        return (i->second.getPriority() >
+                j->second.getPriority());}
+} byPriority;
+
+void Activities::assignResources(result_t& activities)
+{
+    std::srand(unsigned(std::time(0)));
+
+    std::random_shuffle(activities.begin(), activities.end());
+
+    std::sort(activities.begin(), activities.end(), byPriority);
+
+    for (result_t::iterator activity = activities.begin();
+         activity != activities.end(); ++activity) {
+        ResourcesExtended resources = (*activity)->second.getResources();
+        for (ResourcesExtended::const_iterator it = resources.begin();
+             it != resources.end(); it++) {
+            if (areRessourcesAvailable(*it)) {
+                getRessources((*activity)->first, *it);
+                (*activity)->second.takeRessources();
+                break;
+            }
+        }
+        if (not (*activity)->second.hasRessources()) {
+            if ((*activity)->second.params().exist("priority")) {
+                double priority = (*activity)->second.getPriority() + 1;
+                (*activity)->second.setPriority(priority);
+            }
+        }
+    }
+}
+
 Activities::Result
 Activities::process(const devs::Time& time)
 {
     devs::Time nextDate = devs::infinity;
     Result update = std::make_pair(false, devs::infinity);
     bool isUpdated = false;
+
+    result_t activitiesToBeAssigned;
 
     for (iterator activity = begin(); activity != end(); ++activity) {
         if (activity->second.state() == Activity::WAIT) {
@@ -416,15 +456,7 @@ Activities::process(const devs::Time& time)
             case PrecedenceConstraint::Valid:
             case PrecedenceConstraint::Inapplicable:
                 if (activity->second.validRules(activity->first)) {
-                        ResourcesExtended resources = activity->second.getResources();
-                    for (ResourcesExtended::const_iterator it = resources.begin();
-                         it != resources.end(); it++) {
-                        if (areRessourcesAvailable(*it)) {
-                            getRessources(activity->first, *it);
-                            activity->second.takeRessources();
-                            break;
-                        }
-                    }
+                    activitiesToBeAssigned.push_back(activity);
                     break;
                 }
             case PrecedenceConstraint::Wait:
@@ -434,6 +466,7 @@ Activities::process(const devs::Time& time)
         }
     }
 
+    assignResources(activitiesToBeAssigned);
 
     do {
         m_waitedAct.clear();

@@ -272,11 +272,14 @@ const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
     "   a.addAcknowledgeFunction(\n"                                    \
     "      boost::bind(&{{classname}}::ack_{{activity}},\n"             \
     "      this, _1, _2));\n"                                           \
-    "   {{for i in addRules}}"                                          \
-    "   a.addRule(\"{{addRules^i}}\","                                  \
-    "      KnowledgeBase::rules().get(\"{{addRules^i}}\"));\n"          \
-    "   {{end for}}"                                                    \
+    "   for (ved::Rules::const_iterator it = a.getRules().begin();\n"   \
+    "        it !=  a.getRules().end(); ++it) {\n"                      \
+    "      a.addRule(it->first, it->second);\n"                         \
+    "   }\n"                                                            \
     "   a.addParams(activity.params());\n"                              \
+    "   if (a.Params().exist(\"priority\")){\n"                         \
+    "      a.setPriority(a.Params().getDouble(\"priority\"));\n"        \
+    "   }\n"                                                            \
     "}\n";
 
 //Template : out function
