@@ -260,6 +260,8 @@ public:
         mResourceAvailability[resourcename] = true;
     }
 
+    void assignResources(result_t& activities);
+
     bool areRessourcesAvailable(const ResourceSolution& resourcelist) const
     {
         for (ResourceSolution::const_iterator it = resourcelist.begin();

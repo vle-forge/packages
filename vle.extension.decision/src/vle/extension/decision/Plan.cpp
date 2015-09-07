@@ -36,6 +36,7 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -84,12 +85,12 @@ void Plan::fill(const std::string& buffer, const devs::Time& loadTime)
 }
 
 void Plan::fill(const std::string& buffer, const devs::Time& loadTime,
-                const std::string suffixe)
+                const std::string suffixe, double addPriority)
 {
     try {
         std::istringstream in(buffer);
         utils::Parser parser(in);
-        fill(parser.root(), loadTime, suffixe);
+        fill(parser.root(), loadTime, suffixe, addPriority);
     } catch (const std::exception& e) {
         throw utils::ArgError(vle::utils::format("Decision plan error in %s",
                                                      e.what()));
@@ -108,11 +109,11 @@ void Plan::fill(std::istream& stream, const devs::Time& loadTime)
 }
 
 void Plan::fill(std::istream& stream, const devs::Time& loadTime,
-                const std::string suffixe)
+                const std::string suffixe, double addPriority)
 {
     try {
         utils::Parser parser(stream);
-        fill(parser.root(), loadTime, suffixe);
+        fill(parser.root(), loadTime, suffixe, addPriority);
     } catch (const std::exception& e) {
         throw utils::ArgError(vle::utils::format("Decision plan error: %s",
                                                  e.what()));
@@ -144,7 +145,7 @@ void Plan::fill(std::istream& stream)
 
 void Plan::fill(const utils::Block& root, const devs::Time& loadTime)
 {
-    fill(root, loadTime, "");
+    fill(root, loadTime, "", 0.);
 }
 
 struct AssignStringParameter
@@ -264,7 +265,7 @@ void __fill_predicate(utils::ContextPtr ctx,
 }
 
 void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
-                const std::string suffixe)
+                const std::string suffixe, double addPriority)
 {
     utils::Block::BlocksResult mainpredicates, mainrules, mainactivities,
         mainprecedences;
@@ -289,7 +290,7 @@ void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
     for (it = mainactivities.first; it != mainactivities.second; ++it) {
         utils::Block::BlocksResult activities;
         activities = it->second.blocks.equal_range("activity");
-        fillActivities(activities, loadTime, suffixe);
+        fillActivities(activities, loadTime, suffixe, addPriority);
     }
 
     for (it = mainprecedences.first; it != mainprecedences.second; ++it) {
@@ -349,12 +350,13 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
 void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                           const devs::Time& loadTime)
 {
-    fillActivities(acts, loadTime, "");
+    fillActivities(acts, loadTime, "", 0);
 }
 
 void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                           const devs::Time& loadTime,
-                          const std::string suffixe)
+                          const std::string suffixe,
+                          double addPriority)
 {
     for (UBB::const_iterator it = acts.first; it != acts.second; ++it) {
         const utils::Block& block = it->second;
@@ -421,7 +423,14 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
             try {
                 std::string resources = act.params().getString("resources");
                 act.addResources(mKb.extendResources(resources));
-            } catch (const std::exception& e) {
+            } catch(const std::exception& e) {
+            }
+
+            try {
+                double loadedPriority = act.params().getDouble("priority");
+                act.getParams().resetDouble("priority", loadedPriority + addPriority);
+                act.setPriority(loadedPriority + addPriority);
+            } catch(const std::exception& e) {
             }
         }
     }

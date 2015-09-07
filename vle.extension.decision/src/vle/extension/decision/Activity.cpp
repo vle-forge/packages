@@ -47,6 +47,21 @@ struct ActivityParametersFind
     }
 };
 
+struct ActivityParametersFindToReset
+{
+    bool operator()(ActivityParameters::name_parameter_type& p,
+                    const std::string& str) const
+    {
+        return p.first < str;
+    }
+
+    bool operator()(const std::string& str,
+                    ActivityParameters::name_parameter_type& p) const
+    {
+        return str < p.first;
+    }
+};
+
 struct ActivityParametersCompare
 {
     bool operator()(const ActivityParameters::name_parameter_type& a,
@@ -63,6 +78,42 @@ void addParam(ActivityParameters::container_type& p,
 {
     p.push_back(std::make_pair(name, param));
 }
+
+template <typename T>
+void resetParam(ActivityParameters::container_type& p,
+                const std::string& name,
+                const T& param)
+{
+    ActivityParameters::iterator it =
+        std::lower_bound(p.begin(),
+                         p.end(),
+                         name,
+                         ActivityParametersFindToReset());
+
+    if (it == p.end() or it->first != name)
+        throw vle::utils::ModellingError(
+            vle::utils::format("Decision fails to find parameter %s", name.c_str()));
+
+    it->second = param;
+}
+
+struct comp
+{
+    comp(const std::string& s) : _s(s) { }
+
+    bool operator()(const ActivityParameters::name_parameter_type& p)
+    {
+        return (p.first == _s);
+    }
+
+    std::string _s;
+};
+
+bool ActivityParameters::exist(const std::string& name) const
+{
+    return (std::find_if(m_lst.begin(), m_lst.end(), comp(name)) != m_lst.end());
+}
+
 
 template <typename T>
 T getParam(const ActivityParameters::container_type& p,
@@ -94,6 +145,16 @@ void ActivityParameters::addDouble(const std::string& name, double param)
 void ActivityParameters::addString(const std::string& name, const std::string& param)
 {
     addParam <std::string>(m_lst, name, param);
+}
+
+void ActivityParameters::resetDouble(const std::string& name, double param)
+{
+    resetParam <double>(m_lst, name, param);
+}
+
+void ActivityParameters::resetString(const std::string& name, const std::string& param)
+{
+    resetParam <std::string>(m_lst, name, param);
 }
 
 void ActivityParameters::sort()

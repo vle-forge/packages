@@ -88,7 +88,7 @@ public:
      * @param loadTime, the time of plan loading.
      */
     void fill(const std::string& buffer, const devs::Time& loadTime,
-         const std::string suffixe);
+              const std::string suffixe, double addPriority = 0.);
     /**
      * @brief Fill a plan from a string
      * @param stream, stream containing the representation of the plan
@@ -107,7 +107,7 @@ public:
      * @param loadTime, the time of plan loading.
      */
     void fill(std::istream& stream, const devs::Time& loadTime,
-              const std::string suffixe);
+              const std::string suffixe, double addPriority = 0.);
 
     const Rules& rules() const { return mRules; }
     const Activities& activities() const { return mActivities; }
@@ -120,14 +120,14 @@ private:
     void fillActivities(const utils::Block::BlocksResult& activities);
     void fill(const utils::Block& root, const devs::Time& loadTime);
     void fill(const utils::Block& root, const devs::Time& loadTime,
-              const std::string suffixe);
+              const std::string suffixe, double addPriority);
     void fillRules(const utils::Block::BlocksResult& rules,
             const devs::Time& loadTime);
     void fillActivities(const utils::Block::BlocksResult& activities,
                         const devs::Time& loadTime);
     void fillActivities(const utils::Block::BlocksResult& activities,
                         const devs::Time& loadTime,
-                        const std::string suffixe);
+                        const std::string suffixe, double addPriority);
     void fillTemporal(const utils::Block::BlocksResult& temporals,
                               Activity& activity,
                               const devs::Time& loadTime);

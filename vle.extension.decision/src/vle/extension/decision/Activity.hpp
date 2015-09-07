@@ -41,6 +41,9 @@
 #include <vector>
 #include <map>
 #include <ostream>
+#include <algorithm>
+
+
 
 namespace vle { namespace extension { namespace decision {
 
@@ -68,6 +71,26 @@ public:
     void sort();
 
     /**
+     * To check if the parameter does exist.
+     *
+     */
+    bool exist(const std::string& name) const;
+
+    /**
+     * Reset a double from container.
+     *
+     * if already exist.
+     */
+    void resetDouble(const std::string& name, double param);
+
+    /**
+     * Reset a string from the container.
+     *
+     * if already exist.
+     */
+    void resetString(const std::string& name, const std::string& param);
+
+    /**
      * Get a double from container.
      *
      * @attention O(log(n)) operation, but container must be sorted with
@@ -83,7 +106,6 @@ public:
      * the @e sort function.
      */
     std::string getString(const std::string& name) const;
-
     iterator begin() { return m_lst.begin(); }
     const_iterator begin() const { return m_lst.begin(); }
     iterator end() { return m_lst.end(); }
@@ -156,19 +178,29 @@ public:
           m_started(devs::negativeInfinity),
           m_ff(devs::negativeInfinity),
           m_done(devs::negativeInfinity),
-          m_hasRessources(true)
+          m_hasRessources(true),
+                    m_priority(devs::negativeInfinity)
+
     {}
 
-    //
-    // Slot functions to acknowledge an change of state, to send and output or
-    // to update the state of an activity.
-    //
+    double getPriority() const
+    { return  m_priority; }
+
+    void setPriority(double priority)
+    { m_priority = priority; }
+
 
     void addResources(const ResourcesExtended& res)
     { mResourcesExtended = res; m_hasRessources = false;}
 
     const ResourcesExtended& getResources()
     { return mResourcesExtended;}
+
+    //
+    // Slot functions to acknowledge an change of state, to send and output or
+    // to update the state of an activity.
+    //
+
     /**
      * @brief Assign an acknowledge function to this activity.
      * @param fct An acknowledge function.
@@ -225,6 +257,10 @@ public:
 
     void setRules(const Rules& rules)
     { m_rules = rules; }
+
+    const Rules& getRules() const
+    { return m_rules; }
+
 
     bool validRules(const std::string& activity) const;
 
@@ -316,6 +352,8 @@ public:
 
     const ActivityParameters& params() const { return m_parameters; }
 
+    ActivityParameters& getParams() { return m_parameters; }
+
 private:
     void startedDate(const devs::Time& date) { m_started = date; }
     void ffDate(const devs::Time& date) { m_ff = date; }
@@ -348,6 +386,7 @@ private:
 
     ResourcesExtended mResourcesExtended;
     bool m_hasRessources;
+    double m_priority;
 };
 
 inline std::ostream& operator<<(
