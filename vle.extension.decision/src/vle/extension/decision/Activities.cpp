@@ -414,8 +414,6 @@ struct compareByPriority {
 
 void Activities::assignResources(result_t& activities)
 {
-    std::srand(unsigned(std::time(0)));
-
     std::random_shuffle(activities.begin(), activities.end());
 
     std::sort(activities.begin(), activities.end(), byPriority);
