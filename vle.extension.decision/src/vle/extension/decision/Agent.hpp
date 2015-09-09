@@ -29,13 +29,14 @@
 #ifndef VLE_EXT_DECISION_AGENT_HPP
 #define VLE_EXT_DECISION_AGENT_HPP 1
 
+#include <ctime>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/devs/Dynamics.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
 class Agent : public devs::Dynamics,
-                                   public decision::KnowledgeBase
+              public decision::KnowledgeBase
 {
 public:
     Agent(const devs::DynamicsInit& mdl,
@@ -43,7 +44,13 @@ public:
         : devs::Dynamics(mdl, evts), decision::KnowledgeBase(context()),
           mState(Init), mCurrentTime(0.0),
         mPortMode(true)
-    {}
+    {
+        if (evts.exist("seed")) {
+            std::srand(evts.getInt("seed"));
+        } else {
+            std::srand(unsigned(std::time(0)));
+        }
+    }
 
     virtual ~Agent() {}
 
