@@ -82,6 +82,18 @@ public:
         mElements.erase(mElements.begin());
     }
 
+    inline void removeEffect(const T& t)
+    {
+        typename std::vector<T>::iterator it;
+
+        it = std::find(mElements.begin(),mElements.end(), t);
+
+        if (it != mElements.end()) {
+            mElements.erase(it);
+        }
+    }
+
+
     inline void update(const T& t)
     {
         if (!exists(t))

@@ -140,7 +140,13 @@ int ControleurProxy::addEvent(lua_State *L) {
     std::string type = luaL_checkstring(L, 1);
     if (type == "INIT") {
         std::string script (luaL_checkstring(L, 2));
-        script += "()";
+        std::size_t found0 = script.find("(");
+        std::size_t found1 = script.find(")");
+        if (found0 == std::string::npos &&
+            found1 == std::string::npos) {
+            std::cout << "INSIDE"<< std::endl;
+            script += "()";
+        }
         mControleur->execInit(script);
     } else if (type == "SINGLE") {
         mControleur->addEffectAt(luaL_checknumber(L, 2), vd::infinity, luaL_checkstring(L, 3));

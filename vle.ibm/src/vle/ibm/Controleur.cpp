@@ -112,10 +112,11 @@ void Controleur::doScriptAt(const Effect& e) {
     double t = e.get("frequency")->toDouble().value();
     if (t != vd::infinity) {
         t += mCurrentTime;
+        Effect update = doScriptEffectAt(t, e.getOrigin(), e.get("script")->toString().value(), e.get("frequency")->toDouble().value());
+        mScheduler.update(update);
+    } else {
+        mScheduler.removeEffect(e);
     }
-    Effect update = doScriptEffectAt(t, e.getOrigin(), e.get("script")->toString().value(), e.get("frequency")->toDouble().value());
-
-    mScheduler.update(update);
 }
 
 void Controleur::addEffectAt(double time, double frequency, std::string functionName) {
@@ -125,7 +126,15 @@ void Controleur::addEffectAt(double time, double frequency, std::string function
         throw utils::ArgError("The frequency have to be more than 0");
     std::string idEffect = "Effect_"+ std::to_string(mIndexEffect);
     mIndexEffect++;
-    std::string functionToExec = functionName + "()";
+    std::size_t found0 = functionName.find("(");
+    std::size_t found1 = functionName.find(")");
+    std::string functionToExec;
+    if (found0 == std::string::npos &&
+        found1 == std::string::npos) {
+        functionToExec = functionName + "()";
+    } else {
+        functionToExec = functionName;
+    }
     Effect effect = doScriptEffectAt(time, idEffect, functionToExec, frequency);
 
     mScheduler.addEffect(effect);
@@ -321,11 +330,9 @@ void Controleur::putInStructure(std::string modelName, std::string variable, vle
 
     } else {
         std::map <std::string, vle::value::Value*>& temp = mData.find(modelName)->second;
-        if (!temp.insert(std::pair<std::string,vle::value::Value*>(variable, value->clone())).second) {
-            temp[variable] = value->clone();
-        }
+        delete temp[variable];
+        temp[variable] = value->clone();
     }
-
 }
 
 void Controleur::updateData(const vd::ExternalEventList& events) {
