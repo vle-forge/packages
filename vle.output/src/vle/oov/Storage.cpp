@@ -71,7 +71,7 @@ class Storage : public Plugin
 public:
     Storage(const std::string& location)
         : Plugin(location),
-          m_matrix(new value::Matrix(1, 0, 1000, 1000, 1000, 1000)),
+          m_matrix(new value::Matrix(1, 0, 10, 10, 10, 10)),
           m_time(-HUGE_VAL),
           m_isstart(false),
           m_headertype(STORAGE_HEADER_NONE)
@@ -148,8 +148,8 @@ public:
             if (columns > 0 && rows > 0) {
                 m_matrix->resize(columns, rows);
             }
-            m_matrix->setResizeColumn(rzcolumns > 0 ? rzcolumns : 1000);
-            m_matrix->setResizeRow(rzrows > 0 ? rzrows : 1000);
+            m_matrix->setResizeColumn(rzcolumns > 0 ? rzcolumns : 10);
+            m_matrix->setResizeRow(rzrows > 0 ? rzrows : 10);
 
             delete parameters;
         }
