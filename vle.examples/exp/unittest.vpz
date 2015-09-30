@@ -1,346 +1,380 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
-<vle_project version="0.6" date="" author="Gauthier Quesnel">
+<vle_project author="Gauthier Quesnel" date="" version="0.6">
  <structures>
-  <model name="top" type="coupled" width="459"  >
+  <model type="coupled" name="top" width="459">
    <submodels>
-    <model name="d" type="atomic" conditions="cd" dynamics="unittest" x="255" y="25" width="100" height="45" >
+    <model height="45" conditions="cd" type="atomic" x="255" y="25" dynamics="unittest" name="d" width="100">
      <in>
-      <port name="in" />
+      <port name="in"/>
      </in>
      <out>
-      <port name="out" />
+      <port name="out"/>
      </out>
     </model>
-    <model name="e" type="atomic" dynamics="unittest" x="255" y="175" width="100" height="60" >
+    <model height="60" type="atomic" x="255" y="175" dynamics="unittest" name="e" width="100">
      <in>
-      <port name="in1" />
-      <port name="in2" />
+      <port name="in1"/>
+      <port name="in2"/>
      </in>
      <out>
-      <port name="out" />
+      <port name="out"/>
      </out>
     </model>
-    <model name="top2" type="coupled" x="140" y="25" width="100" height="45"  >
+    <model height="45" type="coupled" x="140" y="25" name="top2" width="100">
      <in>
-      <port name="in" />
+      <port name="in"/>
      </in>
      <out>
-      <port name="out" />
+      <port name="out"/>
      </out>
      <submodels>
-      <model name="f" type="atomic" dynamics="unittest" >
+      <model type="atomic" dynamics="unittest" name="f">
        <in>
-        <port name="in" />
+        <port name="in"/>
        </in>
        <out>
-        <port name="out" />
+        <port name="out"/>
        </out>
       </model>
-      <model name="g" type="atomic" dynamics="unittest" >
+      <model type="atomic" dynamics="unittest" name="g">
        <in>
-        <port name="in" />
+        <port name="in"/>
        </in>
        <out>
-        <port name="out" />
+        <port name="out"/>
        </out>
       </model>
      </submodels>
      <connections>
       <connection type="input">
-       <origin model="top2" port="in" />
-       <destination model="f" port="in" />
+       <origin model="top2" port="in"/>
+       <destination model="f" port="in"/>
       </connection>
       <connection type="input">
-       <origin model="top2" port="in" />
-       <destination model="g" port="in" />
+       <origin model="top2" port="in"/>
+       <destination model="g" port="in"/>
       </connection>
      </connections>
     </model>
-    <model name="top1" type="coupled" x="25" y="175" width="100" height="45"  >
+    <model height="45" type="coupled" x="25" y="175" name="top1" width="100">
      <in>
-      <port name="in" />
+      <port name="in"/>
      </in>
      <out>
-      <port name="out" />
+      <port name="out"/>
      </out>
      <submodels>
-      <model name="a" type="atomic" dynamics="unittest" observables="obs2" >
+      <model type="atomic" dynamics="unittest" observables="obs2" name="a">
        <in>
-        <port name="in" />
+        <port name="in"/>
        </in>
        <out>
-        <port name="out" />
+        <port name="out"/>
        </out>
       </model>
-      <model name="b" type="atomic" dynamics="unittest" observables="obs2" >
+      <model type="atomic" dynamics="unittest" observables="obs2" name="b">
        <in>
-        <port name="in" />
+        <port name="in"/>
        </in>
        <out>
-        <port name="out" />
+        <port name="out"/>
        </out>
       </model>
-      <model name="c" type="atomic" dynamics="unittest" observables="obs2" >
+      <model type="atomic" dynamics="unittest" observables="obs2" name="c">
        <in>
-        <port name="in1" />
-        <port name="in2" />
+        <port name="in1"/>
+        <port name="in2"/>
        </in>
        <out>
-        <port name="out" />
+        <port name="out"/>
        </out>
       </model>
-      <model name="x" type="atomic" dynamics="unittest" observables="obs1" >
+      <model type="atomic" dynamics="unittest" observables="obs1" name="x">
        <in>
-        <port name="in" />
+        <port name="in"/>
        </in>
        <out>
-        <port name="out" />
+        <port name="out"/>
        </out>
       </model>
      </submodels>
      <connections>
       <connection type="output">
-       <origin model="x" port="out" />
-       <destination model="top1" port="out" />
+       <origin model="x" port="out"/>
+       <destination model="top1" port="out"/>
       </connection>
       <connection type="input">
-       <origin model="top1" port="in" />
-       <destination model="x" port="in" />
+       <origin model="top1" port="in"/>
+       <destination model="x" port="in"/>
       </connection>
       <connection type="internal">
-       <origin model="x" port="out" />
-       <destination model="x" port="in" />
+       <origin model="x" port="out"/>
+       <destination model="x" port="in"/>
       </connection>
       <connection type="internal">
-       <origin model="x" port="out" />
-       <destination model="a" port="in" />
+       <origin model="x" port="out"/>
+       <destination model="a" port="in"/>
       </connection>
       <connection type="internal">
-       <origin model="x" port="out" />
-       <destination model="b" port="in" />
+       <origin model="x" port="out"/>
+       <destination model="b" port="in"/>
       </connection>
       <connection type="internal">
-       <origin model="x" port="out" />
-       <destination model="c" port="in1" />
+       <origin model="x" port="out"/>
+       <destination model="c" port="in1"/>
       </connection>
       <connection type="internal">
-       <origin model="x" port="out" />
-       <destination model="c" port="in2" />
+       <origin model="x" port="out"/>
+       <destination model="c" port="in2"/>
       </connection>
      </connections>
     </model>
    </submodels>
    <connections>
     <connection type="internal">
-     <origin model="top1" port="out" />
-     <destination model="top2" port="in" />
+     <origin model="top1" port="out"/>
+     <destination model="top2" port="in"/>
     </connection>
     <connection type="internal">
-     <origin model="top1" port="out" />
-     <destination model="d" port="in" />
+     <origin model="top1" port="out"/>
+     <destination model="d" port="in"/>
     </connection>
     <connection type="internal">
-     <origin model="top1" port="out" />
-     <destination model="e" port="in1" />
+     <origin model="top1" port="out"/>
+     <destination model="e" port="in1"/>
     </connection>
     <connection type="internal">
-     <origin model="top1" port="out" />
-     <destination model="e" port="in2" />
+     <origin model="top1" port="out"/>
+     <destination model="e" port="in2"/>
     </connection>
     <connection type="internal">
-     <origin model="top2" port="out" />
-     <destination model="top1" port="in" />
+     <origin model="top2" port="out"/>
+     <destination model="top1" port="in"/>
     </connection>
    </connections>
   </model>
  </structures>
  <dynamics>
-  <dynamic name="a" library="liba" language="python" type="distant"  location="192.168.1.1:324" />
-  <dynamic name="b" library="libu" language="python" type="local"  />
-  <dynamic name="unittest" package="vle.examples" library="DevsTransform" type="local"  />
+  <dynamic location="192.168.1.1:324" library="liba" type="distant" language="python" name="a"/>
+  <dynamic library="libu" type="local" language="python" name="b"/>
+  <dynamic library="DevsTransform" type="local" name="unittest" package="vle.examples"/>
  </dynamics>
- <classes>
-  <class name="beepbeep" >
-   <model name="top" type="coupled"  >
-    <out>
-     <port name="out" />
-    </out>
-    <submodels>
-     <model name="a" type="atomic" dynamics="gensbeep" >
-      <out>
-       <port name="out" />
-      </out>
-     </model>
-     <model name="b" type="atomic" dynamics="gensbeep" >
-      <out>
-       <port name="out" />
-      </out>
-     </model>
-     <model name="c" type="atomic" dynamics="gensbeep" >
-      <out>
-       <port name="out" />
-      </out>
-     </model>
-    </submodels>
-    <connections>
-     <connection type="output">
-      <origin model="a" port="out" />
-      <destination model="top" port="out" />
-     </connection>
-     <connection type="output">
-      <origin model="b" port="out" />
-      <destination model="top" port="out" />
-     </connection>
-     <connection type="output">
-      <origin model="c" port="out" />
-      <destination model="top" port="out" />
-     </connection>
-    </connections>
-   </model>
-  </class>
-  <class name="beepbeepbeep" >
-   <model name="top" type="coupled"  >
-    <out>
-     <port name="out" />
-    </out>
-    <submodels>
-     <model name="a" type="atomic" dynamics="gensbeep" >
-      <out>
-       <port name="out" />
-      </out>
-     </model>
-     <model name="b" type="atomic" dynamics="gensbeep" >
-      <out>
-       <port name="out" />
-      </out>
-     </model>
-     <model name="c" type="atomic" dynamics="gensbeep" >
-      <out>
-       <port name="out" />
-      </out>
-     </model>
-     <model name="d" type="coupled"  >
-      <out>
-       <port name="out" />
-      </out>
-      <submodels>
-       <model name="a" type="atomic" dynamics="gensbeep" >
-        <out>
-         <port name="out" />
-        </out>
-       </model>
-       <model name="b" type="atomic" dynamics="gensbeep" >
-        <out>
-         <port name="out" />
-        </out>
-       </model>
-       <model name="c" type="atomic" dynamics="gensbeep" >
-        <out>
-         <port name="out" />
-        </out>
-       </model>
-      </submodels>
-      <connections>
-       <connection type="output">
-        <origin model="a" port="out" />
-        <destination model="d" port="out" />
-       </connection>
-       <connection type="output">
-        <origin model="b" port="out" />
-        <destination model="d" port="out" />
-       </connection>
-       <connection type="output">
-        <origin model="c" port="out" />
-        <destination model="d" port="out" />
-       </connection>
-      </connections>
-     </model>
-    </submodels>
-    <connections>
-     <connection type="output">
-      <origin model="a" port="out" />
-      <destination model="top" port="out" />
-     </connection>
-     <connection type="output">
-      <origin model="b" port="out" />
-      <destination model="top" port="out" />
-     </connection>
-     <connection type="output">
-      <origin model="c" port="out" />
-      <destination model="top" port="out" />
-     </connection>
-     <connection type="output">
-      <origin model="d" port="out" />
-      <destination model="top" port="out" />
-     </connection>
-    </connections>
-   </model>
-  </class>
- </classes>
- <experiment name="graphtester" >
+ <experiment name="graphtester">
   <conditions>
-<condition name="simulation_engine" >
- <port name="duration" >
+<condition name="simulation_engine">
+ <port name="duration">
 <double>100.0</double>
 </port>
- <port name="begin" >
+ <port name="begin">
 <double>0.0</double>
 </port>
 </condition>
-   <condition name="ca" >
-    <port name="x" >
+   <condition name="ca">
+    <port name="x">
      <double>1.200000000000000</double>
     </port>
    </condition>
-   <condition name="cb" >
-    <port name="x" >
+   <condition name="cb">
+    <port name="x">
      <double>1.300000000000000</double>
     </port>
    </condition>
-   <condition name="cc" >
-    <port name="x" >
+   <condition name="cc">
+    <port name="x">
      <double>1.400000000000000</double>
     </port>
    </condition>
-   <condition name="cd" >
-    <port name="x" >
+   <condition name="cd">
+    <port name="x">
      <double>1.500000000000000</double>
     </port>
    </condition>
   </conditions>
   <views>
    <outputs>
-    <output name="view1" location="" format="local" package="vle.output" plugin="storage" >
-     <map><key name="columns"><integer>5</integer></key><key name="inc_columns"><integer>10</integer></key><key name="inc_rows"><integer>50</integer></key><key name="rows"><integer>100</integer></key></map></output>
+    <output location="" format="local" plugin="storage" name="view1" package="vle.output">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>none</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
 
-    <output name="view2" location="" format="local" package="vle.output" plugin="storage" />
+    <output location="" format="local" plugin="storage" name="view2" package="vle.output">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>none</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
 
    </outputs>
    <observables>
-    <observable name="obs1" >
-     <port name="c" >
-      <attachedview name="view1" />
+    <observable name="obs1">
+     <port name="c">
+      <attachedview name="view1"/>
      </port>
 
     </observable>
 
-    <observable name="obs2" >
-     <port name="nbmodel" >
-      <attachedview name="view1" />
+    <observable name="obs2">
+     <port name="nbmodel">
+      <attachedview name="view1"/>
      </port>
 
-     <port name="structure" >
-      <attachedview name="view2" />
+     <port name="structure">
+      <attachedview name="view2"/>
      </port>
 
     </observable>
 
    </observables>
-   <view name="view1" output="view1" type="timed" timestep="1.000000000000000" />
+   <view timestep="1.000000000000000" output="view1" type="timed" name="view1"/>
 
-   <view name="view2" output="view2" type="timed" timestep="1.000000000000000" />
+   <view timestep="1.000000000000000" output="view2" type="timed" name="view2"/>
 
   </views>
  </experiment>
+ <classes>
+  <class name="beepbeep">
+   <model type="coupled" name="top">
+    <out>
+     <port name="out"/>
+    </out>
+    <submodels>
+     <model type="atomic" dynamics="gensbeep" name="a">
+      <out>
+       <port name="out"/>
+      </out>
+     </model>
+     <model type="atomic" dynamics="gensbeep" name="b">
+      <out>
+       <port name="out"/>
+      </out>
+     </model>
+     <model type="atomic" dynamics="gensbeep" name="c">
+      <out>
+       <port name="out"/>
+      </out>
+     </model>
+    </submodels>
+    <connections>
+     <connection type="output">
+      <origin model="a" port="out"/>
+      <destination model="top" port="out"/>
+     </connection>
+     <connection type="output">
+      <origin model="b" port="out"/>
+      <destination model="top" port="out"/>
+     </connection>
+     <connection type="output">
+      <origin model="c" port="out"/>
+      <destination model="top" port="out"/>
+     </connection>
+    </connections>
+   </model>
+  </class>
+  <class name="beepbeepbeep">
+   <model type="coupled" name="top">
+    <out>
+     <port name="out"/>
+    </out>
+    <submodels>
+     <model type="atomic" dynamics="gensbeep" name="a">
+      <out>
+       <port name="out"/>
+      </out>
+     </model>
+     <model type="atomic" dynamics="gensbeep" name="b">
+      <out>
+       <port name="out"/>
+      </out>
+     </model>
+     <model type="atomic" dynamics="gensbeep" name="c">
+      <out>
+       <port name="out"/>
+      </out>
+     </model>
+     <model type="coupled" name="d">
+      <out>
+       <port name="out"/>
+      </out>
+      <submodels>
+       <model type="atomic" dynamics="gensbeep" name="a">
+        <out>
+         <port name="out"/>
+        </out>
+       </model>
+       <model type="atomic" dynamics="gensbeep" name="b">
+        <out>
+         <port name="out"/>
+        </out>
+       </model>
+       <model type="atomic" dynamics="gensbeep" name="c">
+        <out>
+         <port name="out"/>
+        </out>
+       </model>
+      </submodels>
+      <connections>
+       <connection type="output">
+        <origin model="a" port="out"/>
+        <destination model="d" port="out"/>
+       </connection>
+       <connection type="output">
+        <origin model="b" port="out"/>
+        <destination model="d" port="out"/>
+       </connection>
+       <connection type="output">
+        <origin model="c" port="out"/>
+        <destination model="d" port="out"/>
+       </connection>
+      </connections>
+     </model>
+    </submodels>
+    <connections>
+     <connection type="output">
+      <origin model="a" port="out"/>
+      <destination model="top" port="out"/>
+     </connection>
+     <connection type="output">
+      <origin model="b" port="out"/>
+      <destination model="top" port="out"/>
+     </connection>
+     <connection type="output">
+      <origin model="c" port="out"/>
+      <destination model="top" port="out"/>
+     </connection>
+     <connection type="output">
+      <origin model="d" port="out"/>
+      <destination model="top" port="out"/>
+     </connection>
+    </connections>
+   </model>
+  </class>
+ </classes>
 </vle_project>

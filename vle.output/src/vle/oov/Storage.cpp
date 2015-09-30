@@ -146,7 +146,7 @@ public:
                 }
             }
             if (columns > 0 && rows > 0) {
-                m_matrix->resize(columns, rows);
+                m_matrix->increaseAllocation(columns, rows);
             }
             m_matrix->setResizeColumn(rzcolumns > 0 ? rzcolumns : 10);
             m_matrix->setResizeRow(rzrows > 0 ? rzrows : 10);
