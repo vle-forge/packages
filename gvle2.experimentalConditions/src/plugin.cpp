@@ -28,6 +28,9 @@
 #include <iostream>
 #include "vle/vpz/AtomicModel.hpp"
 
+namespace vle{
+namespace gvle2{
+
 /**
  * @brief ExpCondDummy::ExpCondDummy
  *        Default constructor
@@ -109,6 +112,7 @@ QWidget *ExpCondDummy::getWidget()
     }
 
     // Update the current Exprimental Condition to use
+    mWidgetTab->setVpz(mVpz);
     mWidgetTab->setExpCond(mExpCond);
 
     return mWidgetTab;
@@ -175,7 +179,7 @@ void ExpCondDummy::delWidgetToolbar()
  */
 void ExpCondDummy::setVpz(vleVpz *vpz)
 {
-    (void)vpz;
+    mVpz = vpz;
 }
 
 /**
@@ -187,4 +191,6 @@ void *ExpCondDummy::getVpz()
     return (void *)0;
 }
 
-Q_EXPORT_PLUGIN2(expcond_dummy, ExpCondDummy)
+}}//namespaces
+
+Q_EXPORT_PLUGIN2(expcond_dummy, vle::gvle2::ExpCondDummy)

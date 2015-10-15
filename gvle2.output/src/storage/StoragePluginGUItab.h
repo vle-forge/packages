@@ -42,7 +42,7 @@ class StoragePluginGUItab : public QWidget
 public:
     explicit StoragePluginGUItab(QWidget *parent = 0);
     ~StoragePluginGUItab();
-    void init(vleVpz* vpz, const QString& viewName);
+    void init(vle::gvle2::vleVpz* vpz, const QString& viewName);
 
 private slots:
     void rowsChanged(int v);
@@ -55,9 +55,9 @@ private:
     void buildDefaultConfig();
 
     Ui::StoragePluginGvle* ui;
-    vleVpz*             mvleVpz;
-    QDomNode            outputNode;
-    vle::value::Map*    outputNodeConfig;
+    vle::gvle2::vleVpz*    mvleVpz;
+    QDomNode               outputNode;
+    vle::value::Map*       outputNodeConfig;
 };
 
 #endif

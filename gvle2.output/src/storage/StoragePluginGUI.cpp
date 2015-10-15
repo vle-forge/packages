@@ -26,6 +26,9 @@
 #include "StoragePluginGUI.h"
 #include <iostream>
 
+namespace vle {
+namespace gvle2 {
+
 
 StoragePluginGUI::StoragePluginGUI() :
     mLogger(0), mWidgetTab(0)
@@ -92,4 +95,6 @@ StoragePluginGUI::onTabDeleted(QObject *obj)
         mWidgetTab = 0;
 }
 
-Q_EXPORT_PLUGIN2(StoragePluginGUI, StoragePluginGUI)
+}}//namepsaces
+
+Q_EXPORT_PLUGIN2(StoragePluginGUI, vle::gvle2::StoragePluginGUI)

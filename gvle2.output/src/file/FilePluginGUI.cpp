@@ -27,6 +27,9 @@
 #include "FilePluginGUI.h"
 #include "FilePluginGUItab.h"
 
+namespace vle {
+namespace gvle2 {
+
 FilePluginGUI::FilePluginGUI() :
     mLogger(0), mWidgetTab(0)
 {
@@ -93,4 +96,6 @@ FilePluginGUI::onTabDeleted(QObject *obj)
 }
 
 
-Q_EXPORT_PLUGIN2(FilePluginGUI, FilePluginGUI)
+}} //namespaces
+
+Q_EXPORT_PLUGIN2(FilePluginGUI, vle::gvle2::FilePluginGUI)

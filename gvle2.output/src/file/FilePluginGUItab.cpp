@@ -56,7 +56,7 @@ FilePluginGUItab::~FilePluginGUItab()
 
 
 void
-FilePluginGUItab::init(vleVpz* vpz, const QString& viewName)
+FilePluginGUItab::init(vle::gvle2::vleVpz* vpz, const QString& viewName)
 {
     mvleVpz = vpz;
     outputNode = mvleVpz->outputFromOutputs(

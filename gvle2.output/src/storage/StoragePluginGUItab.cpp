@@ -52,7 +52,7 @@ StoragePluginGUItab::~StoragePluginGUItab()
 
 
 void
-StoragePluginGUItab::init(vleVpz* vpz, const QString& viewName)
+StoragePluginGUItab::init(vle::gvle2::vleVpz* vpz, const QString& viewName)
 {
     mvleVpz = vpz;
     outputNode = mvleVpz->outputFromOutputs(

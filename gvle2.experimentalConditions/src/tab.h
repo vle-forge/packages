@@ -40,6 +40,7 @@ public:
     explicit MainTab(QWidget *parent = 0);
     ~MainTab();
     void setExpCond(const QString& cond);
+    void setVpz(vle::gvle2::vleVpz* vpz);
 
 signals:
     void valueChanged(const QString& cond);
@@ -50,7 +51,7 @@ private slots:
 private:
     Ui::MainTab *ui;
     QString      mExpCond;
-    vleVpz*      mVpz;
+    vle::gvle2::vleVpz*      mVpz;
 //private:
 //    vpzExpCondValue *mEcValueDay;
 //    vpzExpCondValue *mEcValueMonth;

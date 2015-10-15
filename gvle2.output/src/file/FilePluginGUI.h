@@ -29,10 +29,13 @@
 #include <vle/gvle2/plugin_output.h>
 #include "FilePluginGUItab.h"
 
+namespace vle {
+namespace gvle2 {
+
 class FilePluginGUI : public PluginOutput
 {
     Q_OBJECT
-    Q_INTERFACES(PluginOutput)
+    Q_INTERFACES(vle::gvle2::PluginOutput)
 
 public:
     FilePluginGUI();
@@ -50,5 +53,7 @@ private:
     Logger           *mLogger;
     FilePluginGUItab *mWidgetTab;
 };
+
+}} //namespaces
 
 #endif

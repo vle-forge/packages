@@ -14,6 +14,10 @@
 #include <iostream>
 #include "vle/vpz/AtomicModel.hpp"
 
+
+namespace vle {
+namespace gvle2 {
+
 SimLog::SimLog() {
     mLogger = 0;
     mThread = 0;
@@ -450,4 +454,6 @@ void SimLog::simulationFinished()
     mWidgetToolbar->simStoped();
 }
 
-Q_EXPORT_PLUGIN2(sim_log, SimLog)
+}} //namespaces
+
+Q_EXPORT_PLUGIN2(sim_log, vle::gvle2::SimLog)

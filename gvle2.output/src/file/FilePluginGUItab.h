@@ -41,7 +41,7 @@ class FilePluginGUItab : public QWidget
 public:
     explicit FilePluginGUItab(QWidget *parent = 0);
     ~FilePluginGUItab();
-    void init(vleVpz* vpz, const QString& viewName);
+    void init(vle::gvle2::vleVpz* vpz, const QString& viewName);
 
 private slots:
     void flushByBagChanged(int val);
@@ -57,7 +57,7 @@ private:
     void buildDefaultConfig();
 
     Ui::FilePluginGvle* ui;
-    vleVpz*             mvleVpz;
+    vle::gvle2::vleVpz* mvleVpz;
     QDomNode            outputNode;
     vle::value::Map*    outputNodeConfig;
 };

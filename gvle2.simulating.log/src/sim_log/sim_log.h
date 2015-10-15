@@ -6,8 +6,8 @@
  * Copyright (c) 2014 INRA
  *
  */
-#ifndef SIM_LOG_H
-#define SIM_LOG_H
+#ifndef GVLE2_SIM_LOG_H
+#define GVLE2_SIM_LOG_H
 
 #include <QObject>
 #include <QList>
@@ -21,10 +21,14 @@
 #include "simtab.h"
 #include "widtoolbar.h"
 
+namespace vle {
+namespace gvle2 {
+
+
 class SimLog : public QObject, public PluginSimulator
 {
     Q_OBJECT
-    Q_INTERFACES(PluginSimulator)
+    Q_INTERFACES(vle::gvle2::PluginSimulator)
 
 public:
     SimLog();
@@ -68,5 +72,7 @@ private:
     int                      mStepCount;
     double                   mDuration;
 };
+
+}} //namespaces
 
 #endif // SIM_PLOT_H

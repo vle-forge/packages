@@ -29,10 +29,14 @@
 #include <vle/gvle2/plugin_output.h>
 #include "StoragePluginGUItab.h"
 
+namespace vle {
+namespace gvle2 {
+
+
 class StoragePluginGUI : public PluginOutput
 {
     Q_OBJECT
-    Q_INTERFACES(PluginOutput)
+    Q_INTERFACES(vle::gvle2::PluginOutput)
 
 public:
     StoragePluginGUI();
@@ -50,5 +54,7 @@ private:
     Logger           *mLogger;
     StoragePluginGUItab *mWidgetTab;
 };
+
+}} // namespaces
 
 #endif

@@ -73,9 +73,9 @@ void MainTab::setExpCond(const QString&  cond)
         mVpz->addCondPortToDoc(cond, "year");
         mVpz->addValuePortCondToDoc(cond, "year", vle::value::String("2015"));
     }
-    vle::value::Value* dayV = mVpz->vleVpz::buildValue(cond, "day",0);
-    vle::value::Value* monthV = mVpz->vleVpz::buildValue(cond, "month",0);
-    vle::value::Value* yearV = mVpz->vleVpz::buildValue(cond, "year",0);
+    vle::value::Value* dayV = mVpz->buildValueFromDoc(cond, "day",0);
+    vle::value::Value* monthV = mVpz->buildValueFromDoc(cond, "month",0);
+    vle::value::Value* yearV = mVpz->buildValueFromDoc(cond, "year",0);
 
     int dayI = QVariant(dayV->toString().value().c_str()).toInt();
     int monthI = QVariant(monthV->toString().value().c_str()).toInt();
@@ -91,6 +91,12 @@ void MainTab::setExpCond(const QString&  cond)
 
     ui->calendar->setSelectedDate(selDate);
 
+}
+
+void
+MainTab::setVpz(vle::gvle2::vleVpz* vpz)
+{
+    mVpz = vpz;
 }
 
 /**

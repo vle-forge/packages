@@ -26,16 +26,20 @@
 
 #include <QObject>
 #include <QSettings>
+#include <vle/utils/Package.hpp>
 #include <vle/gvle2/plugin_cond.h>
 #include <vle/gvle2/logger.h>
 #include <vle/gvle2/vlevpz.h>
 #include "tab.h"
 #include "toolbar.h"
 
+namespace vle{
+namespace gvle2{
+
 class ExpCondDummy : public PluginExpCond
 {
     Q_OBJECT
-    Q_INTERFACES(PluginExpCond)
+    Q_INTERFACES(vle::gvle2::PluginExpCond)
 
 public:
     ExpCondDummy();
@@ -63,5 +67,7 @@ private:
     QString     mExpCond;
     vleVpz*     mVpz;
 };
+
+}}//namespaces
 
 #endif // EXPCOND_DUMMY_H
