@@ -34,8 +34,90 @@
 #include <vle/devs/Time.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/variant.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
+#include <vector>
+#include <map>
+#include <ostream>
+#include <algorithm>
+
+
 
 namespace vle { namespace extension { namespace decision {
+
+/**
+ * @brief Defines parameter type for activities.
+ */
+typedef boost::variant <double, std::string> ActivityParameterType;
+
+class ActivityParameters
+{
+public:
+    typedef std::pair <std::string, ActivityParameterType> name_parameter_type;
+    typedef std::vector <name_parameter_type> container_type;
+    typedef container_type::const_iterator const_iterator;
+    typedef container_type::iterator iterator;
+    typedef container_type::size_type size_type;
+
+    void addDouble(const std::string& name, double param);
+    void addString(const std::string& name, const std::string& param);
+
+    /**
+     * Sort the container by string. After, you can use getDouble and
+     * getString functions.
+     */
+    void sort();
+
+    /**
+     * To check if the parameter does exist.
+     *
+     */
+    bool exist(const std::string& name) const;
+
+    /**
+     * Reset a double from container.
+     *
+     * if already exist.
+     */
+    void resetDouble(const std::string& name, double param);
+
+    /**
+     * Reset a string from the container.
+     *
+     * if already exist.
+     */
+    void resetString(const std::string& name, const std::string& param);
+
+    /**
+     * Get a double from container.
+     *
+     * @attention O(log(n)) operation, but container must be sorted with
+     * the @e sort function.
+     * end().
+     */
+    double getDouble(const std::string& name) const;
+
+    /**
+     * Get a string from the container.
+     *
+     * @attention O(log(n)) operation, but container must be sorted with
+     * the @e sort function.
+     */
+    std::string getString(const std::string& name) const;
+    iterator begin() { return m_lst.begin(); }
+    const_iterator begin() const { return m_lst.begin(); }
+    iterator end() { return m_lst.end(); }
+    const_iterator end() const { return m_lst.end(); }
+    size_type size() const { return m_lst.size(); }
+    bool empty() const { return m_lst.empty(); }
+
+private:
+    container_type m_lst;
+};
+
+typedef std::list < std::string > ResourceSolution;
+typedef std::list < ResourceSolution > ResourcesExtended;
 
 class Activity
 {
@@ -85,17 +167,33 @@ public:
 
     Activity()
         : m_state(WAIT), m_waitall(true),
-        m_date((Activity::DateType)(Activity::START | Activity::FINISH)),
-        m_start(devs::negativeInfinity),
-        m_finish(devs::infinity),
-        m_minstart(devs::negativeInfinity),
-        m_maxstart(devs::negativeInfinity),
-        m_minfinish(devs::infinity),
-        m_maxfinish(devs::infinity),
-        m_started(devs::negativeInfinity),
-        m_ff(devs::negativeInfinity),
-        m_done(devs::negativeInfinity)
+          m_date((Activity::DateType)(Activity::START | Activity::FINISH)),
+          m_start(devs::negativeInfinity),
+          m_finish(devs::infinity),
+          m_minstart(devs::negativeInfinity),
+          m_maxstart(devs::negativeInfinity),
+          m_minfinish(devs::infinity),
+          m_maxfinish(devs::infinity),
+          m_started(devs::negativeInfinity),
+          m_ff(devs::negativeInfinity),
+          m_done(devs::negativeInfinity),
+          m_hasRessources(true),
+                    m_priority(devs::negativeInfinity)
+
     {}
+
+    double getPriority() const
+    { return  m_priority; }
+
+    void setPriority(double priority)
+    { m_priority = priority; }
+
+
+    void addResources(const ResourcesExtended& res)
+    { mResourcesExtended = res; m_hasRessources = false;}
+
+    const ResourcesExtended& getResources()
+    { return mResourcesExtended;}
 
     //
     // Slot functions to acknowledge an change of state, to send and output or
@@ -159,7 +257,23 @@ public:
     void setRules(const Rules& rules)
     { m_rules = rules; }
 
-    bool validRules() const;
+    const Rules& getRules() const
+    { return m_rules; }
+
+
+    bool validRules(const std::string& activity) const;
+
+    bool hasRessources() const
+    { return m_hasRessources; }
+
+    void takeRessources()
+    { m_hasRessources = true; }
+    //
+    //
+    //
+
+    void addParams(const ActivityParameters& params)
+    { m_parameters = params; }
 
     //
     // manage time constraint
@@ -193,6 +307,8 @@ public:
     bool isValidTimeConstraint(const devs::Time& time) const;
     bool isBeforeTimeConstraint(const devs::Time& time) const;
     bool isAfterTimeConstraint(const devs::Time& time) const;
+    bool isValidHorizonTimeConstraint(const devs::Time& lowerBound,
+                                      const devs::Time& upperBound) const;
 
     const State& state() const { return m_state; }
     bool isInWaitState() const { return m_state == WAIT; }
@@ -233,6 +349,10 @@ public:
      */
     devs::Time nextTime(const devs::Time& time);
 
+    const ActivityParameters& params() const { return m_parameters; }
+
+    ActivityParameters& getParams() { return m_parameters; }
+
 private:
     void startedDate(const devs::Time& date) { m_started = date; }
     void ffDate(const devs::Time& date) { m_ff = date; }
@@ -260,6 +380,12 @@ private:
     AckFct mAckFct;
     OutFct mOutFct;
     UpdateFct mUpdateFct;
+
+    ActivityParameters m_parameters;
+
+    ResourcesExtended mResourcesExtended;
+    bool m_hasRessources;
+    double m_priority;
 };
 
 inline std::ostream& operator<<(

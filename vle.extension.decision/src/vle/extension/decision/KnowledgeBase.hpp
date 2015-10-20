@@ -29,6 +29,7 @@
 #ifndef VLE_EXT_DECISION_KNOWLEDGEBASE_HPP
 #define VLE_EXT_DECISION_KNOWLEDGEBASE_HPP 1
 
+#include <vle/extension/decision/Resources.hpp>
 #include <vle/extension/decision/Activities.hpp>
 #include <vle/extension/decision/Facts.hpp>
 #include <vle/extension/decision/Library.hpp>
@@ -39,7 +40,8 @@
 namespace vle { namespace extension { namespace decision {
 
 typedef Table < Fact > FactsTable;
-typedef Table < Predicate > PredicatesTable;
+typedef Table < PortFact > PortFactsTable;
+typedef Table < PredicateFunction > PredicatesTable;
 typedef Table < Activity::AckFct > AcknowledgeFunctions;
 typedef Table < Activity::OutFct > OutputFunctions;
 typedef Table < Activity::UpdateFct > UpdateFunctions;
@@ -53,10 +55,30 @@ inline std::ostream& operator<<(std::ostream& o, const FactsTable& kb)
     return o;
 }
 
+inline std::ostream& operator<<(std::ostream& o, const PortFactsTable& kb)
+{
+    o << "facts: ";
+    for (PortFactsTable::const_iterator it = kb.begin(); it != kb.end(); ++it) {
+        o << " (" << it->first << ")";
+    }
+    return o;
+}
+
 template < typename F >
 struct f
 {
     f(const std::string& name, F func)
+        : name(name), func(func)
+    {}
+
+    std::string name;
+    F func;
+};
+
+template < typename F >
+struct pf
+{
+    pf(const std::string& name, F func)
         : name(name), func(func)
     {}
 
@@ -116,6 +138,13 @@ struct AddFacts
     X kb;
 };
 
+template < typename X >
+struct AddPortFacts
+{
+    AddPortFacts(X kb) : kb(kb) {}
+
+    X kb;
+};
 
 template < typename X >
 struct AddPredicates
@@ -187,6 +216,31 @@ public:
         : mPlan(*this), mLibrary(*this)
     {}
 
+    void addResources(const std::string& type, const std::string& name)
+    {
+        mResources.insert(Resource(type, name));
+        mPlan.activities().setResourceAvailable(name);
+    }
+
+    bool resourceTypeExist(const std::string& type) const
+    { return mResources.find(type) != mResources.end();}
+
+    ResourceSolution getResources (const std::string& type) const
+    {
+        ResourceSolution resources;
+        ResourcesConstIteratorPair pit;
+
+        pit = mResources.equal_range(type);
+        for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
+        {
+            resources.push_back((*it).second);
+        }
+        return resources;
+    }
+
+
+    ResourcesExtended extendResources(const std::string& resources) const;
+
     /**
      * @brief Add a fac into the facts tables.
      * @param name
@@ -195,8 +249,18 @@ public:
     void addFact(const std::string& name, const Fact& fact)
     { facts().add(name, fact); }
 
+    void addPortFact(const std::string& name, const PortFact& fact)
+    { portfacts().add(name, fact); }
+
     void applyFact(const std::string& name, const value::Value& value)
-    { facts()[name](value); }
+    {
+        if  (facts().find(name) == facts().end()) {
+            portfacts()[name](name, value);
+        } else {
+            facts()[name](value);
+        }
+    }
+
 
     Rule& addRule(const std::string& name)
     { return mPlan.rules().add(name); }
@@ -391,6 +455,9 @@ public:
     const FactsTable& facts() const
     { return mFactsTable; }
 
+    const PortFactsTable& portfacts() const
+    { return mPortFactsTable; }
+
     /**
      * @brief Get the table of available predicates.
      * @return Table of available predicates.
@@ -425,6 +492,9 @@ public:
      */
     FactsTable& facts()
     { return mFactsTable; }
+
+    PortFactsTable& portfacts()
+    { return mPortFactsTable; }
 
     /**
      * @brief Get the table of available predicates.
@@ -461,9 +531,21 @@ public:
         }
 
     template < typename X >
+        AddPortFacts < X > addPortFacts(X obj)
+        {
+            return AddPortFacts < X >(obj);
+        }
+
+    template < typename X >
         f < X > F(const std::string& name, X func)
         {
             return f < X >(name, func);
+        }
+
+    template < typename X >
+        pf < X > PF(const std::string& name, X func)
+        {
+            return pf < X >(name, func);
         }
 
     template < typename X >
@@ -556,7 +638,9 @@ private:
     Library mLibrary; /**< The plan library. It stocks all plans available for
                         this decision knowledge base. */
 
+    Resources mResources;
     FactsTable mFactsTable;
+    PortFactsTable mPortFactsTable;
     PredicatesTable mPredicatesTable;
     AcknowledgeFunctions mAckFunctions;
     OutputFunctions mOutFunctions;
@@ -573,6 +657,13 @@ AddFacts < X > operator+=(AddFacts < X > add, f < F > pred)
     return add;
 }
 
+template < typename X, typename PF >
+AddPortFacts < X > operator+=(AddPortFacts < X > add, f < PF > pred)
+{
+    add.kb->portfacts().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
+    return add;
+}
+
 template < typename X, typename F >
 AddFacts < X > operator,(AddFacts < X > add, f < F > pred)
 {
@@ -580,17 +671,24 @@ AddFacts < X > operator,(AddFacts < X > add, f < F > pred)
     return add;
 }
 
+template < typename X, typename PF >
+AddPortFacts < X > operator,(AddPortFacts < X > add, f < PF > pred)
+{
+    add.kb->portfacts().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
+    return add;
+}
+
 template < typename X, typename F >
 AddPredicates < X > operator+=(AddPredicates < X > add, p < F > pred)
 {
-    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb));
+    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb, _1, _2, _3));
     return add;
 }
 
 template < typename X, typename F >
 AddPredicates < X > operator,(AddPredicates < X > add, p < F > pred)
 {
-    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb));
+    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb, _1, _2, _3));
     return add;
 }
 
@@ -650,7 +748,7 @@ AddUpdateFunctions < X > operator,(AddUpdateFunctions < X > add,
 
 inline std::ostream& operator<<(std::ostream& o, const KnowledgeBase& kb)
 {
-    return o << kb.facts() << "\n" << kb.rules() << "\n"
+    return o << kb.facts() << kb.portfacts() << "\n" << kb.rules() << "\n"
         << kb.activities() << "\n";
 }
 

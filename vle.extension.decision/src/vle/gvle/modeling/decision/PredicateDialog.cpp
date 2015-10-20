@@ -163,7 +163,8 @@ void PredicateDialog::onAddPredicate() {
 
             mTextViewFunction->get_buffer()->set_text("");
             mHeaderPred->set_text( "bool " + name
-            + "() const {" );
+                                   + "(const std::string& activity, const std::string& rule," \
+                                   "const vle::extension::decision::PredicateParameters& param) const {" );
 
             m_iter = iter;
             mTreePredicateList->set_cursor(m_model->get_path(iter));
@@ -300,7 +301,8 @@ void PredicateDialog::onCursorChangeTreePredicateList() {
                 mTextViewFunction->get_buffer()->
                         set_text(mPredicateFunction[ name ]);
                 mHeaderPred->set_text( "bool " + name
-                        + "() const {" );
+                                       + "(const std::string& activity, const std::string& rule," \
+                                       "const vle::extension::decision::PredicateParameters& param) const {" );
             }
             else {
                 mTextViewFunction->get_buffer()->set_text("");

@@ -42,7 +42,13 @@ public:
           const devs::InitEventList& evts)
         : devs::Dynamics(mdl, evts), mState(Init), mCurrentTime(0.0),
         mPortMode(true)
-    {}
+    {
+        if (evts.exist("seed")) {
+            std::srand(evts.getInt("seed"));
+        } else {
+            std::srand(unsigned(std::time(0)));
+        }
+    }
 
     virtual ~Agent() {}
 

@@ -30,13 +30,156 @@
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/i18n.hpp>
 #include <boost/format.hpp>
+#include <boost/variant/get.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
-bool Activity::validRules() const
+struct ActivityParametersFind
+{
+    bool operator()(const ActivityParameters::name_parameter_type& p,
+                    const std::string& str) const
+    {
+        return p.first < str;
+    }
+
+    bool operator()(const std::string& str,
+                    const ActivityParameters::name_parameter_type& p) const
+    {
+        return str < p.first;
+    }
+};
+
+struct ActivityParametersFindToReset
+{
+    bool operator()(ActivityParameters::name_parameter_type& p,
+                    const std::string& str) const
+    {
+        return p.first < str;
+    }
+
+    bool operator()(const std::string& str,
+                    ActivityParameters::name_parameter_type& p) const
+    {
+        return str < p.first;
+    }
+};
+
+struct ActivityParametersCompare
+{
+    bool operator()(const ActivityParameters::name_parameter_type& a,
+                    const ActivityParameters::name_parameter_type& b) const
+    {
+        return a.first < b.first;
+    }
+};
+
+template <typename T>
+void addParam(ActivityParameters::container_type& p,
+              const std::string& name,
+              const T& param)
+{
+    p.push_back(
+        std::make_pair <std::string, ActivityParameterType> (
+            name, param));
+}
+
+template <typename T>
+void resetParam(ActivityParameters::container_type& p,
+                const std::string& name,
+                const T& param)
+{
+    ActivityParameters::iterator it =
+        std::lower_bound(p.begin(),
+                         p.end(),
+                         name,
+                         ActivityParametersFindToReset());
+
+    if (it == p.end() or it->first != name)
+        throw vle::utils::ModellingError(
+            vle::fmt("Decision fails to find parameter %1%") % name);
+
+    it->second = param;
+}
+
+struct comp
+{
+    comp(const std::string& s) : _s(s) { }
+
+    bool operator()(const ActivityParameters::name_parameter_type& p)
+    {
+        return (p.first == _s);
+    }
+
+    std::string _s;
+};
+
+bool ActivityParameters::exist(const std::string& name) const
+{
+    return (std::find_if(m_lst.begin(), m_lst.end(), comp(name)) != m_lst.end());
+}
+
+
+template <typename T>
+T getParam(const ActivityParameters::container_type& p,
+           const std::string& name)
+{
+    ActivityParameters::const_iterator it =
+        std::lower_bound(p.begin(),
+                         p.end(),
+                         name,
+                         ActivityParametersFind());
+
+    if (it == p.end() or it->first != name)
+        throw vle::utils::ModellingError(
+            vle::fmt("Decision fails to get parameter %1%") % name);
+
+    const T* ret = boost::get <T>(&it->second);
+    if (ret)
+        return *ret;
+
+    throw vle::utils::ModellingError(
+        vle::fmt("Decision fails to convert parameter %1%") % name);
+}
+
+void ActivityParameters::addDouble(const std::string& name, double param)
+{
+    addParam <double>(m_lst, name, param);
+}
+
+void ActivityParameters::addString(const std::string& name, const std::string& param)
+{
+    addParam <std::string>(m_lst, name, param);
+}
+
+void ActivityParameters::resetDouble(const std::string& name, double param)
+{
+    resetParam <double>(m_lst, name, param);
+}
+
+void ActivityParameters::resetString(const std::string& name, const std::string& param)
+{
+    resetParam <std::string>(m_lst, name, param);
+}
+
+void ActivityParameters::sort()
+{
+    std::sort(m_lst.begin(), m_lst.end(), ActivityParametersCompare());
+}
+
+double ActivityParameters::getDouble(const std::string& name) const
+{
+    return getParam <double>(m_lst, name);
+}
+
+std::string ActivityParameters::getString(const std::string& name) const
+{
+    return getParam <std::string>(m_lst, name);
+}
+
+bool Activity::validRules(const std::string& activity) const
 {
     if (not m_rules.empty()) {
-        Rules::result_t result = m_rules.apply();
+        Rules::result_t result = m_rules.apply(activity);
         return not result.empty();
     }
     return true;
@@ -215,5 +358,27 @@ bool Activity::isAfterTimeConstraint(const devs::Time& time) const
             _("Decision: activity time type invalid: %1%")) % (int)m_date);
 }
 
-}}} // namespace vle model decision
+bool Activity::isValidHorizonTimeConstraint(const devs::Time& lowerBound,
+                                            const devs::Time& upperBound) const
+{
+    switch (m_date & (START | FINISH | MINS | MAXS | MINF | MAXF)) {
+    case START | FINISH:
+        return m_start <= upperBound and lowerBound <= m_finish;
 
+    case START | MINF | MAXF:
+        return m_start <= upperBound  and lowerBound <= m_maxfinish;
+
+    case MINS | MAXS | FINISH:
+        return m_minstart <= upperBound and lowerBound <= m_maxfinish;
+
+    case MINS | MAXS | MINF | MAXF:
+        return m_minstart <= upperBound and lowerBound <= m_maxfinish;
+
+    default:
+        break;
+    }
+    throw utils::InternalError(fmt(
+            _("Decision: activity time type invalid: %1%")) % (int)m_date);
+}
+
+}}} // namespace vle model decision

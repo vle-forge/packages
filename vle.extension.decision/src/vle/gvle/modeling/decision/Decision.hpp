@@ -273,7 +273,7 @@ public:
           int h) :
         mName(name), mX(x), mY(y), mWidth(w), mHeight(h), mMinstart(""),
         mMaxfinish(""), mIsRelativeDate(false), mIsHumanDate(true),
-        mIsRepeated(false)
+        mIsRepeated(false), mMaxIterations(""), mTimeLag("")
     {
         computeAnchors();
     }
@@ -545,6 +545,27 @@ public:
     {
         return mIsRepeated;
     }
+
+    const std::string& maxIter() const
+    {
+        return mMaxIterations;
+    }
+
+    const std::string& timeLag() const
+    {
+        return mTimeLag;
+    }
+
+    void maxIter(std::string pMaxIter)
+    {
+        mMaxIterations = pMaxIter;
+    }
+
+    void timeLag(std::string pTimeLag)
+    {
+        mTimeLag = pTimeLag;
+    }
+
 private:
     void computeAnchors();
 
@@ -558,6 +579,8 @@ private:
     bool mIsRelativeDate;
     bool mIsHumanDate;
     bool mIsRepeated;
+    std::string mMaxIterations;
+    std::string mTimeLag;
 
     points_t mAnchors;
 

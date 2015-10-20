@@ -28,10 +28,58 @@
 
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/i18n.hpp>
+#include <boost/algorithm/string.hpp>
 #include <algorithm>
 #include <cassert>
 
 namespace vle { namespace extension { namespace decision {
+
+ResourcesExtended KnowledgeBase::extendResources(const std::string& resources) const
+{
+    ResourceSolution line;
+    ResourcesExtended listOfline;
+
+    std::vector<std::string> strs;
+
+    boost::split(strs, resources, boost::is_any_of("+"));
+
+    for (unsigned i=0; i < strs.size(); i++) {
+        boost::trim(strs[i]);
+
+        if (not resourceTypeExist(strs[i])) {
+            throw utils::ArgError(fmt(
+                       _("Decision: resource '%1%' is not defined")) % strs[i]);
+        } else {
+            ResourceSolution resTypeList = getResources(strs[i]);
+            ResourcesExtended listOflineLocal;
+            for (ResourceSolution::iterator it = resTypeList.begin();
+                 it != resTypeList.end(); it++) {
+                if (listOfline.empty()) {
+                    ResourceSolution line;
+                    line.push_back(*it);
+                    listOflineLocal.push_back(line);
+                } else {
+                    for (ResourcesExtended::iterator jt = listOfline.begin();
+                         jt != listOfline.end(); jt++) {
+                        if (std::find((*jt).begin(), (*jt).end(), *it) ==  (*jt).end()) {
+                            ResourceSolution line;
+                            line.push_back(*it);
+                            for (ResourceSolution::iterator kt = (*jt).begin();
+                                 kt != (*jt).end(); kt++) {
+                                line.push_back(*kt);
+                            }
+                            listOflineLocal.push_back(line);
+                        }
+                    }
+                }
+            }
+            listOfline.clear();
+            listOfline = listOflineLocal;
+        }
+    }
+
+    return listOfline;
+}
 
 void KnowledgeBase::setActivityDone(const std::string& name,
                                     const devs::Time& date)
@@ -43,6 +91,7 @@ void KnowledgeBase::setActivityDone(const std::string& name,
                 _("Decision: activity '%1%' is not started")) % name);
     }
 
+    mPlan.activities().freeRessources(name);
     mPlan.activities().setFFAct(it);
     it->second.ff(date);
     it->second.acknowledge(name);

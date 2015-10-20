@@ -30,6 +30,9 @@
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/i18n.hpp>
 #include <numeric>
+#include <iostream>
+#include <algorithm>
+
 
 namespace vle { namespace extension { namespace decision {
 
@@ -149,6 +152,34 @@ devs::Time Activities::nextDate(const devs::Time& time)
     }
 
     return result;
+}
+
+Activities::const_result_t
+Activities::beforeTimeHorizonAct(
+    const devs::Time& lowerBound,
+    const devs::Time& upperBound) const
+{
+    Activities::const_result_t beforeHorizonAct;
+
+    for (const_iterator activity = begin(); activity != end(); ++activity) {
+        switch (activity->second.state()) {
+        case Activity::WAIT:
+            if (activity->second.isValidHorizonTimeConstraint(lowerBound,
+                                                              upperBound))
+            {
+                beforeHorizonAct.push_back(activity);
+            }
+            break;
+        case Activity::STARTED:
+        case Activity::FF:
+        case Activity::DONE:
+        case Activity::FAILED:
+            break;
+        default:
+            throw utils::InternalError(_("Decision: unknown state"));
+        }
+    }
+    return beforeHorizonAct;
 }
 
 void Activities::removeWaitedAct(Activities::iterator it)
@@ -374,12 +405,66 @@ void Activities::clearLatestActivitiesLists()
     m_latestEndedAct.clear();
 }
 
+struct compareByPriority {
+    bool operator() (const Activities::activities_t::iterator& i,
+                     const Activities::activities_t::iterator& j) const {
+        return (i->second.getPriority() >
+                j->second.getPriority());}
+} byPriority;
+
+void Activities::assignResources(result_t& activities)
+{
+    std::random_shuffle(activities.begin(), activities.end());
+
+    std::sort(activities.begin(), activities.end(), byPriority);
+
+    for (result_t::iterator activity = activities.begin();
+         activity != activities.end(); ++activity) {
+        ResourcesExtended resources = (*activity)->second.getResources();
+        for (ResourcesExtended::const_iterator it = resources.begin();
+             it != resources.end(); it++) {
+            if (areRessourcesAvailable(*it)) {
+                getRessources((*activity)->first, *it);
+                (*activity)->second.takeRessources();
+                break;
+            }
+        }
+        if (not (*activity)->second.hasRessources()) {
+            if ((*activity)->second.params().exist("priority")) {
+                double priority = (*activity)->second.getPriority() + 1;
+                (*activity)->second.setPriority(priority);
+            }
+        }
+    }
+}
+
 Activities::Result
 Activities::process(const devs::Time& time)
 {
     devs::Time nextDate = devs::infinity;
     Result update = std::make_pair(false, devs::infinity);
     bool isUpdated = false;
+
+    result_t activitiesToBeAssigned;
+
+    for (iterator activity = begin(); activity != end(); ++activity) {
+        if (activity->second.state() == Activity::WAIT) {
+            PrecedenceConstraint::Result newstate = updateState(activity, time);
+            switch (newstate.first) {
+            case PrecedenceConstraint::Valid:
+            case PrecedenceConstraint::Inapplicable:
+                if (activity->second.validRules(activity->first)) {
+                    activitiesToBeAssigned.push_back(activity);
+                    break;
+                }
+            case PrecedenceConstraint::Wait:
+            case PrecedenceConstraint::Failed:
+                break;
+            }
+        }
+    }
+
+    assignResources(activitiesToBeAssigned);
 
     do {
         m_waitedAct.clear();
@@ -448,7 +533,8 @@ Activities::processWaitState(iterator activity,
     switch (newstate.first) {
     case PrecedenceConstraint::Valid:
     case PrecedenceConstraint::Inapplicable:
-        if (activity->second.validRules()) {
+        if (activity->second.validRules(activity->first) &&
+            activity->second.hasRessources()) {
             activity->second.start(time);
             m_startedAct.push_back(activity);
             m_latestStartedAct.push_back(activity);
@@ -613,4 +699,3 @@ PrecedenceConstraint::Result Activities::updateState(iterator activity,
 }
 
 }}} // namespace vle model decision
-

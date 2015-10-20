@@ -103,12 +103,16 @@ public:
 
     }
 
-    bool TwoManyPlantlouse() const
+    bool TwoManyPlantlouse(const std::string& /*activity*/,
+                           const std::string& /*rule*/,
+         const vle::extension::decision::PredicateParameters& /*param*/) const
     {
         return plantlouse_population > plantlouse_max_population;
     }
 
-    bool NotToSmallLadybirdPopulation() const
+    bool NotToSmallLadybirdPopulation(const std::string& /*activity*/,
+                                      const std::string& /*rule*/,
+         const vle::extension::decision::PredicateParameters& /*param*/) const
     {
 
         return ladybird_population > ladybird_min_population;

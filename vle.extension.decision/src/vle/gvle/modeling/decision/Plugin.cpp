@@ -27,6 +27,7 @@
 
 #include <vle/gvle/modeling/decision/Plugin.hpp>
 #include <vle/utils/Package.hpp>
+#include <boost/regex.hpp>
 
 namespace vle {
 namespace gvle {
@@ -63,6 +64,8 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "#include <vle/extension/decision/Activity.hpp>\n"                  \
     "#include <vle/extension/decision/KnowledgeBase.hpp>\n"             \
     "#include <vle/utils/Package.hpp>\n"                                \
+    "#include <boost/algorithm/string/split.hpp>\n"                     \
+    "#include <boost/algorithm/string.hpp>\n"                           \
     "#include <sstream>\n"                                              \
     "#include <numeric>\n"                                              \
     "#include <fstream>\n"                                              \
@@ -75,6 +78,8 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "namespace vu = vle::utils;\n"                                      \
     "namespace vmd = vle::extension::decision;\n"                       \
     "namespace {{namespace}} {\n\n"                                     \
+    "typedef std::vector < std::string > strings_t;\n"                  \
+    "typedef strings_t::iterator strings_it;\n\n"                       \
     "class {{classname}} : public vmd::Agent\n"                         \
     "{\n"                                                               \
     "public:\n"                                                         \
@@ -111,6 +116,11 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "        else\n"                                                    \
     "          throw vle::utils::ModellingError(\n"                     \
     "             \"Package where to find the data is not set\");\n"    \
+    "        if (evts.exist(\"planFile\")) { \n"                        \
+    "          mPlanFileParam = evts.getString(\"planFile\");\n"        \
+    "          mPlanFileParam += \".txt\";\n"                           \
+    "        } else\n"                                                  \
+    "          mPlanFileParam = \"{{classname}}.txt\";\n"               \
     "    }\n"                                                           \
     "\n"                                                                \
     "    virtual ~{{classname}}()\n"                                    \
@@ -119,7 +129,7 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "    {\n"                                                           \
     "        vle::utils::Package mPack(mDataPackageParam);\n"           \
     "        std::string filePath =\n"                                  \
-    "        mPack.getDataFile(\"{{classname}}.txt\");\n"               \
+    "        mPack.getDataFile(mPlanFileParam);\n"                      \
     "        std::ifstream fileStream(filePath.c_str());\n"             \
     "        KnowledgeBase::plan().fill(fileStream, time);\n"           \
     "        return Agent::init(time);\n"                               \
@@ -153,6 +163,8 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{end for}}"                                                       \
     "private:\n"                                                        \
     "   std::string mDataPackageParam;\n"                               \
+    "   std::string mPlanFileParam;\n"                                  \
+    "   std::map < std::string, int > mCounter;\n"                      \
     "//Custom members"                                                  \
     "//@@begin:custommembers@@\n"                                       \
     "{{custommembers}}"                                                 \
@@ -166,9 +178,29 @@ const std::string PluginDecision::TEMPLATE_DEFINITION =
     "{{hierarchicalPreds}}"                                             \
     "std::string getSuffixName(int n) const\n"                          \
     "{\n"                                                               \
-    "   std::stringstream ret(\"_\");\n"                                \
+    "   std::stringstream ret(\"#\");\n"                                \
     "   ret << boost::format(\"%1$02d\") % n;\n"                        \
     "   return ret.str();\n"                                            \
+    "}\n"                                                               \
+    "std::string getPrefixName(const std::string activity) const\n"     \
+    "{\n"                                                               \
+    "   strings_t lst;"                                                 \
+    "   boost::split(lst, activity, boost::is_any_of(\"#\"));"          \
+    "   if (lst.empty()) {\n"                                           \
+    "      return activity;\n"                                          \
+    "   } else {\n"                                                     \
+    "      return lst[0];\n"                                            \
+    "   }\n"                                                            \
+    "}\n"                                                               \
+    "std::string getPortName(const std::string activity) const\n"     \
+    "{\n"                                                               \
+    "   strings_t lst;"                                                 \
+    "   boost::split(lst, activity, boost::is_any_of(\"#:\"));"          \
+    "   if (lst.empty()) {\n"                                           \
+    "      return activity;\n"                                          \
+    "   } else {\n"                                                     \
+    "      return lst[0];\n"                                            \
+    "   }\n"                                                            \
     "}\n"                                                               \
     "\n};\n\n"                                                          \
     "} // namespace {{namespace}}\n\n"                                  \
@@ -210,12 +242,27 @@ const std::string PluginDecision::PLAN_TEMPLATE_DEFINITION =
 //Template : ack function
 const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
     "std::string suffixRetourNum;\n"                                    \
-    "m{{activity}}Counter++;\n"                                         \
-    "suffixRetourNum = getSuffixName(m{{activity}}Counter);\n"          \
-    "{\n"                                                               \
+    "std::string activityPrefix = getPrefixName(activityname);\n"       \
+    "mCounter[activityPrefix]++;\n"                                     \
+    "int counter;\n"                                                    \
+    "if (mCounter.find(activityPrefix) != mCounter.end()) {\n"          \
+    "   counter = mCounter.find(activityPrefix)->second;\n"             \
+    "} else {\n"                                                        \
+    "   mCounter[activityPrefix] = counter = 0;\n"                      \
+    "}\n"                                                               \
+    "int maxIter = activity.params().getDouble(\"maxIter\");\n"         \
+    "double timeLag = activity.params().getDouble(\"timeLag\");\n"      \
+    "suffixRetourNum = getSuffixName(mCounter[activityPrefix]);\n"      \
+    "if (maxIter== 0 || counter < maxIter){\n"                          \
     "   ved::Activity& a =\n"                                           \
-    "      addActivity(\"{{activity}}\" + suffixRetourNum);\n"          \
-    "   a.initStartRangeFinishRange(activity.minstart(),\n"             \
+    "      addActivity(activityPrefix + \"#\" + suffixRetourNum);\n" \
+    "   double minstart;\n"                                             \
+    "   if (timeLag == 0.0) {\n"                                        \
+    "      minstart = activity.minstart();\n"                           \
+    "   } else {\n"                                                     \
+    "      minstart = currentTime() + timeLag;\n"                       \
+    "   }\n"                                                            \
+    "   a.initStartRangeFinishRange(minstart,\n"                        \
     "                               vd::infinity,\n"                    \
     "                               vd::negativeInfinity,\n"            \
     "                               activity.maxfinish());\n"           \
@@ -225,17 +272,21 @@ const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
     "   a.addAcknowledgeFunction(\n"                                    \
     "      boost::bind(&{{classname}}::ack_{{activity}},\n"             \
     "      this, _1, _2));\n"                                           \
-    "   {{for i in addRules}}"                                          \
-    "   a.addRule(\"{{addRules^i}}\","                                  \
-    "      KnowledgeBase::rules().get(\"{{addRules^i}}\"));\n"          \
-    "   {{end for}}"                                                    \
+    "   for (ved::Rules::const_iterator it = a.getRules().begin();\n"   \
+    "        it !=  a.getRules().end(); ++it) {\n"                      \
+    "      a.addRule(it->first, it->second);\n"                         \
+    "   }\n"                                                            \
+    "   a.addParams(activity.params());\n"                              \
+    "   if (a.Params().exist(\"priority\")){\n"                         \
+    "      a.setPriority(a.Params().getDouble(\"priority\"));\n"        \
+    "   }\n"                                                            \
     "}\n";
 
 //Template : out function
 const std::string PluginDecision::OUT_TEMPLATE_DEFINITION =
     "if (activity.isInStartedState()) {\n"                              \
     "   vd::ExternalEvent* evt = new vd::ExternalEvent(\n"              \
-    "      \"out_{{activity}}\");\n"                                    \
+    "      \"out_\" + getPortName(name));\n"                            \
     "   evt->putAttribute(\"name\", new vv::String(name));\n"           \
     "   evt->putAttribute(\"activity\", new vv::String(name));\n"       \
     "   evt->putAttribute(\"value\", new vv::String(\"done\"));\n"      \
@@ -544,12 +595,12 @@ void PluginDecision::generateSource(const std::string& classname,
         std::string esp12 = esp8 + "    ";
         if (it == mFactName.begin() && it == (mFactName.end() - 1)) {
         tpl_.listSymbol().append("addFactsList", "\n" + esp8 +
-            "addFacts(this) +=\n" + esp12 + ""\
+            "addPortFacts(this) +=\n" + esp12 + ""\
             "F(\"" + *it + "\", &" + classname + "::" + *it + ");\n");
         }
         else if (it == mFactName.begin()) {
             tpl_.listSymbol().append("addFactsList", "\n" + esp8 +
-            "addFacts(this) +=\n" + esp12 + ""\
+            "addPortFacts(this) +=\n" + esp12 + ""\
             "F(\"" + *it + "\", &" + classname + "::" + *it + "),\n");
         }
         else if (it == (mFactName.end() - 1) ) {
@@ -731,7 +782,9 @@ void PluginDecision::generateSource(const std::string& classname,
             itParPred++;
             std::string pred;
             generatePred(&pred, &itParPred, &it->second, 0, "");
-            pred = "bool " + it->first + "() const\n{\n    return (" + pred;
+            pred = "bool " + it->first + "(const std::string& activity, const std::string& rule," \
+                "const vle::extension::decision::PredicateParameters& param)" \
+                "const\n{\n    return (" + pred;
             pred += ");\n}";
             tpl_.listSymbol().append("hierPred", pred);
         }
@@ -764,13 +817,13 @@ void PluginDecision::generateSource(const std::string& classname,
             it != mFactName.end(); ++it) {
         std::string function;
         if ( mFactFunction.find(*it) != mFactFunction.end() ) {
-            function = "void " + *it + "(const vv::Value& value)\n{";
+            function = "void " + *it + "(const std::string& portName, const vv::Value& value)\n{";
             function += "//@@begin:factsFunction" + *it + "@@\n";
             function += mFactFunction[*it];
             function += "//@@end:factsFunction" + *it + "@@\n}";
         }
         else {
-            function = "void " + *it + "(const vv::Value& value)\n{";
+            function = "void " + *it + "(const std::string& portName, const vv::Value& value)\n{";
             function = "//@@begin:factsFunction" + *it + "@@ ";
             function += "//@@end:factsFunction" + *it + "@@\n}";
         }
@@ -832,13 +885,15 @@ void PluginDecision::generateSource(const std::string& classname,
             it != mPredicateName.end(); ++it) {
         std::string function;
         if ( mPredicateFunction.find(*it) != mPredicateFunction.end() ) {
-            function = "bool " + *it + "() const\n{";
+            function = "bool " + *it + "(const std::string& activity, const std::string& rule," \
+                "const vle::extension::decision::PredicateParameters& param) const\n{";
             function += "//@@begin:predicatesFunction" + *it + "@@\n";
             function += mPredicateFunction[*it];
             function += "//@@end:predicatesFunction" + *it + "@@\n}";
         }
         else {
-            function = "bool " + *it + "() const\n{";
+            function = "bool " + *it + "(const std::string& activity, const std::string& rule," \
+                "const vle::extension::decision::PredicateParameters& param) const\n{";
             function = "//@@begin:predicatesFunction" + *it + "@@ ";
             function += "//@@end:predicatesFunction" + *it + "@@\n}";
         }
@@ -1146,6 +1201,8 @@ void PluginDecision::writePlanFile(std::string filename)
         std::string ackFunc = "";
         std::string relDate = "";
         std::string repeated = "";
+        std::string maxIter = "";
+        std::string timeLag = "";
         if (!it->second->getOutputFunc().empty()) {
             outputFunc = it->second->getOutputFunc().at(0);
         }
@@ -1161,9 +1218,12 @@ void PluginDecision::writePlanFile(std::string filename)
         }
         if (it->second->isRepeated()) {
             repeated = "R";
+            maxIter = it->second->maxIter();
+            timeLag = it->second->timeLag();
         }
         templateSave.listSymbol().append("activities", it->second->toString() +
-                "," + outputFunc + "," + ackFunc +  "," + relDate + "," + repeated);
+            "," + outputFunc + "," + ackFunc +  "," + relDate + "," + repeated +
+            "," + maxIter + "," + timeLag);
     }
 
     //ruleAndPred
@@ -1223,6 +1283,9 @@ void PluginDecision::writePlanFile(std::string filename)
     for (activitiesModel_t::const_iterator it = mDecision->
              activitiesModel().begin(); it != mDecision->
              activitiesModel().end(); ++it) {
+        std::string maxIter = "";
+        std::string timeLag = "";
+
         std::string esp16 = "                ";
         std::string actListElem = it->second->name() + "\";\n";
         if (it->second->getRelativeDate()) {
@@ -1297,6 +1360,23 @@ void PluginDecision::writePlanFile(std::string filename)
         if (it->second->getOutputFunc().size() != 0) {
             actListElem += "\n        output = \"" +
                     it->second->getOutputFunc().at(0) + "\";";
+        }
+
+        if (it->second->isRepeated()) {
+            maxIter = it->second->maxIter();
+            timeLag = it->second->timeLag();
+            if (maxIter == "") {
+                maxIter = "0";
+            }
+            if (timeLag == "") {
+                timeLag = "0";
+            }
+            actListElem =  actListElem + "\n        parameter {\n";
+            actListElem =  actListElem +
+                esp16 + "maxIter = " + maxIter + ";\n";
+            actListElem =  actListElem +
+                esp16 + "timeLag = " + timeLag + ";\n";
+            actListElem =  actListElem + "        }\n";
         }
 
         templateSave.listSymbol().append("activitiesList", actListElem);
@@ -2225,10 +2305,9 @@ void PluginDecision::onRepeatedActivityAsked(
 {
     std::string aname =  dialogActivityDialog.name();
 
-    std::size_t found = mMembers.find("int m" + aname + "Counter;\n");
+    std::size_t found = mCustomConstructor.find("mCounter[\"" + aname + "\"] = 0 ;\n");
     if (found == std::string::npos) {
-        mMembers += "int m" + aname + "Counter;\n";
-        mCustomConstructor += "m" + aname + "Counter = 0;\n";
+        mCustomConstructor += "mCounter[\"" + aname + "\"] = 0 ;\n";
     }
 
     strings_t::iterator it = find(mOutputFunctionName.begin(),

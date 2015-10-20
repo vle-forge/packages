@@ -40,6 +40,9 @@ namespace vle { namespace extension { namespace decision {
  */
 typedef boost::function < void (const vle::value::Value&) > Fact;
 
+typedef boost::function < void (const std::string&,
+                                const vle::value::Value&) > PortFact;
+
 }}} // namespace vle model decision
 
 #endif

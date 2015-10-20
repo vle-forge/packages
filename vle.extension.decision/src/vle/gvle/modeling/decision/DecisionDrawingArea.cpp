@@ -112,6 +112,8 @@ bool DecisionDrawingArea::addActivity(guint x, guint y)
         newActivity->setRelativeDate(dialog.isRelativeDate());
         newActivity->setHumanDate(dialog.isHumanDate());
         newActivity->setRepeated(dialog.isRepeated());
+        newActivity->maxIter(dialog.maxIter());
+        newActivity->timeLag(dialog.timeLag());
 
         int newWidth = x + newActivity->width() + OFFSET;
         int newHeight = y + newActivity->height() + OFFSET;
@@ -539,6 +541,9 @@ bool DecisionDrawingArea::modifyCurrentActivityModel()
             activityModel->setRelativeDate(dialog.isRelativeDate());
             activityModel->setHumanDate(dialog.isHumanDate());
             activityModel->setRepeated(dialog.isRepeated());
+            activityModel->maxIter(dialog.maxIter());
+            activityModel->timeLag(dialog.timeLag());
+
             checkSize(activityModel, activityModel->name());
 
             int newWidth = activityModel->x() + activityModel->width() + OFFSET;
