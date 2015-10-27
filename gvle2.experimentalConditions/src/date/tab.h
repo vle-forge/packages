@@ -21,16 +21,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TAB_H
-#define TAB_H
+#ifndef GVLE2_CONDDATE_PLUGIN_TAB_H
+#define GVLE2_CONDDATE_PLUGIN_TAB_H
 
 #include <QObject>
 #include <QWidget>
-#include <vle/gvle2/vlevpz.h>
+#include <vle/gvle2/vlevpm.h>
 
 namespace Ui {
 class MainTab;
 }
+
+namespace vle {
+namespace gvle2 {
+
 
 class MainTab : public QWidget
 {
@@ -39,23 +43,17 @@ class MainTab : public QWidget
 public:
     explicit MainTab(QWidget *parent = 0);
     ~MainTab();
-    void setExpCond(const QString& cond);
-    void setVpz(vle::gvle2::vleVpz* vpz);
-
-signals:
-    void valueChanged(const QString& cond);
+    void setExpCond(vleVpm* vpm, const QString& cond);
 
 private slots:
     void dateSelected(QDate date);
 
 private:
-    Ui::MainTab *ui;
+    Ui::MainTab* ui;
     QString      mExpCond;
-    vle::gvle2::vleVpz*      mVpz;
-//private:
-//    vpzExpCondValue *mEcValueDay;
-//    vpzExpCondValue *mEcValueMonth;
-//    vpzExpCondValue *mEcValueYear;
+    vleVpm*      mVpm;
 };
+
+}}//namepsaces
 
 #endif // TAB_H

@@ -26,12 +26,16 @@
 #include "tab.h"
 #include "ui_tab.h"
 
+namespace vle {
+namespace gvle2 {
+
+
 /**
  * @brief MainTab::MainTab
  *        Default constructor
  */
 MainTab::MainTab(QWidget *parent) :
-    QWidget(parent), ui(new Ui::MainTab), mExpCond(), mVpz(0)
+    QWidget(parent), ui(new Ui::MainTab), mExpCond(), mVpm(0)
 {
 
     ui->setupUi(this);
@@ -48,34 +52,32 @@ MainTab::~MainTab()
     delete ui;
 }
 
-/**
- * @brief MainTab::setExpCond
- *        Set the Experimental Condition to use
- */
-void MainTab::setExpCond(const QString&  cond)
+void MainTab::setExpCond(vleVpm* vpm, const QString&  cond)
 {
     // Save it
+    mVpm = vpm;
     mExpCond = cond;
 
     QDomNode datePort;
 
     // Search the "date" port of the experimental condition
-    QDomNode condXml = mVpz->condFromConds(mVpz->condsFromDoc(), cond);
-    if (not mVpz->existPortFromCond(condXml, "day")) {
-        mVpz->addCondPortToDoc(cond, "day");
-        mVpz->addValuePortCondToDoc(cond, "day", vle::value::String("9"));
+
+    QDomNode condXml = mVpm->condFromConds(mVpm->condsFromDoc(), cond);
+    if (not mVpm->existPortFromCond(condXml, "day")) {
+        mVpm->addCondPortToDoc(cond, "day");
+        mVpm->addValuePortCondToDoc(cond, "day", vle::value::String("9"));
     }
-    if (not mVpz->existPortFromCond(condXml, "month")) {
-        mVpz->addCondPortToDoc(cond, "month");
-        mVpz->addValuePortCondToDoc(cond, "month", vle::value::String("4"));
+    if (not mVpm->existPortFromCond(condXml, "month")) {
+        mVpm->addCondPortToDoc(cond, "month");
+        mVpm->addValuePortCondToDoc(cond, "month", vle::value::String("4"));
     }
-    if (not mVpz->existPortFromCond(condXml, "year")) {
-        mVpz->addCondPortToDoc(cond, "year");
-        mVpz->addValuePortCondToDoc(cond, "year", vle::value::String("2015"));
+    if (not mVpm->existPortFromCond(condXml, "year")) {
+        mVpm->addCondPortToDoc(cond, "year");
+        mVpm->addValuePortCondToDoc(cond, "year", vle::value::String("2015"));
     }
-    vle::value::Value* dayV = mVpz->buildValueFromDoc(cond, "day",0);
-    vle::value::Value* monthV = mVpz->buildValueFromDoc(cond, "month",0);
-    vle::value::Value* yearV = mVpz->buildValueFromDoc(cond, "year",0);
+    vle::value::Value* dayV = mVpm->buildValueFromDoc(cond, "day",0);
+    vle::value::Value* monthV = mVpm->buildValueFromDoc(cond, "month",0);
+    vle::value::Value* yearV = mVpm->buildValueFromDoc(cond, "year",0);
 
     int dayI = QVariant(dayV->toString().value().c_str()).toInt();
     int monthI = QVariant(monthV->toString().value().c_str()).toInt();
@@ -87,16 +89,12 @@ void MainTab::setExpCond(const QString&  cond)
 
 
     QDate selDate;
-    selDate.setDate(dayI, monthI, yearI);
+    selDate.setDate(yearI, monthI, dayI);
 
     ui->calendar->setSelectedDate(selDate);
+    ui->calendar->setCurrentPage(monthI, yearI);
+    ui->calendar->showSelectedDate();
 
-}
-
-void
-MainTab::setVpz(vle::gvle2::vleVpz* vpz)
-{
-    mVpz = vpz;
 }
 
 /**
@@ -105,11 +103,15 @@ MainTab::setVpz(vle::gvle2::vleVpz* vpz)
  */
 void MainTab::dateSelected(QDate date)
 {
-    mVpz->fillWithValue(mExpCond, "day", 0, vle::value::String(
+    mVpm->fillWithValue(mExpCond, "day", 0, vle::value::String(
             QVariant(date.day()).toString().toStdString()));
-    mVpz->fillWithValue(mExpCond, "month", 0, vle::value::String(
+    mVpm->fillWithValue(mExpCond, "month", 0, vle::value::String(
             QVariant(date.month()).toString().toStdString()));
-    mVpz->fillWithValue(mExpCond, "year", 0, vle::value::String(
+    mVpm->fillWithValue(mExpCond, "year", 0, vle::value::String(
             QVariant(date.year()).toString().toStdString()));
-    emit valueChanged(mExpCond);
+    ui->calendar->setCurrentPage(date.month(), date.year());
+    ui->calendar->showSelectedDate();
 }
+
+
+}}//namespaces

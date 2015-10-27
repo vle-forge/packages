@@ -21,39 +21,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPCOND_DUMMY_H
-#define EXPCOND_DUMMY_H
+#ifndef GVLE2_CONDDATEPLUGIN_H
+#define GVLE2_CONDDATEPLUGIN_H
 
 #include <QObject>
 #include <QSettings>
 #include <vle/utils/Package.hpp>
 #include <vle/gvle2/plugin_cond.h>
 #include <vle/gvle2/logger.h>
-#include <vle/gvle2/vlevpz.h>
+#include <vle/gvle2/vlevpm.h>
 #include "tab.h"
 #include "toolbar.h"
 
 namespace vle{
 namespace gvle2{
 
-class ExpCondDummy : public PluginExpCond
+class CondDatePlugin : public PluginExpCond
 {
     Q_OBJECT
     Q_INTERFACES(vle::gvle2::PluginExpCond)
 
 public:
-    ExpCondDummy();
-    ~ExpCondDummy();
+    CondDatePlugin();
+    ~CondDatePlugin();
     QString getname();
     QWidget *getWidget();
     void     delWidget();
     QWidget *getWidgetToolbar();
     void     delWidgetToolbar();
-    void setExpCond(const QString& cond);
+    void setExpCond(vleVpm*vpm, const QString& cond);
     void setSettings(QSettings *s);
     void setLogger(Logger *logger);
-    void setVpz(vleVpz*vpz);
-    void *getVpz();
     void setPackage(vle::utils::Package *pkg);
 
 public slots:
@@ -65,7 +63,7 @@ private:
     MainTab*    mWidgetTab;
     widToolbar* mWidgetToolbar;
     QString     mExpCond;
-    vleVpz*     mVpz;
+    vleVpm*     mVpm;
 };
 
 }}//namespaces
