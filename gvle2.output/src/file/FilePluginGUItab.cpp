@@ -31,7 +31,7 @@
  *        Default constructor
  */
 FilePluginGUItab::FilePluginGUItab(QWidget *parent) :
-    QWidget(parent), ui(new Ui::FilePluginGvle), mvleVpz(0), outputNode(),
+    QWidget(parent), ui(new Ui::FilePluginGvle), mvleVpm(0), outputNode(),
     outputNodeConfig(0)
 {
     ui->setupUi(this);
@@ -56,21 +56,21 @@ FilePluginGUItab::~FilePluginGUItab()
 
 
 void
-FilePluginGUItab::init(vle::gvle2::vleVpz* vpz, const QString& viewName)
+FilePluginGUItab::init(vle::gvle2::vleVpm* vpm, const QString& viewName)
 {
-    mvleVpz = vpz;
-    outputNode = mvleVpz->outputFromOutputs(
-            mvleVpz->outputsFromViews(
-                    mvleVpz->viewsFromDoc()), viewName);
+    mvleVpm = vpm;
+    outputNode = mvleVpm->outputFromOutputs(
+            mvleVpm->outputsFromViews(
+                    mvleVpm->viewsFromDoc()), viewName);
 
-    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
+    QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
     outputNodeConfig = dynamic_cast<vle::value::Map*>(
-            mvleVpz->buildValue(mapConfig, true));
+            mvleVpm->buildValue(mapConfig, true));
     if (not wellFormed()) {
         buildDefaultConfig();
-        bool res = mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+        bool res = mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
         if (! res){
-            qDebug() << " Internal Error FilePluginGUItab::init " << mvleVpz->toQString(mapConfig);
+            qDebug() << " Internal Error FilePluginGUItab::init " << mvleVpm->toQString(mapConfig);
         }
     }
     ui->flushByBag->setCheckState(Qt::CheckState(
@@ -91,8 +91,8 @@ FilePluginGUItab::flushByBagChanged(int val)
     bool& b = outputNodeConfig->getBoolean("flush-by-bag");
     if (b != (bool) val) {
         b = (bool) val;
-        QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
-        bool res = mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+        QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
+        bool res = mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
         if (! res){
             qDebug() << " Internal Error FilePluginGUItab::flushByBagChanged ";
         }
@@ -105,8 +105,8 @@ FilePluginGUItab::julianDayChanged(int val)
     bool& b = outputNodeConfig->getBoolean("julian-day");
     if (b != (bool) val) {
         b = (bool) val;
-        QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
-        bool res = mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+        QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
+        bool res = mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
         if (! res){
             qDebug() << " Internal Error FilePluginGUItab::julianDayChanged ";
         }
@@ -119,8 +119,8 @@ FilePluginGUItab::localeChanged(const QString& val)
     std::string& type = outputNodeConfig->getString("locale");
     if (type != val.toStdString()) {
         type.assign(val.toStdString());
-        QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
-        bool res = mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+        QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
+        bool res = mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
         if (! res){
             qDebug() << " Internal Error FilePluginGUItab::localeChanged ";
         }
@@ -133,8 +133,8 @@ FilePluginGUItab::destinationChanged(const QString& val)
     std::string& type = outputNodeConfig->getString("output");
     if (type != val.toStdString()) {
         type.assign(val.toStdString());
-        QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
-        bool res = mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+        QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
+        bool res = mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
         if (! res){
             qDebug() << " Internal Error FilePluginGUItab::destinationChanged ";
         }
@@ -147,8 +147,8 @@ FilePluginGUItab::fileTypeChanged(const QString& val)
     std::string& type = outputNodeConfig->getString("type");
     if (type != val.toStdString()) {
         type.assign(val.toStdString());
-        QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
-        bool res = mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+        QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
+        bool res = mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
         if (! res){
             qDebug() << " Internal Error FilePluginGUItab::fileTypeChanged ";
         }

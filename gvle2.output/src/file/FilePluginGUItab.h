@@ -27,7 +27,7 @@
 #include <QObject>
 #include <QtXml>
 #include <QtCore/qnamespace.h>
-#include <vle/gvle2/vlevpz.h>
+#include <vle/gvle2/vlevpm.h>
 #include <vle/value/Map.hpp>
 
 namespace Ui {
@@ -41,7 +41,7 @@ class FilePluginGUItab : public QWidget
 public:
     explicit FilePluginGUItab(QWidget *parent = 0);
     ~FilePluginGUItab();
-    void init(vle::gvle2::vleVpz* vpz, const QString& viewName);
+    void init(vle::gvle2::vleVpm* vpm, const QString& viewName);
 
 private slots:
     void flushByBagChanged(int val);
@@ -57,7 +57,7 @@ private:
     void buildDefaultConfig();
 
     Ui::FilePluginGvle* ui;
-    vle::gvle2::vleVpz* mvleVpz;
+    vle::gvle2::vleVpm* mvleVpm;
     QDomNode            outputNode;
     vle::value::Map*    outputNodeConfig;
 };

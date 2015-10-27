@@ -52,20 +52,20 @@ StoragePluginGUItab::~StoragePluginGUItab()
 
 
 void
-StoragePluginGUItab::init(vle::gvle2::vleVpz* vpz, const QString& viewName)
+StoragePluginGUItab::init(vle::gvle2::vleVpm* vpm, const QString& viewName)
 {
-    mvleVpz = vpz;
-    outputNode = mvleVpz->outputFromOutputs(
-            mvleVpz->outputsFromViews(
-                    mvleVpz->viewsFromDoc()), viewName);
-    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
+    mvleVpm = vpm;
+    outputNode = mvleVpm->outputFromOutputs(
+            mvleVpm->outputsFromViews(
+                    mvleVpm->viewsFromDoc()), viewName);
+    QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
     outputNodeConfig = dynamic_cast<vle::value::Map*>(
-            mvleVpz->buildValue(mapConfig, true));
+            mvleVpm->buildValue(mapConfig, true));
     if (not wellFormed()) {
         buildDefaultConfig();
-        bool res = mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+        bool res = mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
         if (! res){
-            qDebug() << " Internal Error FilePluginGUItab::init " << mvleVpz->toQString(mapConfig);
+            qDebug() << " Internal Error FilePluginGUItab::init " << mvleVpm->toQString(mapConfig);
         }
     }
     ui->spinBoxRows->setValue(outputNodeConfig->getInt("rows"));
@@ -79,37 +79,37 @@ StoragePluginGUItab::init(vle::gvle2::vleVpz* vpz, const QString& viewName)
 void
 StoragePluginGUItab::rowsChanged(int v)
 {
-    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
+    QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
     int& toUp = outputNodeConfig->getInt("rows");
     toUp = v;
-    mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+    mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
 }
 
 void
 StoragePluginGUItab::columnsChanged(int v)
 {
-    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
+    QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
     int& toUp = outputNodeConfig->getInt("columns");
     toUp = v;
-    mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+    mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
 }
 
 void
 StoragePluginGUItab::incRowsChanged(int v)
 {
-    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
+    QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
     int& toUp = outputNodeConfig->getInt("inc_rows");
     toUp = v;
-    mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+    mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
 }
 
 void
 StoragePluginGUItab::incColumnsChanged(int v)
 {
-    QDomNode mapConfig = mvleVpz->obtainChild(outputNode, "map", true);
+    QDomNode mapConfig = mvleVpm->vdo()->obtainChild(outputNode, "map", true);
     int& toUp = outputNodeConfig->getInt("inc_columns");
     toUp = v;
-    mvleVpz->fillWithValue(mapConfig, *outputNodeConfig);
+    mvleVpm->fillWithValue(mapConfig, *outputNodeConfig);
 }
 
 bool StoragePluginGUItab::wellFormed()

@@ -27,7 +27,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QtXml>
-#include <vle/gvle2/vlevpz.h>
+#include <vle/gvle2/vlevpm.h>
 #include <vle/value/Map.hpp>
 
 
@@ -42,7 +42,7 @@ class StoragePluginGUItab : public QWidget
 public:
     explicit StoragePluginGUItab(QWidget *parent = 0);
     ~StoragePluginGUItab();
-    void init(vle::gvle2::vleVpz* vpz, const QString& viewName);
+    void init(vle::gvle2::vleVpm* vpm, const QString& viewName);
 
 private slots:
     void rowsChanged(int v);
@@ -55,7 +55,7 @@ private:
     void buildDefaultConfig();
 
     Ui::StoragePluginGvle* ui;
-    vle::gvle2::vleVpz*    mvleVpz;
+    vle::gvle2::vleVpm*    mvleVpm;
     QDomNode               outputNode;
     vle::value::Map*       outputNodeConfig;
 };
