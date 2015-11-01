@@ -49,7 +49,7 @@ public:
     void     delWidget();
     QWidget *getWidgetToolbar();
     void     delWidgetToolbar();
-    void setExpCond(vleVpm*vpm, const QString& cond);
+    void init(vleVpm*vpm, const QString& cond);
     void setSettings(QSettings *s);
     void setLogger(Logger *logger);
     void setPackage(vle::utils::Package *pkg);

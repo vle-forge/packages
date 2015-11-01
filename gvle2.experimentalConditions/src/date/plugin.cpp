@@ -127,7 +127,7 @@ CondDatePlugin::delWidgetToolbar()
 }
 
 void
-CondDatePlugin::setExpCond(vleVpm* vpm, const QString& cond)
+CondDatePlugin::init(vleVpm* vpm, const QString& cond)
 {
     mVpm = vpm;
     mExpCond = cond;

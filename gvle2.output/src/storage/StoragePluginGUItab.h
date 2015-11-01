@@ -56,7 +56,7 @@ private:
 
     Ui::StoragePluginGvle* ui;
     vle::gvle2::vleVpm*    mvleVpm;
-    QDomNode               outputNode;
+    QString                mViewName;
     vle::value::Map*       outputNodeConfig;
 };
 

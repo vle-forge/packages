@@ -58,7 +58,7 @@ private:
 
     Ui::FilePluginGvle* ui;
     vle::gvle2::vleVpm* mvleVpm;
-    QDomNode            outputNode;
+    QString             mViewName;
     vle::value::Map*    outputNodeConfig;
 };
 
