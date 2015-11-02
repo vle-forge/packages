@@ -160,16 +160,15 @@ void SimLog::delPlotSig(QString port)
 }
 
 /**
- * @brief SimLog::setVpz
- *        Set the VPZ package used for the simulation
+ * @brief SimLog::init
  */
-void SimLog::setVpz(vleVpz *vpz)
+void SimLog::init(vleVpm *vpm)
 {
-    mVpz = vpz;
+    mVpm = vpm;
 
     vle::vpz::Vpz   *oldVpz;
 
-    QString fileName = vpz->getFilename();
+    QString fileName = vpm->getFilename();
     oldVpz = new vle::vpz::Vpz(fileName.toStdString());
 
     vle::vpz::Observables curVpzObs;
@@ -201,9 +200,9 @@ void SimLog::setVpz(vleVpz *vpz)
     }
 }
 
-void *SimLog::getVpz()
+void *SimLog::getVpm()
 {
-    return (void *)mVpz;
+    return (void *)mVpm;
 }
 
 void SimLog::startStop()
@@ -238,7 +237,7 @@ void SimLog::simulationStart()
 {
     vle::vpz::Vpz   *oldVpz;
 
-    QString fileName = mVpz->getFilename();
+    QString fileName = mVpm->getFilename();
     oldVpz = new vle::vpz::Vpz(fileName.toStdString());
 
     mSimThread = new simLogThread(oldVpz);
@@ -294,7 +293,7 @@ void SimLog::simulationGetStep()
 {
     vle::vpz::Vpz   *oldVpz;
 
-    QString fileName = mVpz->getFilename();
+    QString fileName = mVpm->getFilename();
     oldVpz = new vle::vpz::Vpz(fileName.toStdString());
 
     QString line;
