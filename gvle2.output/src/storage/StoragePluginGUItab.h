@@ -49,6 +49,7 @@ private slots:
     void columnsChanged(int v);
     void incRowsChanged(int v);
     void incColumnsChanged(int v);
+    void headerOnTopChanged(bool v);
 
 private:
     bool wellFormed();
