@@ -7,7 +7,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(XMLDEPS libxml-2.0)
 include_directories(${XMLDEPS_INCLUDE_DIRS})
 
-INCLUDE_DIRECTORIES(${VLE_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VLE_INCLUDE_DIRS} ${SHAPE_INCLUDE_DIRS})
+
+LINK_DIRECTORIES(${SHAPE_LIBRARY_DIRS})
 
 if (VLE_VERSION)
   include_directories(${VLE_BINARY_DIR}/src ${VLE_SOURCE_DIR}/src
@@ -35,9 +37,9 @@ QT4_WRAP_UI(ui_simtab_h simtab.ui)
 QT4_WRAP_UI(ui_widtoolbar_h widtoolbar.ui)
 
 add_library(gvle2shape SHARED ${shape_SOURCES}
-  ${ui_simtab_h} ${ui_widtoolbar_h} openglwidget.h shapefile.h shapeobject.h )
+  ${ui_simtab_h} ${ui_widtoolbar_h} openglwidget.h shapefile.h shapeobject.h)
 
-target_link_libraries(gvle2shape shp GLEW GL ${QT_LIBRARIES} ${INTL_LIB})
+target_link_libraries(gvle2shape ${SHAPE_LIBRARIES} GLEW GL ${QT_LIBRARIES} ${INTL_LIB})
 
 INSTALL(TARGETS gvle2shape RUNTIME DESTINATION
   plugins/gvle2/simulating LIBRARY DESTINATION plugins/gvle2/simulating)

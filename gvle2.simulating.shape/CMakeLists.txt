@@ -62,6 +62,7 @@ set (VleCheckAndDeclareGeneratedModels_DIR
   "${CMAKE_SOURCE_DIR}/cmake")
 FIND_PACKAGE(VleCheckAndDeclareGeneratedModels REQUIRED)
 SET(VLE_ABI_VERSION 1.1)
+VLE_CHECK_PACKAGE(SHAPE ext.shapelib)
 
 ##
 ## Find boost
@@ -85,14 +86,14 @@ find_package(Qt4 REQUIRED)
 ##
 ## Add Shape lib
 ##
-  
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 
-find_package(Shape REQUIRED)
-IF (SHAPE_FOUND)
-  include_directories(${SHAPE_INCLUDE_DIRS})
-  link_directories(${SHAPE_LIBRARY})
-ENDIF (SHAPE_FOUND)
+#set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
+
+#find_package(Shape REQUIRED)
+#IF (SHAPE_FOUND)
+#  include_directories(${SHAPE_INCLUDE_DIRS})
+#  link_directories(${SHAPE_LIBRARY})
+#ENDIF (SHAPE_FOUND)
 
 
 ##
