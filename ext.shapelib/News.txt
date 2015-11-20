@@ -1,4 +1,4 @@
-Changes from previous versions of ext.muparser
+Changes from previous versions of ext.shapelib
 ======================================================================
 
 Initial version 0.1.0

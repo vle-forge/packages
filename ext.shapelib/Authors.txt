@@ -13,16 +13,10 @@ Authors
 Integrator / Release manager
 ----------------------------
 
-- Gauthier Quesnel <quesnel@users.sourceforge.net>
+- Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
 
 
 Main programmer and founder
 ---------------------------
 
-- Ingo Berg <webmaster@beltoforion.de>
-
-Contributors
-------------
-
-- Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
-- Ronan Trépos <rtreposl@toulouse.inra.fr>
+- Frank Warmerdam <warmerdam@pobox.com>
