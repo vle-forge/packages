@@ -88,6 +88,20 @@ T getParam(const PredicateParameters::container_type& p,
         vle::fmt("Decision fails to convert parameter %1%") % name);
 }
 
+bool existParam(const PredicateParameters::container_type& p,
+                const std::string& name)
+{
+    PredicateParameters::const_iterator it =
+        std::lower_bound(p.begin(),
+                         p.end(),
+                         name,
+                         PredicateParametersFind());
+
+    if (it == p.end() or it->first != name)
+        return false;
+    return true;
+}
+
 void PredicateParameters::addDouble(const std::string& name, double param)
 {
     addParam <double>(m_lst, name, param);
@@ -111,6 +125,11 @@ double PredicateParameters::getDouble(const std::string& name) const
 std::string PredicateParameters::getString(const std::string& name) const
 {
     return getParam <std::string>(m_lst, name);
+}
+
+bool PredicateParameters::exist(const std::string& name) const
+{
+    return existParam(m_lst, name);
 }
 
 }}} // namespace vle model decision
