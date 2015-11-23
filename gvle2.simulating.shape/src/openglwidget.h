@@ -9,7 +9,6 @@
 #ifndef OPENGLWIDGET_H
 #define OPENGLWIDGET_H
 
-#include <GL/glew.h>
 #include <QGLWidget>
 
 #include "shapeobject.h"
@@ -61,9 +60,9 @@ protected:
     void        buildObject(cObjectDef *obj);
 
 signals:
-    
+
 public slots:
-    
+
 };
 
 #endif // OPENGLWIDGET_H

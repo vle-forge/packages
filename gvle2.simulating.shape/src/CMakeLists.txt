@@ -1,7 +1,6 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(XMLDEPS libxml-2.0)
@@ -39,7 +38,7 @@ QT4_WRAP_UI(ui_widtoolbar_h widtoolbar.ui)
 add_library(gvle2shape SHARED ${shape_SOURCES}
   ${ui_simtab_h} ${ui_widtoolbar_h} openglwidget.h shapefile.h shapeobject.h)
 
-target_link_libraries(gvle2shape ${SHAPE_LIBRARIES} GLEW GL ${QT_LIBRARIES} ${INTL_LIB})
+target_link_libraries(gvle2shape ${SHAPE_LIBRARIES} ${QT_LIBRARIES} ${INTL_LIB})
 
 INSTALL(TARGETS gvle2shape RUNTIME DESTINATION
   plugins/gvle2/simulating LIBRARY DESTINATION plugins/gvle2/simulating)
