@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<vle_project version="1.0" author="Ronan Trépos" date="jeu., 08 oct. 2009">
+ <structures>
+<model width="482" x="0" y="0" height="500" type="coupled" name="LogEx">
+<submodels>
+<model width="100" x="36" y="47" dynamics="logEx" conditions="cond" height="30" observables="obs" type="atomic" name="LogEx">
+</model>
+</submodels>
+<connections>
+</connections>
+</model>
+</structures>
+ <dynamics>
+<dynamic package="vle.recursive_test" name="logEx" library="LogEx"/>
+</dynamics>
+ <experiment name="LogEx" combination="linear">
+<conditions>
+<condition name="cond">
+ <port name="seed">
+<integer>1236</integer>
+</port>
+ <port name="init_value_x">
+<double>1</double>
+</port>
+ 
+</condition>
+<condition name="simulation_engine">
+ <port name="begin">
+<double>0.000000000000000</double>
+</port>
+ <port name="duration">
+<double>30</double>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output package="vle.output" plugin="file" format="local" location="" name="view"/>
+
+</outputs>
+<observables>
+<observable name="obs">
+<port name="y">
+ <attachedview name="view"/>
+</port>
+
+
+
+<port name="y_noise">
+      <attachedview name="view"/>
+     </port>
+    </observable>
+
+</observables>
+<view output="view" type="timed" timestep="1" name="view"/>
+
+</views>
+</experiment>
+</vle_project>

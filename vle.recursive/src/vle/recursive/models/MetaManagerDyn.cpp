@@ -192,7 +192,13 @@ public:
                 }
                 int row = atoi(splitVec[0].c_str());
                 int col = atoi(splitVec[1].c_str());
-                return new vv::Double(meta->getResults()->getDouble(col,row));
+                if (not meta->getResults()) {
+                    return 0;
+                }
+                if (not meta->getResults()->get(col,row)) {
+                    return 0;
+                }
+                return meta->getResults()->get(col,row)->clone();
             }
         }
         return 0;

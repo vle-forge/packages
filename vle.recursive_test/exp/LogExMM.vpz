@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<vle_project version="1.3.0" author="Ronan Trépos" date="2015-Jun-15 16:13:07">
+ <structures>
+<model width="482" x="0" y="0" height="376" type="coupled" name="LogExMM">
+<submodels>
+<model width="100" x="42" y="33" dynamics="metaManagerDyn" conditions="cond,simulation_engine" height="30" observables="obs" type="atomic" name="LogExMM">
+</model>
+</submodels>
+<connections>
+</connections>
+</model>
+</structures>
+ <dynamics>
+<dynamic package="vle.recursive" name="metaManagerDyn" library="MetaManagerDyn"/>
+</dynamics>
+ <experiment name="LogExMM" combination="linear">
+<conditions>
+<condition name="cond">
+ <port name="id_input_x">
+<string>cond/init_value_x</string>
+</port>
+ 
+ <port name="id_output_y">
+<map>
+      <key name="integration">
+       <string>mse</string>
+      </key>
+      <key name="mse_observations">
+       <tuple>2.7 3.42 3.75</tuple>
+      </key>
+      <key name="mse_times">
+       <tuple>4 10 16</tuple>
+      </key>
+      <key name="path">
+       <string>view/LogEx:LogEx.y</string>
+      </key>
+     </map>
+    </port>
+ 
+ <port name="id_package">
+<string>vle.recursive_test</string>
+</port>
+ 
+ <port name="id_vpz">
+<string>LogEx.vpz</string>
+</port>
+ 
+ 
+ <port name="values_x">
+<tuple>3.000000000000000 0.000000000000000</tuple>
+</port>
+ 
+ 
+</condition>
+<condition name="simulation_engine">
+ <port name="begin">
+<double>0.000000000000000</double>
+</port>
+ <port name="duration">
+<double>1</double>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output package="vle.output" plugin="file" format="local" location="" name="view"/>
+
+</outputs>
+<observables>
+<observable name="obs">
+<port name="output_0_0">
+ <attachedview name="view"/>
+</port>
+
+
+
+<port name="output_1_0">
+ <attachedview name="view"/>
+</port>
+
+
+
+
+
+</observable>
+
+</observables>
+<view output="view" type="finish" timestep="1.000000000000000" name="view"/>
+
+</views>
+</experiment>
+</vle_project>

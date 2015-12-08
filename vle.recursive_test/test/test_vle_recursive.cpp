@@ -50,9 +50,9 @@ BOOST_AUTO_TEST_CASE(test_api)
     init.addString("id_vpz","ExBohachevsky.vpz");
     init.addString("id_input_x1", "cond/x1");
     init.addString("id_input_x2", "cond/x2");
-    init.addString("id_output_y", "last[view/ExBohachevsky:ExBohachevsky.y]");
+    init.addString("id_output_y", "view/ExBohachevsky:ExBohachevsky.y");
     init.addString("id_output_y_noise",
-            "last[view/ExBohachevsky:ExBohachevsky.y_noise]");
+            "view/ExBohachevsky:ExBohachevsky.y_noise");
     init.addString("id_replica_r","cond/seed");
     vv::Tuple x1(2);
     x1[0] = 3.0;

@@ -18,7 +18,7 @@
  */
 
 #include <iostream>
-
+#include <cmath>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/filesystem.hpp>
@@ -47,7 +47,7 @@ MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
         mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
         mInputs(), mIdReplica(), mReplica(), mReplicaValues(),
-        mOutputs(), mOutputStats(), mOutputValues(), mResults(0),
+        mOutputs(), mOutputValues(), mResults(0),
         mWorkingDir("")
 {
 }
@@ -154,23 +154,7 @@ MetaManager::init(const vle::value::Map& init)
         } else if (!prefix.assign("id_output_").empty() and
                         !conf_name.compare(0, prefix.size(), prefix)) {
             varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
-            mOutputs.push_back(VleOutput(varname, init.getString(conf_name)));
-            tmp.assign("output_stat_");
-            tmp += varname;
-            ok = false;
-            if (init.exist(tmp)) {
-                if (init.getString(tmp) == "mean") {
-                    mOutputStats.push_back(MEAN);
-                    ok = true;
-                }
-            } else {
-                mOutputStats.push_back(MEAN);
-                ok = true;
-            }
-            if (!ok) {
-                throw vle::utils::ArgError(vle::fmt("[MetaManager] : error in"
-                        " value for '%1%' : expect 'mean'") % tmp);
-            }
+            mOutputs.push_back(VleOutput(varname, *init.get(conf_name)));
         } else if (!prefix.assign("id_replica_").empty() and
                 !conf_name.compare(0, prefix.size(), prefix)) {
             if (! mIdReplica.empty()) {
@@ -303,18 +287,16 @@ MetaManager::launchSimulations()
 
 
         for (unsigned int out =0; out < outputSize; out++) {
-            const VleOutput& outId = mOutputs[out];
+            VleOutput& outId = mOutputs[out];
             for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
-                double sum = 0.0;
+                outId.initAggregateResult();
                 for (unsigned int j = 0; j < repSize; j++) {
-                    sum += outId.findOutputValue(output_mat->get(i+j,0)->toMap());
+                    outId.insertReplicate(output_mat->get(i+j,0)->toMap());
                 }
-                mResults->set(out, i % inputSize,
-                        new vle::value::Double(sum/(double) repSize));
+                mResults->set(out, i % inputSize, outId.buildAggregateResult());
             }
         }
         delete output_mat;
-
         return *mResults;
         break;
     } case MVLE: {
@@ -358,9 +340,9 @@ MetaManager::launchSimulations()
         delete mResults;
         mResults= new vle::value::Matrix(outputSize, inputSize, 1, 1);
         for (unsigned int out =0; out < outputSize; out++) {
-            const VleOutput& outId = mOutputs[out];
+            VleOutput& outId = mOutputs[out];
             for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
-                double sum = 0.0;
+                outId.initAggregateResult();
                 for (unsigned int j = 0; j < repSize; j++) {
                     std::string vleResultFilePath = mWorkingDir;
                     vleResultFilePath.append(model.project().experiment().name());
@@ -372,17 +354,12 @@ MetaManager::launchSimulations()
                     vle::reader::VleResultsTextReader tfr(vleResultFilePath);
                     vle::value::Matrix mat;
                     tfr.readFile(mat);
-                    for (unsigned int k=0; k < mat.columns(); k++) {
-                        if (mat.getString(k,0) == outId.absolutePort) {
-                            sum += mat.getDouble(k,mat.rows()-1);
-                        }
-                    }
+                    outId.insertReplicate(mat);
                     if (mRemoveSimulationFiles and out == (outputSize-1)) {
                         boost::filesystem::remove(vleResultFilePath.c_str());
                     }
                 }
-                mResults->set(out, i % inputSize,
-                        new vle::value::Double(sum/(double) repSize));
+                mResults->set(out, i % inputSize, outId.buildAggregateResult());
             }
         }
         return *mResults;
@@ -398,6 +375,7 @@ MetaManager::getResults()
 {
     return mResults;
 }
+
 
 //private functions
 
@@ -461,53 +439,92 @@ VleInput::nbValues() const
 }
 
 VleOutput::VleOutput() :
-   id(), view(), absolutePort(), integrationType(LAST)
+   id(), view(), absolutePort(), integrationType(LAST), aggregationType(MEAN),
+   mse_times(0), mse_observations(0), maccuMono(0), maccuMulti(0)
 {
 }
 
-VleOutput::VleOutput(const std::string& id, const std::string& str) :
-   id(id), view(), absolutePort(), integrationType(LAST)
+VleOutput::VleOutput(const std::string& id, const vle::value::Value& val) :
+   id(id), view(), absolutePort(), integrationType(LAST), aggregationType(MEAN),
+   mse_times(0), mse_observations(0), maccuMono(0), maccuMulti(0)
 {
-    std::vector<std::string> splitVec;
-    boost::split(splitVec, str, boost::is_any_of("["),
-            boost::token_compress_on);
-    bool ok = false;
     std::string tmp;
-    if (splitVec.size() == 1) {
-        integrationType = LAST;
-        tmp.assign(str);
-        ok = true;
-    } else if (splitVec.size() == 2) {
-        if (splitVec[0] == "last") {
-            integrationType = LAST;
-            ok = true;
-        } else if (splitVec[0] == "max") {
-            integrationType = MAX;
-            ok = true;
+    if (val.isString()) {
+        if (not parsePath(val.toString().value())) {
+            throw vle::utils::ArgError(vle::fmt("[MetaManager] : error in "
+                           "configuration of the output '%1%%2%' with "
+                           "a string; got: '%3%'") % "id_output_" % id
+                            % val.toString().value());
         }
-        tmp.assign(splitVec[1].substr(0,splitVec[1].size()-1));
-    }
-    if (ok) {
-        boost::split(splitVec, tmp, boost::is_any_of("/"),
-                boost::token_compress_on);
-        if (splitVec.size() == 2) {
-            view.assign(splitVec[0]);
-            absolutePort.assign(splitVec[1]);
-        } else {
-            ok = false;
+    } else if (val.isMap()) {
+        const vle::value::Map& m = val.toMap();
+        bool error = false;
+        if (m.exist("path")) {
+            error = not parsePath(m.getString("path"));
+        }
+        if (m.exist("aggregation")) {
+            tmp = m.getString("aggregation");
+            if (tmp == "mean") {
+                aggregationType = MEAN;
+            } else {
+                error = true;
+            }
+        }
+        if (not error) {
+            if (m.exist("integration")) {
+                tmp = m.getString("integration");
+                if (tmp == "last") {
+                    integrationType = LAST;
+                } else if(tmp == "max") {
+                    integrationType = MAX;
+                } else if(tmp == "mse") {
+                    integrationType = MSE;
+                } else if(tmp == "all") {
+                    integrationType = ALL;
+                } else {
+                    error = true;
+                }
+            } else {
+                integrationType = LAST;
+            }
+        }
+        if (not error and integrationType == MSE) {
+            if (not m.exist("mse_times") or not m.exist("mse_observations")) {
+                error = true;
+            } else {
+                mse_times = new vle::value::Tuple(m.getTuple("mse_times"));
+                mse_observations = new vle::value::Tuple(
+                        m.getTuple("mse_observations"));
+                error = mse_times->size() != mse_observations->size();
+            }
+        }
+        if (error) {
+            throw vle::utils::ArgError(vle::fmt("[MetaManager] : error in "
+                    "configuration of the output '%1%%2%' with "
+                    "a map; got: '%3%'") % "id_output_" % id
+                    % val);
         }
     }
-    if (!ok) {
-        throw vle::utils::ArgError(vle::fmt("[MetaManager] : error in "
-                "configuration of the output '%1%%2%', got: '%3%' and "
-                "expect '<int>[view/modelPath.portName]' where "
-                "'<int> is one of 'last', 'max'")
-        % "id_output_" % id % str);
+    initAggregateResult();
+}
+
+bool
+VleOutput::parsePath(const std::string& path)
+{
+    std::vector<std::string> splvec;
+    boost::split(splvec, path, boost::is_any_of("/"), boost::token_compress_on);
+    if (splvec.size() == 2) {
+        view.assign(splvec[0]);
+        absolutePort.assign(splvec[1]);
+        return true;
+    } else {
+        return false;
     }
 }
 
 
-double VleOutput::findOutputValue(const vv::Map& result) const
+void
+VleOutput::insertReplicate(const vle::value::Map& result)
 {
     vle::value::Map::const_iterator it = result.find(view);
     if (it == result.end()) {
@@ -515,6 +532,12 @@ double VleOutput::findOutputValue(const vv::Map& result) const
           % view);
     }
     const vv::Matrix& outMat = vv::toMatrixValue(*it->second);
+    insertReplicate(outMat);
+}
+
+void
+VleOutput::insertReplicate(const vle::value::Matrix& outMat)
+{
     unsigned int colIndex = 9999;
     for (unsigned int i=0; i < outMat.columns(); i++) {
         if (outMat.getString(i,0) == absolutePort) {
@@ -523,28 +546,76 @@ double VleOutput::findOutputValue(const vv::Map& result) const
     }
     if (colIndex == 9999) {
         throw vu::ArgError(vle::fmt("[MetaManager] view.port '%1%' not found)")
-          % absolutePort);
+        % absolutePort);
     }
     const vv::ConstVectorView& outVec = outMat.column(colIndex);
     switch(integrationType) {
     case MAX: {
-
         double max = -9999;
         for (unsigned int i=1; i < outVec.size(); i++) {
             if (outVec[i]->toDouble().value() > max) {
                 max = outVec[i]->toDouble().value();
             }
         }
-        return max;
+        maccuMono->insert(max);
         break;
     } case LAST: {
-        if (integrationType == LAST) {
-            return (outVec[outVec.size() - 1]->toDouble().value());
+        maccuMono->insert(outVec[outVec.size() - 1]->toDouble().value());
+        break;
+    } case MSE: {
+        double sum_square_error = 0;
+        for (unsigned int i=0; i< mse_times->size(); i++) {
+            sum_square_error += std::pow(
+                 (outVec[std::floor((*mse_times).at(i))]->toDouble().value()
+                         - mse_observations->at(i))
+                 , 2);
         }
+        maccuMono->insert(sum_square_error/mse_times->size());
+        break;
+    } case ALL:{
+        maccuMulti->insert(outVec);
+        break;
+    }}
+}
+
+void
+VleOutput::initAggregateResult()
+{
+    delete maccuMulti;
+    delete maccuMono;
+    switch(integrationType) {
+    case LAST:
+    case MAX:
+    case MSE: {
+        maccuMono = new AccuMono(aggregationType);
+        break;
+    } case ALL: {
+        maccuMulti = new AccuMulti(aggregationType);
+    }}
+}
+
+vle::value::Value*
+VleOutput::buildAggregateResult()
+{
+    switch (aggregationType) {
+    case MEAN: {
+        switch (integrationType) {
+        case LAST:
+        case MAX:
+        case MSE: {
+            return new vle::value::Double(maccuMono->mean());
+            break;
+        } case ALL: {
+            vle::value::Tuple* res = new vle::value::Tuple(maccuMulti->size());
+            maccuMulti->mean(*res);
+            return res;
+        }}
+        break;
+    } default: {
+        throw "error";
         break;
     }}
     return 0;
-
 }
 
 unsigned int

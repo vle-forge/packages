@@ -23,13 +23,14 @@
 #include <vle/value/Map.hpp>
 #include <vle/vpz/Vpz.hpp>
 
+#include <vle/recursive/accu_multi.hpp>
+
 namespace vle {
 namespace recursive {
 
 enum INPUT_TYPE {MONO, MULTI};
 enum CONFIG_PARALLEL_TYPE {THREADS, MVLE, SINGLE};
-enum OUTPUT_STAT {MEAN};
-enum OUTPUT_INTEGRATION_TYPE {LAST, MAX};
+enum OUTPUT_INTEGRATION_TYPE {LAST, MAX, MSE, ALL};
 
 /*
  * VleInput indetifies an input of the experiment plan
@@ -66,14 +67,56 @@ struct VleInput
 
 struct VleOutput
 {
+public:
     VleOutput();
-    VleOutput(const std::string& id, const std::string& str);
-    double findOutputValue(const vle::value::Map& result) const;
+    /**
+     * @brief VleOutput constructor
+     * @param id, id of the input
+     * @param config is either a map containing:
+     *  - "path" path of the form "coupled:atomic.port"
+     *  - "integration" type of integration
+     *  - "mse_times" required if integration=mse
+     *  - "mse_observations" required if integration=mse
+     *  - "aggregation" type of aggregation
+     *  or a string identifying the "path" parameter defined above,
+     *  default values are then:
+     *  - integration ="last"
+     *  - mse_times =NULL
+     *  - mse_observations=NULL
+     *  - aggregation = mean
+     */
+    VleOutput(const std::string& id, const vle::value::Value& config);
+
+    bool parsePath(const std::string& path);
+
+    /**
+     * @brief insert output value from a view map
+     */
+    void insertReplicate(const vle::value::Map& result);
+
+    /**
+     * @brief insert output value from a view
+     */
+    void insertReplicate(const vle::value::Matrix& outMat);
+
+    void initAggregateResult();
+
+    /**
+     * @brief build a vle value (Tuple or Double) from aggregation
+     */
+    vle::value::Value* buildAggregateResult();
+
     std::string id;
     std::string view;
     std::string absolutePort;
     OUTPUT_INTEGRATION_TYPE integrationType;
+    AccuType aggregationType;
+    vle::value::Tuple* mse_times;
+    vle::value::Tuple* mse_observations;
 
+    //for mean aggregation
+    AccuMono* maccuMono; //for integration with one dimension
+    AccuMulti* maccuMulti; //for integration with multiple dimensions
 };
 
 /**
@@ -94,7 +137,6 @@ private:
     std::pair<std::string, std::string> mReplica; //cond * port
     vle::value::Set* mReplicaValues;//values are Tuple or Set
     std::vector<VleOutput> mOutputs;//view * port
-    std::vector<OUTPUT_STAT> mOutputStats;
     std::vector<vle::value::Value*> mOutputValues;//values are Tuple or Set
     vle::value::Matrix* mResults;
     std::string mWorkingDir; //only for mvle
@@ -124,7 +166,6 @@ public:
      * @brief Get the results (possibly empty)
      */
     vle::value::Matrix* getResults();
-
 
 
 

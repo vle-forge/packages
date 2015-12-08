@@ -57,9 +57,6 @@ set (VleUtils_DIR "${VLE_SHARE_DIR}/cmake")
 find_package(VleUtils REQUIRED)
 VleCheckDependencies()
 
-VleCheckPackage(vle.reader vle.reader)
-VleCheckPackage(vle.recursive vle.recursive)
-
 ##
 ## Find boost
 ##
