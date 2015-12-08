@@ -259,3 +259,37 @@ BOOST_AUTO_TEST_CASE(test_gens_delete_connection)
 
     delete out;
 }
+
+BOOST_AUTO_TEST_CASE(test_gens_ordereddeleter)
+{
+    vle::utils::Package pack("vle.examples");
+
+    for (int s = 0, es = 100; s != es; ++s) {
+        vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("ordereddeleter.vpz"));
+        utils::ModuleManager man;
+        manager::Error error;
+        manager::Simulation sim(manager::LOG_NONE,
+                                manager::SIMULATION_NONE,
+                                NULL);
+        value::Map *out = sim.run(file, man, &error);
+
+        /* begin check */
+        BOOST_REQUIRE_EQUAL(error.code, 0);
+        BOOST_REQUIRE(out != NULL);
+        BOOST_REQUIRE_EQUAL(out->size(), 1);
+
+        /* get result of simulation */
+        value::Matrix &matrix = out->getMatrix("view1");
+        value::MatrixView result(matrix.value());
+
+        BOOST_REQUIRE_EQUAL(result.shape()[0],
+                            (value::MatrixView::size_type)2);
+
+        for (value::MatrixView::size_type i = 0, ei = 10; i != ei; ++i) {
+            BOOST_REQUIRE_EQUAL(value::toDouble(result[0][i]), i);
+            BOOST_REQUIRE_EQUAL(value::toDouble(result[1][i]), 0);
+        }
+
+        delete out;
+    }
+}
