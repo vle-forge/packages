@@ -16,11 +16,9 @@
  <experiment name="LogExMM_mvle" combination="linear">
 <conditions>
 <condition name="cond">
- <port name="id_input_x">
-<string>cond/init_value_x</string>
-</port>
  
- <port name="id_output_y">
+ 
+ <port name="output_y">
 <map>
       <key name="integration">
        <string>mse</string>
@@ -36,7 +34,7 @@
       </key>
      </map>
     </port>
- <port name="id_output_y_noise">
+ <port name="output_y_noise">
 <map>
       <key name="integration">
        <string>last</string>
@@ -46,22 +44,20 @@
       </key>
      </map>
     </port>
- <port name="id_package">
+ <port name="package">
 <string>vle.recursive_test</string>
 </port>
- <port name="id_replica_seed">
-<string>cond/seed</string>
-</port>
- <port name="id_vpz">
+ 
+ <port name="vpz">
 <string>LogEx.vpz</string>
 </port>
  
  
- <port name="values_x">
+ <port name="input_cond.init_value_x">
 <tuple>3.000000000000000 0.000000000000000</tuple>
 </port>
  
- <port name="values_seed">
+ <port name="replicate_cond.seed">
 <set>
       <integer>1235</integer>
       <integer>7234</integer>

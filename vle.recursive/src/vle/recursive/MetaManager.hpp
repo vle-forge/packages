@@ -32,22 +32,20 @@ enum INPUT_TYPE {MONO, MULTI};
 enum CONFIG_PARALLEL_TYPE {THREADS, MVLE, SINGLE};
 enum OUTPUT_INTEGRATION_TYPE {LAST, MAX, MSE, ALL};
 
-/*
- * VleInput indetifies an input of the experiment plan
- * For example:
- * id_input_X : condname/portname => id is X
- * Then expects either one of the two elements:
- * - value_X: for a simple value (MONO)
- * - values_X
- */
 struct VleInput
 {
-    VleInput(const std::string& id, const std::string& str,
-            const vle::value::Map& config);
+    /*
+     * @brief VleInput identifies an input of the experiment plan
+     * @param conf, a string of the form 'condname.portname'
+     * @param val, the value given on port conf_name, is either
+     *  * a value::Set or value::Tuple that identifies an experiment plan
+     *  * any other value type that identifies a single value
+     */
+    VleInput(const std::string& conf, const vle::value::Value& config);
     virtual ~VleInput();
     unsigned int nbValues() const;
+    std::string getName();
 
-    std::string id;
     std::string cond;
     std::string port;
     INPUT_TYPE type;
@@ -55,25 +53,15 @@ struct VleInput
 
 };
 
-/*
- * VleOutput identifies a VleOutput from a configuration str
- * For example with str =
- * max[view/ExBohachevsky:ExBohachevsky.y]
- * =>
- * integrationType= MAX
- * view = view
- * absolutePort = ExBohachevsky:ExBohachevsky.y
- */
-
 struct VleOutput
 {
 public:
     VleOutput();
     /**
-     * @brief VleOutput constructor
-     * @param id, id of the input
+     * @brief VleOutput identifies an output of the experiment plan
+     * @param id,  a string that is an id for the output
      * @param config is either a map containing:
-     *  - "path" path of the form "coupled:atomic.port"
+     *  - "path": of the form 'view/coupled:atomic.port'
      *  - "integration" type of integration
      *  - "mse_times" required if integration=mse
      *  - "mse_observations" required if integration=mse
@@ -133,14 +121,11 @@ private:
     unsigned int mConfigParallelNbSlots;
     unsigned int mConfigParallelMaxExpes;
     std::vector<VleInput*> mInputs;
-    std::string mIdReplica;
-    std::pair<std::string, std::string> mReplica; //cond * port
-    vle::value::Set* mReplicaValues;//values are Tuple or Set
+    VleInput* mReplicate;
     std::vector<VleOutput> mOutputs;//view * port
     std::vector<vle::value::Value*> mOutputValues;//values are Tuple or Set
     vle::value::Matrix* mResults;
     std::string mWorkingDir; //only for mvle
-
 
 public:
     /**

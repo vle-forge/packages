@@ -56,8 +56,9 @@ public:
             const vd::InitEventList& events): vd::Dynamics(init,events),
                     meta(0), minit(0),stepDuration(0.0), mstate(IDLE)
     {
-        if (events.exist("id_vpz") and
-                not events.getString("id_vpz").empty()){
+
+        if (events.exist("vpz") and
+                not events.getString("vpz").empty()){
             minit = (vle::value::Map*) events.clone();
         }
     }

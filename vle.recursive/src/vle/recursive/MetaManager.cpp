@@ -46,8 +46,7 @@ namespace recursive {
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
         mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
-        mInputs(), mIdReplica(), mReplica(), mReplicaValues(),
-        mOutputs(), mOutputValues(), mResults(0),
+        mInputs(), mReplicate(0), mOutputs(), mOutputValues(), mResults(0),
         mWorkingDir("")
 {
 }
@@ -61,7 +60,7 @@ MetaManager::~MetaManager()
             delete *itb;
         }
     }
-    delete mReplicaValues;
+    delete mReplicate;
     {
         std::vector<vle::value::Value*>::iterator itb = mOutputValues.begin();
         std::vector<vle::value::Value*>::iterator ite = mOutputValues.end();
@@ -126,83 +125,40 @@ MetaManager::init(const vle::value::Map& init)
     if (init.exist("config_parallel_rm_files")) {
         mRemoveSimulationFiles = init.getBoolean("config_parallel_rm_files");
     }
-    if (init.exist("id_package")) {
-        mIdPackage = init.getString("id_package");
+    if (init.exist("package")) {
+        mIdPackage = init.getString("package");
     } else {
-        throw vle::utils::ArgError("[MetaManager] missing 'id_package'");
+        throw vle::utils::ArgError("[MetaManager] missing 'package'");
     }
-    if (init.exist("id_vpz")) {
-        mIdVpz = init.getString("id_vpz");
+    if (init.exist("vpz")) {
+        mIdVpz = init.getString("vpz");
     } else {
-        throw vle::utils::ArgError("[MetaManager] missing 'id_vpz'");
+        throw vle::utils::ArgError("[MetaManager] missing 'vpz'");
     }
 
     std::string prefix;
     std::string varname;
-    std::string tmp;
-    std::vector <std::string> splitVec;
-    bool ok;
     vle::value::Map::const_iterator itb = init.begin();
     vle::value::Map::const_iterator ite = init.end();
     for (; itb != ite; itb++) {
         const std::string& conf_name = itb->first;
-        if (!prefix.assign("id_input_").empty() and
+        if (!prefix.assign("input_").empty() and
                 !conf_name.compare(0, prefix.size(), prefix)) {
             varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
-            mInputs.push_back(new VleInput(varname, init.getString(conf_name),
-                    init));
-        } else if (!prefix.assign("id_output_").empty() and
+            mInputs.push_back(new VleInput(varname, *itb->second));
+        } else if (!prefix.assign("output_").empty() and
                         !conf_name.compare(0, prefix.size(), prefix)) {
             varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
-            mOutputs.push_back(VleOutput(varname, *init.get(conf_name)));
-        } else if (!prefix.assign("id_replica_").empty() and
+            mOutputs.push_back(VleOutput(varname, *itb->second));
+        } else if (!prefix.assign("replicate_").empty() and
                 !conf_name.compare(0, prefix.size(), prefix)) {
-            if (! mIdReplica.empty()) {
+            if (not mReplicate == 0) {
                 throw vle::utils::ArgError(vle::fmt("[MetaManager] : the"
                         " replica is already defined with '%1%'")
-                   % mIdReplica);
+                   % mReplicate->getName());
             }
-            varname.assign(conf_name.substr(prefix.size(),
-                    conf_name.size()));
-            if (init.getString(conf_name).empty()) {
-                mIdReplica.assign("");
-            } else {
-                mIdReplica.assign(varname);
-                boost::split(splitVec,
-                        init.getString(conf_name),
-                        boost::is_any_of("/"),
-                        boost::token_compress_on);
-                if (splitVec.size() == 2) {
-                    mReplica.first.assign(splitVec[0]);
-                    mReplica.second.assign(splitVec[1]);
-                } else {
-                    throw vle::utils::ArgError(vle::fmt("[MetaManager] : the"
-                            " replica is expected to be of the form "
-                            "'cond_name/port_name', got '%1%'")
-                    % init.getString(conf_name));
-                }
-                tmp.assign("values_");
-                tmp += varname;
-                ok = false;
-                if (init.exist(tmp)) {
-                    const vle::value::Value* initVal = init.get(tmp);
-                    switch (initVal->getType()) {
-                    case vle::value::Value::SET:
-                        if (initVal->isSet()) {
-                            delete mReplicaValues;
-                            mReplicaValues = (vle::value::Set*) initVal->clone();
-                            ok = true;
-                        }
-                        break;
-                    default:
-                        break;
-                    }
-                }
-                if (!ok) {
-                    throw vle::utils::ArgError(vle::fmt("[MetaManager] : error"
-                            " missing port with a value::Set '%1%'") % tmp);
-                }
-            }
+            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
+            mReplicate = new VleInput(varname, *itb->second);
         }
     }
     //check
@@ -378,40 +334,31 @@ MetaManager::getResults()
 
 
 //private functions
-
-VleInput::VleInput(const std::string& id, const std::string& str,
-        const vle::value::Map& config) :
-   id(str), cond(), port(), type(MONO), inputValues()
+VleInput::VleInput(const std::string& conf,
+        const vle::value::Value& val):
+        cond(), port(), type(MONO), inputValues()
 {
-    std::vector <std::string> splitVec;
-    boost::split(splitVec, str, boost::is_any_of("/"),
+    std::vector <std::string> splvec;
+    boost::split(splvec, conf, boost::is_any_of("."),
             boost::token_compress_on);
-    if (splitVec.size() == 2) {
-        cond.assign(splitVec[0]);
-        port.assign(splitVec[1]);
+    if (splvec.size() == 2) {
+        cond.assign(splvec[0]);
+        port.assign(splvec[1]);
     } else {
         throw vle::utils::ArgError(vle::fmt("[MetaManager] : the input"
                 " is expected to be of the form "
-                "'cond_name/port_name', got '%1%'") % str);
+                "'cond_name.port_name', got '%1%'") % conf);
     }
-    std::string tmp("values_");
-    tmp += id;
-    if (config.exist(tmp)) {
-        const vle::value::Value* initVal = config.get(tmp);
-        switch (initVal->getType()) {
-        case vle::value::Value::TUPLE:
-        case vle::value::Value::SET:
-            inputValues = initVal->clone();
-            type = MULTI;
-            break;
-        default:
-            inputValues = initVal->clone();
-            type = MONO;
-            break;
-        }
-    } else {
-        throw vle::utils::ArgError(vle::fmt("[MetaManager] error"
-                " missing port '%1%'") % tmp);
+    switch (val.getType()) {
+    case vle::value::Value::TUPLE:
+    case vle::value::Value::SET:
+        inputValues = val.clone();
+        type = MULTI;
+        break;
+    default:
+        inputValues = val.clone();
+        type = MONO;
+        break;
     }
 }
 
@@ -432,10 +379,19 @@ VleInput::nbValues() const
         break;
     default:
         throw vle::utils::ArgError(vle::fmt("[MetaManager] : Input values"
-                " types not handled for input '%1%'") % id );
+                " types not handled for input '%1%.%2%'") % cond % port);
         break;
     }
     return 1;
+}
+
+std::string
+VleInput::getName()
+{
+    std::string ret = cond;
+    ret.append(".");
+    ret.append(port);
+    return ret;
 }
 
 VleOutput::VleOutput() :
@@ -444,16 +400,18 @@ VleOutput::VleOutput() :
 {
 }
 
-VleOutput::VleOutput(const std::string& id, const vle::value::Value& val) :
-   id(id), view(), absolutePort(), integrationType(LAST), aggregationType(MEAN),
-   mse_times(0), mse_observations(0), maccuMono(0), maccuMulti(0)
+VleOutput::VleOutput(const std::string& _id,
+        const vle::value::Value& val) :
+   id(_id), view(), absolutePort(), integrationType(LAST),
+   aggregationType(MEAN), mse_times(0), mse_observations(0), maccuMono(0),
+   maccuMulti(0)
 {
     std::string tmp;
     if (val.isString()) {
         if (not parsePath(val.toString().value())) {
             throw vle::utils::ArgError(vle::fmt("[MetaManager] : error in "
-                           "configuration of the output '%1%%2%' with "
-                           "a string; got: '%3%'") % "id_output_" % id
+                           "configuration of the output 'output_%1%' with "
+                           "a string; got: '%2%'") % id
                             % val.toString().value());
         }
     } else if (val.isMap()) {
@@ -634,20 +592,21 @@ MetaManager::inputsSize() const
 unsigned int
 MetaManager::replicasSize() const
 {
-    if (mIdReplica.empty()) {
+    if (not mReplicate) {
         return 1;
     }
 
     unsigned int repsSize = 0;
-    switch (mReplicaValues->getType()) {
+    switch (mReplicate->inputValues->getType()) {
     case vle::value::Value::TUPLE:
-        repsSize = mReplicaValues->toTuple().size();
+        repsSize = mReplicate->inputValues->toTuple().size();
         break;
     case vle::value::Value::SET:
-        repsSize = mReplicaValues->toSet().size();
+        repsSize = mReplicate->inputValues->toSet().size();
         break;
     default:
-        throw vle::utils::ArgError("[MetaManager] : Replica types not handled");
+        throw vle::utils::ArgError(
+                "[MetaManager]: Replicate types not handled");
         break;
     }
     return repsSize;
@@ -658,24 +617,35 @@ MetaManager::postInputs(vle::vpz::Vpz& model) const
 {
     vle::vpz::Conditions& conds = model.project().experiment().conditions();
     //post replicas
-    if (not mIdReplica.empty()) {
-        vle::vpz::Condition& condRep = conds.get(mReplica.first);
-        condRep.clearValueOfPort(mReplica.second);
+    if (mReplicate) {
+        vle::vpz::Condition& condRep = conds.get(mReplicate->cond);
+        condRep.clearValueOfPort(mReplicate->port);
         for (unsigned int i=0; i < inputsSize(); i++) {
             for (unsigned int k=0; k < replicasSize(); k++) {
-                condRep.addValueToPort(mReplica.second,
-                        mReplicaValues->get(k)->clone());
+                switch(mReplicate->inputValues->getType()) {
+                case vle::value::Value::SET:
+                    condRep.addValueToPort(mReplicate->port,
+                            mReplicate->inputValues->toSet().get(k)->clone());
+                    break;
+                case vle::value::Value::TUPLE:
+                    condRep.addValueToPort(mReplicate->port,
+                            new vle::value::Double(
+                                    mReplicate->inputValues->toTuple().at(k)));
+                    break;
+                default:
+                    //error already detected
+                    break;
+                }
             }
         }
     }
     //post inputs
     for (unsigned int i=0; i < mInputs.size(); i++) {
-
         VleInput* tmp_input = mInputs[i];
         vle::vpz::Condition& cond = conds.get(tmp_input->cond);
         cond.clearValueOfPort(tmp_input->port);
         if (tmp_input->type == MONO) {
-            if (mIdReplica.empty()) {
+            if (not mReplicate) {
                 cond.addValueToPort(tmp_input->port,
                         tmp_input->inputValues->clone());
             } else {
@@ -691,7 +661,7 @@ MetaManager::postInputs(vle::vpz::Vpz& model) const
                         tmp_input->inputValues->toTuple();
                 for (unsigned j=0; j < tmp_val_tuple.size(); j++) {//TODO maxExpe
                     double tmp_j = tmp_val_tuple[j];
-                    if (mIdReplica.empty()) {
+                    if (not mReplicate) {
                         cond.addValueToPort(tmp_input->port,
                                 new vle::value::Double(tmp_j));
                     } else {
@@ -707,7 +677,7 @@ MetaManager::postInputs(vle::vpz::Vpz& model) const
                         tmp_input->inputValues->toSet();
                 for (unsigned j=0; j < tmp_val_set.size(); j++) {//TODO maxExpe
                     const vle::value::Value* tmp_j = tmp_val_set.get(j);
-                    if (mIdReplica.empty()) {
+                    if (not mReplicate) {
                         cond.addValueToPort(tmp_input->port,tmp_j->clone());
                     } else {
                         for (unsigned int k=0; k < replicasSize(); k++) {

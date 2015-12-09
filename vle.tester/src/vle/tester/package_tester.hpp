@@ -166,6 +166,13 @@ public:
                             <<"th value of col '"<< colname << "' from view '"
                             << view << "' ";
                 }
+                if (simulated_val == 0) {
+                    fail_i = true;
+                    report_line << "test fail of " << newpkg << "/" << newvpz
+                            << ": " << lineIndex << "th value of col '"
+                            << colname << "' from view '"
+                            << view << "' is null ";
+                }
             }
             if (!fail_i && !performs_one_test(precision, valExpected,
                     *simulated_val)) {
@@ -203,7 +210,7 @@ private:
                 return false;
             }
         } else {
-            double prec = boost::lexical_cast<double>(precision);            
+            double prec = boost::lexical_cast<double>(precision);
             double valSim = res.toDouble().value();
             if (isnan(valSim)) {
                 return (valExpected == "nan");

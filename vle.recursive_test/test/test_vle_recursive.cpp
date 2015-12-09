@@ -43,30 +43,31 @@ BOOST_AUTO_TEST_CASE(test_api)
     namespace vr = vle::recursive;
     namespace vv = vle::value;
 
-    vv::Map init;
-    init.addString("config_parallel_type","threads");
-    init.addInt("config_parallel_nbslots",2);
-    init.addString("id_package","vle.recursive_test");
-    init.addString("id_vpz","ExBohachevsky.vpz");
-    init.addString("id_input_x1", "cond/x1");
-    init.addString("id_input_x2", "cond/x2");
-    init.addString("id_output_y", "view/ExBohachevsky:ExBohachevsky.y");
-    init.addString("id_output_y_noise",
-            "view/ExBohachevsky:ExBohachevsky.y_noise");
-    init.addString("id_replica_r","cond/seed");
+    //define x1 values
     vv::Tuple x1(2);
     x1[0] = 3.0;
     x1[1] = 0.0;
+    //define x2 values
     vv::Tuple x2(2);
     x2[0] = -10.0;
     x2[1] = 0.0;
+    //define replicate values
     vv::Set r;
     r.addInt(1235);
     r.addInt(7234);
     r.addInt(9531);
-    init.add("values_x1",x1);
-    init.add("values_x2",x2);
-    init.add("values_r",r);
+
+    vv::Map init;
+    init.addString("config_parallel_type","threads");
+    init.addInt("config_parallel_nbslots",2);
+    init.addString("package","vle.recursive_test");
+    init.addString("vpz","ExBohachevsky.vpz");
+    init.add("input_cond.x1", x1);
+    init.add("input_cond.x2", x2);
+    init.addString("output_y", "view/ExBohachevsky:ExBohachevsky.y");
+    init.addString("output_y_noise",
+            "view/ExBohachevsky:ExBohachevsky.y_noise");
+    init.add("replicate_cond.seed",r);
     vr::MetaManager meta;
     meta.init(init);
     const vv::Matrix& res = meta.launchSimulations().toMatrix();
