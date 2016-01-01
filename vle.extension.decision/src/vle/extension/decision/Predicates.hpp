@@ -65,6 +65,11 @@ public:
     void sort();
 
     /**
+     * To check if a parameter exist or not.
+     */
+    bool exist(const std::string& name) const;
+
+    /**
      * Get a double from container.
      *
      * @attention O(log(n)) operation, but container must be sorted with

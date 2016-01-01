@@ -43,6 +43,8 @@ StoragePluginGUItab::StoragePluginGUItab(QWidget *parent) :
                      this,         SLOT(incRowsChanged(int)) );
     QObject::connect(ui->spinBoxUpdateColumns, SIGNAL(valueChanged(int)),
                      this,         SLOT(incColumnsChanged(int)) );
+    QObject::connect(ui->checkBoxHeader, SIGNAL(clicked(bool)),
+                     this,         SLOT(headerOnTopChanged(bool)) );
 }
 
 StoragePluginGUItab::~StoragePluginGUItab()
@@ -62,6 +64,7 @@ StoragePluginGUItab::init(vle::gvle2::vleVpm* vpm, const QString& viewName)
         buildDefaultConfig();
         mvleVpm->fillOutputConfigMap(mViewName, *outputNodeConfig);
     }
+
     bool oldBlock = ui->spinBoxRows->blockSignals(true);
     ui->spinBoxRows->setValue(outputNodeConfig->getInt("rows"));
     ui->spinBoxRows->blockSignals(oldBlock);
@@ -77,6 +80,14 @@ StoragePluginGUItab::init(vle::gvle2::vleVpm* vpm, const QString& viewName)
     oldBlock = ui->spinBoxUpdateColumns->blockSignals(true);
     ui->spinBoxUpdateColumns->setValue(outputNodeConfig->getInt("inc_columns"));
     ui->spinBoxUpdateColumns->blockSignals(oldBlock);
+
+    oldBlock = ui->checkBoxHeader->blockSignals(true);
+    if (outputNodeConfig->getString("header") ==  "top") {
+        ui->checkBoxHeader->setCheckState(Qt::Checked);
+    } else {
+        ui->checkBoxHeader->setCheckState(Qt::Unchecked);
+    }
+    ui->checkBoxHeader->blockSignals(oldBlock);
 }
 
 
@@ -113,12 +124,24 @@ StoragePluginGUItab::incColumnsChanged(int v)
     mvleVpm->fillOutputConfigMap(mViewName, *outputNodeConfig);
 }
 
+void
+StoragePluginGUItab::headerOnTopChanged(bool v)
+{
+    std::string& toUp = outputNodeConfig->getString("header");
+    if (v) {
+        toUp = "top";
+    } else {
+        toUp = "none";
+    }
+    mvleVpm->fillOutputConfigMap(mViewName, *outputNodeConfig);
+}
+
 bool StoragePluginGUItab::wellFormed()
 {
     if (not outputNodeConfig) {
         return false;
     }
-    if (outputNodeConfig->size() != 4) {
+    if (outputNodeConfig->size() != 5) {
         return false;
     }
     vle::value::Map::const_iterator itb = outputNodeConfig->begin();
@@ -138,8 +161,15 @@ bool StoragePluginGUItab::wellFormed()
             if (not v->isInteger()) {
                 return false;
             }
-        }else if (key == "inc_columns") {
+        } else if (key == "inc_columns") {
             if (not v->isInteger()) {
+                return false;
+            }
+        } else if (key == "header") {
+            if (not v->isString()) {
+                return false;
+            } else if (outputNodeConfig->getString("header") !=  "top" &&
+                       outputNodeConfig->getString("header") !=  "none") {
                 return false;
             }
         } else {
@@ -156,4 +186,5 @@ void StoragePluginGUItab::buildDefaultConfig()
     outputNodeConfig->addInt("columns", 15);
     outputNodeConfig->addInt("inc_rows", 10);
     outputNodeConfig->addInt("inc_columns", 10);
+    outputNodeConfig->addString("header", "none");
 }
