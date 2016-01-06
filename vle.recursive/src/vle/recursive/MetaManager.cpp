@@ -43,300 +43,10 @@
 namespace vle {
 namespace recursive {
 
-MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
-        mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
-        mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
-        mInputs(), mReplicate(0), mOutputs(), mOutputValues(), mResults(0),
-        mWorkingDir("")
-{
-}
-
-MetaManager::~MetaManager()
-{
-    {
-        std::vector<VleInput*>::iterator itb = mInputs.begin();
-        std::vector<VleInput*>::iterator ite = mInputs.end();
-        for (; itb != ite; itb ++) {
-            delete *itb;
-        }
-    }
-    delete mReplicate;
-    {
-        std::vector<vle::value::Value*>::iterator itb = mOutputValues.begin();
-        std::vector<vle::value::Value*>::iterator ite = mOutputValues.end();
-        for (; itb != ite; itb ++) {
-            delete *itb;
-        }
-    }
-    delete mResults;
-}
-
-void
-MetaManager::init(const vle::value::Map& init)
-{
-    if (init.exist("config_parallel_type")) {
-        std::string tmp;
-        tmp.assign(init.getString("config_parallel_type"));
-        if (tmp == "threads") {
-            mConfigParallelType = THREADS;
-        } else if (tmp == "mvle") {
-            mConfigParallelType = MVLE;
-            if (! init.exist("working_dir")) {
-                throw vle::utils::ArgError("[MetaManager] error for "
-                        "mvle config, missing 'working_dir' parameter");
-            }
-            mWorkingDir.assign(init.getString("working_dir"));
-        }  else if (tmp == "single") {
-            mConfigParallelType = SINGLE;
-        } else {
-            throw vle::utils::ArgError(vle::fmt("[MetaManager] error for "
-                    "configuration type of parallel process, got '%1%'")
-            % (*init.get("config_parallel_type")));
-        }
-    }
-    if (init.exist("config_parallel_nb_slots")) {
-        int tmp;
-        tmp = init.getInt("config_parallel_nb_slots");
-        if (tmp > 0) {
-            mConfigParallelNbSlots = tmp;
-        } else {
-            throw vle::utils::ArgError(vle::fmt("[MetaManager] error for "
-                 "configuration type of parallel nb slots, got '%1%'")
-            % (*init.get("config_parallel_nb_slots")));
-        }
-    }
-    if (init.exist("config_parallel_max_expes")) {
-        int tmp;
-        tmp = init.getInt("config_parallel_max_expes");
-        if (tmp > 0) {
-            if ((unsigned int) tmp < mConfigParallelNbSlots) {
-                throw vle::utils::ArgError(vle::fmt("[MetaManager] error for "
-                        "configuration type of parallel max expes, got '%1%'"
-                        "which is less than nb slots: '%2%'")
-                % tmp % mConfigParallelNbSlots);
-            }
-            mConfigParallelMaxExpes = tmp;
-        } else {
-            throw vle::utils::ArgError(vle::fmt("[MetaManager] error for "
-                 "configuration type of parallel max expes, got '%1%'")
-            % (*init.get("config_parallel_max_expes")));
-        }
-    }
-    if (init.exist("config_parallel_rm_files")) {
-        mRemoveSimulationFiles = init.getBoolean("config_parallel_rm_files");
-    }
-    if (init.exist("package")) {
-        mIdPackage = init.getString("package");
-    } else {
-        throw vle::utils::ArgError("[MetaManager] missing 'package'");
-    }
-    if (init.exist("vpz")) {
-        mIdVpz = init.getString("vpz");
-    } else {
-        throw vle::utils::ArgError("[MetaManager] missing 'vpz'");
-    }
-
-    std::string prefix;
-    std::string varname;
-    vle::value::Map::const_iterator itb = init.begin();
-    vle::value::Map::const_iterator ite = init.end();
-    for (; itb != ite; itb++) {
-        const std::string& conf_name = itb->first;
-        if (!prefix.assign("input_").empty() and
-                !conf_name.compare(0, prefix.size(), prefix)) {
-            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
-            mInputs.push_back(new VleInput(varname, *itb->second));
-        } else if (!prefix.assign("output_").empty() and
-                        !conf_name.compare(0, prefix.size(), prefix)) {
-            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
-            mOutputs.push_back(VleOutput(varname, *itb->second));
-        } else if (!prefix.assign("replicate_").empty() and
-                !conf_name.compare(0, prefix.size(), prefix)) {
-            if (not mReplicate == 0) {
-                throw vle::utils::ArgError(vle::fmt("[MetaManager] : the"
-                        " replica is already defined with '%1%'")
-                   % mReplicate->getName());
-            }
-            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
-            mReplicate = new VleInput(varname, *itb->second);
-        }
-    }
-    //check
-    if (mInputs.size() == 0) {
-        throw vle::utils::ArgError("[MetaManager] : error no inputs");
-    }
-    unsigned int initSize = 0;;
-    for (unsigned int i = 0; i< mInputs.size(); i++) {
-        VleInput* vleIn = mInputs[0];
-        if (vleIn->type == MULTI ) {
-            if (initSize == 0) {
-                initSize = vleIn->nbValues();
-            } else {
-                if (initSize != vleIn->nbValues()) {
-                    throw vle::utils::ArgError(vle::fmt("[MetaManager]: error "
-                            "in input values: wrong number of values 1st "
-                            " input has %1% values, %2%th input has %3% values")
-                            % initSize % i % vleIn->nbValues());
-                }
-            }
-        }
-    }
-}
-
-/**
- * @brief Simulates the experiment plan
- * @return the values
- */
-const vle::value::Value&
-MetaManager::launchSimulations()
-{
-    vle::vpz::Vpz model;
-    vle::utils::Package pkg(mIdPackage);
-    std::string vpzFile = pkg.getExpFile(mIdVpz, vle::utils::PKG_BINARY);
-    model.parseFile(vpzFile);
-    model.project().experiment().setCombination("linear");
-
-    VleAPIfacilities::changeAllPlugin(model, "dummy");
-    std::vector<VleOutput>::const_iterator itb= mOutputs.begin();
-    std::vector<VleOutput>::const_iterator ite= mOutputs.end();
-    for (; itb != ite; itb++) {
-        switch(mConfigParallelType) {
-            case SINGLE:
-            case THREADS: {
-                VleAPIfacilities::changePlugin(model, itb->view, "storage");
-                break;
-            } case MVLE: {
-                VleAPIfacilities::changePlugin(model, itb->view, "file");
-                break;
-            }
-        }
-    }
-
-    unsigned int inputSize = inputsSize();
-    unsigned int repSize = replicasSize();
-    unsigned int outputSize =  mOutputs.size();
-    postInputs(model);
-
-
-    switch(mConfigParallelType) {
-    case SINGLE:
-    case THREADS: {
-        std::ofstream outstream(
-                vle::utils::Path::path().getHomeFile("metamanager.log").c_str());
-        vle::manager::Manager planSimulator(vle::manager::LOG_NONE,
-                vle::manager::SIMULATION_NONE,
-                &outstream);
-        vle::utils::ModuleManager modules;
-        vle::manager::Error manerror;
-
-        vle::value::Matrix* output_mat =  planSimulator.run(
-                new vle::vpz::Vpz(model), modules, mConfigParallelNbSlots,
-                0, 1, &manerror);
-        if (manerror.code != 0) {
-            throw vle::utils::InternalError(
-                    vle::fmt("Error in MetaManager '%1%'")
-            % manerror.message);
-        }
-
-        delete mResults;
-        mResults= new vle::value::Matrix(outputSize, inputSize, 1, 1);
-
-
-        for (unsigned int out =0; out < outputSize; out++) {
-            VleOutput& outId = mOutputs[out];
-            for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
-                outId.initAggregateResult();
-                for (unsigned int j = 0; j < repSize; j++) {
-                    outId.insertReplicate(output_mat->get(i+j,0)->toMap());
-                }
-                mResults->set(out, i % inputSize, outId.buildAggregateResult());
-            }
-        }
-        delete output_mat;
-        return *mResults;
-        break;
-    } case MVLE: {
-
-        vu::Package pkg("vle.recursive");//TODO should be saved outside the rr package
-        std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
-        tempvpzPath.append("/temp_gen_MPI.vpz");
-        model.write(tempvpzPath);
-        vu::Spawn mspawn;
-        std::string exe = vu::Path::findProgram("mpirun");
-
-        std::vector < std::string > argv;
-        argv.push_back("-np");
-        std::stringstream ss;
-        {
-            ss << mConfigParallelNbSlots;
-            argv.push_back(ss.str());
-        }
-        argv.push_back("mvle");
-        argv.push_back("-P");//TODO should be simulated outside the rr package
-        argv.push_back("vle.recursive");
-        argv.push_back("temp_gen_MPI.vpz");
-        boost::system::error_code fsPathError;
-        boost::filesystem::path currentPath(
-                boost::filesystem::current_path(fsPathError));
-
-        bool started = mspawn.start(exe, mWorkingDir, argv);
-        if (not started) {
-            throw vu::ArgError(vle::fmt(_("Failed to start `%1%'")) % exe);
-        }
-        std::string message;
-        bool is_success = true;
-        mspawn.wait();
-        mspawn.status(&message, &is_success);
-        boost::filesystem::current_path(currentPath, fsPathError);
-
-        if (! is_success) {
-            throw vu::ArgError(vle::fmt(_("Error launching `%1%' : %2% "))
-            % exe % message);
-        }
-        delete mResults;
-        mResults= new vle::value::Matrix(outputSize, inputSize, 1, 1);
-        for (unsigned int out =0; out < outputSize; out++) {
-            VleOutput& outId = mOutputs[out];
-            for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
-                outId.initAggregateResult();
-                for (unsigned int j = 0; j < repSize; j++) {
-                    std::string vleResultFilePath = mWorkingDir;
-                    vleResultFilePath.append(model.project().experiment().name());
-                    vleResultFilePath.append("-");
-                    vleResultFilePath.append(boost::lexical_cast<std::string>(i+j));
-                    vleResultFilePath.append("_");
-                    vleResultFilePath.append(outId.view);
-                    vleResultFilePath.append(".dat");
-                    vle::reader::VleResultsTextReader tfr(vleResultFilePath);
-                    vle::value::Matrix mat;
-                    tfr.readFile(mat);
-                    outId.insertReplicate(mat);
-                    if (mRemoveSimulationFiles and out == (outputSize-1)) {
-                        boost::filesystem::remove(vleResultFilePath.c_str());
-                    }
-                }
-                mResults->set(out, i % inputSize, outId.buildAggregateResult());
-            }
-        }
-        return *mResults;
-        break;
-    }
-    }
-    return *mResults;
-
-}
-
-vle::value::Matrix*
-MetaManager::getResults()
-{
-    return mResults;
-}
-
-
 //private functions
 VleInput::VleInput(const std::string& conf,
         const vle::value::Value& val):
-        cond(), port(), type(MONO), inputValues()
+        cond(), port(), type(MONO)
 {
     std::vector <std::string> splvec;
     boost::split(splvec, conf, boost::is_any_of("."),
@@ -351,12 +61,15 @@ VleInput::VleInput(const std::string& conf,
     }
     switch (val.getType()) {
     case vle::value::Value::TUPLE:
+        nbValues = val.toTuple().size();
+        type = MULTI;
+        break;
     case vle::value::Value::SET:
-        inputValues = val.clone();
+        nbValues = val.toSet().size();
         type = MULTI;
         break;
     default:
-        inputValues = val.clone();
+        nbValues = 1;
         type = MONO;
         break;
     }
@@ -364,25 +77,19 @@ VleInput::VleInput(const std::string& conf,
 
 VleInput::~VleInput()
 {
-    delete inputValues;
 }
 
-unsigned int
-VleInput::nbValues() const
+const vle::value::Value&
+VleInput::values(const vle::value::Map& init, bool replicate)
 {
-    switch (inputValues->getType()) {
-    case vle::value::Value::TUPLE:
-        return inputValues->toTuple().size();
-        break;
-    case vle::value::Value::SET:
-        return inputValues->toSet().size();
-        break;
-    default:
-        throw vle::utils::ArgError(vle::fmt("[MetaManager] : Input values"
-                " types not handled for input '%1%.%2%'") % cond % port);
-        break;
+    std::string key("");
+    if (replicate) {
+        key.append("replicate_");
+    } else {
+        key.append("input_");
     }
-    return 1;
+    key.append(getName());
+    return *init.get(key);
 }
 
 std::string
@@ -522,13 +229,16 @@ VleOutput::insertReplicate(const vle::value::Matrix& outMat)
         break;
     } case MSE: {
         double sum_square_error = 0;
+        double nbVal = 0;
         for (unsigned int i=0; i< mse_times->size(); i++) {
-            sum_square_error += std::pow(
-                 (outVec[std::floor((*mse_times).at(i))]->toDouble().value()
-                         - mse_observations->at(i))
-                 , 2);
+            int t = std::floor(mse_times->at(i));
+            if (t > 0 and t< (int) outVec.size()) {
+                sum_square_error += std::pow((outVec[t]->toDouble().value()
+                         - mse_observations->at(i)), 2);
+                nbVal++;
+            }
         }
-        maccuMono->insert(sum_square_error/mse_times->size());
+        maccuMono->insert(sum_square_error/nbVal);
         break;
     } case ALL:{
         maccuMulti->insert(outVec);
@@ -579,10 +289,9 @@ VleOutput::buildAggregateResult()
 unsigned int
 MetaManager::inputsSize() const
 {
-
     for (unsigned int i=0; i < mInputs.size(); i++) {
         if (mInputs[i]->type == MULTI) {
-            return mInputs[i]->nbValues();
+            return mInputs[i]->nbValues;
         }
     }
     return 1;
@@ -595,25 +304,290 @@ MetaManager::replicasSize() const
     if (not mReplicate) {
         return 1;
     }
-
-    unsigned int repsSize = 0;
-    switch (mReplicate->inputValues->getType()) {
-    case vle::value::Value::TUPLE:
-        repsSize = mReplicate->inputValues->toTuple().size();
-        break;
-    case vle::value::Value::SET:
-        repsSize = mReplicate->inputValues->toSet().size();
-        break;
-    default:
-        throw vle::utils::ArgError(
-                "[MetaManager]: Replicate types not handled");
-        break;
-    }
-    return repsSize;
+    return mReplicate->nbValues;
 }
 
+
+
+MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
+        mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
+        mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
+        mInputs(), mReplicate(0), mOutputs(), mWorkingDir("")
+{
+}
+
+MetaManager::~MetaManager()
+{
+    {
+        std::vector<VleInput*>::iterator itb = mInputs.begin();
+        std::vector<VleInput*>::iterator ite = mInputs.end();
+        for (; itb != ite; itb ++) {
+            delete *itb;
+        }
+    }
+    delete mReplicate;
+}
+
+vle::value::Matrix*
+MetaManager::run(const vle::value::Map& init)
+{
+    if (init.exist("config_parallel_type")) {
+        std::string tmp;
+        tmp.assign(init.getString("config_parallel_type"));
+        if (tmp == "threads") {
+            mConfigParallelType = THREADS;
+        } else if (tmp == "mvle") {
+            mConfigParallelType = MVLE;
+            if (! init.exist("working_dir")) {
+                throw vle::utils::ArgError("[MetaManager] error for "
+                        "mvle config, missing 'working_dir' parameter");
+            }
+            mWorkingDir.assign(init.getString("working_dir"));
+        }  else if (tmp == "single") {
+            mConfigParallelType = SINGLE;
+        } else {
+            throw vle::utils::ArgError(vle::fmt("[MetaManager] error for "
+                    "configuration type of parallel process, got '%1%'")
+            % (*init.get("config_parallel_type")));
+        }
+    }
+    if (init.exist("config_parallel_nb_slots")) {
+        int tmp;
+        tmp = init.getInt("config_parallel_nb_slots");
+        if (tmp > 0) {
+            mConfigParallelNbSlots = tmp;
+        } else {
+            throw vle::utils::ArgError(vle::fmt("[MetaManager] error for "
+                 "configuration type of parallel nb slots, got '%1%'")
+            % (*init.get("config_parallel_nb_slots")));
+        }
+    }
+    if (init.exist("config_parallel_max_expes")) {
+        int tmp;
+        tmp = init.getInt("config_parallel_max_expes");
+        if (tmp > 0) {
+            if ((unsigned int) tmp < mConfigParallelNbSlots) {
+                throw vle::utils::ArgError(vle::fmt("[MetaManager] error for "
+                        "configuration type of parallel max expes, got '%1%'"
+                        "which is less than nb slots: '%2%'")
+                % tmp % mConfigParallelNbSlots);
+            }
+            mConfigParallelMaxExpes = tmp;
+        } else {
+            throw vle::utils::ArgError(vle::fmt("[MetaManager] error for "
+                 "configuration type of parallel max expes, got '%1%'")
+            % (*init.get("config_parallel_max_expes")));
+        }
+    }
+    if (init.exist("config_parallel_rm_files")) {
+        mRemoveSimulationFiles = init.getBoolean("config_parallel_rm_files");
+    }
+    if (init.exist("package")) {
+        mIdPackage = init.getString("package");
+    } else {
+        throw vle::utils::ArgError("[MetaManager] missing 'package'");
+    }
+    if (init.exist("vpz")) {
+        mIdVpz = init.getString("vpz");
+    } else {
+        throw vle::utils::ArgError("[MetaManager] missing 'vpz'");
+    }
+
+    std::string prefix;
+    std::string varname;
+    vle::value::Map::const_iterator itb = init.begin();
+    vle::value::Map::const_iterator ite = init.end();
+    for (; itb != ite; itb++) {
+        const std::string& conf_name = itb->first;
+        if (!prefix.assign("input_").empty() and
+                !conf_name.compare(0, prefix.size(), prefix)) {
+            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
+            mInputs.push_back(new VleInput(varname, *itb->second));
+        } else if (!prefix.assign("output_").empty() and
+                        !conf_name.compare(0, prefix.size(), prefix)) {
+            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
+            mOutputs.push_back(VleOutput(varname, *itb->second));
+        } else if (!prefix.assign("replicate_").empty() and
+                !conf_name.compare(0, prefix.size(), prefix)) {
+            if (not mReplicate == 0) {
+                throw vle::utils::ArgError(vle::fmt("[MetaManager] : the"
+                        " replica is already defined with '%1%'")
+                   % mReplicate->getName());
+            }
+            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
+            mReplicate = new VleInput(varname, *itb->second);
+        }
+    }
+    //check
+    if (mInputs.size() == 0) {
+        throw vle::utils::ArgError("[MetaManager] : error no inputs");
+    }
+    unsigned int initSize = 0;;
+    for (unsigned int i = 0; i< mInputs.size(); i++) {
+        VleInput* vleIn = mInputs[0];
+        if (vleIn->type == MULTI ) {
+            if (initSize == 0) {
+                initSize = vleIn->nbValues;
+            } else {
+                if (initSize != vleIn->nbValues) {
+                    throw vle::utils::ArgError(vle::fmt("[MetaManager]: error "
+                            "in input values: wrong number of values 1st "
+                            " input has %1% values, %2%th input has %3% values")
+                            % initSize % i % vleIn->nbValues);
+                }
+            }
+        }
+    }
+    return runIntern(init);
+}
+
+
+vle::value::Matrix*
+MetaManager::runIntern(const vle::value::Map& init)
+{
+    vle::vpz::Vpz model;
+    vle::utils::Package pkg(mIdPackage);
+    std::string vpzFile = pkg.getExpFile(mIdVpz, vle::utils::PKG_BINARY);
+    model.parseFile(vpzFile);
+    model.project().experiment().setCombination("linear");
+
+    VleAPIfacilities::changeAllPlugin(model, "dummy");
+    std::vector<VleOutput>::const_iterator itb= mOutputs.begin();
+    std::vector<VleOutput>::const_iterator ite= mOutputs.end();
+    for (; itb != ite; itb++) {
+        switch(mConfigParallelType) {
+            case SINGLE:
+            case THREADS: {
+                VleAPIfacilities::changePlugin(model, itb->view, "storage");
+                break;
+            } case MVLE: {
+                VleAPIfacilities::changePlugin(model, itb->view, "file");
+                break;
+            }
+        }
+    }
+
+    unsigned int inputSize = inputsSize();
+    unsigned int repSize = replicasSize();
+    unsigned int outputSize =  mOutputs.size();
+    postInputsIntern(model, init);
+
+
+    //build output matrix with header
+    vle::value::Matrix* results = new vle::value::Matrix(outputSize,
+            inputSize+1, 1, 1);
+    for (unsigned int j=0; j<outputSize;j++) {
+        results->set(j,0, new vle::value::String(mOutputs[j].id));
+    }
+
+
+    switch(mConfigParallelType) {
+    case SINGLE:
+    case THREADS: {
+        std::ofstream outstream(
+                vle::utils::Path::path().getHomeFile("metamanager.log").c_str());
+        vle::manager::Manager planSimulator(vle::manager::LOG_NONE,
+                vle::manager::SIMULATION_NONE,
+                &outstream);
+        vle::utils::ModuleManager modules;
+        vle::manager::Error manerror;
+
+        vle::value::Matrix* output_mat =  planSimulator.run(
+                new vle::vpz::Vpz(model), modules, mConfigParallelNbSlots,
+                0, 1, &manerror);
+        if (manerror.code != 0) {
+            throw vle::utils::InternalError(
+                    vle::fmt("Error in MetaManager '%1%'")
+            % manerror.message);
+        }
+
+        for (unsigned int out =0; out < outputSize; out++) {
+            VleOutput& outId = mOutputs[out];
+            for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
+                outId.initAggregateResult();
+                for (unsigned int j = 0; j < repSize; j++) {
+                    outId.insertReplicate(output_mat->get(i+j,0)->toMap());
+                }
+                results->set(out, 1+(i % inputSize),
+                        outId.buildAggregateResult());
+            }
+        }
+        delete output_mat;
+        return results;
+        break;
+    } case MVLE: {
+
+        vu::Package pkg("vle.recursive");//TODO should be saved outside the rr package
+        std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
+        tempvpzPath.append("/temp_gen_MPI.vpz");
+        model.write(tempvpzPath);
+        vu::Spawn mspawn;
+        std::string exe = vu::Path::findProgram("mpirun");
+
+        std::vector < std::string > argv;
+        argv.push_back("-np");
+        std::stringstream ss;
+        {
+            ss << mConfigParallelNbSlots;
+            argv.push_back(ss.str());
+        }
+        argv.push_back("mvle");
+        argv.push_back("-P");//TODO should be simulated outside the rr package
+        argv.push_back("vle.recursive");
+        argv.push_back("temp_gen_MPI.vpz");
+        boost::system::error_code fsPathError;
+        boost::filesystem::path currentPath(
+                boost::filesystem::current_path(fsPathError));
+
+        bool started = mspawn.start(exe, mWorkingDir, argv);
+        if (not started) {
+            throw vu::ArgError(vle::fmt(_("Failed to start `%1%'")) % exe);
+        }
+        std::string message;
+        bool is_success = true;
+        mspawn.wait();
+        mspawn.status(&message, &is_success);
+        boost::filesystem::current_path(currentPath, fsPathError);
+
+        if (! is_success) {
+            throw vu::ArgError(vle::fmt(_("Error launching `%1%' : %2% "))
+            % exe % message);
+        }
+
+        for (unsigned int out =0; out < outputSize; out++) {
+            VleOutput& outId = mOutputs[out];
+            for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
+                outId.initAggregateResult();
+                for (unsigned int j = 0; j < repSize; j++) {
+                    std::string vleResultFilePath = mWorkingDir;
+                    vleResultFilePath.append(model.project().experiment().name());
+                    vleResultFilePath.append("-");
+                    vleResultFilePath.append(boost::lexical_cast<std::string>(i+j));
+                    vleResultFilePath.append("_");
+                    vleResultFilePath.append(outId.view);
+                    vleResultFilePath.append(".dat");
+                    vle::reader::VleResultsTextReader tfr(vleResultFilePath);
+                    vle::value::Matrix mat;
+                    tfr.readFile(mat);
+                    outId.insertReplicate(mat);
+                    if (mRemoveSimulationFiles and out == (outputSize-1)) {
+                        boost::filesystem::remove(vleResultFilePath.c_str());
+                    }
+                }
+                results->set(out, 1+(i % inputSize),
+                        outId.buildAggregateResult());
+            }
+        }
+        return results;
+        break;
+    }}
+    return 0;
+}
+
+
 void
-MetaManager::postInputs(vle::vpz::Vpz& model) const
+MetaManager::postInputsIntern(vle::vpz::Vpz& model,
+        const vle::value::Map& init)
 {
     vle::vpz::Conditions& conds = model.project().experiment().conditions();
     //post replicas
@@ -622,15 +596,15 @@ MetaManager::postInputs(vle::vpz::Vpz& model) const
         condRep.clearValueOfPort(mReplicate->port);
         for (unsigned int i=0; i < inputsSize(); i++) {
             for (unsigned int k=0; k < replicasSize(); k++) {
-                switch(mReplicate->inputValues->getType()) {
+                const vle::value::Value& exp = mReplicate->values(init, true);
+                switch(exp.getType()) {
                 case vle::value::Value::SET:
                     condRep.addValueToPort(mReplicate->port,
-                            mReplicate->inputValues->toSet().get(k)->clone());
+                            exp.toSet().get(k)->clone());
                     break;
                 case vle::value::Value::TUPLE:
                     condRep.addValueToPort(mReplicate->port,
-                            new vle::value::Double(
-                                    mReplicate->inputValues->toTuple().at(k)));
+                            new vle::value::Double(exp.toTuple().at(k)));
                     break;
                 default:
                     //error already detected
@@ -644,21 +618,19 @@ MetaManager::postInputs(vle::vpz::Vpz& model) const
         VleInput* tmp_input = mInputs[i];
         vle::vpz::Condition& cond = conds.get(tmp_input->cond);
         cond.clearValueOfPort(tmp_input->port);
+        const vle::value::Value& exp = tmp_input->values(init, false);
         if (tmp_input->type == MONO) {
             if (not mReplicate) {
-                cond.addValueToPort(tmp_input->port,
-                        tmp_input->inputValues->clone());
+                cond.addValueToPort(tmp_input->port, exp.clone());
             } else {
                 for (unsigned int k=0; k < replicasSize(); k++) {
-                    cond.addValueToPort(tmp_input->port,
-                            tmp_input->inputValues->clone());
+                    cond.addValueToPort(tmp_input->port,exp.clone());
                 }
             }
         } else {
-            switch (tmp_input->inputValues->getType()) {
+            switch (exp.getType()) {
             case vle::value::Value::TUPLE: {
-                const vle::value::Tuple& tmp_val_tuple =
-                        tmp_input->inputValues->toTuple();
+                const vle::value::Tuple& tmp_val_tuple = exp.toTuple();
                 for (unsigned j=0; j < tmp_val_tuple.size(); j++) {//TODO maxExpe
                     double tmp_j = tmp_val_tuple[j];
                     if (not mReplicate) {
@@ -673,8 +645,7 @@ MetaManager::postInputs(vle::vpz::Vpz& model) const
                 }
                 break;
             } case vle::value::Value::SET: {
-                const vle::value::Set& tmp_val_set =
-                        tmp_input->inputValues->toSet();
+                const vle::value::Set& tmp_val_set =exp.toSet();
                 for (unsigned j=0; j < tmp_val_set.size(); j++) {//TODO maxExpe
                     const vle::value::Value* tmp_j = tmp_val_set.get(j);
                     if (not mReplicate) {

@@ -124,10 +124,12 @@ IF(WITH_DOC)
 ENDIF(WITH_DOC)
 ADD_SUBDIRECTORY(exp)
 ADD_SUBDIRECTORY(src)
-
-IF (Boost_UNIT_TEST_FRAMEWORK_FOUND AND WITH_TEST)
-  #ADD_SUBDIRECTORY(test)
-ENDIF (Boost_UNIT_TEST_FRAMEWORK_FOUND AND WITH_TEST)
+if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/R")
+  add_subdirectory(R)
+endif ()
+if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test")
+  add_subdirectory(test)
+endif ()
 
 ##
 ## CPack configuration

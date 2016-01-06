@@ -66,13 +66,13 @@
 </outputs>
 <observables>
 <observable name="obs">
-<port name="output_0_0">
+<port name="output_y_1">
  <attachedview name="view"/>
 </port>
 
 
 
-<port name="output_1_0">
+<port name="output_y_2">
  <attachedview name="view"/>
 </port>
 

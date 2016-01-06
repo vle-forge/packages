@@ -43,13 +43,20 @@ struct VleInput
      */
     VleInput(const std::string& conf, const vle::value::Value& config);
     virtual ~VleInput();
-    unsigned int nbValues() const;
+    /**
+     * @brief Gets the experiment plan from initialization map
+     * @param init, the initialization map
+     * @param replicate, true if this is the replicate and not an input
+     * @return a reference to the set of values
+     */
+    const vle::value::Value& values(const vle::value::Map& init,
+            bool replicate=false);
     std::string getName();
 
     std::string cond;
     std::string port;
     INPUT_TYPE type;
-    vle::value::Value* inputValues;
+    unsigned int nbValues;
 
 };
 
@@ -124,7 +131,6 @@ private:
     VleInput* mReplicate;
     std::vector<VleOutput> mOutputs;//view * port
     std::vector<vle::value::Value*> mOutputValues;//values are Tuple or Set
-    vle::value::Matrix* mResults;
     std::string mWorkingDir; //only for mvle
 
 public:
@@ -137,30 +143,18 @@ public:
      */
     virtual ~MetaManager();
     /**
-     * @brief Initialize the MetaManager
-     * @param init
-     */
-    void init(const vle::value::Map& init);
-
-    /**
      * @brief Simulates the experiment plan
+     * @param init, the initialization map
      * @return the values
      */
-    const vle::value::Value& launchSimulations();
-    /**
-     * @brief Get the results (possibly empty)
-     */
-    vle::value::Matrix* getResults();
-
-
-
+    vle::value::Matrix* run(const vle::value::Map& init);
 
 private:
 
-
     unsigned int inputsSize() const;
     unsigned int replicasSize() const;
-    void postInputs(vle::vpz::Vpz& model) const;
+    vle::value::Matrix* runIntern(const vle::value::Map& init);
+    void postInputsIntern(vle::vpz::Vpz& model, const vle::value::Map& init);
 };
 
 }}//namespaces

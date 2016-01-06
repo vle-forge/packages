@@ -65,14 +65,14 @@ BOOST_AUTO_TEST_CASE(test_api)
     init.add("input_cond.x1", x1);
     init.add("input_cond.x2", x2);
     init.addString("output_y", "view/ExBohachevsky:ExBohachevsky.y");
-    init.addString("output_y_noise",
+    init.addString("output_ynoise",
             "view/ExBohachevsky:ExBohachevsky.y_noise");
     init.add("replicate_cond.seed",r);
     vr::MetaManager meta;
-    meta.init(init);
-    const vv::Matrix& res = meta.launchSimulations().toMatrix();
-    BOOST_REQUIRE_CLOSE(res.getDouble(0/*col*/,0),209.6,10e-4);
-    BOOST_REQUIRE_CLOSE(res.getDouble(1,0),209.6486,10e-4);
-    BOOST_REQUIRE_CLOSE(res.getDouble(0,1),0.0,10e-4);
-    BOOST_REQUIRE_CLOSE(res.getDouble(1,1),0.04861,10e-3);
+    vv::Matrix* res = meta.run(init);
+    BOOST_REQUIRE_CLOSE(res->getDouble(0/*col*/,1),209.6,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getDouble(1,1),209.6486,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getDouble(0,2),0.0,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getDouble(1,2),0.04861,10e-3);
+    delete res;
 }

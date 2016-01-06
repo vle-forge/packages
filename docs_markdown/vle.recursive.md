@@ -75,7 +75,7 @@ It can contains:
   mse_times must have the same length.
     * **aggregation** (string amongst "mean", "quantile" default "mean"): It gives
   the type of aggregation to perform on the simulations replicates.
-* **replicate_x** (vle::value::Value, optional) where X is of the 
+* **replicate_X** (vle::value::Value, optional) where X is of the 
  form *condname/portname*, it gives the values for the replicates (eg. seeds).
  It has to be a *vle::value::Set* or *vle:value::Tuple*.
 * **config_parallel_type** (string amongst *threads*, *mvle* and *single*;

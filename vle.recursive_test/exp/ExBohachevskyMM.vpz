@@ -31,7 +31,7 @@
       </key>
      </map>
     </port>
- <port name="output_y_noise">
+ <port name="output_ynoise">
 <map>
       <key name="integration">
        <string>max</string>
@@ -80,27 +80,29 @@
 </outputs>
 <observables>
 <observable name="obs">
-<port name="output_0_0">
- <attachedview name="view"/>
-</port>
 
-<port name="output_0_1">
- <attachedview name="view"/>
-</port>
 
-<port name="output_1_0">
- <attachedview name="view"/>
-</port>
 
-<port name="output_1_1">
- <attachedview name="view"/>
-</port>
 
-<port name="outputs">
- <attachedview name="view"/>
-</port>
 
-</observable>
+
+
+
+
+
+<port name="output_y_1">
+      <attachedview name="view"/>
+     </port>
+     <port name="output_ynoise_1">
+      <attachedview name="view"/>
+     </port>
+     <port name="output_y_2">
+      <attachedview name="view"/>
+     </port>
+     <port name="output_ynoise_2">
+      <attachedview name="view"/>
+     </port>
+    </observable>
 
 </observables>
 <view output="view" type="timed" timestep="1.000000000000000" name="view"/>

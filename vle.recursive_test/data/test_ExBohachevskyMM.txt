@@ -1,4 +1,4 @@
-vle.recursive_test ExBohachevskyMM.vpz view "ExBohachevskyMM:ExBohachevskyMM.output_0_0" 1 10e-3 209.6
-vle.recursive_test ExBohachevskyMM.vpz view "ExBohachevskyMM:ExBohachevskyMM.output_0_1" 2 10e-3 209.648
-vle.recursive_test ExBohachevskyMM.vpz view "ExBohachevskyMM:ExBohachevskyMM.output_1_0" 2 10e-3 0.0
-vle.recursive_test ExBohachevskyMM.vpz view "ExBohachevskyMM:ExBohachevskyMM.output_1_1" 2 10e-3 0.04861
+vle.recursive_test ExBohachevskyMM.vpz view "ExBohachevskyMM:ExBohachevskyMM.output_y_1" 1 10e-3 209.6
+vle.recursive_test ExBohachevskyMM.vpz view "ExBohachevskyMM:ExBohachevskyMM.output_ynoise_1" 2 10e-3 209.648
+vle.recursive_test ExBohachevskyMM.vpz view "ExBohachevskyMM:ExBohachevskyMM.output_y_2" 2 10e-3 0.0
+vle.recursive_test ExBohachevskyMM.vpz view "ExBohachevskyMM:ExBohachevskyMM.output_ynoise_2" 2 10e-3 0.04861

@@ -21,11 +21,13 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Value.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/recursive/MetaManager.hpp>
+#include <iostream>
 
 namespace vle {
 namespace recursive {
@@ -54,12 +56,13 @@ public:
      */
     MetaManagerDyn(const vd::DynamicsInit& init,
             const vd::InitEventList& events): vd::Dynamics(init,events),
-                    meta(0), minit(0),stepDuration(0.0), mstate(IDLE)
+                    meta(), stepDuration(0.0), mstate(IDLE), mresults(0)
     {
-
         if (events.exist("vpz") and
                 not events.getString("vpz").empty()){
-            minit = (vle::value::Map*) events.clone();
+            mstate = EXPE_LAUNCH;
+            mresults = meta.run(events);
+
         }
     }
 
@@ -68,12 +71,7 @@ public:
      */
     virtual ~MetaManagerDyn()
     {
-        if(minit){
-            delete minit;
-        }
-        if(meta){
-            delete meta;
-        }
+        delete mresults;
     }
 
     /**
@@ -81,14 +79,6 @@ public:
      */
     vd::Time init(const vd::Time& /*time*/)
     {
-        if(minit){
-            meta = new MetaManager();
-            meta->init(*minit);
-            meta->launchSimulations();
-            mstate = EXPE_LAUNCH;
-        } else {
-            mstate = IDLE;
-        }
         return timeAdvance();
     }
     /**
@@ -128,10 +118,9 @@ public:
     {
         switch(mstate){
         case EXPE_LAUNCH: {
-            if (meta and meta->getResults() and
-                    getModel().existOutputPort("outputs")) {
+            if (mresults and getModel().existOutputPort("outputs")) {
                 vd::ExternalEvent* ee = new vd::ExternalEvent("outputs");
-                ee->putAttribute("inputs", meta->getResults()->clone());
+                ee->putAttribute("outputs", mresults->clone());
                 output.push_back(ee);
             }
             break;
@@ -159,47 +148,58 @@ public:
                 found =  ((*itb)->getPortName() == "inputs");
             }
             if (found) {
-                delete meta;
-                delete minit;
-                minit = (vle::value::Map*)
-                        (*itb)->getAttributeValue("inputs").clone();
-                meta = new MetaManager();
-                meta->init(*minit);
-                meta->launchSimulations();
+                delete mresults;
+                mresults = meta.run(
+                        (*itb)->getAttributeValue("inputs").toMap());
                 mstate = EXPE_LAUNCH;
             }
             break;
         }}
     }
 
+
+    /**
+     * @brief Observation function
+     * @note event port names:
+     * - outputs
+     * - output_Y_i: where Y is the id of an output and i is the index of
+     * simulation input
+     */
     virtual vle::value::Value* observation(
     const vle::devs::ObservationEvent& event) const
     {
-        if (meta and meta->getResults()) {
-            if (event.onPort("outputs")) {
-                 return meta->getResults()->clone();
+        if (mresults) {
+            std::string portName = event.getPortName();
+            if (portName == "outputs") {
+                 return mresults->clone();
             }
             std::string prefix;
             std::string indexes;
             if (!prefix.assign("output_").empty() and
-                    !event.getPortName().compare(0, prefix.size(), prefix)) {
-                indexes.assign(event.getPortName().substr(prefix.size(),
-                        event.getPortName().size()));
-                std::vector<std::string>  splitVec;
-                boost::split(splitVec, indexes, boost::is_any_of("_"),
+                    !portName.compare(0, prefix.size(), prefix)) {
+                indexes.assign(portName.substr(prefix.size(),
+                        portName.size()));
+                std::vector<std::string>  spl;
+                boost::split(spl, indexes, boost::is_any_of("_"),
                         boost::token_compress_on);
-                if (splitVec.size() != 2){
+                if (spl.size() != 2){
                     return 0;
                 }
-                int row = atoi(splitVec[0].c_str());
-                int col = atoi(splitVec[1].c_str());
-                if (not meta->getResults()) {
+                std::string colname = spl[0];
+                int col = -1;
+                for (unsigned int c = 0; c < mresults->columns(); c++) {
+                    if (mresults->get(c,0)->toString().value() == colname) {
+                        col = c;
+                    }
+                }
+                if (col == -1) {
                     return 0;
                 }
-                if (not meta->getResults()->get(col,row)) {
+                int row = boost::lexical_cast<int>(spl[1]);
+                if (not mresults->get(col,row)) {
                     return 0;
                 }
-                return meta->getResults()->get(col,row)->clone();
+                return mresults->get(col,row)->clone();
             }
         }
         return 0;
@@ -208,11 +208,7 @@ public:
     /**
      * @brief Instance of MetaManager
      */
-    vle::recursive::MetaManager* meta;
-    /**
-     * @brief Initialization of one experiment process
-     */
-    vv::Map* minit;
+    vle::recursive::MetaManager meta;
     /**
      * @brief the duration of one step (duration of one call of
      * processStep)
@@ -222,6 +218,11 @@ public:
      * @brief State of the PDEVS dynamics
      */
     STATE mstate;
+
+    /**
+     * @brief Results of simulations
+     */
+    vle::value::Matrix* mresults;
 
 };
 
