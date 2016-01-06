@@ -1,0 +1,25 @@
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET(CMAKE_AUTOMOC ON)
+
+FIND_PACKAGE(Qt4 REQUIRED)
+INCLUDE(${QT_USE_FILE})
+
+INCLUDE_DIRECTORIES(${VLE_INCLUDE_DIRS} ${GVLE_INCLUDE_DIRS}
+ ${Boost_INCLUDE_DIRS} ${VLE_BINARY_DIR}/src ${VLE_SOURCE_DIR}/src )
+
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS} ${VLE_LIBRARY_DIRS} ${GVLE_LIBRARY_DIRS})
+
+SET(ExpCond_SOURCES plugin.cpp toolbar.cpp tab.cpp)
+
+QT4_WRAP_UI(ui_toolbar_h  toolbar.ui)
+QT4_WRAP_UI(ui_tab_h      tab.ui)
+
+ADD_LIBRARY(ExperimentalConditions SHARED
+  ${ExpCond_SOURCES}
+  ${ui_toolbar_h}
+  ${ui_tab_h} )
+
+TARGET_LINK_LIBRARIES(ExperimentalConditions
+  ${QT_LIBRARIES} ${INTL_LIB} ${GVLE_LIBRARIES} ${VLE_LIBRARIES})
+
+INSTALL(TARGETS ExperimentalConditions DESTINATION plugins/gvle/condition)
