@@ -1,0 +1,24 @@
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET(CMAKE_AUTOMOC ON)
+
+FIND_PACKAGE(Qt4 REQUIRED)
+INCLUDE(${QT_USE_FILE})#used for QT4_WRAP_UI
+
+INCLUDE_DIRECTORIES(${VLE_INCLUDE_DIRS} ${GVLE_INCLUDE_DIRS} 
+  ${Boost_INCLUDE_DIRS} ${VLE_BINARY_DIR}/src 
+  ${VLE_SOURCE_DIR}/src)
+
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS} ${VLE_LIBRARY_DIRS} ${GVLE_LIBRARY_DIRS})
+
+SET(StoragePlugin_SOURCES StoragePluginGUI.cpp StoragePluginGUItab.cpp)
+
+QT4_WRAP_UI(StoragePluginGvle_h      StoragePluginGvle.ui)
+
+ADD_LIBRARY(gvleOutputStorage SHARED
+  ${StoragePlugin_SOURCES}
+  ${StoragePluginGvle_h} )
+
+TARGET_LINK_LIBRARIES(gvleOutputStorage
+  ${QT_LIBRARIES} ${INTL_LIB} ${GVLE_LIBRARIES} ${VLE_LIBRARIES})
+
+INSTALL(TARGETS gvleOutputStorage DESTINATION plugins/gvle/output)

@@ -3,9 +3,10 @@
 #
 # Try to find GVLE
 #
-# Copyright 2012-2014 INRA
+# Copyright 2012-2015 INRA
 # Gauthier Quesnel <quesnel@users.sourceforge.net>
 # Ronan Trépos <ronan.trepos@toulouse.inra.fr>
+# Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
 #
 # Distributed under the OS-approved BSD License (the "License");
 # This software is distributed WITHOUT ANY WARRANTY; without even the
@@ -21,7 +22,7 @@
 #
 # CMake variables used by this module:
 #
-#  VLE_ABI_VERSION       - gives the VLE version to search for (e.g 1.1, 1.2)
+#  VLE_ABI_VERSION       - gives the VLE version to search for (e.g 1.3)
 #                          (REQUIRED)
 #  GVLE_DEBUG            - If true, prints debug traces
 #                          (default OFF)
@@ -39,7 +40,7 @@
 #
 # Notes :
 # ---------
-#   FindGVLE will try to find GVLE, VLE and the gtkmm dependencies,
+#   FindGVLE will try to find GVLE, VLE and the Qt dependencies,
 #   finding GVLE does not require to call FindVLE before
 #
 #=============================================================================
@@ -47,7 +48,7 @@
 # Usage
 # -----
 #
-# set(VLE_ABI_VERSION 1.2)
+# set(VLE_ABI_VERSION 1.3)
 # find_package(GVLE REQUIRED)
 #
 #=============================================================================
@@ -116,35 +117,29 @@ if (${_find_gvle_using_cmake})
      message (FATAL_ERROR "Missing gvle dependencies")
   endif ()
 
+  set(ENV(QTDIR)  ${_gvle_base_include}/../Qt)
+
+  set(CMAKE_INCLUDE_CURRENT_DIR ON)
+  set(CMAKE_AUTOMOC ON)
+
+  set(QT_USE_QTXML TRUE)
+  set(QT_USE_QTHELP TRUE)
+
+  find_package(Qt4 REQUIRED)
+  if (NOT QT_FOUND)
+    message(FATAL_ERROR "Qt is required")
+  endif (NOT QT_FOUND)
+  include(${QT_USE_FILE})
+
   set(GVLE_INCLUDE_DIRS
     ${_gvle_base_include}/vle-${VLE_ABI_VERSION}; ${_gvle_base_include};
-    ${_gvle_base_include}/gtkmm-3.0;${_gvle_base_lib}/gtkmm-3.0/include;
-    ${_gvle_base_include}/cairomm-1.0;${_gvle_base_lib}/cairomm-1.0/include;
-    ${_gvle_base_include}/atkmm-1.6;
-    ${_gvle_base_include}/giomm-2.4;${_gvle_base_lib}/giomm-2.4/include;
-    ${_gvle_base_include}/pangomm-1.4;${_gvle_base_lib}/pangomm-1.4/include;
-    ${_gvle_base_include}/gdkmm-2.4;${_gvle_base_lib}/gdkmm-2.4/include;
-    ${_gvle_base_include}/atk-1.0;
-    ${_gvle_base_include}/glibmm-2.4;${_gvle_base_lib}/glibmm-2.4/include;
-    ${_gvle_base_include}/glib-2.0;${_gvle_base_lib}/glib-2.0/include;
-    ${_gvle_base_include}/sigc++-2.0;${_gvle_base_lib}/sigc++-2.0/include;
-    ${_gvle_base_include}/pango-1.0;${_gvle_base_include}/cairo;
-    ${_gvle_base_include}/freetype2;${_gvle_base_include}/libpgn14;
-    ${_gvle_base_include}/gtk-2.0;${_gvle_base_lib}/gtk-2.0/include;
-    ${_gvle_base_include}/gdk-pixbuf-2.0;
-    ${_gvle_base_lib}/gdk-pixbuf-2.0/include;
-    ${_gvle_base_include}/libxml2)
+    ${QT_INCLUDES})
 
   set (GVLE_LIBRARY_DIRS
-    ${_gvle_base_bin}; ${_gvle_base_lib};
-    c:/devel/dist/win32/lipng-1.4.3-1/lib)
+    ${_gvle_base_bin}; ${_gvle_base_lib}; ${QT_BINARY_DIR}; ${QT_LIBRARY_DIR})
 
   set (GVLE_LIBRARIES
-    gvle-${VLE_ABI_VERSION} gtkmm-3.0 vle-${VLE_ABI_VERSION} atkmm-1.6
-    gdkmm-2.4 giomm-2.4 pangomm-1.4 gtk-win32-2.0 cairomm-1.0 gdk-win32-2.0
-    atk-1.0 gio-2.0 pangowin32-1.0 gdi32 pangocairo-1.0 gdk_pixbuf-2.0 png14
-    pango-1.0 gmodule-2.0 cairo xml2 glibmm-2.4 gobject-2.0 sigc-2.0
-    gthread-2.0 glib-2.0 intl)
+    gvle-${VLE_ABI_VERSION} ${QT_LIBRARIES} intl)
 
 else () # find gvle using pkg-config
   find_package(PkgConfig REQUIRED)

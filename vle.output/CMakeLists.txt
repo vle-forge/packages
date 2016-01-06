@@ -15,6 +15,11 @@ SET(VLE_NAME "${PROJECT_NAME}-${MODEL_MAJOR}.${MODEL_MINOR}")
 OPTION(WITH_TEST "will build the test [default: ON]" ON)
 OPTION(WITH_DOC "will compile doc and install it [default: OFF]" OFF)
 OPTION(WITH_WARNINGS "will compile with g++ warnings [default: ON]" ON)
+option(WITH_GVLE "use the GVLE [default: on]" ON)
+
+##
+## Flags
+##
 
 if (CMAKE_BUILD_TYPE STREQUAL "")
   SET(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build" FORCE)
@@ -61,15 +66,13 @@ VleCheckDependencies()
 ## Check GVLE and package dependencies
 ##
 
-option(WITH_GVLE "use the GVLE [default: on]" ON)
-
+message ("dbg coucou")
 if (WITH_GVLE)
+  message ("dbg WITH_GVLE")
   find_package(GVLE)
+  message ("dbg gvle includes:${GVLE_INCLUDE_DIR}")
   if (GVLE_FOUND)
     set (HAVE_GVLE 1 CACHE INTERNAL "" FORCE)
-    if (NOT WIN32)
-      pkg_check_modules(GTKSOURCEVIEW gtksourceview-2.0)
-    endif (NOT WIN32)
   else ()
     message (WARNING "GVLE not found!")
   endif ()
