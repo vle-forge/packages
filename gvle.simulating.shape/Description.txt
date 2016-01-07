@@ -1,0 +1,12 @@
+Package: gvle.simulating.shape
+Version: 0.1.0
+Depends:
+Build-Depends: ext.shapelib
+Conflicts:
+Maintainer: Patrick Chabries <patrick.chabrier@toulouse.inra.fr>
+Description: simulation plugins with spatial inputs/outputs
+ .
+Tags: output
+Url: http://www.vle-project.org/pub/1.3
+Size: 0
+MD5sum: xxxx

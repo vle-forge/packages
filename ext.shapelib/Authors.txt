@@ -1,0 +1,22 @@
+                  VLE development team
+                  ====================
+
+
+Copyright
+=========
+
+see Licence.txt
+
+Authors
+=======
+
+Integrator / Release manager
+----------------------------
+
+- Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
+
+
+Main programmer and founder
+---------------------------
+
+- Frank Warmerdam <warmerdam@pobox.com>
