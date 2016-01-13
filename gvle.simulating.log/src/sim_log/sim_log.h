@@ -35,9 +35,9 @@ public:
     ~SimLog();
     QString getname();
     QWidget *getWidget();
-    void     delWidget();
+    void delWidget();
     QWidget *getWidgetToolbar();
-    void     delWidgetToolbar();
+    void delWidgetToolbar();
     void setSettings(QSettings *s);
     void setLogger(Logger *logger);
     void init(vleVpm *vpm);
@@ -50,27 +50,28 @@ public slots:
     void delPlotSig(QString port);
     void simulationGetStep();
     void simulationFinished();
+    void refresh();
 
 private:
     void log(QString message);
     void simulationStart();
 
 private:
-    QString name;
-    QSettings             *  mSettings;
-    Logger                *  mLogger;
-    SimTabLog             *  mWidgetTab;
-    widToolbar            *  mWidgetToolbar;
-    vleVpm                *  mVpm;
-    vle::utils::Package   *  mCurrPackage;
-    QList<QString>           mObsPorts;
-    QThread               *  mThread;
-    simLogThread         *  mSimThread;
-    vle::value::Map       *  mOutputs;
-    QMap<QString, int>       mViewLastRow;
-    bool                     mSimDataValid;
-    int                      mStepCount;
-    double                   mDuration;
+    QString                     name;
+    QSettings*                  mSettings;
+    Logger*                     mLogger;
+    SimTabLog*                  mWidgetTab;
+    widToolbar*                 mWidgetToolbar;
+    vleVpm*                     mVpm;
+    vle::utils::Package*        mCurrPackage;
+    QList<QString>              mObsPorts;
+    QThread*                    mThread;
+    simLogThread*               mSimThread;
+    vle::value::Map*            mOutputs;
+    QMap<QString, int>          mViewLastRow;
+    bool                        mSimDataValid;
+    int                         mStepCount;
+    double                      mDuration;
 };
 
 }} //namespaces

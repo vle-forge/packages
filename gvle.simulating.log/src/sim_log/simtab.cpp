@@ -70,19 +70,19 @@ void SimTabLog::simStarted()
     ui->buttonSave->setEnabled(false);
     ui->progressBar->setFormat("%p%");
     ui->progressBar->setTextVisible(true);
-    ui->buttonGo->setIcon(*(new QIcon(":/icon/resources/control_pause_blue.png")));
+    ui->buttonGo->setIcon(*(new QIcon(":/icon/resources/icon/control_pause_blue.png")));
 }
 void SimTabLog::simPaused()
 {
     ui->progressBar->setFormat(tr("%p% (Paused)"));
-    ui->buttonGo->setIcon(*(new QIcon(":/icon/resources/control_play_blue.png")));
+    ui->buttonGo->setIcon(*(new QIcon(":/icon/resources/icon/control_play_blue.png")));
 }
 
 void SimTabLog::simStoped()
 {
     ui->buttonSave->setEnabled(true);
     progressBar("%p%");
-    ui->buttonGo->setIcon(*(new QIcon(":/icon/resources/control_play_blue.png")));
+    ui->buttonGo->setIcon(*(new QIcon(":/icon/resources/icon/control_play_blue.png")));
 }
 
 void SimTabLog::progressBar(int value)

@@ -89,7 +89,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normalon>:/icon/resources/disk.png</normalon>
+          <normalon>:/icon/resources/icon/disk.png</normalon>
          </iconset>
         </property>
        </widget>
@@ -160,7 +160,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>:/icon/resources/control_play_blue.png</normaloff>:/icon/resources/control_play_blue.png</iconset>
+          <normaloff>:/icon/resources/icon/control_play_blue.png</normaloff>:/icon/resources/icon/control_play_blue.png</iconset>
         </property>
        </widget>
       </item>

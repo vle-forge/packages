@@ -33,11 +33,7 @@ public:
     void simStoped();
 
 public slots:
-    void onTreeItemSelected();
     void onTreeItemChanged(QTreeWidgetItem * item, int column);
-
-private slots:
-    void onToolColor();
 
 signals:
 
@@ -51,6 +47,8 @@ private:
 private:
     Ui::widToolbar *ui;
     QList<QTreeWidgetItem *> mViewsItems;
+    QMultiMap<QString, QString> mSelection;
+    QMultiMap<QString, QString> mSelectionCleaner;
 };
 
 #endif // WIDTOOLBAR_H

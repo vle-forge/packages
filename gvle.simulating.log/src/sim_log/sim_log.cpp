@@ -154,50 +154,61 @@ void SimLog::addPlotSig(QString view, QString port)
  * @brief SimPlot::delPlotSig
  *        Slot called when a signal is disabled into the tree (toolbox)
  */
+
 void SimLog::delPlotSig(QString port)
 {
     mObsPorts.removeAll(port);
 }
 
-/**
- * @brief SimLog::init
- */
+void SimLog::refresh()
+{
+    vle::vpz::Vpz* vpz = new vle::vpz::Vpz();
+    QByteArray xml = mVpm->xGetXml();
+    std::string buffer = (char *)xml.data();
+    vpz->parseMemory(buffer);
+
+    mWidgetToolbar->buildTree(vpz);
+}
+
 void SimLog::init(vleVpm *vpm)
 {
     mVpm = vpm;
+    QObject::connect(mVpm, SIGNAL(observablesUpdated()),
+                     this, SLOT(refresh()));
 
-    vle::vpz::Vpz   *oldVpz;
+    vle::vpz::Vpz* vpz = new vle::vpz::Vpz();
+    QByteArray xml = mVpm->xGetXml();
+    std::string buffer = (char *)xml.data();
+    vpz->parseMemory(buffer);
 
-    QString fileName = vpm->getFilename();
-    oldVpz = new vle::vpz::Vpz(fileName.toStdString());
 
     vle::vpz::Observables curVpzObs;
-    vle::vpz::Views       curVpzViews;
+    vle::vpz::Views curVpzViews;
 
-    curVpzViews  = oldVpz->project().experiment().views();
-    curVpzObs    = oldVpz->project().experiment().views().observables();
+    curVpzViews = vpz->project().experiment().views();
+    curVpzObs = vpz->project().experiment().views().observables();
 
-
-    if ( getWidget() )
-    {
+    if (getWidget()) {
         // Update the title (Experiment Name and VPZ file name)
-        QString expName = oldVpz->project().experiment().name().c_str();
-        QString simTitle = QString("%1 (%2)").arg(expName).arg(oldVpz->filename().c_str());
+        QString expName = vpz->project().experiment().name().c_str();
+        QString simTitle = QString("%1 (%2)").arg(expName).arg(mVpm->getFilename());
         mWidgetTab->setModelName(simTitle);
 
         QObject::connect(mWidgetTab, SIGNAL(doStartStop()),
                          this,       SLOT  (startStop()));
     }
 
-    if ( getWidgetToolbar() )
-    {
-        mWidgetToolbar->buildTree(oldVpz);
+    if (getWidgetToolbar()){
+        mWidgetToolbar->buildTree(vpz);
+
+        mWidgetToolbar->buildTree(vpz);
 
         QObject::connect(mWidgetToolbar, SIGNAL(addSig    (QString, QString)),
                          this,           SLOT  (addPlotSig(QString, QString)));
         QObject::connect(mWidgetToolbar, SIGNAL(delSig    (QString)),
                          this,           SLOT  (delPlotSig(QString)));
     }
+    delete vpz;
 }
 
 void *SimLog::getVpm()
@@ -207,24 +218,17 @@ void *SimLog::getVpm()
 
 void SimLog::startStop()
 {
-    if (mThread == 0)
-    {
+    if (mThread == 0) {
         mWidgetTab->simStarted();
         mWidgetToolbar->simStarted();
         simulationStart();
-    }
-    else
-    {
-        if (mSimThread)
-        {
-            if (mSimThread->isPaused())
-            {
+    } else {
+        if (mSimThread) {
+            if (mSimThread->isPaused()) {
                 mSimThread->setPause(false);
                 mWidgetTab->simStarted();
                 mWidgetToolbar->simStarted();
-            }
-            else
-            {
+            } else {
                 mSimThread->setPause(true);
                 mWidgetTab->simPaused();
                 mWidgetToolbar->simPaused();
@@ -235,12 +239,11 @@ void SimLog::startStop()
 
 void SimLog::simulationStart()
 {
-    vle::vpz::Vpz   *oldVpz;
-
-    QString fileName = mVpm->getFilename();
-    oldVpz = new vle::vpz::Vpz(fileName.toStdString());
-
-    mSimThread = new simLogThread(oldVpz);
+    vle::vpz::Vpz* vpz = new vle::vpz::Vpz();
+    QByteArray xml = mVpm->xGetXml();
+    std::string buffer = (char *)xml.data();
+    vpz->parseMemory(buffer);
+    mSimThread = new simLogThread(vpz);
 
     // Load and init the simulation into VLE
     try {
@@ -258,6 +261,7 @@ void SimLog::simulationStart()
         log(logMessage);
         delete mSimThread;
         mSimThread = 0;
+        delete vpz;
         return;
     }
     mSimDataValid = true;
@@ -266,9 +270,8 @@ void SimLog::simulationStart()
     for (i = mViewLastRow.begin(); i != mViewLastRow.end(); ++i)
         i.value() = 1;
 
-    //ui->buttonGo->sepzIcon(*(new QIcon(":/icon/resources/control_pause_blue.png")));
-    QString expName = oldVpz->project().experiment().name().c_str();
-    mDuration = oldVpz->project().experiment().duration();
+    QString expName = vpz->project().experiment().name().c_str();
+    mDuration = vpz->project().experiment().duration();
     QString startMessage;
     startMessage  = tr("Simulation started. ");
     startMessage += tr("Experiment name: ") + expName + " ";
@@ -282,6 +285,7 @@ void SimLog::simulationStart()
     connect(mSimThread, SIGNAL(step()),    this, SLOT(simulationGetStep()));
     connect(mSimThread, SIGNAL(end()),     this, SLOT(simulationFinished()));
     mThread->start();
+    delete vpz;
 }
 
 /**
@@ -291,17 +295,17 @@ void SimLog::simulationStart()
  */
 void SimLog::simulationGetStep()
 {
-    vle::vpz::Vpz   *oldVpz;
-
-    QString fileName = mVpm->getFilename();
-    oldVpz = new vle::vpz::Vpz(fileName.toStdString());
+    vle::vpz::Vpz* vpz = new vle::vpz::Vpz();
+    QByteArray xml = mVpm->xGetXml();
+    std::string buffer = (char *)xml.data();
+    vpz->parseMemory(buffer);
 
     QString line;
 
     // Update the progress bar
     double debugTime = mSimThread->getTimeOfOutputs();
 
-    double debugElapsed = debugTime - oldVpz->project().experiment().begin();
+    double debugElapsed = debugTime - vpz->project().experiment().begin();
     double percent = (debugElapsed / mDuration) * 100.00;
 
     if (percent > 100) {
@@ -311,8 +315,7 @@ void SimLog::simulationGetStep()
     mWidgetTab->progressBar(percent);
 
     mSimThread->mValueMutex.lock();
-    if (mSimThread->getOutputs())
-    {
+    if (mSimThread->getOutputs()) {
         try {
             uint i;
             vle::value::Map::iterator itb = mSimThread->getOutputs()->begin();
@@ -423,6 +426,7 @@ void SimLog::simulationGetStep()
     }
     mSimThread->mValueMutex.unlock();
     mStepCount++;
+    delete vpz;
 }
 
 /**
