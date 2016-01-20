@@ -98,6 +98,8 @@ void File::onParameter(const std::string& plugin,
                 m_type = File::STANDARD_OUT;
             } else if (type == "error") {
                 m_type = File::STANDARD_ERROR;
+            } else if (type == "file"){
+                m_type = File::FILE;
             } else {
                 throw utils::ArgError(
                     fmt(_("Output plug-in '%1%': unknow type '%2%'")) % plugin
