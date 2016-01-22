@@ -96,5 +96,3 @@ StoragePluginGUI::onTabDeleted(QObject *obj)
 }
 
 }}//namepsaces
-
-Q_EXPORT_PLUGIN2(StoragePluginGUI, vle::gvle::StoragePluginGUI)

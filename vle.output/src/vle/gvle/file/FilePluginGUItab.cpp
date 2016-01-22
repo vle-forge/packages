@@ -22,7 +22,7 @@
  */
 
 #include <QDebug>
-#include <QtCore/qnamespace.h>
+//#include <QtCore/qnamespace.h>
 #include "FilePluginGUItab.h"
 #include "ui_FilePluginGvle.h"
 #include <iostream>

@@ -97,5 +97,3 @@ FilePluginGUI::onTabDeleted(QObject *obj)
 
 
 }} //namespaces
-
-Q_EXPORT_PLUGIN2(FilePluginGUI, vle::gvle::FilePluginGUI)

@@ -6,6 +6,8 @@
  * Copyright (c) 2014 INRA
  *
  */
+#pragma once
+
 #ifndef GVLE_SIM_LOG_H
 #define GVLE_SIM_LOG_H
 
@@ -28,6 +30,7 @@ namespace gvle {
 class SimLog : public QObject, public PluginSimulator
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "fr.inra.vle.gvle.PluginSimulator")
     Q_INTERFACES(vle::gvle::PluginSimulator)
 
 public:

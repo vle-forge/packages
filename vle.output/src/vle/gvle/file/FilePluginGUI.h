@@ -35,6 +35,7 @@ namespace gvle {
 class FilePluginGUI : public PluginOutput
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "fr.inra.vle.gvle.PluginOutput")
     Q_INTERFACES(vle::gvle::PluginOutput)
 
 public:
