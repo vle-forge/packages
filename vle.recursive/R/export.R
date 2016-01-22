@@ -242,15 +242,35 @@ rvle.recursive.configSimulation = function(config_parallel_type=NULL,
     if (sum(listPorts == "working_dir") == 0) {
         rvle.addPort(rvle_recursive@sim, "cond", "working_dir");
     }
-    rvle.setValueCondition(rvle_recursive@sim, cond="cond", 
-            port="config_parallel_type", config_parallel_type);
-    rvle.setValueCondition(rvle_recursive@sim, cond="cond", 
-            port="config_parallel_rm_files", config_parallel_rm_files);
-    rvle.setValueCondition(rvle_recursive@sim, cond="cond", 
-            port="config_parallel_nb_slots", 
-            as.integer(config_parallel_nb_slots));
-    rvle.setValueCondition(rvle_recursive@sim, cond="cond", 
-            port="working_dir", working_dir);
+    if (is.null(config_parallel_type)) {
+        rvle.setValueCondition(rvle_recursive@sim, cond="cond",
+                port="config_parallel_type", "single");
+    } else {
+        rvle.setValueCondition(rvle_recursive@sim, cond="cond",
+                port="config_parallel_type", config_parallel_type);
+    }
+    if (is.null(config_parallel_rm_files)) {
+        rvle.setValueCondition(rvle_recursive@sim, cond="cond",
+                port="config_parallel_rm_files", FALSE);
+    } else {
+        rvle.setValueCondition(rvle_recursive@sim, cond="cond",
+                port="config_parallel_rm_files", config_parallel_rm_files);
+    }
+    if (is.null(config_parallel_nb_slots)) {
+        rvle.setValueCondition(rvle_recursive@sim, cond="cond",
+                port="config_parallel_nb_slots", as.integer(1));
+    } else {
+        rvle.setValueCondition(rvle_recursive@sim, cond="cond",
+                port="config_parallel_nb_slots",
+                as.integer(config_parallel_nb_slots));
+    }
+    if (is.null(working_dir)) {
+        rvle.setValueCondition(rvle_recursive@sim, cond="cond",
+                port="working_dir", "/tmp/");
+    } else {
+        rvle.setValueCondition(rvle_recursive@sim, cond="cond",
+                port="working_dir", working_dir);
+    }
 }
 
 
