@@ -9,7 +9,7 @@
 #ifndef PLOTSIGNAL_H
 #define PLOTSIGNAL_H
 
-#include <qwt/qwt_plot_curve.h>
+#include <qwt_plot_curve.h>
 
 class plotSignal
 {

@@ -10,7 +10,7 @@
 #define SIMTAB_H
 
 #include <QWidget>
-#include <qwt/qwt_plot_curve.h>
+#include <qwt_plot_curve.h>
 
 namespace Ui {
 class SimTab;
@@ -19,7 +19,7 @@ class SimTab;
 class SimTab : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     explicit SimTab(QWidget *parent = 0);
     ~SimTab();

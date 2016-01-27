@@ -555,5 +555,3 @@ void SimPlot::simulationFinished()
 }
 
 }} //namespaces
-
-Q_EXPORT_PLUGIN2(sim_plot, vle::gvle::SimPlot)

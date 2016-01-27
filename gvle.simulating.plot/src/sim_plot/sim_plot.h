@@ -28,6 +28,7 @@ namespace gvle {
 class SimPlot : public QObject, public PluginSimulator
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "fr.inra.vle.gvle.PluginSimulator")
     Q_INTERFACES(vle::gvle::PluginSimulator)
 
 public:
