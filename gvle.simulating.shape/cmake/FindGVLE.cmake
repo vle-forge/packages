@@ -3,10 +3,9 @@
 #
 # Try to find GVLE
 #
-# Copyright 2012-2015 INRA
+# Copyright 2012-2016 INRA
 # Gauthier Quesnel <quesnel@users.sourceforge.net>
 # Ronan Trépos <ronan.trepos@toulouse.inra.fr>
-# Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
 #
 # Distributed under the OS-approved BSD License (the "License");
 # This software is distributed WITHOUT ANY WARRANTY; without even the
@@ -40,7 +39,7 @@
 #
 # Notes :
 # ---------
-#   FindGVLE will try to find GVLE, VLE and the Qt dependencies,
+#   FindGVLE will try to find GVLE, VLE and Qt dependencies,
 #   finding GVLE does not require to call FindVLE before
 #
 #=============================================================================
@@ -117,30 +116,16 @@ if (${_find_gvle_using_cmake})
      message (FATAL_ERROR "Missing gvle dependencies")
   endif ()
 
-  set(ENV(QTDIR)  ${_gvle_base_include}/../Qt)
-
-  set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  set(CMAKE_AUTOMOC ON)
-
-  set(QT_USE_QTXML TRUE)
-  set(QT_USE_QTHELP TRUE)
-
-  find_package(Qt4 REQUIRED)
-  if (NOT QT_FOUND)
-    message(FATAL_ERROR "Qt is required")
-  endif (NOT QT_FOUND)
-  include(${QT_USE_FILE})
-
   set(GVLE_INCLUDE_DIRS
     ${_gvle_base_include}/vle-${VLE_ABI_VERSION}; ${_gvle_base_include};
-    ${QT_INCLUDES})
+    ${_gvle_base_include}/libxml2)
 
   set (GVLE_LIBRARY_DIRS
-    ${_gvle_base_bin}; ${_gvle_base_lib}; ${QT_BINARY_DIR}; ${QT_LIBRARY_DIR})
+    ${_gvle_base_bin}; ${_gvle_base_lib};
+    c:/devel/dist/win32/lipng-1.4.3-1/lib)
 
   set (GVLE_LIBRARIES
-    gvle-${VLE_ABI_VERSION} ${QT_LIBRARIES} intl)
-
+    gvle-${VLE_ABI_VERSION} intl)
 else () # find gvle using pkg-config
   find_package(PkgConfig REQUIRED)
   PKG_CHECK_MODULES(GVLE gvle-${VLE_ABI_VERSION})
