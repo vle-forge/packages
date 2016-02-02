@@ -57,7 +57,7 @@ struct F
 
     vle::Init app;
 };
-BOOST_GLOBAL_FIXTURE(F)
+BOOST_GLOBAL_FIXTURE(F);
 
 va::ConstVectorView getColumnFromView(const va::Matrix& view, const std::string& model,
                                       const std::string& port)

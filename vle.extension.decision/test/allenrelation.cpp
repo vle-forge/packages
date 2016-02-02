@@ -53,7 +53,7 @@ struct F
     }
 };
 
-BOOST_GLOBAL_FIXTURE(F)
+BOOST_GLOBAL_FIXTURE(F);
 
 namespace vmd = vle::extension::decision;
 

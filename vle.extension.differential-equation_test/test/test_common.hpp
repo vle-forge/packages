@@ -60,7 +60,7 @@ struct F
 
     vle::Init app;
 };
-BOOST_GLOBAL_FIXTURE(F)
+BOOST_GLOBAL_FIXTURE(F);
 
 
 va::ConstVectorView

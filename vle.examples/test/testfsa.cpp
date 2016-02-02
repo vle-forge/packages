@@ -51,7 +51,7 @@ struct F
     }
 };
 
-BOOST_GLOBAL_FIXTURE(F)
+BOOST_GLOBAL_FIXTURE(F);
 
 using namespace vle;
 
