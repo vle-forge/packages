@@ -28,6 +28,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
+#include <math.h>
 
 #include <boost/lexical_cast.hpp>
 #include <vle/utils/Package.hpp>
@@ -212,7 +213,7 @@ private:
         } else {
             double prec = boost::lexical_cast<double>(precision);
             double valSim = res.toDouble().value();
-            if (isnan(valSim)) {
+            if (std::isnan(valSim)) {
                 return (valExpected == "nan");
             }
             double valExpect = boost::lexical_cast<double>(valExpected);
