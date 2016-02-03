@@ -14,7 +14,17 @@
 <dynamics>
 <dynamic name="dynincr_A" library="incremental_A" package="vle.discrete-time_test"  />
 </dynamics>
-<experiment name="incremental" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="incremental" combination="linear"  >
+<conditions>
+<condition name="simulation_engine" >
+<port name="begin" >
+<double>0.0</double>
+</port>
+<port name="duration" >
+<double>5.0</double>
+</port>
+</condition>
+</conditions>
 <views>
 <outputs>
 <output name="view" location="" format="local" package="vle.output"  plugin="file" />

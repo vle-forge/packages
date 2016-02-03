@@ -48,8 +48,16 @@
 <dynamic name="dyntemporalScaleB4" library="temporalScaleB4" package="vle.discrete-time_test"  />
 <dynamic name="dyntemporalScaleC2" library="temporalScaleC2" package="vle.discrete-time_test"  />
 </dynamics>
-<experiment name="temporalScale" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="temporalScale" combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+<port name="begin" >
+<double>0.0</double>
+</port>
+<port name="duration" >
+<double>50.0</double>
+</port>
+</condition>
 <condition name="condB4" >
  <port name="sync_a" >
 <integer>1</integer>

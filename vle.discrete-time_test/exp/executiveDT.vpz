@@ -45,8 +45,16 @@
 </model>
 </class>
 </classes>
-<experiment name="executiveDT" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="executiveDT" combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+<port name="begin" >
+<double>0.0</double>
+</port>
+<port name="duration" >
+<double>5.0</double>
+</port>
+</condition>
 <condition name="condB" >
  <port name="sync_a" >
 <integer>1</integer>

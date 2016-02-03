@@ -78,8 +78,16 @@
 <dynamic name="dynD1" library="D1" package="vle.discrete-time_test"  />
 <dynamic name="dynPerturb6" library="Perturb6" package="vle.discrete-time_test"  />
 </dynamics>
-<experiment name="model9" duration="20.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="model9" combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+<port name="begin" >
+<double>0.0</double>
+</port>
+<port name="duration" >
+<double>20.0</double>
+</port>
+</condition>
 <condition name="condB1" >
  <port name="sync_a" >
 <integer>1</integer>

@@ -81,8 +81,16 @@
 <dynamic name="dynAsyncE3" library="asynchronousE3" package="vle.discrete-time_test"  />
 <dynamic name="dynAsyncFsa" library="asynchronousFSA" package="vle.discrete-time_test"  />
 </dynamics>
-<experiment name="asynchronous" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="asynchronous" combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+<port name="begin" >
+<double>0.0</double>
+</port>
+<port name="duration" >
+<double>5.0</double>
+</port>
+</condition>
 <condition name="condE1" >
  <port name="sync_e0" >
 <integer>1</integer>

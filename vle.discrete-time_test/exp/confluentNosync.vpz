@@ -40,7 +40,17 @@
 <dynamic name="dynconfluentPerturb" library="confluentNosync_perturb" package="vle.discrete-time_test"  />
 <dynamic name="dynconfluentX" library="confluentNosync_x" package="vle.discrete-time_test"  />
 </dynamics>
-<experiment name="confluentNosync" duration="5.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="confluentNosync" combination="linear"  >
+<conditions>
+<condition name="simulation_engine" >
+<port name="begin" >
+<double>0.0</double>
+</port>
+<port name="duration" >
+<double>5.0</double>
+</port>
+</condition>
+</conditions>
 <views>
 </views>
 </experiment>

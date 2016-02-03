@@ -62,8 +62,16 @@
 <dynamic name="dynE3" library="E3" package="vle.discrete-time_test"  />
 <dynamic name="dynGenericSum" library="GenericSum" package="vle.discrete-time.generic"  />
 </dynamics>
-<experiment name="model3" duration="1.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="model3" combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+<port name="begin" >
+<double>0.0</double>
+</port>
+<port name="duration" >
+<double>1.0</double>
+</port>
+</condition>
 <condition name="condD3" >
  <port name="sync_a" >
 <integer>1</integer>

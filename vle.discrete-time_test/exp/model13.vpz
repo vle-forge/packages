@@ -96,8 +96,16 @@
 <dynamic name="dynPerturb8" library="Perturb8" package="vle.discrete-time_test"  />
 <dynamic name="dynPerturb9" library="Perturb9" package="vle.discrete-time_test"  />
 </dynamics>
-<experiment name="model13" duration="20.000000000000000" begin="0.000000000000000" combination="linear"  >
+<experiment name="model13" combination="linear"  >
 <conditions>
+<condition name="simulation_engine" >
+<port name="begin" >
+<double>0.0</double>
+</port>
+<port name="duration" >
+<double>20.0</double>
+</port>
+</condition>
 <condition name="condD1" >
  <port name="sync_a" >
 <integer>1</integer>
