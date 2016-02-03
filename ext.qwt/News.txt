@@ -1,0 +1,7 @@
+Changes from previous versions of ext.qwt
+======================================================================
+
+Initial version 0.1.0
+---------------------
+
+- initial packaging = 2 files added(CMakeLists.txt, src/CMakeLists.txt)

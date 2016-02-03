@@ -1,0 +1,27 @@
+                  VLE development team
+                  ====================
+
+
+Copyright
+=========
+
+see README|COPYING
+
+Authors
+=======
+
+Integrator / Release manager
+----------------------------
+
+- Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
+
+Main programmer and founder
+---------------------------
+
+- Uwe Rathmann <rathmann@users.sourceforge.net>
+- Josef Wilgen
+
+Contributors
+------------
+
+- see README
