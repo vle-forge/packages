@@ -1,48 +1,48 @@
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET(CMAKE_AUTOMOC ON)
 
-set(QMAKE_QUERY_LIBPATH qmake -query QT_INSTALL_LIBS)
+SET(QMAKE_QUERY_LIBPATH qmake -query QT_INSTALL_LIBS)
 
-execute_process(COMMAND ${QMAKE_QUERY_LIBPATH} OUTPUT_VARIABLE
+EXECUTE_PROCESS(COMMAND ${QMAKE_QUERY_LIBPATH} OUTPUT_VARIABLE
   CMAKE_PREFIX_PATH)
 
-find_package(Qt5 COMPONENTS Widgets Xml Gui)
-if (NOT Qt5_FOUND)
-  message(FATAL_ERROR "Qt5 is required")
-endif (NOT Qt5_FOUND)
-if (NOT Qt5Widgets_FOUND)
-  message(FATAL_ERROR "Qt5Widgets is required")
-endif (NOT Qt5Widgets_FOUND)
-if (NOT Qt5Xml_FOUND)
-  message(FATAL_ERROR "Qt5Xml is required")
-endif (NOT Qt5Xml_FOUND)
-if (NOT Qt5Gui_FOUND)
-  message(FATAL_ERROR "Qt5Gui is required")
-endif (NOT Qt5Gui_FOUND)
+FIND_PACKAGE(Qt5 COMPONENTS Widgets Xml Gui Svg PrintSupport
+  Concurrent OpenGL)
 
-OPTION(ENABLE_QT5 "enable Qt5 [default: ON]" OFF)
+IF (NOT Qt5_FOUND)
+  MESSAGE(FATAL_ERROR "Qt5 is required")
+ENDIF (NOT Qt5_FOUND)
+IF (NOT Qt5Widgets_FOUND)
+  MESSAGE(FATAL_ERROR "Qt5Widgets is required")
+ENDIF (NOT Qt5Widgets_FOUND)
+IF (NOT Qt5Xml_FOUND)
+  MESSAGE(FATAL_ERROR "Qt5Xml is required")
+ENDIF (NOT Qt5Xml_FOUND)
+IF (NOT Qt5Gui_FOUND)
+  MESSAGE(FATAL_ERROR "Qt5Gui is required")
+ENDIF (NOT Qt5Gui_FOUND)
+IF (NOT Qt5Svg_FOUND)
+  MESSAGE(FATAL_ERROR "Qt5Svg is required")
+ENDIF (NOT Qt5Svg_FOUND)
+IF (NOT Qt5PrintSupport_FOUND)
+  MESSAGE(FATAL_ERROR "Qt5PrintSupport is required")
+ENDIF (NOT Qt5PrintSupport_FOUND)
+IF (NOT Qt5Concurrent_FOUND)
+  MESSAGE(FATAL_ERROR "Qt5Concurrent is required")
+ENDIF (NOT Qt5Concurrent_FOUND)
+IF (NOT Qt5OpenGL_FOUND)
+  MESSAGE(FATALOpenGL_ERROR "Qt5 is required")
+ENDIF (NOT Qt5OpenGL_FOUND)
 
-find_package(Qwt)
-message("A = ${QWT_INCLUDE_DIR}")
-message("B = ${QWT_LIBRARY}")
-if (NOT QWT_FOUND)
-  message(FATAL_ERROR "Qwt is required")
-endif (NOT QWT_FOUND)
+INCLUDE_DIRECTORIES(${Qt5Widgets_INCLUDES} ${Qt5Xml_INCLUDES}
+  ${Qt5Gui_INCLUDES} ${Qt5Svg_INCLUDES} ${Qt5PrintSupport_INCLUDES}
+  ${Qt5Concurrent_INCLUDES} ${Qt5OpenGL_INCLUDES})
 
-include_directories(${Qt5Widgets_INCLUDES} ${Qt5Xml_INCLUDES}
-  ${Qt5Gui_INCLUDES} ${QWT_INCLUDE_DIR})
-
-INCLUDE_DIRECTORIES(${VLE_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${GVLE_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} ${VLE_BINARY_DIR}/src
-  ${VLE_SOURCE_DIR}/src)
+INCLUDE_DIRECTORIES(${VLE_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+  ${VLE_BINARY_DIR}/src ${VLE_SOURCE_DIR}/src ${ext.qwt_INCLUDE_DIRS})
 
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS} ${VLE_LIBRARY_DIRS}
   ${GVLE_LIBRARY_DIRS})
-
-#include(${QT_USE_FILE})#used for QT4_WRAP_UI??
-
-#TODO can we compile a standalone version
 
 SET(plot_SOURCES plotsignal.cpp sim_plot.cpp simtab.cpp thread.cpp
   widtoolbar.cpp)
@@ -50,15 +50,20 @@ SET(plot_SOURCES plotsignal.cpp sim_plot.cpp simtab.cpp thread.cpp
 QT5_WRAP_UI(ui_simtab_h simtab.ui)
 QT5_WRAP_UI(ui_widtoolbar_h widtoolbar.ui)
 
-add_library(sim_plot SHARED
-  ${plot_SOURCES} ${ui_simtab_h} ${ui_widtoolbar_h})
+ADD_LIBRARY(sim_plot SHARED ${plot_SOURCES} ${ui_simtab_h}
+  ${ui_widtoolbar_h})
 
-add_definitions(${Qt5Widgets_DEFINITIONS} ${Qt5Xml_DEFINITIONS}
-  ${Qt5Gui_DEFINITIONS})
+ADD_DEFINITIONS(${Qt5Widgets_DEFINITIONS} ${Qt5Xml_DEFINITIONS}
+  ${Qt5Gui_DEFINITIONS} ${Qt5Svg_DEFINITIONS}
+  ${Qt5PrintSupport_DEFINITIONS} ${Qt5Concurrent_DEFINITIONS}
+  ${Qt5OpenGL_DEFINITIONS}
+  ${ext.qwt_DEFINITIONS})
 
-target_link_libraries(sim_plot
-  ${INTL_LIB} ${GVLE_LIBRARIES} ${QWT_LIBRARY}
-  ${VLE_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
+TARGET_LINK_LIBRARIES(sim_plot ${INTL_LIB} ${GVLE_LIBRARIES}
+  ${VLE_LIBRARIES} ${ext.qwt_LIBRARIES} ${Qt5Widgets_LIBRARIES}
+  ${Qt5Xml_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Svg_LIBRARIES}
+  ${Qt5PrintSupport_LIBRARIES} ${Qt5Concurrent_LIBRARIES}
+  ${Qt5OpenGL_LIBRARIES})
 
-INSTALL(TARGETS sim_plot RUNTIME DESTINATION
-  plugins/gvle/simulating LIBRARY DESTINATION plugins/gvle/simulating)
+INSTALL(TARGETS sim_plot RUNTIME DESTINATION plugins/gvle/simulating
+  LIBRARY DESTINATION plugins/gvle/simulating)
