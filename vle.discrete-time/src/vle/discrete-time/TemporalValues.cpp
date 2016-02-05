@@ -245,7 +245,7 @@ VarMono::getVal(const vle::devs::Time& t, double delay) const
     History::const_reverse_iterator ite = history.rend();
 
     for (;itb != ite ; itb++){
-        if((*itb)->timeOfUpdate <= reqTime){
+        if((*itb)->timeOfUpdate <= reqTime + std::pow(10, -9)){
             return (*itb)->value;
         }
     }
