@@ -102,9 +102,25 @@ ENDIF (Boost_UNIT_TEST_FRAMEWORK_FOUND)
 ## Find Qt
 ##
 
-set(QT_USE_QTXML TRUE)
-set(QT_USE_QTOPENGL TRUE)
-find_package(Qt4 REQUIRED)
+SET(QMAKE_QUERY_LIBPATH qmake -query QT_INSTALL_LIBS)
+
+EXECUTE_PROCESS(COMMAND ${QMAKE_QUERY_LIBPATH} OUTPUT_VARIABLE
+  CMAKE_PREFIX_PATH)
+
+FIND_PACKAGE(Qt5 COMPONENTS Widgets Gui Xml)
+IF (NOT Qt5_FOUND)
+  MESSAGE(FATAL_ERROR "Qt5 is required")
+ENDIF (NOT Qt5_FOUND)
+IF (NOT Qt5Widgets_FOUND)
+  MESSAGE(FATAL_ERROR "Qt5Widgets is required")
+ENDIF (NOT Qt5Widgets_FOUND)
+if (NOT Qt5Gui_FOUND)
+  message(FATAL_ERROR "Qt5Gui is required")
+endif (NOT Qt5Gui_FOUND)
+if (NOT Qt5Xml_FOUND)
+  message(FATAL_ERROR "Qt5Xml is required")
+endif (NOT Qt5Xml_FOUND)
+
 
 ##
 ## Add Intl/Gettext lib

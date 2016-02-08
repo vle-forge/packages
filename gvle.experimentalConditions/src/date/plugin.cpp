@@ -146,4 +146,3 @@ CondDatePlugin::init(vleVpm* vpm, const QString& cond)
 }
 }}//namespaces
 
-Q_EXPORT_PLUGIN2(conddateplugin, vle::gvle::CondDatePlugin)

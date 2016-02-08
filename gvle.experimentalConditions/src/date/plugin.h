@@ -39,6 +39,7 @@ namespace gvle{
 class CondDatePlugin : public PluginExpCond
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "fr.inra.vle.gvle.PluginExpCond")
     Q_INTERFACES(vle::gvle::PluginExpCond)
 
 public:
