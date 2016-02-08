@@ -29,10 +29,10 @@ widToolbar::widToolbar(QWidget *parent) :
     // Configure properties tables
     QTableWidget *tProp;
     tProp = ui->tabProperties;
-    tProp->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+    tProp->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     // Configure config table
     tProp = ui->tabConfig;
-    tProp->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+    tProp->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     // Add a combobox into table for view selection
     mComboView = new QComboBox();

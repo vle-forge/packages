@@ -30,39 +30,40 @@ namespace gvle {
 class SimSpacial : public QObject, public PluginSimulator
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "fr.inra.vle.gvle.PluginSimulator")
     Q_INTERFACES(vle::gvle::PluginSimulator)
 
 public:
     SimSpacial();
     ~SimSpacial();
-    QString getname();
-    QWidget *getWidget();
+    QString  getname();
+    QWidget* getWidget();
     void     delWidget();
-    QWidget *getWidgetToolbar();
+    QWidget* getWidgetToolbar();
     void     delWidgetToolbar();
-    void setSettings(QSettings *s);
-    void setLogger(Logger *logger);
-    void init(vleVpm *vpm);
-    void *getVpm();
-    void setPackage(vle::utils::Package *pkg);
+    void     setSettings(QSettings *s);
+    void     setLogger(Logger *logger);
+    void     init(vleVpm *vpm);
+    void*    getVpm();
+    void     setPackage(vle::utils::Package *pkg);
 private:
     QString getShapeName(vleVpm *vpm);
 
 private:
-    QString name;
-    QSettings             *  mSettings;
-    Logger                *  mLogger;
-    SimTab                *  mWidgetTab;
-    widToolbar            *  mWidgetToolbar;
+    QString     name;
+    QSettings*  mSettings;
+    Logger*     mLogger;
+    SimTab*     mWidgetTab;
+    widToolbar* mWidgetToolbar;
 
 private:
-    vleVpm     *mVpm;
-    QString     mShapeKeyName;
-    ShapeFile   mShapeFile;
-    QString     mShapeFilename;
+    vleVpm*   mVpm;
+    QString   mShapeKeyName;
+    ShapeFile mShapeFile;
+    QString   mShapeFilename;
 
-    simulationThread *mSimThread;
-    vle::utils::Package   *mCurrPackage;
+    simulationThread    *mSimThread;
+    vle::utils::Package *mCurrPackage;
 };
 
 }}

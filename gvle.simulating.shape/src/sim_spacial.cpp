@@ -209,13 +209,13 @@ QString SimSpacial::getShapeName(vleVpm *vpm)
         throw -1;
 
     // Search into all Experimental Conditions
-    for (unsigned int i = 0; i < condList.length(); i++) {
+    for (int i = 0; i < condList.length(); i++) {
         QDomNode cond = condList.item(i);
         QString name = mVpm->vdo()->attributeValue(cond, "name");
         QDomNodeList portList = vpm->portsListFromDoc(name);
 
         // Get the list of ports for this condition
-        for (unsigned int j = 0; j < portList.length(); j++) {
+        for (int j = 0; j < portList.length(); j++) {
             QDomNode port = portList.at(j);
             // If the port has the name specified by config ...
             if (mVpm->vdo()->attributeValue(port, "name") == mShapeKeyName)
@@ -247,5 +247,3 @@ QString SimSpacial::getShapeName(vleVpm *vpm)
 }
 
 }} //namespaces
-
-Q_EXPORT_PLUGIN2(sim_spacial, vle::gvle::SimSpacial)
