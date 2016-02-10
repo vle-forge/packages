@@ -29,9 +29,10 @@ vle.discrete-time.generic vle.extension.cellqss vle.extension.decision
 vle.discrete-time.decision vle.reader vle.tester vle.recursive 
 vle.extension.difference-equation vle.extension.differential-equation
 vle.extension.differential-equation_test vle.extension.dsdevs vle.extension.fsa
-vle.extension.petrinet vle.examples ext.muparser ext.qwt
-vle.reader_test vle.recursive_test vle.discrete-time_test
-vle.tester_test"
+vle.extension.petrinet vle.examples ext.muparser ext.qwt ext.shapelib
+vle.reader_test vle.recursive_test vle.discrete-time_test vle.tester_test
+gvle.experimentalConditions gvle.simulating.log gvle.simulating.plot
+gvle.simulating.shape"
 
 clean_package () {
   echo -e -n " -  clean:"

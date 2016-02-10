@@ -9,8 +9,6 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS} ${VLE_LIBRARY_DIRS} ${GVLE_LIBRARY_DIRS})
 
 SET(ExpCond_SOURCES plugin.cpp toolbar.cpp tab.cpp)
 
-
-
 QT5_WRAP_UI(ui_toolbar_h  toolbar.ui)
 QT5_WRAP_UI(ui_tab_h      tab.ui)
 

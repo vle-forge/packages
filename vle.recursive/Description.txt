@@ -1,7 +1,7 @@
 Package: vle.recursive
 Version: 0.1.0
 Depends: vle.output
-Build-Depends:
+Build-Depends: vle.reader
 Conflicts:
 Maintainer: Ronan Trépos <ronan.trepos@toulouse.inra.fr>
 Description: vle API for embedded simulation

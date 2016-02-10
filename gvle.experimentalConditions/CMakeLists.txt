@@ -58,6 +58,7 @@ set(VLE_DEBUG 0)
 set(VLE_ABI_VERSION 1.3)
 find_package(VLE REQUIRED)
 set (VleUtils_DIR "${VLE_SHARE_DIR}/cmake")
+set (CMAKE_MODULE_PATH ${VLE_SHARE_DIR}/cmake ${CMAKE_MODULE_PATH})
 find_package(VleUtils REQUIRED)
 VleCheckDependencies()
 
@@ -74,63 +75,37 @@ if (WITH_GVLE)
   endif ()
 endif ()
 
-
-
-
 ##
 ## Find boost
 ##
 
-
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREAD ON)
-find_package(Boost COMPONENTS unit_test_framework date_time thread system)
-
-if (WIN32)
-  set(Boost_THREADAPI "win32")
-endif (WIN32)
-
-SET(Boost_USE_STATIC_LIBS OFF)
-SET(Boost_USE_MULTITHREAD ON)
-FIND_PACKAGE(Boost COMPONENTS unit_test_framework date_time thread system)
-
-IF (Boost_UNIT_TEST_FRAMEWORK_FOUND)
-  SET(HAVE_UNITTESTFRAMEWORK 1 CACHE INTERNAL "" FORCE)
-ENDIF (Boost_UNIT_TEST_FRAMEWORK_FOUND)
+find_package(Boost COMPONENTS unit_test_framework date_time thread
+  system filesystem)
 
 ##
 ## Find Qt
 ##
 
-SET(QMAKE_QUERY_LIBPATH qmake -query QT_INSTALL_LIBS)
-
-EXECUTE_PROCESS(COMMAND ${QMAKE_QUERY_LIBPATH} OUTPUT_VARIABLE
-  CMAKE_PREFIX_PATH)
-
-FIND_PACKAGE(Qt5 COMPONENTS Widgets Gui Xml)
-IF (NOT Qt5_FOUND)
-  MESSAGE(FATAL_ERROR "Qt5 is required")
-ENDIF (NOT Qt5_FOUND)
-IF (NOT Qt5Widgets_FOUND)
-  MESSAGE(FATAL_ERROR "Qt5Widgets is required")
-ENDIF (NOT Qt5Widgets_FOUND)
-if (NOT Qt5Gui_FOUND)
-  message(FATAL_ERROR "Qt5Gui is required")
-endif (NOT Qt5Gui_FOUND)
-if (NOT Qt5Xml_FOUND)
-  message(FATAL_ERROR "Qt5Xml is required")
-endif (NOT Qt5Xml_FOUND)
-
-
-##
-## Add Intl/Gettext lib
-##
-
-if (WIN32)
-  set(INTL_LIB "intl")
-else (WIN32)
-  set(INTL_LIB "")
-endif (WIN32)
+if (WITH_GVLE)
+  set(QMAKE_QUERY_LIBPATH qmake -query QT_INSTALL_LIBS)
+  execute_process(COMMAND ${QMAKE_QUERY_LIBPATH} OUTPUT_VARIABLE
+    CMAKE_PREFIX_PATH)
+  find_package(Qt5 COMPONENTS Widgets Gui Xml)
+  if (NOT Qt5_FOUND)
+    message(FATAL_ERROR "Qt5 is required")
+  endif (NOT Qt5_FOUND)
+  if (NOT Qt5Widgets_FOUND)
+    message(FATAL_ERROR "Qt5Widgets is required")
+  endif (NOT Qt5Widgets_FOUND)
+  if (NOT Qt5Gui_FOUND)
+    message(FATAL_ERROR "Qt5Gui is required")
+  endif (NOT Qt5Gui_FOUND)
+  if (NOT Qt5Xml_FOUND)
+    message(FATAL_ERROR "Qt5Xml is required")
+  endif (NOT Qt5Xml_FOUND)
+endif ()
 
 ##
 ## Generate the doxygen
