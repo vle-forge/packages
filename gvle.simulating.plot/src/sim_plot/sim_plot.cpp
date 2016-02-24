@@ -6,40 +6,122 @@
  * Copyright (c) 2014 INRA
  *
  */
+#include <iostream>
+
 #include <QObject>
 #include <QtPlugin>
 #include <QDebug>
 #include "sim_plot.h"
 #include "simtab.h"
-#include <iostream>
+#include  <vle/gvle/vlevpm.h>
 #include "vle/vpz/AtomicModel.hpp"
 
 namespace vle {
 namespace gvle {
 
-SimPlot::SimPlot() {
+SimPlot::SimPlot()
+{
     mLogger = 0;
     mThread = 0;
     mSettings = 0;
     mWidgetTab = 0;
-    mCurrPackage = 0;
+    mPackage = 0;
     mWidgetToolbar = 0;
     mSimDataValid = false;
     mDuration = 0;
     mStepCount = 0;
+    mWidgetTab = new SimTab();
+    mWidgetToolbar = new widToolbar();
 }
 
-SimPlot::~SimPlot() {
-    // Nothing to do ...
+SimPlot::~SimPlot()
+{
+
 }
 
-/**
- * @brief SimPlot::getname
- *        Return the plugin name
- */
-QString SimPlot::getname() {
+
+void
+SimPlot::init(vleVpm* vpm, vle::utils::Package* pkg)
+{
+
+    mVpm = vpm;
+    mPackage = pkg;
+
+
+    vle::vpz::Vpz   *oldVpz;
+
+    // NOTE - View list is loaded from disk using vle::Vpz
+    // only because GVLE::vleVpz does not support views
+    // direct access yet. This must be changed in future.
+
+    QString fileName = vpm->getFilename();
+    oldVpz = new vle::vpz::Vpz(fileName.toStdString());
+
+    vle::vpz::Observables curVpzObs;
+    vle::vpz::Views       curVpzViews;
+
+    curVpzViews  = oldVpz->project().experiment().views();
+    curVpzObs    = oldVpz->project().experiment().views().observables();
+
+    if ( leftWidget() )
+    {
+        // Update the title (Experiment Name and VPZ file name)
+        QString expName = oldVpz->project().experiment().name().c_str();
+        QString simTitle = QString("%1 (%2)").arg(expName).arg(oldVpz->filename().c_str());
+        mWidgetTab->setModelName(simTitle);
+
+        QObject::connect(mWidgetTab, SIGNAL(doStartStop()),
+                         this,       SLOT  (startStop()));
+    }
+
+    if ( rightWidget() )
+    {
+        mWidgetToolbar->buildTree(oldVpz);
+
+        QObject::connect(mWidgetToolbar, SIGNAL(addSig    (plotSignal *)),
+                         this,           SLOT  (addPlotSig(plotSignal *)));
+        QObject::connect(mWidgetToolbar, SIGNAL(delSig    (plotSignal *)),
+                         this,           SLOT  (delPlotSig(plotSignal *)));
+        QObject::connect(mWidgetToolbar, SIGNAL(updateSig    (plotSignal *)),
+                         this,           SLOT  (updatePlotSig(plotSignal *)));
+    }
+}
+
+QString
+SimPlot::getname() {
     QString name = "Plot";
     return name;
+}
+
+QWidget*
+SimPlot::leftWidget()
+{
+    return mWidgetTab;
+}
+QWidget*
+SimPlot::rightWidget()
+{
+    qDebug() << " dbg SimPlot::rightWidget() ";
+    return mWidgetToolbar;
+}
+
+void
+SimPlot::undo()
+{
+
+}
+
+void
+SimPlot::redo()
+{
+
+}
+
+
+PluginSimPanel*
+SimPlot::newInstance()
+{
+    return new SimPlot;
 }
 
 /**
@@ -50,90 +132,6 @@ void SimPlot::log(QString message)
 {
     if (mLogger)
         mLogger->log(message);
-}
-
-/**
- * @brief SimPlot::setSettings
- *        Save a pointer to the configuration file wrapper
- */
-void SimPlot::setSettings(QSettings *s)
-{
-    mSettings = s;
-}
-
-/**
- * @brief SimPlot::setLogger
- *        Save a pointer to the logger instance of main app
- */
-void SimPlot::setLogger(Logger *logger)
-{
-    mLogger = logger;
-}
-
-/**
- * @brief SimPlot::setPackage
- *        Set the vle-package used for current simulation context
- */
-void SimPlot::setPackage(vle::utils::Package *pkg)
-{
-    mCurrPackage = pkg;
-}
-
-/**
- * @brief SimPlot::getWidget
- *        Create the plugin GUI (widget inserted into main app tab)
- */
-QWidget *SimPlot::getWidget()
-{
-    // If the widget has already been allocated
-    if (mWidgetTab)
-        // return saved pointer
-        return mWidgetTab;
-
-    // Allocate (and return) a new Simulation Tab widget
-    mWidgetTab = new SimTab();
-    return mWidgetTab;
-}
-/**
- * @brief Delete the main widget (when tab is closed without plugin unload)
- */
-void SimPlot::delWidget()
-{
-    // If widget is not allocated, nothing to do
-    if (mWidgetTab == 0)
-        return;
-
-    // Delete widget and clear pointer
-    delete mWidgetTab;
-    mWidgetTab = 0;
-}
-
-/**
- * @brief SimPlot::getWidgetToolbar
- *        Create the plugin GUI toolbox (widget inserted into right column)
- */
-QWidget *SimPlot::getWidgetToolbar()
-{
-    if (mWidgetToolbar)
-        return mWidgetToolbar;
-
-    mWidgetToolbar = new widToolbar();
-    return mWidgetToolbar;
-}
-
-/**
- * @brief delWidgetToolbar
- *        Delete the toolbar widget (when tab is closed without plugin unload)
- */
-void SimPlot::delWidgetToolbar()
-{
-    // If widget is not allocated, nothing to do
-    if (mWidgetToolbar == 0)
-        return;
-
-    // Delete widget and clear pointer
-    delete mWidgetToolbar;
-    mWidgetToolbar = 0;
 }
 
 /**
@@ -218,56 +216,6 @@ void SimPlot::updatePlotSig(plotSignal *plot)
     }
 }
 
-/**
- * @brief SimLog::init
- */
-void SimPlot::init(vleVpm *vpm)
-{
-    mVpm = vpm;
-
-    vle::vpz::Vpz   *oldVpz;
-
-    // NOTE - View list is loaded from disk using vle::Vpz
-    // only because GVLE::vleVpz does not support views
-    // direct access yet. This must be changed in future.
-
-    QString fileName = vpm->getFilename();
-    oldVpz = new vle::vpz::Vpz(fileName.toStdString());
-
-    vle::vpz::Observables curVpzObs;
-    vle::vpz::Views       curVpzViews;
-
-    curVpzViews  = oldVpz->project().experiment().views();
-    curVpzObs    = oldVpz->project().experiment().views().observables();
-
-    if ( getWidget() )
-    {
-        // Update the title (Experiment Name and VPZ file name)
-        QString expName = oldVpz->project().experiment().name().c_str();
-        QString simTitle = QString("%1 (%2)").arg(expName).arg(oldVpz->filename().c_str());
-        mWidgetTab->setModelName(simTitle);
-
-        QObject::connect(mWidgetTab, SIGNAL(doStartStop()),
-                         this,       SLOT  (startStop()));
-    }
-
-    if ( getWidgetToolbar() )
-    {
-        mWidgetToolbar->buildTree(oldVpz);
-
-        QObject::connect(mWidgetToolbar, SIGNAL(addSig    (plotSignal *)),
-                         this,           SLOT  (addPlotSig(plotSignal *)));
-        QObject::connect(mWidgetToolbar, SIGNAL(delSig    (plotSignal *)),
-                         this,           SLOT  (delPlotSig(plotSignal *)));
-        QObject::connect(mWidgetToolbar, SIGNAL(updateSig    (plotSignal *)),
-                         this,           SLOT  (updatePlotSig(plotSignal *)));
-    }
-}
-
-void *SimPlot::getVpm()
-{
-    return (void *)mVpm;
-}
 
 void SimPlot::startStop()
 {
@@ -312,10 +260,10 @@ void SimPlot::simulationStart()
 
     // Load and init the simulation into VLE
     try {
-        if (mCurrPackage == 0)
+        if (mPackage == 0)
             throw 0;
-        mCurrPackage->addDirectory("","output",vle::utils::PKG_SOURCE);
-        std::string path = mCurrPackage->getOutputDir(vle::utils::PKG_SOURCE);
+        mPackage->addDirectory("","output",vle::utils::PKG_SOURCE);
+        std::string path = mPackage->getOutputDir(vle::utils::PKG_SOURCE);
         mSimThread->setOutputPath(path.c_str());
         mSimThread->load();
         mSimThread->init();

@@ -8,6 +8,7 @@
  */
 #include "thread.h"
 #include <QElapsedTimer>
+#include <QDebug>
 
 simPlotThread::simPlotThread(vle::vpz::Vpz *vpz)
 {
@@ -202,6 +203,8 @@ void simPlotThread::restart()
  */
 void simPlotThread::load()
 {
+    qDebug() << " dbg simPlotThread::load() " ;
+
     if ((mVpz == 0) || (mRoot == 0))
     {
         mErrorMessage = tr("Model or RootCoordinator missing");
@@ -225,6 +228,7 @@ void simPlotThread::load()
  */
 void simPlotThread::init()
 {
+    qDebug() << " dbg simPlotThread::init() " ;
     try {
         mRoot->init();
     } catch (const std::exception &e) {
@@ -241,6 +245,7 @@ void simPlotThread::init()
  */
 void simPlotThread::finish()
 {
+    qDebug() << " dbg simPlotThread::finish() " ;
     try {
         mRoot->finish();
     } catch (const std::exception& e) {

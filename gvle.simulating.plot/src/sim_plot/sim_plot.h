@@ -15,7 +15,7 @@
 #include <QTreeWidgetItem>
 #include <QWidget>
 #include <QThread>
-#include <vle/gvle/plugin_sim.h>
+#include <vle/gvle/plugin_simpanel.h>
 #include <vle/gvle/logger.h>
 #include "thread.h"
 #include "simtab.h"
@@ -25,25 +25,22 @@
 namespace vle {
 namespace gvle {
 
-class SimPlot : public QObject, public PluginSimulator
+class SimPlot : public PluginSimPanel
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "fr.inra.vle.gvle.PluginSimulator")
-    Q_INTERFACES(vle::gvle::PluginSimulator)
+    Q_PLUGIN_METADATA(IID "fr.inra.vle.gvle.PluginSimPanel")
+    Q_INTERFACES(vle::gvle::PluginSimPanel)
 
 public:
     SimPlot();
     ~SimPlot();
+    void init(vleVpm* vpm, vle::utils::Package* pkg);
     QString getname();
-    QWidget *getWidget();
-    void     delWidget();
-    QWidget *getWidgetToolbar();
-    void     delWidgetToolbar();
-    void setSettings(QSettings *s);
-    void setLogger(Logger *logger);
-    void init(vleVpm *vpm);
-    void *getVpm();
-    void setPackage(vle::utils::Package *pkg);
+    QWidget* leftWidget();
+    QWidget* rightWidget();
+    void undo();
+    void redo();
+    PluginSimPanel* newInstance();
 
 public slots:
     void startStop();
@@ -64,7 +61,7 @@ private:
     SimTab                *  mWidgetTab;
     widToolbar            *  mWidgetToolbar;
     vleVpm                *  mVpm;
-    vle::utils::Package   *  mCurrPackage;
+    vle::utils::Package   *  mPackage;
     QList<plotSignal *>      mPlotSignals;
     QThread               *  mThread;
     simPlotThread         *  mSimThread;
