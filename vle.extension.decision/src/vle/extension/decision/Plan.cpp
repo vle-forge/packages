@@ -407,12 +407,14 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                  it != params.end(); ++it)
                 TraceModel(vle::fmt("    - %1%") % it->first);
 
+            std::string resources;
             try {
-                std::string resources = act.params().getString("resources");
-                act.addResources(mKb.extendResources(resources));
+                resources = act.params().getString("resources");
             } catch(const std::exception& e) {
             }
-
+            if (not resources.empty()) {
+                act.addResources(mKb.extendResources(resources));
+            }
             try {
                 double loadedPriority = act.params().getDouble("priority");
                 act.getParams().resetDouble("priority", loadedPriority + addPriority);
