@@ -37,6 +37,8 @@
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/extension/decision/Table.hpp>
 #include <vle/extension/decision/Plan.hpp>
+#include <boost/algorithm/string.hpp>
+#include <iostream>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -217,29 +219,124 @@ public:
         : mPlan(ctxp, *this), mLibrary(ctxp, *this)
     {}
 
+    /**
+     * @brief a resource is defined by a id(string) an class(string),
+     * This operator can be used to use many classes for a single
+     * resource
+     * @param type the class of a resource
+     * @param name the name of the resource
+     */
     void addResources(const std::string& type, const std::string& name)
     {
         mResources.insert(Resource(type, name));
         mPlan.activities().setResourceAvailable(name);
     }
 
+    /**
+     * @brief check if a resource exist
+     * @param type a combination of classes separated by '&',
+     * for example "farmWorker & skilledWorker"
+     */
     bool resourceTypeExist(const std::string& type) const
-    { return mResources.find(type) != mResources.end();}
+    {
+        size_t n = std::count(type.begin(), type.end(), '&');
+        if ( n == 0 ) {
+            return mResources.find(type) != mResources.end();
+        } else {
+            std::vector<std::string> strs;
+            boost::split(strs, type , boost::is_any_of("&"));
+            std::vector<std::string> allResources;
+            ResourceSolution Resources;
+            for (unsigned i = 0; i < strs.size(); i++) {
+                ResourcesConstIteratorPair pit;
+                pit = mResources.equal_range(strs[i]);
+                for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
+                {
+                    allResources.push_back((*it).second);
+                }
+            }
+            std::vector<std::string> resourceUniq = allResources;
+            std::vector<std::string>::iterator it,jt;
+            std::sort(resourceUniq.begin(), resourceUniq.end());
+            it = std::unique (resourceUniq.begin(), resourceUniq.end());
+            resourceUniq.resize(std::distance(resourceUniq.begin(),it));
+            for (jt = resourceUniq.begin(); jt != resourceUniq.end(); jt++) {
+                if (count(allResources.begin(), allResources.end(), *jt) ==
+                    (int)strs.size()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 
+    /**
+     * @brief get the resource satisfying the combination of classes
+     * @param type a combination of classes separated by '&',
+     * for example "farmWorker & skilledWorker"
+     */
     ResourceSolution getResources (const std::string& type) const
     {
         ResourceSolution resources;
-        ResourcesConstIteratorPair pit;
 
-        pit = mResources.equal_range(type);
-        for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
-        {
-            resources.push_back((*it).second);
+        size_t n = std::count(type.begin(), type.end(), '&');
+        if ( n == 0 ) {
+            ResourcesConstIteratorPair pit;
+
+            pit = mResources.equal_range(type);
+            for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
+            {
+                resources.push_back((*it).second);
+            }
+        } else {
+            std::vector<std::string> strs;
+             boost::split(strs, type , boost::is_any_of("&"));
+             std::vector<std::string> allResources;
+
+             for (unsigned i = 0; i < strs.size(); i++) {
+                 ResourcesConstIteratorPair pit;
+                 pit = mResources.equal_range(strs[i]);
+                 for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
+                 {
+                     allResources.push_back((*it).second);
+                 }
+             }
+             std::vector<std::string> resourceUniq = allResources;
+             std::vector<std::string>::iterator it,jt;
+             std::sort(resourceUniq.begin(), resourceUniq.end());
+             it = std::unique(resourceUniq.begin(), resourceUniq.end());
+             resourceUniq.resize(std::distance(resourceUniq.begin(),it));
+             for (jt = resourceUniq.begin(); jt != resourceUniq.end(); jt++) {
+                 if (count(allResources.begin(), allResources.end(), *jt) ==
+                     (int)strs.size()) {
+                     resources.push_back(*jt);
+                 }
+             }
         }
         return resources;
     }
 
+    /**
+     * @brief get the the number of resources
+     * satisfying the combination of classes
+     * @param type a combination of classes separated by '&',
+     * for example "farmWorker & skilledWorker"
+     */
+    int getResourceQuantity (const std::string& type) const
+    {
+        return getResources(type).size();
+    }
 
+    /**
+     * @brief from the string describing the alternatives of needed
+     * ressources, to the list of all the solutions.
+     * @param the string conatining the query, for example:
+     * "farmWorker&skilledWorker +  newTractor | farmWorker.2 +
+     * oldTractor.2"
+     * returns a list of list of resources, example:
+     * { {"Bob", "Bill", "tractorBlue"}, {"Phil", "Pat",
+     * "tractorBlue"}, { "Bob", "Bill", "tractorRed", "tractorGreen"}
+     */
     ResourcesExtended extendResources(const std::string& resources) const;
 
     /**

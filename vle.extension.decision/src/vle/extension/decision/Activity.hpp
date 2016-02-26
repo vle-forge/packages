@@ -179,7 +179,7 @@ public:
           m_ff(devs::negativeInfinity),
           m_done(devs::negativeInfinity),
           m_hasRessources(true),
-                    m_priority(devs::negativeInfinity)
+          m_priority(devs::negativeInfinity)
 
     {}
 

@@ -58,7 +58,6 @@ typedef std::pair < ActivitiesResourcesIterator,
 typedef std::pair < ActivitiesResourcesConstIterator,
                     ActivitiesResourcesConstIterator> ActivitiesResourcesConstIteratorPair;
 
-
 }}} // namespace vle model decision
 
 #endif
