@@ -199,7 +199,8 @@ struct AssignActivityDoubleParameter
 
 void __fill_predicate(const utils::Block::BlocksResult& root,
                       Predicates& predicates,
-                      const PredicatesTable& table)
+                      const PredicatesTable& table,
+                      const devs::Time& loadTime)
 {
     for (UBB::const_iterator it = root.first; it != root.second; ++it) {
         const utils::Block& block = it->second;
@@ -245,6 +246,10 @@ void __fill_predicate(const utils::Block::BlocksResult& root,
                      it != params.end(); ++it)
                     TraceModel(vle::fmt("    - %1%") % it->first);
 
+                if (params.exist("planTimeStamp")) {
+                    params.resetDouble("planTimeStamp", loadTime);
+                }
+
                 predicates.add(id.first->second, fctit->second, params);
             }
         } else {
@@ -269,7 +274,7 @@ void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
 
     for (it = mainpredicates.first; it != mainpredicates.second; ++it)
         __fill_predicate(it->second.blocks.equal_range("predicate"),
-                         mPredicates, mKb.predicates());
+                         mPredicates, mKb.predicates(), loadTime);
 
     for (it = mainrules.first; it != mainrules.second; ++it) {
         utils::Block::BlocksResult rules;
@@ -421,6 +426,12 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                 act.setPriority(loadedPriority + addPriority);
             } catch(const std::exception& e) {
             }
+            // try {
+            //     if (act.params().exist("planTimeStamp")) {
+            //         act.getParams().resetDouble("priority", loadTime);
+            //     }
+            // } catch(const std::exception& e) {
+            // }
         }
     }
 }
