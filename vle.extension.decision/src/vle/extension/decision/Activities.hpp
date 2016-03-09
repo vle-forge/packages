@@ -55,6 +55,21 @@ public:
      */
     typedef std::pair < bool, devs::Time > Result;
 
+    Activities()
+        : mPriorityIncrement(0.)
+    {}
+
+    /**
+     * @brief to set a priority increment that is used to increase the
+     * priority of an activity each time the activity can not start
+     * due to the lack of resources
+     * @param double the value of priority increment
+     */
+    void setPriorityIncrement(const double inc)
+    {
+        mPriorityIncrement = inc;
+    }
+
     Activity& add(const std::string& name,
                   const Activity& act,
                   const Activity::OutFct& out = Activity::OutFct(),
@@ -330,6 +345,8 @@ public:
     }
 
 private:
+    double mPriorityIncrement;
+
     activities_t     m_lst;
     PrecedencesGraph m_graph;
 
