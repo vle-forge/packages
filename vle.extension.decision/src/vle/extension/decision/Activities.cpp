@@ -429,7 +429,8 @@ void Activities::assignResources(result_t& activities)
         }
         if (not (*activity)->second.hasRessources()) {
             if ((*activity)->second.params().exist("priority")) {
-                double priority = (*activity)->second.getPriority() + 1;
+                double priority = (*activity)->second.getPriority() +
+                    mPriorityIncrement;
                 (*activity)->second.setPriority(priority);
             }
         }
