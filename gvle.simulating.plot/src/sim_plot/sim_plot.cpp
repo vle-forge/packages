@@ -41,7 +41,7 @@ SimPlot::~SimPlot()
 
 
 void
-SimPlot::init(vleVpm* vpm, vle::utils::Package* pkg)
+SimPlot::init(vleVpm* vpm, vle::utils::Package* pkg, Logger* /*log*/)
 {
 
     mVpm = vpm;

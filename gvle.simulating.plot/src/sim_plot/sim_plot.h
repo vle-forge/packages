@@ -34,7 +34,7 @@ class SimPlot : public PluginSimPanel
 public:
     SimPlot();
     ~SimPlot();
-    void init(vleVpm* vpm, vle::utils::Package* pkg);
+    void init(vleVpm* vpm, vle::utils::Package* pkg, Logger* log);
     QString getname();
     QWidget* leftWidget();
     QWidget* rightWidget();
