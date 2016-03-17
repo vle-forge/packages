@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_and)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-and.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("out"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_or)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-or.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("out"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_nand1)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-nand1.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("out"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_nand2)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-nand2.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("out"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_and_timed)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-and-timed.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("out"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_or_priority)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-or-priority.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("out"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_meteo)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-meteo.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("out"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_inout)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-inout.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("out"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_conflict)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-conflict.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("out"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;

@@ -59,10 +59,9 @@ namespace vle { namespace examples { namespace generator {
         double      m_timeStep;
         double      m_time;
         utils::Rand m_rand;
+
     };
 
 }}} // namespace vle examples generator
-
-DECLARE_DYNAMICS(vle::examples::generator::GeneratorWrapper)
 
 #endif

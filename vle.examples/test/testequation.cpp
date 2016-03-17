@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(test_equation1)
     std::cout << " test_equation1 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation1.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(test_equation2)
     std::cout << " test_equation2 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation2.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(test_equation3)
     std::cout << " test_equation3 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation3.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(test_equation4)
     std::cout << " test_equation4 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation4.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(test_equation5)
     std::cout << " test_equation5 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation5.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(test_equation6)
     std::cout << " test_equation6 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation6.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE(test_equation7)
     std::cout << " test_equation7 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation7.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE(test_equation8)
     std::cout << " test_equation8 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation8.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -401,7 +401,7 @@ BOOST_AUTO_TEST_CASE(test_equation9)
     std::cout << " test_equation9 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation9.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -451,7 +451,7 @@ BOOST_AUTO_TEST_CASE(test_equation10)
     std::cout << " test_equation10 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation10.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -501,7 +501,7 @@ BOOST_AUTO_TEST_CASE(test_equation11)
     std::cout << " test_equation11 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation11.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -551,7 +551,7 @@ BOOST_AUTO_TEST_CASE(test_equation12)
     std::cout << " test_equation12 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation12.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -601,7 +601,7 @@ BOOST_AUTO_TEST_CASE(test_equation13)
     std::cout << " test_equation13 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation13.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -637,7 +637,7 @@ BOOST_AUTO_TEST_CASE(test_equation14)
     std::cout << " test_equation14 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation14.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE(test_equation15)
     std::cout << " test_equation15 " << std::endl;
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("equation15.vpz"));
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;

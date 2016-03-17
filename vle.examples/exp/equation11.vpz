@@ -100,7 +100,7 @@
 </conditions>
 <views>
 <outputs>
-<output name="o" location="" format="local" package="vle.output" plugin="file" />
+<output name="view" location="" format="local" package="vle.output" plugin="file" />
 
 </outputs>
 <observables>
@@ -127,7 +127,7 @@
 </observable>
 
 </observables>
-<view name="view" output="o" type="timed" timestep="1.000000000000000" />
+<view name="view" output="view" type="timed" timestep="1.000000000000000" />
 
 </views>
 </experiment>
