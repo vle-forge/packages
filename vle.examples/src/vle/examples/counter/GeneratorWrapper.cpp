@@ -98,3 +98,6 @@ void GeneratorWrapper::internalTransition(const devs::Time& /* event */)
 }
 
 }}} // namespace vle examples generator
+
+
+DECLARE_DYNAMICS(vle::examples::generator::GeneratorWrapper)

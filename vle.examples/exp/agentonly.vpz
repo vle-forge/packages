@@ -1,70 +1,104 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
-<vle_project version="1.1.0" date="mar., 12 janv. 2010" author="Gauthier Quesnel">
-<structures>
-<model name="Top model" type="coupled" x="0" y="0" width="464" height="301"  >
+<vle_project author="Gauthier Quesnel" version="1.1.0" date="mar., 12 janv. 2010">
+ <structures>
+<model width="464" name="Top model" height="301" x="0" y="0" type="coupled">
 <submodels>
-<model name="Agent" type="atomic" dynamics="agent" observables="obs" x="30" y="35" width="100" height="45" >
+<model width="100" name="Agent" height="45" x="30" dynamics="agent" observables="obs" y="35" type="atomic">
 <out>
- <port name="out" />
+ <port name="out"/>
 </out>
 </model>
-<model name="counter" type="atomic" dynamics="counter" observables="storage" x="179" y="92" width="100" height="45" >
+<model width="100" name="counter" height="45" x="179" dynamics="counter" observables="storage" y="92" type="atomic">
 <in>
- <port name="in" />
+ <port name="in"/>
 </in>
 </model>
 </submodels>
 <connections>
 <connection type="internal">
- <origin model="Agent" port="out" />
- <destination model="counter" port="in" />
+ <origin model="Agent" port="out"/>
+ <destination model="counter" port="in"/>
 </connection>
 </connections>
 </model>
 </structures>
-<dynamics>
-<dynamic name="agent" package="vle.examples" library="OnlyAgent" type="local"  />
-<dynamic name="counter" package="vle.examples" library="DecisionCounter" type="local"  />
+ <dynamics>
+<dynamic package="vle.examples" name="agent" library="OnlyAgent" type="local"/>
+<dynamic package="vle.examples" name="counter" library="DecisionCounter" type="local"/>
 </dynamics>
-<experiment name="Only"  combination="linear" seed="10" >
+ <experiment name="Only" combination="linear" seed="10">
 <conditions>
-<condition name="simulation_engine" >
- <port name="duration" >
+<condition name="simulation_engine">
+ <port name="duration">
 <double>10.0</double>
 </port>
- <port name="begin" >
+ <port name="begin">
 <double>0.0</double>
 </port>
 </condition>
 </conditions>
 <views>
 <outputs>
-<output name="output" location="" format="local" package="vle.output" plugin="file" >
-<map><key name="output"><string>out</string></key></map></output>
+<output package="vle.output" name="output" location="" format="local" plugin="file">
+<map>
+      <key name="flush-by-bag">
+       <boolean>0</boolean>
+      </key>
+      <key name="julian-day">
+       <boolean>0</boolean>
+      </key>
+      <key name="locale">
+       <string>C</string>
+      </key>
+      <key name="output">
+       <string>file</string>
+      </key>
+      <key name="type">
+       <string>text</string>
+      </key>
+     </map>
+    </output>
 
-<output name="storage" location="" format="local" package="vle.output" plugin="storage" />
+<output package="vle.output" name="storage" location="" format="local" plugin="storage">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
 
 </outputs>
 <observables>
-<observable name="obs" >
-<port name="text" >
- <attachedview name="output" />
+<observable name="obs">
+<port name="text">
+ <attachedview name="output"/>
 </port>
 
 </observable>
 
-<observable name="storage" >
-<port name="counter" >
- <attachedview name="storage" />
+<observable name="storage">
+<port name="counter">
+ <attachedview name="storage"/>
 </port>
 
 </observable>
 
 </observables>
-<view name="output" output="output" type="timed" timestep="1.000000000000000" />
+<view name="output" output="output" timestep="1.000000000000000" type="timed"/>
 
-<view name="storage" output="storage" type="timed" timestep="1.000000000000000" />
+<view name="storage" output="storage" timestep="1.000000000000000" type="timed"/>
 
 </views>
 </experiment>

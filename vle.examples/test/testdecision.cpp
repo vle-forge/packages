@@ -78,19 +78,19 @@ BOOST_AUTO_TEST_CASE(test_agentonly)
     value::Matrix &result = out->getMatrix("storage");
 
     BOOST_REQUIRE_EQUAL(result.columns(), (value::MatrixView::size_type)2);
-    BOOST_REQUIRE_EQUAL(result.rows(), (value::MatrixView::size_type)11);
+    BOOST_REQUIRE_EQUAL(result.rows(), (value::MatrixView::size_type)12);
 
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 0), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 4);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 2), 7);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 3), 8);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 1);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 2), 4);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 3), 7);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 4), 8);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 5), 8);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 6), 8);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 7), 8);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 8), 8);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 9), 8);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 9);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 8);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 11), 9);
 
     delete out;
 }
@@ -113,9 +113,8 @@ BOOST_AUTO_TEST_CASE(test_agentonlyprecedenceconstraint)
 
     value::Matrix &result = out->getMatrix("storage");
 
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 0), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 2);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 2), 3);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 1);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 2), 2);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 3), 3);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 4), 3);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 5), 3);
@@ -123,7 +122,8 @@ BOOST_AUTO_TEST_CASE(test_agentonlyprecedenceconstraint)
     BOOST_REQUIRE_EQUAL(result.getInt(1, 7), 3);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 8), 3);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 9), 3);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 4);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 3);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 11), 4);
 
     delete out;
 }
@@ -146,17 +146,17 @@ BOOST_AUTO_TEST_CASE(test_agentonlywakeup)
 
     value::Matrix &result = out->getMatrix("storage");
 
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 0), 0);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 1);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 0);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 2), 1);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 3), 1);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 4), 1);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 5), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 6), 2);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 6), 1);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 7), 2);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 8), 2);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 9), 2);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 2);
+    BOOST_REQUIRE_EQUAL(result.getInt(1, 11), 2);
 
     delete out;
 }

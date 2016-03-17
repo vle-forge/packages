@@ -1,3 +1,2 @@
-VleBuildDynamic(Generator "RandomGenerator.cpp;UniformGenerator.cpp;"
-  "NormalGenerator.cpp;LogNormalGenerator.cpp;GeneratorWrapper.cpp")
+VleBuildDynamic(Generator "GeneratorWrapper.cpp;NormalGenerator.cpp;LogNormalGenerator.cpp;UniformGenerator.cpp;RandomGenerator.cpp")
 VleBuildDynamic(Counter "Counter.cpp")

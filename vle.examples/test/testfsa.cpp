@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(test_moore1)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("moore.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(test_moore2)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("moore2.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(test_mealy1)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("mealy.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(test_mealy2)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("mealy2.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(test_statechart1)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(test_statechart2)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart2.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE(test_statechart3)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart3.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(test_statechart4)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart4.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(test_statechart5)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart5.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(test_statechart6)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart6.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -498,7 +498,7 @@ BOOST_AUTO_TEST_CASE(test_stage)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("stage.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -536,7 +536,7 @@ BOOST_AUTO_TEST_CASE(test_statechart7)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart7.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -567,7 +567,7 @@ BOOST_AUTO_TEST_CASE(test_statechart8)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart8.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -601,7 +601,7 @@ BOOST_AUTO_TEST_CASE(test_statechart9)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart9.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -641,7 +641,7 @@ BOOST_AUTO_TEST_CASE(test_statechart10)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart10.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -669,7 +669,7 @@ BOOST_AUTO_TEST_CASE(test_statechart11)
     vle::utils::Package pack("vle.examples");
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("statechart11.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;
@@ -723,7 +723,7 @@ BOOST_AUTO_TEST_CASE(test_statechartMultipleSend)
     vpz::Vpz *file = new vpz::Vpz(pack.getExpFile(
         "statechartMultipleSend.vpz"));
 
-    vpz::Output& o(file->project().experiment().views().outputs().get("o"));
+    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
     utils::ModuleManager man;

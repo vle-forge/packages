@@ -1,70 +1,92 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
-<vle_project version="1.1.0" date="mar., 12 janv. 2010" author="Gauthier Quesnel">
-<structures>
-<model name="Top model" type="coupled" x="0" y="0" width="459" height="301"  >
+<vle_project version="1.1.0" author="Gauthier Quesnel" date="mar., 12 janv. 2010">
+ <structures>
+<model x="0" name="Top model" y="0" width="459" height="301" type="coupled">
 <submodels>
-<model name="Agent" type="atomic" dynamics="agent" observables="obs" x="140" y="25" width="100" height="45" >
+<model dynamics="agent" observables="obs" x="140" name="Agent" y="25" width="100" height="45" type="atomic">
 <out>
- <port name="out" />
+ <port name="out"/>
 </out>
 </model>
-<model name="counter" type="atomic" dynamics="counter" observables="storage" x="140" y="85" width="100" height="45" >
+<model dynamics="counter" observables="storage" x="140" name="counter" y="85" width="100" height="45" type="atomic">
 <in>
- <port name="in" />
+ <port name="in"/>
 </in>
 </model>
 </submodels>
 <connections>
 <connection type="internal">
- <origin model="Agent" port="out" />
- <destination model="counter" port="in" />
+ <origin model="Agent" port="out"/>
+ <destination model="counter" port="in"/>
 </connection>
 </connections>
 </model>
 </structures>
-<dynamics>
-<dynamic name="agent" package="vle.examples" library="OnlyAgentPrecedenceConstraint" type="local"  />
-<dynamic name="counter" package="vle.examples" library="DecisionCounter" type="local"  />
+ <dynamics>
+<dynamic name="agent" package="vle.examples" type="local" library="OnlyAgentPrecedenceConstraint"/>
+<dynamic name="counter" package="vle.examples" type="local" library="DecisionCounter"/>
 </dynamics>
-<experiment name="Only"   combination="linear" seed="10" >
+ <experiment name="Only" seed="10" combination="linear">
 <conditions>
-<condition name="simulation_engine" >
- <port name="duration" >
+<condition name="simulation_engine">
+ <port name="duration">
 <double>10.0</double>
 </port>
- <port name="begin" >
+ <port name="begin">
 <double>0.0</double>
 </port>
 </condition>
 </conditions>
 <views>
 <outputs>
-<output name="output" location="" format="local" package="vle.output" plugin="file" >
-<map><key name="output"><string>out</string></key></map></output>
+<output name="output" package="vle.output" location="" format="local" plugin="file">
+<map>
+      <key name="output">
+       <string>out</string>
+      </key>
+     </map>
+    </output>
 
-<output name="storage" location="" format="local" package="vle.output" plugin="storage" />
+<output name="storage" package="vle.output" location="" format="local" plugin="storage">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
 
 </outputs>
 <observables>
-<observable name="obs" >
-<port name="text" >
- <attachedview name="output" />
+<observable name="obs">
+<port name="text">
+ <attachedview name="output"/>
 </port>
 
 </observable>
 
-<observable name="storage" >
-<port name="counter" >
- <attachedview name="storage" />
+<observable name="storage">
+<port name="counter">
+ <attachedview name="storage"/>
 </port>
 
 </observable>
 
 </observables>
-<view name="output" output="output" type="timed" timestep="1.000000000000000" />
+<view name="output" output="output" type="timed" timestep="1.000000000000000"/>
 
-<view name="storage" output="storage" type="timed" timestep="1.000000000000000" />
+<view name="storage" output="storage" type="timed" timestep="1.000000000000000"/>
 
 </views>
 </experiment>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE vle_project_metadata>
+<vle_project_metadata author="me" version="1.x">
+ <condPlugins>
+  <condPlugin cond="NewCondition_1" plugin="Date"/>
+ </condPlugins>
+ <outputGUIplugins>
+  <outputGUIplugin view="storage" GUIplugin="gvle.output/storage"/>
+ </outputGUIplugins>
+</vle_project_metadata>
