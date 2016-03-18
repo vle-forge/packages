@@ -187,24 +187,30 @@ std::unique_ptr<vle::value::Value> Agent::observation(
         return std::unique_ptr<vle::value::Value>(new value::String(out.str()));
     } else if ((port.compare(0, 9, "Activity_") == 0) and port.size() > 9) {
         std::string activity(port, 9, std::string::npos);
-        const Activity& act(activities().get(activity)->second);
-        std::stringstream out;
-        out << act.state();
-        return  std::unique_ptr<vle::value::Value>(
-            new value::String(out.str()));
+        if (activities().exist(activity)) {
+            const Activity& act(activities().get(activity)->second);
+            std::stringstream out;
+            out << act.state();
+            return std::unique_ptr<vle::value::Value>(
+                new value::String(out.str()));
+        }
     } else if ((port.compare(0, 16, "Activity(state)_") == 0) and port.size() > 16) {
         std::string activity(port, 16, std::string::npos);
-        const Activity& act(activities().get(activity)->second);
-        std::stringstream out;
-        out << act.state();
-        return  std::unique_ptr<vle::value::Value>(
-            new value::String(out.str()));
+        if (activities().exist(activity)) {
+            const Activity& act(activities().get(activity)->second);
+            std::stringstream out;
+            out << act.state();
+            return std::unique_ptr<vle::value::Value>(
+                new value::String(out.str()));
+        }
     } else if ((port.compare(0, 20, "Activity(resources)_") == 0) and port.size() > 20) {
         std::string activity(port, 20, std::string::npos);
-        std::stringstream out;
-        out << activities().resources(activity);
-        return  std::unique_ptr<vle::value::Value>(
-            new value::String(out.str()));
+        if (activities().exist(activity)) {
+            std::stringstream out;
+            out << activities().resources(activity);
+            return std::unique_ptr<vle::value::Value>(
+                new value::String(out.str()));
+        }
     }
 
     return vle::devs::Dynamics::observation(event);
