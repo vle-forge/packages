@@ -547,10 +547,17 @@ Activities::processWaitState(iterator activity,
         update.first = false;
         break;
     case PrecedenceConstraint::Failed:
-        activity->second.fail(time);
-        m_failedAct.push_back(activity);
-        m_latestFailedAct.push_back(activity);
-        update.first = true;
+        if (activity->second.isNeverFail()) {
+            activity->second.start(time);
+            m_startedAct.push_back(activity);
+            m_latestStartedAct.push_back(activity);
+            update.first = true;
+        } else {
+            activity->second.fail(time);
+            m_failedAct.push_back(activity);
+            m_latestFailedAct.push_back(activity);
+            update.first = true;
+        }
         break;
     }
 
@@ -671,7 +678,11 @@ PrecedenceConstraint::Result Activities::updateState(iterator activity,
                     newstate.second = std::min(newstate.second, r.second);
                     break;
                 case PrecedenceConstraint::Failed:
-                    newstate.first = r.first;
+                    if (activity->second.isNeverFail()) {
+                        newstate.first = PrecedenceConstraint::Wait;
+                    } else {
+                        newstate.first = r.first;
+                    }
                     newstate.second = std::min(newstate.second, r.second);
                     break;
                 case PrecedenceConstraint::Valid:

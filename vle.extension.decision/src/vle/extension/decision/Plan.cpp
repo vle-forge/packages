@@ -426,6 +426,14 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                 act.setPriority(loadedPriority + addPriority);
             } catch(const std::exception& e) {
             }
+            try {
+                double neverfail = act.params().getDouble("neverfail");
+                if (neverfail == 1) {
+                    act.neverFail();
+                }
+
+            } catch(const std::exception& e) {
+            }
             // try {
             //     if (act.params().exist("planTimeStamp")) {
             //         act.getParams().resetDouble("priority", loadTime);
