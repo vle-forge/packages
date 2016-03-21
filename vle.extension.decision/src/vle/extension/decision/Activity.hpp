@@ -308,6 +308,8 @@ public:
     bool isValidTimeConstraint(const devs::Time& time) const;
     bool isBeforeTimeConstraint(const devs::Time& time) const;
     bool isAfterTimeConstraint(const devs::Time& time) const;
+    bool isAfterStartTimeConstraint(const devs::Time& time) const;
+    bool isBeforeFinishTimeConstraint(const devs::Time& time) const;
     bool isValidHorizonTimeConstraint(const devs::Time& lowerBound,
                                       const devs::Time& upperBound) const;
 
