@@ -356,6 +356,50 @@ bool Activity::isAfterTimeConstraint(const devs::Time& time) const
             _("Decision: activity time type invalid: %1%")) % (int)m_date);
 }
 
+bool Activity::isAfterStartTimeConstraint(const devs::Time& time) const
+{
+    switch (m_date & (START | FINISH | MINS | MAXS | MINF | MAXF)) {
+    case START | FINISH:
+        return m_finish < time;
+
+    case START | MINF | MAXF:
+        return m_maxfinish < time;
+
+    case MINS | MAXS | FINISH:
+        return m_maxstart < time;
+
+    case MINS | MAXS | MINF | MAXF:
+        return m_maxstart < time;
+
+    default:
+        break;
+    }
+    throw utils::InternalError(fmt(
+            _("Decision: activity time type invalid: %1%")) % (int)m_date);
+}
+
+bool Activity::isBeforeFinishTimeConstraint(const devs::Time& time) const
+{
+    switch (m_date & (START | FINISH | MINS | MAXS | MINF | MAXF)) {
+    case START | FINISH:
+        return m_start > time;
+
+    case START | MINF | MAXF:
+        return m_minfinish > time;
+
+    case MINS | MAXS | FINISH:
+        return m_minstart > time;
+
+    case MINS | MAXS | MINF | MAXF:
+        return m_minfinish > time;
+
+    default:
+        break;
+    }
+    throw utils::InternalError(fmt(
+            _("Decision: activity time type invalid: %1%")) % (int)m_date);
+}
+
 bool Activity::isValidHorizonTimeConstraint(const devs::Time& lowerBound,
                                             const devs::Time& upperBound) const
 {

@@ -45,6 +45,39 @@ using vle::fmt;
 
 namespace vle { namespace extension { namespace decision { namespace ex {
 
+class Maxstart: public vmd::KnowledgeBase
+{
+public:
+    Maxstart()
+    {
+        vmd::Rule& r1 = addRule("Rule false");
+        r1.add(boost::bind(&vmd::ex::Maxstart::isAlwaysFalse, this));
+
+        vmd::Activity& a = addActivity("A");
+        a.initStartRangeFinishRange(0.0, 1.0, 2.0, 3.0);
+        a.addRule("Rule false", r1);
+    }
+
+    virtual ~Maxstart() {}
+
+    bool isAlwaysFalse() const
+    {
+        return false;
+    }
+};
+
+class Minfinish: public vmd::KnowledgeBase
+{
+public:
+    Minfinish()
+    {
+        vmd::Activity& a = addActivity("A");
+        a.initStartRangeFinishRange(0.0, 1.0, 2.0, 3.0);
+    }
+
+    virtual ~Minfinish() {}
+};
+
 class KnowledgeBase : public vmd::KnowledgeBase
 {
 public:
@@ -265,6 +298,46 @@ public:
 };
 
 }}}} // namespace vle ext decision
+
+BOOST_AUTO_TEST_CASE(Maxstart)
+{
+    vmd::ex::Maxstart base;
+    vmd::Activities::result_t lst;
+
+    base.processChanges(0.0);
+
+    lst = base.waitedActivities();
+    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+
+    base.processChanges(1.0);
+    lst = base.waitedActivities();
+    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+
+    base.processChanges(2.0);
+    lst = base.failedActivities();
+    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+}
+
+BOOST_AUTO_TEST_CASE(Minfinish)
+{
+    vmd::ex::Minfinish base;
+    vmd::Activities::result_t lst;
+
+    base.processChanges(0.0);
+
+    lst = base.startedActivities();
+    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+
+    base.processChanges(1.0);
+    lst = base.startedActivities();
+    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+
+    base.setActivityDone("A", 1.5);
+
+    base.processChanges(1.5);
+    lst = base.failedActivities();
+    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+}
 
 BOOST_AUTO_TEST_CASE(kb)
 {
