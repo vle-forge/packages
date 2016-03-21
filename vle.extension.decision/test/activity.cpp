@@ -42,6 +42,41 @@ namespace vd = vle::devs;
 
 namespace vle { namespace extension { namespace decision { namespace ex {
 
+class Maxstart: public vmd::KnowledgeBase
+{
+public:
+    Maxstart(vle::utils::ContextPtr ctxp)
+        : vmd::KnowledgeBase(ctxp)
+    {
+        vmd::Rule& r1 = addRule("Rule false");
+        r1.add(boost::bind(&vmd::ex::Maxstart::isAlwaysFalse, this));
+
+        vmd::Activity& a = addActivity("A");
+        a.initStartRangeFinishRange(0.0, 1.0, 2.0, 3.0);
+        a.addRule("Rule false", r1);
+    }
+
+    virtual ~Maxstart() {}
+
+    bool isAlwaysFalse() const
+    {
+        return false;
+    }
+};
+
+class Minfinish: public vmd::KnowledgeBase
+{
+public:
+    Minfinish(vle::utils::ContextPtr ctxp)
+        : vmd::KnowledgeBase(ctxp)
+    {
+        vmd::Activity& a = addActivity("A");
+        a.initStartRangeFinishRange(0.0, 1.0, 2.0, 3.0);
+    }
+
+    virtual ~Minfinish() {}
+};
+
 class KnowledgeBase : public vmd::KnowledgeBase
 {
 public:
@@ -268,6 +303,48 @@ public:
 };
 
 }}}} // namespace vle ext decision
+
+void Maxstart()
+{
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Maxstart base(ctxp);
+    vmd::Activities::result_t lst;
+
+    base.processChanges(0.0);
+
+    lst = base.waitedActivities();
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
+
+    base.processChanges(1.0);
+    lst = base.waitedActivities();
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
+
+    base.processChanges(2.0);
+    lst = base.failedActivities();
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
+}
+
+void Minfinish()
+{
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Minfinish base(ctxp);
+    vmd::Activities::result_t lst;
+
+    base.processChanges(0.0);
+
+    lst = base.startedActivities();
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
+
+    base.processChanges(1.0);
+    lst = base.startedActivities();
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
+
+    base.setActivityDone("A", 1.5);
+
+    base.processChanges(1.5);
+    lst = base.failedActivities();
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
+}
 
 void kb()
 {
@@ -535,6 +612,8 @@ void Activities_test_slot_function()
 
 int main()
 {
+    Maxstart();
+    Minfinish();
     kb();
     kb2();
     kb3();

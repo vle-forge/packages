@@ -185,7 +185,7 @@ void Activity::initStartTimeFinishTime(const devs::Time& start,
                                        const devs::Time& finish)
 {
     if (start > finish) {
-        throw utils::ModellingError(vle::utils::format(
+        throw vle::utils::ModellingError(vle::utils::format(
           "Decision: temporal constraint expected : "
                 "start (%f) before finish (%f)",
                 start, finish));
@@ -201,7 +201,7 @@ void Activity::initStartTimeFinishRange(const devs::Time& start,
                                         const devs::Time& maxfinish)
 {
     if (not (start < minfinish and minfinish < maxfinish)) {
-        throw utils::ModellingError(vle::utils::format(
+        throw vle::utils::ModellingError(vle::utils::format(
                 "Decision: temporal constraint expected : start (%f) "
                         "before minfinish (%f) before maxfinish (%f)",
                 start, minfinish, maxfinish));
@@ -218,7 +218,7 @@ void Activity::initStartRangeFinishTime(const devs::Time& minstart,
                                         const devs::Time& finish)
 {
     if (not (minstart < maxstart and maxstart < finish)) {
-        throw utils::ModellingError(vle::utils::format(
+        throw vle::utils::ModellingError(vle::utils::format(
                 "Decision: temporal constraint expected : minstart (%f)"
                 " before maxstart (%f) before finish (%f)",
        minstart, maxstart, finish));
@@ -237,7 +237,7 @@ void Activity::initStartRangeFinishRange(const devs::Time& minstart,
 {
     if (not (minstart < maxstart and minstart < maxfinish
              and minfinish < maxfinish)) {
-        throw utils::ModellingError(vle::utils::format(
+        throw vle::utils::ModellingError(vle::utils::format(
                 "Decision: temporal constraint expected : minstart (%f)"
                         " before maxstart (%f) and minfinish (%f) before"
                         " maxfinish (%f) and minstart (%f) before"
@@ -306,7 +306,7 @@ bool Activity::isValidTimeConstraint(const devs::Time& time) const
     default:
         break;
     }
-    throw utils::InternalError(vle::utils::format(
+    throw vle::utils::InternalError(vle::utils::format(
             "Decision: activity time type invalid: %i",
            (int)m_date));
 }
@@ -329,7 +329,7 @@ bool Activity::isBeforeTimeConstraint(const devs::Time& time) const
     default:
         break;
     }
-    throw utils::InternalError(vle::utils::format(
+    throw vle::utils::InternalError(vle::utils::format(
             "Decision: activity time type invalid: %i",
            (int)m_date));
 }
@@ -352,9 +352,56 @@ bool Activity::isAfterTimeConstraint(const devs::Time& time) const
     default:
         break;
     }
-    throw utils::InternalError(vle::utils::format(
+    throw vle::utils::InternalError(vle::utils::format(
             "Decision: activity time type invalid: %i",
            (int)m_date));
+}
+
+bool Activity::isAfterStartTimeConstraint(const devs::Time& time) const
+{
+    switch (m_date & (START | FINISH | MINS | MAXS | MINF | MAXF)) {
+    case START | FINISH:
+        return m_finish < time;
+
+    case START | MINF | MAXF:
+        return m_maxfinish < time;
+
+    case MINS | MAXS | FINISH:
+        return m_maxstart < time;
+
+    case MINS | MAXS | MINF | MAXF:
+        return m_maxstart < time;
+
+    default:
+        break;
+    }
+    throw utils::InternalError(
+        utils::format("Decision: activity time type invalid: %i",
+                      (int)m_date));
+}
+
+bool Activity::isBeforeFinishTimeConstraint(const devs::Time& time) const
+{
+    switch (m_date & (START | FINISH | MINS | MAXS | MINF | MAXF)) {
+    case START | FINISH:
+        return m_start > time;
+
+    case START | MINF | MAXF:
+        return m_minfinish > time;
+
+    case MINS | MAXS | FINISH:
+        return m_minstart > time;
+
+    case MINS | MAXS | MINF | MAXF:
+        return m_minfinish > time;
+
+    default:
+        break;
+    }
+    throw vle::utils::InternalError(
+        utils::format(
+            "Decision: activity time type invalid: %i",
+            (int)m_date));
 }
 
 bool Activity::isValidHorizonTimeConstraint(const devs::Time& lowerBound,
@@ -376,7 +423,7 @@ bool Activity::isValidHorizonTimeConstraint(const devs::Time& lowerBound,
     default:
         break;
     }
-    throw utils::InternalError(vle::utils::format(
+    throw vle::utils::InternalError(vle::utils::format(
            "Decision: activity time type invalid: %i",
            (int)m_date));
 }

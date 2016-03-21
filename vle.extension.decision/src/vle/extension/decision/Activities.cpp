@@ -590,10 +590,17 @@ Activities::processFFState(iterator activity,
     switch (newstate.first) {
     case PrecedenceConstraint::Valid:
     case PrecedenceConstraint::Inapplicable:
-        activity->second.end(time);
-        m_endedAct.push_back(activity);
-        m_latestEndedAct.push_back(activity);
-        update.first = true;
+        if (activity->second.isBeforeFinishTimeConstraint(time)) {
+            activity->second.fail(time);
+            m_failedAct.push_back(activity);
+            m_latestFailedAct.push_back(activity);
+            update.first = true;
+        } else {
+            activity->second.end(time);
+            m_endedAct.push_back(activity);
+            m_latestEndedAct.push_back(activity);
+            update.first = true;
+        }
         break;
     case PrecedenceConstraint::Wait:
         m_ffAct.push_back(activity);
@@ -621,10 +628,14 @@ Activities::processFailedState(iterator activity,
 
 Activities::Result
 Activities::processEndedState(iterator activity,
-                              const devs::Time& /* time */)
+                              const devs::Time& time)
 {
     Result update = std::make_pair(false, devs::infinity);
-    m_endedAct.push_back(activity);
+    if (activity->second.isBeforeFinishTimeConstraint(time)) {
+        m_failedAct.push_back(activity);
+    } else {
+        m_endedAct.push_back(activity);
+    }
     return update;
 }
 
@@ -638,6 +649,9 @@ PrecedenceConstraint::Result Activities::updateState(iterator activity,
     if (activity->second.isBeforeTimeConstraint(time)) {
         newstate.first = PrecedenceConstraint::Wait;
     } else if (activity->second.isAfterTimeConstraint(time)) {
+        newstate.first = PrecedenceConstraint::Failed;
+    } else if (activity->second.state() == Activity::WAIT &&
+               activity->second.isAfterStartTimeConstraint(time)) {
         newstate.first = PrecedenceConstraint::Failed;
     } else {
         PrecedencesGraph::findIn in = m_graph.findPrecedenceIn(activity);
