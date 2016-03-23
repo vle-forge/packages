@@ -1,13 +1,13 @@
 ## Resource Management
 
-A resource is defined by a Id and categories. To define the available
+A resource is defined by an Id and categories. To define the available
 resources of the knowledge base a single method **addResources** is
 provided.
 
 Be aware that ressources have to be defined before loading plans.
 
-Example of a resource definition inside a Agent that does inherit from
-a KnowedgeBase class:
+Example of a resource definition inside the source code of an Agent
+that does inherit from a KnowedgeBase class:
 ```
 addResources("farmworker", "Bob");
 addResources("farmworker", "Bill");
@@ -28,12 +28,13 @@ parameter block of the activity item of a plan file. The reserved
 parameter name to use is **resources**. Requirement are explicited by
 categories.
 
-Three operators are available:
+Four operators are available:
+* "&" enables to specify a resource that belongs to multiple categories
 * "." enables to specify a quantity of a category of resource wanted
 * "+" enables to specify a conjonction of a categories needed
 * "|" enables to specify alternatives
 
-The priority of "." is greater than the priority of "+" that is greater tha the priority of "|".
+The priority order is: "&" >  "." > "+" >  "|"
 
 Example of setting, inside a plan file:
 ```
@@ -54,8 +55,36 @@ activities { # liste des activites
 In this case the Activity_1 require to start either a farmer and a
 farmworker or two workers.
 
+Example of settings with multiple categories:
+```
+        ...
+	parameter {
+           resources = "farmer&young.2| worker.2;
+           ...
+	}
+...
+```
+In this case the activity prefers to start with 2 young farmers.
+
 If you want to mention a resource by Id, just add the Id to the
 categories of the resource.
+
+Example:
+```
+addResources("Bob", "Bob");
+addResources("Bill", "Bill");
+addResources("Phil", "Phil");
+addResources("farmworker", "Bob");
+addResources("farmworker", "Bill");
+...
+```
+## Observing the the resource assigment during the simulation.
+
+An observable port can be used to observe the resource used by a
+particular activity.  If the activity name is "sowing@field1", in
+order to build the portname one should use the
+**Activity(resources)_** prefix to form this portname
+**Activity(resources)_sowing@field1**.
 
 ## Priority of resource assigment
 
@@ -118,6 +147,34 @@ Example of call, inside a Agent that does inherit from a KnowedgeBase class:
 ```
 
 ## Miscellaneous
+
+### The neverfail activity parameter
+
+If case you need that an activity always start, even if there is
+either no rules valid, or no resources available, or even a constraint
+not valid, you might use the **neverfail** activity parameter. This
+should be use in conjonction with the maxstart time range constraint.
+
+Example of setting, inside a plan file:
+```
+activities { # liste des activites
+   activity {
+      id = "Activity_1";
+        temporal {
+          minstart = 0;
+          maxstart = 5;
+          finish = 100;
+        }
+        ...
+	parameter {
+           neverfail = 1.0;
+           ...
+	}
+    }
+}
+```
+In this case, the **Activity_1** will start at 5, even if the
+conditions specified are not verified.
 
 ### The plan time stamp
 
