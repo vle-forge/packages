@@ -222,7 +222,7 @@ DiscreteTimePanel::onTableVarsMenu(const QPoint& pos)
 {
     QPoint globalPos = right->ui->tableVars->viewport()->mapToGlobal(pos);
     QModelIndex index = right->ui->tableVars->indexAt(pos);
-    QWidget* item = right->ui->tableVars->cellWidget(index.row(), index.column());
+    VleTextEdit* item = (VleTextEdit*)right->ui->tableVars->cellWidget(index.row(), index.column());
 
     QAction* action;
     QMenu menu;
@@ -237,19 +237,22 @@ DiscreteTimePanel::onTableVarsMenu(const QPoint& pos)
     QAction* selAction = menu.exec(globalPos);
     if (selAction) {
         int actCode =  selAction->data().toInt();
-        switch(actCode){
-        case 1: {//Add variable
+        switch(actCode) {
+        case 1: //Add variable
             cppMetadata->addVariableToDoc(cppMetadata->newVarNameToDoc());
             reload();
             emit undoAvailable(true);
             break;
-        } case 2: {//Add vector
+        case 2: //Add vector
 
             break;
-        } case 3: {//Remove
-
+        case 3: //Remove
+            cppMetadata->rmVariableToDoc(item->getSavedText());
+            reload();
+            emit undoAvailable(true);
             break;
-        }}
+
+        }
     }
 }
 
@@ -348,4 +351,3 @@ DiscreteTimePanel::updateConfigVar()
 
 
 }} //namespaces
-
