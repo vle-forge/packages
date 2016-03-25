@@ -264,7 +264,6 @@ VarMono::getType() const
 void
 VarMono::update(const vle::devs::Time& t, double val)
 {
-
     VarUpdate& varUpdate = *history.back();
     if (varUpdate.timeOfUpdate == t) {
         if (allow_update) {
@@ -1139,6 +1138,19 @@ void
 TemporalValuesProvider::setCurrentTime(const vle::devs::Time& t)
 {
     current_time = t;
+}
+
+std::string
+TemporalValuesProvider::getVarName(VarInterface* v)
+{
+    Variables::iterator itb = variables.begin();
+    Variables::iterator ite = variables.end();
+    for (; itb != ite; itb++) {
+        if (itb->second == v) {
+            return itb->first;
+        }
+    }
+    return "";
 }
 
 }} // namespace

@@ -404,6 +404,12 @@ Pimpl::initializeFromInitEventList(
                     event_name.size()));
             devs_options.outputPeriods.insert(std::pair<std::string, bool>(
                     var_name, itb->second->toInteger().value()));
+        } else if (!prefix.assign("allow_update_").empty() and
+                !event_name.compare(0, prefix.size(), prefix)) {
+            var_name.assign(event_name.substr(prefix.size(),
+                    event_name.size()));
+            devs_options.addAllowUpdate(itb->second->toBoolean().value(),
+                    var_name);
         } else if (!prefix.assign("forcing_").empty() and
                 !event_name.compare(0, prefix.size(), prefix)) {
             var_name.assign(event_name.substr(prefix.size(),
@@ -808,6 +814,7 @@ Pimpl::handleExtEvt(const vle::devs::Time& t,
                         "which does not match a variable \n")
         % tvp.get_model_name() % port);
     }
+
     VarInterface* var = it->second;
     if (attrs.exist("value")) {
         const vle::value::Value& varValue = *attrs.get("value");
@@ -895,6 +902,7 @@ DEVS_Options::addAllowUpdate(bool allowUpdate,  const std::string& varname)
     if (allowUpdates == 0) {
         allowUpdates = new AllowUpdates();
     }
+
     (*allowUpdates)[varname] = allowUpdate;
 }
 

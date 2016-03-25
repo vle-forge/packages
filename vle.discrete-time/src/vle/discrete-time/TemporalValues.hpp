@@ -305,6 +305,7 @@ public:
      double getDelta() const;
 
      void setCurrentTime(const vle::devs::Time& t);
+     std::string getVarName(VarInterface* v);
 
 private:
      std::string model_name;
