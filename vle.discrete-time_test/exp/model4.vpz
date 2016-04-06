@@ -1,175 +1,174 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
-<vle_project version="1.0" date="2014-May-02 15:51:31" author="Ronan Trépos">
-<structures>
-<model name="model4" type="coupled" x="0" y="0" width="1504" height="501"  >
+<vle_project version="1.0" author="Ronan Trépos" date="2014-May-02 15:51:31">
+ <structures>
+<model name="model4" x="0" y="0" width="1504" height="501" type="coupled">
 <submodels>
-<model name="InitModel4" type="atomic" conditions="cond_init_a,cond_init_b,cond_init_c,cond_init_d,cond_init_sum_res" dynamics="dynInitModel4" x="63" y="66" width="100" height="30" >
+<model name="InitModel4" x="63" y="66" conditions="cond_init_a,cond_init_b,cond_init_c,cond_init_d,cond_init_sum_res" width="100" height="30" type="atomic" dynamics="dynInitModel4">
 </model>
 </submodels>
 <connections>
 </connections>
 </model>
 </structures>
-<dynamics>
-<dynamic name="dynD1" library="D1" package="vle.discrete-time_test"  />
-<dynamic name="dynE3" library="E3" package="vle.discrete-time_test"  />
-<dynamic name="dynGenericSum" library="GenericSum" package="vle.discrete-time.generic"  />
-<dynamic name="dynInitModel4" library="InitModel4" package="vle.discrete-time_test"  />
+ <dynamics>
+<dynamic name="dynD1" package="vle.discrete-time_test" library="D1"/>
+<dynamic name="dynE3" package="vle.discrete-time_test" library="E3"/>
+<dynamic name="dynGenericSum" package="vle.discrete-time.generic" library="GenericSum"/>
+<dynamic name="dynInitModel4" package="vle.discrete-time_test" library="InitModel4"/>
 </dynamics>
-<classes>
-<class name="model4" >
-<model name="model4" type="coupled" width="1504" height="501"  >
-<submodels>
-<model name="D1" type="atomic" conditions="condD1,cond_init_a,cond_init_c,cond_init_d,cond_time_step" dynamics="dynD1" observables="oD1" x="276" y="57" width="100" height="60" >
-<in>
- <port name="a" />
- <port name="c" />
-</in>
-<out>
- <port name="d" />
-</out>
-</model>
-<model name="E3" type="atomic" conditions="cond_init_a,cond_init_c,cond_time_step" dynamics="dynE3" observables="oE3" x="63" y="67" width="100" height="75" >
-<out>
- <port name="a" />
- <port name="b" />
- <port name="c" />
-</out>
-</model>
-<model name="GenericSum" type="atomic" conditions="cond_init_a,cond_init_c,cond_init_d,cond_init_sum_res,cond_sum,cond_time_step" dynamics="dynGenericSum" observables="oSum" x="356" y="175" width="100" height="90" >
-<in>
- <port name="a" />
- <port name="b" />
- <port name="c" />
- <port name="d" />
-</in>
-</model>
-</submodels>
-<connections>
-<connection type="internal">
- <origin model="D1" port="d" />
- <destination model="GenericSum" port="d" />
-</connection>
-<connection type="internal">
- <origin model="E3" port="a" />
- <destination model="GenericSum" port="a" />
-</connection>
-<connection type="internal">
- <origin model="E3" port="a" />
- <destination model="D1" port="a" />
-</connection>
-<connection type="internal">
- <origin model="E3" port="b" />
- <destination model="GenericSum" port="b" />
-</connection>
-<connection type="internal">
- <origin model="E3" port="c" />
- <destination model="GenericSum" port="c" />
-</connection>
-<connection type="internal">
- <origin model="E3" port="c" />
- <destination model="D1" port="c" />
-</connection>
-</connections>
-</model>
-</class>
-</classes>
-<experiment name="model4" combination="linear"  >
+ <experiment name="model4" combination="linear">
 <conditions>
-<condition name="simulation_engine" >
-<port name="begin" >
+<condition name="simulation_engine">
+<port name="begin">
 <double>0.0</double>
 </port>
-<port name="duration" >
+<port name="duration">
 <double>1.0</double>
 </port>
 </condition>
-<condition name="condD1" >
- <port name="sync_a" >
+<condition name="condD1">
+ <port name="sync_a">
 <integer>1</integer>
 </port>
- <port name="sync_b" >
+ <port name="sync_b">
 <integer>1</integer>
 </port>
 </condition>
-<condition name="cond_init_a" >
- <port name="init_value_a" >
+<condition name="cond_init_a">
+ <port name="init_value_a">
 <double>0.000000000000000</double>
 </port>
 </condition>
-<condition name="cond_init_b" >
- <port name="init_value_b" >
+<condition name="cond_init_b">
+ <port name="init_value_b">
 <double>0.000000000000000</double>
 </port>
 </condition>
-<condition name="cond_init_c" >
- <port name="init_value_c" >
+<condition name="cond_init_c">
+ <port name="init_value_c">
 <double>1.000000000000000</double>
 </port>
 </condition>
-<condition name="cond_init_d" >
- <port name="init_value_d" >
+<condition name="cond_init_d">
+ <port name="init_value_d">
 <double>0.000000000000000</double>
 </port>
 </condition>
-<condition name="cond_init_sum_res" >
- <port name="init_value_sum_res" >
+<condition name="cond_init_sum_res">
+ <port name="init_value_sum_res">
 <double>0.000000000000000</double>
 </port>
 </condition>
-<condition name="cond_sum" >
- <port name="generic" >
+<condition name="cond_sum">
+ <port name="dyn_allow">
 <boolean>true</boolean>
 </port>
- <port name="generic_all_sync" >
-<integer>1</integer>
+ <port name="dyn_sync">
+<boolean>1</boolean>
 </port>
 </condition>
-<condition name="cond_time_step" >
- <port name="time_step" >
+<condition name="cond_time_step">
+ <port name="time_step">
 <double>0.100000000000000</double>
 </port>
 </condition>
 </conditions>
 <views>
 <outputs>
-<output name="view" location="" format="local" package="vle.output"  plugin="console" />
+<output format="local" plugin="console" name="view" package="vle.output" location=""/>
 
 </outputs>
 <observables>
-<observable name="oD1" >
-<port name="d" >
- <attachedview name="view" />
+<observable name="oD1">
+<port name="d">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="oE3" >
-<port name="a" >
- <attachedview name="view" />
+<observable name="oE3">
+<port name="a">
+ <attachedview name="view"/>
 </port>
 
-<port name="b" >
- <attachedview name="view" />
+<port name="b">
+ <attachedview name="view"/>
 </port>
 
-<port name="c" >
- <attachedview name="view" />
+<port name="c">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="oSum" >
-<port name="Sum" >
- <attachedview name="view" />
+<observable name="oSum">
+<port name="Sum">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
 </observables>
-<view name="view" output="view" type="timed" timestep="0.100000000000000" />
+<view name="view" timestep="0.100000000000000" type="timed" output="view"/>
 
 </views>
 </experiment>
+ <classes>
+<class name="model4">
+<model name="model4" width="1504" height="501" type="coupled">
+<submodels>
+<model name="D1" x="276" y="57" conditions="condD1,cond_init_a,cond_init_c,cond_init_d,cond_time_step" width="100" height="60" observables="oD1" type="atomic" dynamics="dynD1">
+<in>
+ <port name="a"/>
+ <port name="c"/>
+</in>
+<out>
+ <port name="d"/>
+</out>
+</model>
+<model name="E3" x="63" y="67" conditions="cond_init_a,cond_init_c,cond_time_step" width="100" height="75" observables="oE3" type="atomic" dynamics="dynE3">
+<out>
+ <port name="a"/>
+ <port name="b"/>
+ <port name="c"/>
+</out>
+</model>
+<model name="GenericSum" x="356" y="175" conditions="cond_init_a,cond_init_c,cond_init_d,cond_init_sum_res,cond_sum,cond_time_step" width="100" height="90" observables="oSum" type="atomic" dynamics="dynGenericSum">
+<in>
+ <port name="a"/>
+ <port name="b"/>
+ <port name="c"/>
+ <port name="d"/>
+</in>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="D1" port="d"/>
+ <destination model="GenericSum" port="d"/>
+</connection>
+<connection type="internal">
+ <origin model="E3" port="a"/>
+ <destination model="GenericSum" port="a"/>
+</connection>
+<connection type="internal">
+ <origin model="E3" port="a"/>
+ <destination model="D1" port="a"/>
+</connection>
+<connection type="internal">
+ <origin model="E3" port="b"/>
+ <destination model="GenericSum" port="b"/>
+</connection>
+<connection type="internal">
+ <origin model="E3" port="c"/>
+ <destination model="GenericSum" port="c"/>
+</connection>
+<connection type="internal">
+ <origin model="E3" port="c"/>
+ <destination model="D1" port="c"/>
+</connection>
+</connections>
+</model>
+</class>
+</classes>
 </vle_project>

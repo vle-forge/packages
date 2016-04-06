@@ -1,138 +1,145 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
-<vle_project version="1.0" date="2014-May-02 13:32:15" author="Ronan Trépos">
-<structures>
-<model name="model15" type="coupled" x="0" y="0" width="1504" height="501"  >
+<vle_project version="1.0" author="Ronan Trépos" date="2014-May-02 13:32:15">
+ <structures>
+<model name="model15" x="0" y="0" type="coupled" height="501" width="1504">
 <submodels>
-<model name="D1" type="atomic" conditions="condD1,cond_time_step" dynamics="dynD1" observables="obsD1" x="335" y="30" width="100" height="60" >
+<model name="D1" x="335" y="30" conditions="condD1,cond_time_step" dynamics="dynD1" observables="obsD1" type="atomic" height="60" width="100">
 <in>
- <port name="a" />
- <port name="c" />
+ <port name="a"/>
+ <port name="c"/>
 </in>
 <out>
- <port name="d" />
+ <port name="d"/>
 </out>
 </model>
-<model name="E3" type="atomic" conditions="cond_init_b,cond_time_step" dynamics="dynE3" observables="obsE3" x="56" y="140" width="100" height="75" >
+<model name="E3" x="56" y="140" conditions="cond_init_b,cond_time_step" dynamics="dynE3" observables="obsE3" type="atomic" height="75" width="100">
 <out>
- <port name="a" />
- <port name="b" />
- <port name="c" />
+ <port name="a"/>
+ <port name="b"/>
+ <port name="c"/>
 </out>
 </model>
-<model name="GenericSum" type="atomic" conditions="cond_init_sum_res,cond_sum,cond_time_step" dynamics="dynGenericSum" observables="obs_sum" x="434" y="179" width="100" height="90" >
+<model name="GenericSum" x="434" y="179" conditions="cond_init_sum_res,cond_sum,cond_time_step" dynamics="dynGenericSum" observables="obs_sum" type="atomic" height="90" width="100">
 <in>
- <port name="a" />
- <port name="b" />
- <port name="c" />
- <port name="d" />
+ <port name="a"/>
+ <port name="b"/>
+ <port name="c"/>
+ <port name="d"/>
 </in>
 </model>
 </submodels>
 <connections>
 <connection type="internal">
- <origin model="D1" port="d" />
- <destination model="GenericSum" port="d" />
+ <origin port="d" model="D1"/>
+ <destination port="d" model="GenericSum"/>
 </connection>
 <connection type="internal">
- <origin model="E3" port="a" />
- <destination model="GenericSum" port="a" />
+ <origin port="a" model="E3"/>
+ <destination port="a" model="GenericSum"/>
 </connection>
 <connection type="internal">
- <origin model="E3" port="a" />
- <destination model="D1" port="a" />
+ <origin port="a" model="E3"/>
+ <destination port="a" model="D1"/>
 </connection>
 <connection type="internal">
- <origin model="E3" port="b" />
- <destination model="GenericSum" port="b" />
+ <origin port="b" model="E3"/>
+ <destination port="b" model="GenericSum"/>
 </connection>
 <connection type="internal">
- <origin model="E3" port="c" />
- <destination model="GenericSum" port="c" />
+ <origin port="c" model="E3"/>
+ <destination port="c" model="GenericSum"/>
 </connection>
 <connection type="internal">
- <origin model="E3" port="c" />
- <destination model="D1" port="c" />
+ <origin port="c" model="E3"/>
+ <destination port="c" model="D1"/>
 </connection>
 </connections>
 </model>
 </structures>
-<dynamics>
-<dynamic name="dynD1" library="D1" package="vle.discrete-time_test"  />
-<dynamic name="dynE3" library="E3" package="vle.discrete-time_test"  />
-<dynamic name="dynGenericSum" library="GenericSum" package="vle.discrete-time.generic"  />
+ <dynamics>
+<dynamic name="dynD1" package="vle.discrete-time_test" library="D1"/>
+<dynamic name="dynE3" package="vle.discrete-time_test" library="E3"/>
+<dynamic name="dynGenericSum" package="vle.discrete-time.generic" library="GenericSum"/>
 </dynamics>
-<experiment name="model15" duration="1.000000000000000" begin="0.000000000000000" combination="linear"  >
+ <experiment name="model15" combination="linear">
 <conditions>
-<condition name="condD1" >
- <port name="sync_a" >
+<condition name="simulation_engine">
+<port name="begin">
+<double>0.0</double>
+</port>
+<port name="duration">
+<double>1.0</double>
+</port>
+</condition>
+<condition name="condD1">
+ <port name="sync_a">
 <integer>1</integer>
 </port>
- <port name="sync_c" >
+ <port name="sync_c">
 <integer>1</integer>
 </port>
 </condition>
-<condition name="cond_init_b" >
- <port name="init_value_b" >
+<condition name="cond_init_b">
+ <port name="init_value_b">
 <double>-3.000000000000000</double>
 </port>
 </condition>
-<condition name="cond_init_sum_res" >
- <port name="init_value_sum_res" >
+<condition name="cond_init_sum_res">
+ <port name="init_value_sum_res">
 <double>-3.000000000000000</double>
 </port>
 </condition>
-<condition name="cond_sum" >
- <port name="generic" >
+<condition name="cond_sum">
+ <port name="dyn_allow">
 <boolean>true</boolean>
 </port>
- <port name="generic_all_sync" >
+ <port name="dyn_sync">
 <integer>1</integer>
 </port>
 </condition>
-<condition name="cond_time_step" >
- <port name="time_step" >
+<condition name="cond_time_step">
+ <port name="time_step">
 <double>0.100000000000000</double>
 </port>
 </condition>
 </conditions>
 <views>
 <outputs>
-<output name="view" location="" format="local" package="vle.output"  plugin="console" />
+<output name="view" format="local" plugin="console" package="vle.output" location=""/>
 
 </outputs>
 <observables>
-<observable name="obsD1" >
-<port name="d" >
- <attachedview name="view" />
+<observable name="obsD1">
+<port name="d">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="obsE3" >
-<port name="a" >
- <attachedview name="view" />
+<observable name="obsE3">
+<port name="a">
+ <attachedview name="view"/>
 </port>
 
-<port name="b" >
- <attachedview name="view" />
+<port name="b">
+ <attachedview name="view"/>
 </port>
 
-<port name="c" >
- <attachedview name="view" />
+<port name="c">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="obs_sum" >
-<port name="Sum" >
- <attachedview name="view" />
+<observable name="obs_sum">
+<port name="Sum">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
 </observables>
-<view name="view" output="view" type="timed" timestep="0.100000000000000" />
+<view name="view" timestep="0.100000000000000" type="timed" output="view"/>
 
 </views>
 </experiment>

@@ -189,3 +189,9 @@ vle.discrete-time_test forcingEvents.vpz view "forcingEvents:D3.d_after" 11 10e-
 vle.discrete-time_test forcingEvents.vpz view "forcingEvents:E3.a" 11 10e-5 10
 vle.discrete-time_test forcingEvents.vpz view "forcingEvents:E3.b" 11 10e-5 52
 vle.discrete-time_test forcingEvents.vpz view "forcingEvents:GenericSum.Sum" 11 10e-5 638.3
+vle.discrete-time_test DTexec.vpz view "DTexec:GenericSum.Sum" 6 10e-5 10
+vle.discrete-time_test DTexec.vpz view "DTexec:A_1.a" 6 10e-5 4
+vle.discrete-time_test DTexec.vpz view "DTexec:A_2.a" 6 10e-5 3
+vle.discrete-time_test DTexec.vpz view "DTexec:A_3.a" 6 10e-5 2
+vle.discrete-time_test DTexec.vpz view "DTexec:A_4.a" 6 10e-5 1
+vle.discrete-time_test DTexec.vpz view "DTexec:A_5.a" 6 10e-5 0

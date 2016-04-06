@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2014 INRA http://www.inra.fr
+ * Copyright (c) 2014-2016 INRA http://www.inra.fr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,53 +21,49 @@
  */
 
 
-//@@tagdynamic@@
-//@@tagdepends: vle.discrete-time @@endtagdepends
+/*
+ * @@tagdynamic@@
+ * @@tagdepends: vle.discrete-time @@endtagdepends
+ */
 
-
-#include <vle/DiscreteTimeDbg.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
-
-#include <iostream>
-
-
-
+#include <vle/discrete-time/DiscreteTimeExec.hpp>
+#include <vle/devs/ExecutiveDbg.hpp>
+#include <vle/utils/i18n.hpp>
 
 namespace vle {
 namespace discrete_time {
-namespace generic {
+namespace test {
 
-class GenericSum : public DiscreteTimeDyn
+
+
+class DTexec : public DiscreteTimeExec
 {
 public:
-    GenericSum(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
-        : DiscreteTimeDyn(init, events), Sum()
+    DTexec(const vle::devs::ExecutiveInit& init,
+            const vle::devs::InitEventList& events)
+        :  DiscreteTimeExec(init,events)
     {
-        Sum.init(this, "Sum", events);
+        num_model.init(this, "num_model", events);
     }
 
-    virtual ~GenericSum()
+    virtual ~DTexec()
     {
     }
 
-    void compute(const vle::devs::Time& t)
+    void compute(const vle::devs::Time& /*t*/)
     {
-        Variables::const_iterator itb = getVariables().begin();
-        Variables::const_iterator ite = getVariables().end();
-        double sum = 0;
-        for (; itb != ite; itb++) {
-            if ((itb->first != "Sum") and (itb->second->getType() == MONO)) {
-                VarMono* v = (VarMono*) itb->second;
-                sum += v->getVal(t,0.0);
-            }
-        }
-        Sum = sum;
+        num_model = num_model(-1) + 1;
+        std::string current((vle::fmt("A_%1%") % (num_model())).str());
+        std::string inPort((vle::fmt("a_%1%") % (num_model())).str());
+        createModelFromClass("AClass", current);
+        addInputPort("GenericSum", inPort);
+        addConnection(current, "a", "GenericSum", inPort);
     }
 
-    Var Sum;
+    Var num_model;
 };
 
-}}}
+DECLARE_EXECUTIVE_DBG(DTexec)
 
-DECLARE_DYNAMICS_DBG(vle::discrete_time::generic::GenericSum)
+}}}
 

@@ -49,6 +49,7 @@ public:
 
     virtual ~DiscreteTimeExec();
 
+    vle::devs::Dynamics* toDynamics();
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
     /////////////////////////////
@@ -142,7 +143,7 @@ public:
      * @param port, the name of the port
      * @param attr, a map of attributes
      */
-    virtual void handleExtEvt(const vle::devs::Time& t,
+    virtual void handleExtVar(const vle::devs::Time& t,
             const std::string& port, const vle::value::Map& attrs);
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */

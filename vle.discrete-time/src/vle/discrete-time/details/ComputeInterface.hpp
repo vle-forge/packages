@@ -27,6 +27,7 @@
 #define VLE_DISCRETE_TIME_COMPUTE_INTERFACE_HPP 1
 
 #include <vle/devs/Time.hpp>
+#include <vle/devs/Dynamics.hpp>
 
 namespace vle {
 namespace discrete_time {
@@ -39,6 +40,7 @@ public:
     }
     virtual ~ComputeInterface(){}
     virtual void compute(const vle::devs::Time& t) = 0;
+    virtual vle::devs::Dynamics* toDynamics() = 0;
 };
 
 }} // namespaces

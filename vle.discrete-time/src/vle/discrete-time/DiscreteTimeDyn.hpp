@@ -49,6 +49,8 @@ public:
 
     virtual ~DiscreteTimeDyn();
 
+    vle::devs::Dynamics* toDynamics();
+
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
     /////////////////////////////
@@ -132,17 +134,19 @@ public:
      * @brief Handles the list of external even
      * @param t, the current time
      * @param ext, the list of external event
+     *
+     * @note the port dyn_init is considered differently
      */
     virtual void handleExtEvt(const vle::devs::Time& t,
             const vle::devs::ExternalEventList& ext);
 
     /**
-     * @brief Handles one external even
+     * @brief Handles one external event
      * @param t, the current time
      * @param port, the name of the port
      * @param attr, a map of attributes
      */
-    virtual void handleExtEvt(const vle::devs::Time& t,
+    virtual void handleExtVar(const vle::devs::Time& t,
             const std::string& port, const vle::value::Map& attrs);
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */

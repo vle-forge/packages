@@ -159,7 +159,7 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
                     fmt(_("Decision: unknown order `%1%'")) % order);
             }
         } else {
-            DiscreteTimeDyn::handleExtEvt(t, port, atts);
+            DiscreteTimeDyn::handleExtVar(t, port, atts);
         }
     }
     for (devs::ExternalEventList::const_iterator it = ext.begin();

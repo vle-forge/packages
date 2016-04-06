@@ -143,11 +143,13 @@ public:
 To configure discrete time atomic models, one can use the parameters listed
 below. The *X* refers to an internal variable (a real, a vector or a vle value).
 
+Basic settings:
+
 * **time_step** (double, default 1.0) : the time step of the discrete time
   atomic model.
 * **init_value_X** (vle::Value, default vle::Double(0.0)) :
   the initial value of the internal variable *X*. It also contains
-  the historic values if **history_size_X** > 0 using e.g. vv::Set.
+  the historic values if *history_size_X* > 0 using e.g. vv::Set.
 * **dim_X** (int, default 2) : if *X* is a vector, it defines
   the dimension of the vector.
 * **history_size_X** (uint, default 1) : it gives the size of the
@@ -158,42 +160,70 @@ below. The *X* refers to an internal variable (a real, a vector or a vle value).
   *X* at times n * *sync_X* * *time_step*, with n > 0 is
   expected to be provided by an external event before calling the *compute*
   function. This option has priority on *syncs*.
+
+Advanced settings for output configurations:
+
+* **output_period** (uint, default 1): gives the time step of output.
+  Output will produce values each *time_step* * *output_period*.
+* **output_period_X** (uint, default 1): a specific value of *output_period*
+  for variable *X*. This option has priority on *output_period*.
 * **output_nil** (bool, default false): if true, the output function will
   produce a Null value for a variable which last update is not equals to
   current time, otherwise it will gives the last updated value.
 * **output_nil_X** (bool, default false): a specific value of *output_nil*
   for variable *X*. This option has priority on *output_nil*.
-* **output_period** (uint, default 1): gives the time step of output.
-  Output will produce values each *time_step* * *output_period*.
-* **output_period_X** (uint, default 1): a specific value of *output_period*
-  for variable *X*. This option has priority on *output_period*.
-* **allow_update_X** (bool, default false): if false, the first
-  value set for *X* at a given time step is kept. The following updates for
-  *X* at this time step are ignored.
-* **error_no_sync_X** (bool, default false) : if true, the
-  access to *X* at the current time _X()_ will send an error if the
-  last time of update of *X* is before the current time.
-* **bags_to_eat** (int, default 0) : the number of bags to wait before
-  computing the values of variables (calls of _compute_ user function).
+
+Advanced settings for debugging:
+
 * **snapshot_before** (bool, default false) : if true, a snapshot of variable
   values is done before the compute function. It can be observed on the
   port *X_before*.
 * **snapshot_after** (bool, default false) : if true, a snapshot of variable
   values is done after the compute function. It can be observed on the
-  port *X_before*.
+  port *X_after*.
+* **error_no_sync_X** (bool, default false) : if true, the
+  access to *X* at the current time _X()_ will send an error if the
+  last time of update of *X* is before the current time.
+
+Advanced settings for multiple update:
+
+* **allow_update_X** (bool, default false): if false, the first
+  value set for *X* at a given time step is kept. The following updates for
+  *X* at this time step are ignored.
 * **forcing_X** (a vle Map or Set, default empty): this option can not be used
  simultaneously with *allow_update*. The map (or set of such map)
  represents a forcing event. A forcing event forces the model to set a value
  to *X* at a given time. The map should contain:
   * **time** (double): the time of forcing event
   * **value** (real, vector or vle Value): the value of forcing event
-  * **before_output** (optionnal, default false): true if the forcing event
+  * **before_output** (bool, default false): true if the forcing event
     should occur before the output function of the dynamic.
+
+Advanced settings for dynamic management of variables (this configuration can
+be dynamically set by an external event on port *dyn_init* with a map): 
+
+* **dyn_allow** (bool, default false): if true, input ports added for example
+  by an executive are automatically added has state variables after the 
+  _compute_ function.
+* **dyn_type** ('Var', 'Vect' or 'ValueVle', default 'Var'): gives the type
+  of new state variables to add. Used only if  *dyn_allow* is true.
+* **dyn_sync** (uint, default 0): gives the type of synchronisation of new state
+  variables to add as with *sync_X*. Used only if *dyn_allow* is true.
+* **dyn_init_value** (vle::Value, default vle::Double(0.0)): gives the initial
+  value of new variables as with *init_value_X*. Used only if  *dyn_allow* is
+  true.
+* **dyn_dim** (uint, default 2): gives the dimension when creating a new _Vect_.
+   Used only if *dyn_allow* is equal to true and *dyn_type* == _Vect_.
+
+Advanced settings for synchronisation: 
+
+* **bags_to_eat** (int, default 0) : the number of bags to wait before
+  computing the values of variables (calls of _compute_ user function).
+
 
 ### Technical details
 
-
-#### Activity diagram of a discrete time dynamic 
+#### Activity diagram of a discrete time dynamic at a given time 
 
 ![MISSING FIG](http://www.vle-project.org/pub/1.3/docs/dt_activity_diagram.png)
 

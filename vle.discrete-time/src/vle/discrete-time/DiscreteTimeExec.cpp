@@ -46,6 +46,12 @@ DiscreteTimeExec::~DiscreteTimeExec()
     delete mpimpl;
 }
 
+vle::devs::Dynamics*
+DiscreteTimeExec::toDynamics()
+{
+    return (vle::devs::Dynamics*) this;
+}
+
 void
 DiscreteTimeExec::time_step(double val)
 {
@@ -186,7 +192,7 @@ DiscreteTimeExec::timeAdvance() const
  void
 DiscreteTimeExec::internalTransition(const vle::devs::Time& t)
 {
-     mpimpl->internalTransition(this, t);
+     mpimpl->internalTransition(t);
 }
 
  void
@@ -194,7 +200,7 @@ DiscreteTimeExec::externalTransition(
     const vle::devs::ExternalEventList& event,
     const vle::devs::Time& t)
 {
-     mpimpl->externalTransition(this,event, t);
+     mpimpl->externalTransition(event, t);
 }
 
  void
@@ -202,7 +208,7 @@ DiscreteTimeExec::confluentTransitions(
     const vle::devs::Time& t,
     const vle::devs::ExternalEventList& event)
 {
-     mpimpl->confluentTransitions(this,t, event);
+     mpimpl->confluentTransitions(t, event);
 }
 
 
@@ -223,7 +229,7 @@ void
 DiscreteTimeExec::processIn(const vle::devs::Time& t,
         DEVS_TransitionType trans)
 {
-     mpimpl->processIn(this, t, trans);
+     mpimpl->processIn(t, trans);
 }
 
 void
@@ -248,10 +254,10 @@ DiscreteTimeExec::handleExtEvt(const vle::devs::Time& t,
 }
 
 void
-DiscreteTimeExec::handleExtEvt(const vle::devs::Time& t,
+DiscreteTimeExec::handleExtVar(const vle::devs::Time& t,
         const std::string& port, const vle::value::Map& attrs)
 {
-     mpimpl->handleExtEvt(t, port, attrs);
+     mpimpl->handleExtVar(t, port, attrs);
 }
 
 

@@ -43,7 +43,8 @@ enum DEVS_State
     WAIT,
     WAIT_SYNC,
     WAIT_BAGS,
-    COMPUTE
+    COMPUTE,
+    DYN_UPDATE
 };
 
 /**
@@ -102,6 +103,11 @@ struct  DEVS_Options
     vle::value::Boolean* outputNilsGlobal;
     bool snapshot_before;
     bool snapshot_after;
+    bool dyn_allow;
+    VAR_TYPE dyn_type;
+    unsigned int dyn_sync;
+    vle::value::Value* dyn_init_value;
+    unsigned int dyn_dim;
 
 
 
@@ -132,6 +138,8 @@ struct  DEVS_Options
     vle::value::Value*
     getForcingEvent(double currentTime, bool beforeCompute,
             const std::string& varname) const;
+
+    void configDynOptions(const vle::value::Map& events);
 
     //internal function called after user constructor
     void
@@ -164,6 +172,7 @@ struct Pimpl
     bool mfirstCompute;
     bool declarationOn;
     unsigned int currentTimeStep;
+    ComputeInterface*  devs_atom;
 
     Pimpl(TemporalValuesProvider& tempvp,
             const vle::devs::InitEventList&  events);
@@ -193,6 +202,9 @@ struct Pimpl
             unsigned int currTimeStep) const;
     void initializeFromInitEventList(
             const vle::devs::InitEventList&  events);
+    //introspection of input ports to build or remove new variables
+    void updateDynState(const vle::devs::Time& t);
+
 
     vle::devs::Time
     init(ComputeInterface* atom, const vle::devs::Time& t);
@@ -200,16 +212,14 @@ struct Pimpl
     vle::devs::Time timeAdvance() const;
 
    void
-   internalTransition(ComputeInterface* atom, const vle::devs::Time& t);
+   internalTransition(const vle::devs::Time& t);
 
    void
-   externalTransition(ComputeInterface* atom,
-       const vle::devs::ExternalEventList& event,
+   externalTransition(const vle::devs::ExternalEventList& event,
        const vle::devs::Time& t);
 
    void
-   confluentTransitions(ComputeInterface* atom,
-       const vle::devs::Time& t,
+   confluentTransitions(const vle::devs::Time& t,
        const vle::devs::ExternalEventList& event);
 
 
@@ -223,12 +233,10 @@ struct Pimpl
            const vle::devs::ObservationEvent& event) const;
 
    void
-   processIn(ComputeInterface* atom, const vle::devs::Time& t,
-           DEVS_TransitionType /*trans*/);
+   processIn(const vle::devs::Time& t, DEVS_TransitionType /*trans*/);
 
    void
-   processOut(const vle::devs::Time& t,
-           DEVS_TransitionType /*trans*/);
+   processOut(const vle::devs::Time& t, DEVS_TransitionType /*trans*/);
 
     void
    updateGuards(const vle::devs::Time& t,
@@ -239,7 +247,7 @@ struct Pimpl
            const vle::devs::ExternalEventList& ext);
 
     void
-   handleExtEvt(const vle::devs::Time& t,
+    handleExtVar(const vle::devs::Time& t,
            const std::string& port, const vle::value::Map& attrs);
 
 
@@ -276,6 +284,9 @@ operator<<(std::ostream& o, const DEVS_State& s)
         break;
     case COMPUTE :
         o << "COMPUTE" ;
+        break;
+    case DYN_UPDATE :
+        o << "DYN_UPDATE" ;
         break;
     }
     return o;

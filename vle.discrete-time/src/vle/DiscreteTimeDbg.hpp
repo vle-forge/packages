@@ -38,7 +38,7 @@
     vle_make_new_dynamics(const vle::devs::DynamicsInit& init,                \
                               const vle::devs::InitEventList& events)         \
     {                                                                         \
-      return new vle::discrete-time::DiscreteTimeDynDbg                       \
+      return new vle::discrete_time::DiscreteTimeDynDbg                       \
       < mdl >(init, events);                                                  \
     }                                                                         \
                                                                               \
@@ -94,8 +94,8 @@ private:
         {
             std::string l(" ");
             for (Variables::const_iterator itv =
-                    UserModel::tvp.variables.begin();
-                 itv != UserModel::tvp.variables.end(); ++itv) {
+                    UserModel::getVariables().begin();
+                 itv != UserModel::getVariables().end(); ++itv) {
                 l += (vle::fmt("%1% ") % itv->first).str();
             }
             line += (vle::fmt(" %1% = (%2%) ;") % mName % l).str();

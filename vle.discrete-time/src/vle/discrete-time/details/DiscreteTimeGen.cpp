@@ -37,8 +37,8 @@ namespace vz = vle::vpz;
 Pimpl::Pimpl(TemporalValuesProvider& tempvp,
         const vle::devs::InitEventList&  events):
                 tvp(tempvp), devs_state(INIT), devs_options(), devs_guards(),
-                devs_internal(), mfirstCompute(true),
-                declarationOn(true), currentTimeStep(0)
+                devs_internal(), mfirstCompute(true), declarationOn(true),
+                currentTimeStep(0), devs_atom(0)
 {
     initializeFromInitEventList(events);
 }
@@ -371,6 +371,11 @@ Pimpl::initializeFromInitEventList(
             devs_options.snapshot_before = itb->second->toBoolean().value();
         } else if (event_name == "snapshot_after") {
             devs_options.snapshot_after = itb->second->toBoolean().value();
+        } else if (event_name == "dyn_allow") {
+            devs_options.dyn_allow = itb->second->toBoolean().value();
+            if (devs_options.dyn_allow) {
+                devs_options.configDynOptions(events);
+            }
         }
     }
     //2nd init (prior)
@@ -427,14 +432,63 @@ Pimpl::initializeFromInitEventList(
     }
 }
 
+void
+Pimpl::updateDynState(const vle::devs::Time& t)
+{
+    Variables& current_vars = tvp.getVariables();
+    Variables::const_iterator ive = current_vars.end();
+    std::vector<std::string> toAdd;
+
+    devs::Dynamics* dyn = devs_atom->toDynamics();
+    vle::vpz::ConnectionList::const_iterator itb =
+            dyn->getModel().getInputPortList().begin();
+    vle::vpz::ConnectionList::const_iterator ite =
+            dyn->getModel().getInputPortList().end();
+
+    //add variables
+    for (; itb != ite; itb++) {
+        if (itb->first != "dyn_init" and current_vars.find(itb->first) == ive) {
+            toAdd.push_back(itb->first);
+        }
+    }
+    for (std::vector<std::string>::const_iterator avb = toAdd.begin();
+         avb != toAdd.end(); avb++) {
+        const std::string& vname = *avb;
+
+        VarInterface* v = 0;
+        switch (devs_options.dyn_type) {
+        case MONO:
+            v = new VarMono(&tvp);
+            break;
+        case MULTI:
+            v = new VarMulti(&tvp, devs_options.dyn_dim);
+            break;
+        case VALUE_VLE:
+            v = new VarValue(&tvp);
+            break;
+        }
+        devs_options.syncs.insert(std::make_pair(vname,
+                devs_options.dyn_sync));
+        v->init_value = devs_options.dyn_init_value->clone();
+
+        current_vars.insert(std::make_pair(vname, v));
+        v->initHistoryVar(vname, t);
+    }
+    //remove variables
+    //TODO
+}
 
 vle::devs::Time
 Pimpl::init(ComputeInterface* atom, const vle::devs::Time& t)
 {
+    devs_atom = atom;
     devs_options.finishInitialization(tvp.getVariables());
+    if (devs_options.dyn_allow) {
+        updateDynState(t);
+    }
     devs_internal.initialized = true;
     devs_state = INIT;
-    processIn(atom, t, INTERNAL);
+    processIn(t, INTERNAL);
     return timeAdvance();
 }
 
@@ -457,61 +511,70 @@ Pimpl::timeAdvance() const
     case COMPUTE:
         return 0;
         break;
+    case DYN_UPDATE:
+        return 0;
+        break;
     }
     return 0;
 }
 
 void
-Pimpl::internalTransition(ComputeInterface* atom, const vle::devs::Time& t)
+Pimpl::internalTransition(const vle::devs::Time& t)
 {
     processOut(t, INTERNAL);
     updateGuards(t, INTERNAL);
 
     switch (devs_state) {
-    case INIT:
+    case INIT: {
         if (devs_guards.has_sync) {
             devs_state = WAIT_SYNC;
         } else {
             devs_state = WAIT;
         }
         break;
-    case WAIT:
+    } case WAIT: {
         if (devs_guards.bags_to_eat_eq_0) {
             devs_state = COMPUTE;
         } else {
             devs_state = WAIT_BAGS;
         }
         break;
-    case WAIT_SYNC:
-    {
+    } case WAIT_SYNC: {
         std::string varError;
         varOnSyncError(varError);
         throw vu::InternalError(
                 vle::fmt("[%1%] Error missing sync: '%2%'\n")
         % tvp.get_model_name() % varError);
-    }
-    break;
-    case WAIT_BAGS:
+        break;
+    } case WAIT_BAGS: {
         if (devs_guards.bags_eaten_eq_bags_to_eat) {
             devs_state = COMPUTE;
         } else {
             devs_state = WAIT_BAGS;
         }
         break;
-    case COMPUTE:
+    } case COMPUTE: {
+        if (devs_options.dyn_allow) {
+            devs_state = DYN_UPDATE;
+        } else if (devs_guards.has_sync) {
+            devs_state = WAIT_SYNC;
+        } else {
+            devs_state = WAIT;
+        }
+        break;
+    } case DYN_UPDATE: {
         if (devs_guards.has_sync) {
             devs_state = WAIT_SYNC;
         } else {
             devs_state = WAIT;
         }
         break;
-    }
-    processIn(atom, t, INTERNAL);
+    }}
+    processIn(t, INTERNAL);
 }
 
 void
-Pimpl::externalTransition(ComputeInterface* atom,
-        const vle::devs::ExternalEventList& event,
+Pimpl::externalTransition(const vle::devs::ExternalEventList& event,
         const vle::devs::Time& t)
 {
     processOut(t, EXTERNAL);
@@ -550,13 +613,15 @@ Pimpl::externalTransition(ComputeInterface* atom,
     case COMPUTE:
         throw vu::InternalError("Error DEVS \n");
         break;
+    case DYN_UPDATE:
+        throw vu::InternalError("Error DEVS \n");
+        break;
     }
-    processIn(atom, t, EXTERNAL);
+    processIn(t, EXTERNAL);
 }
 
 void
-Pimpl::confluentTransitions(ComputeInterface* atom,
-        const vle::devs::Time& t,
+Pimpl::confluentTransitions(const vle::devs::Time& t,
         const vle::devs::ExternalEventList& event)
 {
     processOut(t, CONFLUENT);
@@ -591,6 +656,15 @@ Pimpl::confluentTransitions(ComputeInterface* atom,
         }
         break;
     case COMPUTE:
+        if (devs_options.dyn_allow) {
+            devs_state = DYN_UPDATE;
+        } else if (devs_guards.has_sync) {
+            devs_state = WAIT_SYNC;
+        } else {
+            devs_state = WAIT;
+        }
+        break;
+    case DYN_UPDATE:
         if (devs_guards.has_sync) {
             devs_state = WAIT_SYNC;
         } else {
@@ -598,7 +672,7 @@ Pimpl::confluentTransitions(ComputeInterface* atom,
         }
         break;
     }
-    processIn(atom, t, EXTERNAL);
+    processIn(t, EXTERNAL);
 }
 
 
@@ -618,6 +692,8 @@ Pimpl::output(const vle::vpz::AtomicModel& model,
         break;
     case COMPUTE:
         outputVar(model, time, output);
+        break;
+    case DYN_UPDATE:
         break;
     }
 }
@@ -705,8 +781,7 @@ Pimpl::observation(
 
 
 void
-Pimpl::processIn(ComputeInterface* atom, const vle::devs::Time& t,
-        DEVS_TransitionType /*trans*/)
+Pimpl::processIn(const vle::devs::Time& t, DEVS_TransitionType /*trans*/)
 {
     switch (devs_state) {
     case INIT:
@@ -729,18 +804,20 @@ Pimpl::processIn(ComputeInterface* atom, const vle::devs::Time& t,
         if (devs_options.snapshot_before) {
             tvp.snapshot(SNAP1);
         }
-        atom->compute(t);
+        devs_atom->compute(t);
         mfirstCompute=false;
         if (devs_options.snapshot_after) {
             tvp.snapshot(SNAP2);
         }
         break;
+    case DYN_UPDATE:
+        updateDynState(t);
+        break;
     }
 }
 
 void
-Pimpl::processOut(const vle::devs::Time& t,
-        DEVS_TransitionType /*trans*/)
+Pimpl::processOut(const vle::devs::Time& t, DEVS_TransitionType /*trans*/)
 {
     switch (devs_state) {
     case INIT:
@@ -763,12 +840,13 @@ Pimpl::processOut(const vle::devs::Time& t,
         devs_internal.LWUt = t;
         devs_internal.NCt = t + devs_options.dt;
         break;
+    case DYN_UPDATE:
+        break;
     }
 }
 
 void
-Pimpl::updateGuards(const vle::devs::Time& t,
-        DEVS_TransitionType /*trans*/)
+Pimpl::updateGuards(const vle::devs::Time& t, DEVS_TransitionType /*trans*/)
 {
     switch (devs_state) {
     case INIT: {
@@ -787,6 +865,11 @@ Pimpl::updateGuards(const vle::devs::Time& t,
                 (devs_internal.bags_eaten == devs_options.bags_to_eat);
         break;
     } case COMPUTE: {
+        if (! devs_options.dyn_allow) {
+            updateGuardHasSync(t);
+        }
+        break;
+    } case DYN_UPDATE: {
         updateGuardHasSync(t);
         break;
     }}
@@ -799,12 +882,20 @@ Pimpl::handleExtEvt(const vle::devs::Time& t,
     vle::devs::ExternalEventList::const_iterator itb = ext.begin();
     vle::devs::ExternalEventList::const_iterator ite = ext.end();
     for (; itb != ite; itb++) {
-        handleExtEvt(t, (*itb)->getPortName(), (*itb)->attributes());
+        if ((*itb)->getPortName() == "dyn_init") {
+            if (devs_options.dyn_allow
+                    and (*itb)->attributes().exist("value")) {
+                devs_options.configDynOptions(
+                        (*itb)->attributes().getMap("value"));
+            }
+        } else {
+            handleExtVar(t, (*itb)->getPortName(), (*itb)->attributes());
+        }
     }
 }
 
 void
-Pimpl::handleExtEvt(const vle::devs::Time& t,
+Pimpl::handleExtVar(const vle::devs::Time& t,
         const std::string& port, const vle::value::Map& attrs)
 {
     Variables::iterator it = tvp.getVariables().find(port);
@@ -832,7 +923,9 @@ DEVS_TransitionGuards::DEVS_TransitionGuards():
 DEVS_Options::DEVS_Options():
         bags_to_eat(0), dt(1.0), syncs(), outputPeriods(), outputNils(),
         forcingEvents(0), allowUpdates(0), outputPeriodsGlobal(0),
-        outputNilsGlobal(0), snapshot_before(false), snapshot_after(false)
+        outputNilsGlobal(0), snapshot_before(false), snapshot_after(false),
+        dyn_allow(false), dyn_type(MONO), dyn_sync(0), dyn_init_value(0),
+        dyn_dim(2)
 {
 }
 
@@ -842,6 +935,7 @@ DEVS_Options::~DEVS_Options()
     delete outputPeriodsGlobal;
     delete forcingEvents;
     delete allowUpdates;
+    delete dyn_init_value;
 }
 
 void
@@ -953,6 +1047,38 @@ DEVS_Options::getForcingEvent(double currentTime, bool beforeCompute,
         }
     }
     return 0;
+}
+
+void
+DEVS_Options::configDynOptions(const vle::value::Map& events)
+{
+    if (events.exist("dyn_type")) {
+        std::string dyn_type =  events.getString("dyn_type");
+        if (dyn_type == "Var") {
+            dyn_type = MONO;
+        } else if (dyn_type == "Vect") {
+            dyn_type = MULTI;
+        } else if (dyn_type == "ValueVle") {
+            dyn_type = VALUE_VLE;
+        } else {
+            dyn_type = MONO;
+        }
+    } else {
+        dyn_type = MONO;
+    }
+    if (events.exist("dyn_sync")) {
+        if (events.get("dyn_sync")->isInteger()) {
+            dyn_sync = events.getInt("dyn_sync");
+        } else {
+            dyn_sync = (unsigned int) events.getBoolean("dyn_sync");
+        }
+    }
+    delete dyn_init_value;
+    if (events.exist("dyn_init_value")) {
+        dyn_init_value = events.get("dyn_init_value")->clone();
+    } else {
+        dyn_init_value = new value::Double(0.0);
+    }
 }
 
 void
