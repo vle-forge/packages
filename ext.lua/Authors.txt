@@ -1,0 +1,29 @@
+                  VLE development team
+                  ====================
+
+
+Copyright
+=========
+
+for the Lua side see COPYRIGHT
+for the vle side see Licencse.txt
+
+
+Authors
+=======
+
+Integrator / Release manager
+----------------------------
+
+- Gauthier Quesnel <quesnel@users.sourceforge.net>
+- Ronan Trépos <ronan.trepos@toulouse.inra.fr>
+
+Main programmer and founder of Lua
+----------------------------------
+
+- see http://www.lua.org/authors.html 
+
+Contributors
+------------
+
+- Patrick Chabrier <patrick.chabrier@toulouse.inra.fr>
