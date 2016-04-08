@@ -51,8 +51,8 @@ public:
      */
     AccuMono(AccuType type) :
         accu(type), msum(0), mcount(0), msquareSum(0),
-        mmin(std::numeric_limits<double>::min()),
-        mmax(std::numeric_limits<double>::max()),
+        mmin(std::numeric_limits<double>::max()),
+        mmax(std::numeric_limits<double>::min()),
         msorted(0), mvalues(0)
     {
         switch (accu) {

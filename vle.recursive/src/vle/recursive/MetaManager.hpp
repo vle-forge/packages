@@ -155,6 +155,7 @@ private:
     unsigned int replicasSize() const;
     vle::value::Matrix* runIntern(const vle::value::Map& init);
     void postInputsIntern(vle::vpz::Vpz& model, const vle::value::Map& init);
+    void clear();
 };
 
 }}//namespaces

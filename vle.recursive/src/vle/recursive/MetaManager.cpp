@@ -318,19 +318,14 @@ MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
 
 MetaManager::~MetaManager()
 {
-    {
-        std::vector<VleInput*>::iterator itb = mInputs.begin();
-        std::vector<VleInput*>::iterator ite = mInputs.end();
-        for (; itb != ite; itb ++) {
-            delete *itb;
-        }
-    }
-    delete mReplicate;
+    clear();
 }
 
 vle::value::Matrix*
 MetaManager::run(const vle::value::Map& init)
 {
+    clear();
+
     if (init.exist("config_parallel_type")) {
         std::string tmp;
         tmp.assign(init.getString("config_parallel_type"));
@@ -665,8 +660,20 @@ MetaManager::postInputsIntern(vle::vpz::Vpz& model,
             }
         }
     }
-
-
+}
+void
+MetaManager::clear()
+{
+    {
+        std::vector<VleInput*>::iterator itb = mInputs.begin();
+        std::vector<VleInput*>::iterator ite = mInputs.end();
+        for (; itb != ite; itb ++) {
+            delete *itb;
+        }
+        mInputs.clear();
+    }
+    mOutputs.clear();
+    delete mReplicate;
 }
 
 }}//namespaces
