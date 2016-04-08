@@ -38,7 +38,8 @@ enum AccuType
 {
     STANDARD, //computes mean, std, var, min, max
     MEAN,     //compute mean only
-    QUANTILE  //compute quantiles
+    QUANTILE,  //compute quantiles
+    ORDERED   //keep order: can acces to specific value
 };
 
 class AccuMono
@@ -53,7 +54,7 @@ public:
         accu(type), msum(0), mcount(0), msquareSum(0),
         mmin(std::numeric_limits<double>::max()),
         mmax(std::numeric_limits<double>::min()),
-        msorted(0), mvalues(0)
+        msorted(false), mvalues(0)
     {
         switch (accu) {
         case STANDARD:
@@ -62,6 +63,9 @@ public:
         } case QUANTILE: {
             mvalues = new std::vector<double>();
             msorted = true;
+            break;
+        } case ORDERED: {
+            mvalues = new std::vector<double>();
             break;
         } default:
             throw vle::utils::ArgError(" [accu_mono] not yet implemented (1)");
@@ -95,6 +99,9 @@ public:
             mvalues->push_back(v);
             msorted = false;
             break;
+        } case ORDERED: {
+            mvalues->push_back(v);
+            break;
         } default:
             throw vle::utils::ArgError(" [accu_mono] not yet implemented (1)");
             break;
@@ -112,7 +119,8 @@ public:
         case MEAN: {
             return msum / mcount;
             break;
-        } case QUANTILE: {
+        } case QUANTILE:
+          case ORDERED: {
             double sum = std::accumulate(mvalues->begin(),mvalues->end(),0.0);
             return sum / mvalues->size();
         } default:
@@ -186,7 +194,7 @@ public:
     }
     /**
      * @brief Square sum extractor
-     * @return suqre sum value
+     * @return square sum value
      */
     inline double squareSum() const
     {
@@ -197,7 +205,8 @@ public:
         case MEAN:
             throw vle::utils::ArgError(" [accu_mono] not available");
             break;
-        case QUANTILE: {
+        case QUANTILE:
+        case ORDERED: {
             double squareSum = 0;
             std::vector<double>::const_iterator itb = mvalues->begin();
             std::vector<double>::const_iterator ite = mvalues->end();
@@ -205,11 +214,8 @@ public:
                 squareSum += pow(*itb,2);
             }
             return squareSum;
-        } default:
-            throw vle::utils::ArgError(" [accu_mono] not yet implemented (2)");
-            return 0;
-            break;
-        }
+        }}
+        return 0;
     }
     /**
      * @brief Count extractor
@@ -223,13 +229,11 @@ public:
             return mcount;
             break;
         case QUANTILE:
+        case ORDERED:
             return mvalues->size();
             break;
-        default:
-            throw vle::utils::ArgError(" [accu_mono] not yet implemented (3)");
-            return 0;
-            break;
         }
+        return 0;
 
     }
     /**
@@ -244,13 +248,11 @@ public:
             return msum;
             break;
         case QUANTILE:
+        case ORDERED:
             return std::accumulate(mvalues->begin(),mvalues->end(),0.0);
             break;
-        default:
-            throw vle::utils::ArgError(" [accu_mono] not yet implemented (4)");
-            return 0;
-            break;
         }
+        return 0;
     }
     /**
      * @brief Minimal value extractor
@@ -276,6 +278,26 @@ public:
     }
 
     /**
+     * @brief acces to a specific value
+     * @param i, the index of value
+     * @return the minimal value
+     */
+    inline double at(unsigned int i) const
+    {
+        switch (accu) {
+        case STANDARD:
+        case MEAN:
+        case QUANTILE:
+            throw vle::utils::ArgError(" [accu_mono] not available");
+            break;
+        case ORDERED:
+            return mvalues->at(i);
+            break;
+        }
+        return 0;
+    }
+
+    /**
      * @brief Quantile value extractor (weigthed average method)
      * @param quantileOrder the quantile order
      * @returns the quantile value of order quantileOrder
@@ -292,25 +314,33 @@ public:
                 std::sort(mvalues->begin(),mvalues->end());
                 msorted = true;
             }
-            double quantile = 0;
-            if (quantileOrder == 1.0) {
-                quantile = (*mvalues)[mvalues->size() - 1];
-            } else {
-                double rang_quantile = (mvalues->size() - 1) * quantileOrder;
-                int ent_rang = floor(rang_quantile);
-                double frac_rang = rang_quantile - ent_rang;
-                quantile = (*mvalues)[ent_rang] + frac_rang *
-                        ((*mvalues)[ent_rang + 1] - (*mvalues)[ent_rang]);
-            }
-            return quantile;
+            return quantileOnSortedVect(*mvalues, quantileOrder);
             break;
-        } default:
-            throw vle::utils::ArgError(" [accu_mono] not yet implemented (6)");
-            return 0;
+        } case ORDERED: {
+            std::vector<double> vals;
+            vals.insert(vals.begin(), mvalues->begin(),mvalues->end());
+            return quantileOnSortedVect(vals, quantileOrder);
             break;
-        }
+        }}
+        return 0;
     }
 protected:
+
+    double quantileOnSortedVect(const std::vector<double>& vals, double qOrder)
+    {
+        double quantile = 0;
+        if (qOrder == 1.0) {
+            quantile = vals[vals.size() - 1];
+        } else {
+            double rang_quantile = (vals.size() - 1) * qOrder;
+            int ent_rang = floor(rang_quantile);
+            double frac_rang = rang_quantile - ent_rang;
+            quantile = vals[ent_rang] + frac_rang *
+                    (vals[ent_rang + 1] - vals[ent_rang]);
+        }
+        return quantile;
+    }
+
     AccuType accu;
     double msum;
     unsigned int mcount;
