@@ -21,14 +21,10 @@
 # SOFTWARE.
 #
 
-# set -x
+set ex
 
 output=ext.log
-pkgs="vle.output vle.extension.celldevs vle.extension.cellqss vle.extension.decision
-vle.extension.difference-equation vle.extension.differential-equation 
-vle.extension.dsdevs vle.extension.fsa vle.extension.petrinet vle.examples
-ext.lua ext.muparser gvle2.output vle.ibm gvle2.simulating.log  
-gvle2.experimentalConditions vle.forrester"
+pkgs="vle.output vle.extension.celldevs vle.extension.cellqss vle.extension.decision vle.extension.difference-equation vle.extension.differential-equation vle.extension.dsdevs vle.extension.fsa vle.extension.petrinet vle.examples ext.lua ext.muparser vle.ibm vle.forrester"
 
 clean_package () {
   echo -e -n " -  clean:"
