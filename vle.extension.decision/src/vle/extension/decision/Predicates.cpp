@@ -61,9 +61,7 @@ void addParam(PredicateParameters::container_type& p,
               const std::string& name,
               const T& param)
 {
-    p.push_back(
-        std::make_pair <std::string, PredicateParameterType> (
-            name, param));
+    p.push_back(std::make_pair(name, param));
 }
 
 template <typename T>

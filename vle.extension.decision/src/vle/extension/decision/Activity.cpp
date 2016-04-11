@@ -78,9 +78,7 @@ void addParam(ActivityParameters::container_type& p,
               const std::string& name,
               const T& param)
 {
-    p.push_back(
-        std::make_pair <std::string, ActivityParameterType> (
-            name, param));
+    p.push_back(std::make_pair(name, param));
 }
 
 template <typename T>
