@@ -40,7 +40,6 @@
 #include <vle/value/Map.hpp>
 #include <vle/gvle/vleDomDiffStack.h>
 
-
 namespace vle {
 namespace gvle {
 
@@ -77,6 +76,8 @@ public:
     void addVariableToDoc(const QString& variableName);
     void setInitialValue(const QString& variableName,
             const vle::value::Value& val);
+    void setPortCondValue(const QString& variableName,
+            const vle::value::Value& val);
     vle::value::Value* getInitialValue(const QString& variableName);
     void rmInitialValue(const QString& variableName);
     void renameVariableToDoc(const QString& oldVariableName,
@@ -102,9 +103,31 @@ public:
     void redo();
     QString getData();
 
+    // to factorize
+    const QDomDocument& getDomDoc() const
+    { return *mDocSm; }
+
+    QDomDocument& getDomDoc()
+    { return *mDocSm; }
+
+    /**
+     * @brief create a <dynamic> tag
+     * whith dyn, attribute 'name'  set to dyn
+     */
+    QDomElement createDynamic();
+    QDomElement createObservable();
+    QDomElement createCondition();
+    QDomElement createIn();
+    QDomElement createOut();
+
+
 
 private:
     QDomNode nodeVariable(const QString& varName);
+    QDomNode nodeCondPort(const QString& portName);
+    QDomNode nodeObsPort(const QString& portName);
+    QDomNode nodeInPort(const QString& portName);
+    QDomNode nodeOutPort(const QString& portName);
 
 public slots:
     void onUndoRedoSm(QDomNode oldValSm, QDomNode newValSm);
@@ -115,9 +138,7 @@ signals:
 
     void modified();
 
-
 private:
-
 
     QDomDocument*    mDocSm;
     QString          mFileNameSrc;
