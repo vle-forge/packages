@@ -65,6 +65,7 @@ set(VLE_DEBUG 0)
 set(VLE_ABI_VERSION 1.1)
 find_package(VLE REQUIRED)
 find_package(GVLE)
+
 set (VleUtils_DIR "${CMAKE_SOURCE_DIR}/cmake")
 find_package(VleUtils REQUIRED)
 VleCheckDependencies()
@@ -72,6 +73,13 @@ VleCheckDependencies()
 option(WITH_GVLE "use the GVLE [default: on]" ON)
 if (WITH_GVLE AND GVLE_FOUND)
   set (HAVE_GVLE 1 CACHE INTERNAL "" FORCE)
+endif ()
+
+string(REPLACE ";" " " VLE_CFLAGS_OTHER_STRING "${VLE_CFLAGS_OTHER}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VLE_CFLAGS_OTHER_STRING}")
+if (GVLE_FOUND)
+  string(REPLACE ";" " " GVLE_CFLAGS_OTHER_STRING "${GVLE_CFLAGS_OTHER}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GVLE_CFLAGS_OTHER_STRING}")
 endif ()
 
 ##
