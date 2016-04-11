@@ -47,6 +47,21 @@ struct PredicateParametersFind
     }
 };
 
+struct  PredicateParametersFindToReset
+{
+    bool operator()(PredicateParameters::name_parameter_type& p,
+                    const std::string& str) const
+    {
+        return p.first < str;
+    }
+
+    bool operator()(const std::string& str,
+                    PredicateParameters::name_parameter_type& p) const
+    {
+        return str < p.first;
+    }
+};
+
 struct PredicateParametersCompare
 {
     bool operator()(const PredicateParameters::name_parameter_type& a,
@@ -65,6 +80,41 @@ void addParam(PredicateParameters::container_type& p,
         std::make_pair <std::string, PredicateParameterType> (
             name, param));
 }
+template <typename T>
+void resetParam(PredicateParameters::container_type& p,
+                const std::string& name,
+                const T& param)
+{
+    PredicateParameters::iterator it =
+        std::lower_bound(p.begin(),
+                         p.end(),
+                         name,
+                         PredicateParametersFindToReset());
+
+    if (it == p.end() or it->first != name)
+        throw vle::utils::ModellingError(
+            vle::fmt("Decision fails to find parameter %1%") % name);
+
+    it->second = param;
+}
+
+struct comp
+{
+    comp(const std::string& s) : _s(s) { }
+
+    bool operator()(const PredicateParameters::name_parameter_type& p)
+    {
+        return (p.first == _s);
+    }
+
+    std::string _s;
+};
+
+bool PredicateParameters::exist(const std::string& name) const
+{
+    return (std::find_if(m_lst.begin(), m_lst.end(), comp(name)) != m_lst.end());
+}
+
 
 template <typename T>
 T getParam(const PredicateParameters::container_type& p,
@@ -93,9 +143,21 @@ void PredicateParameters::addDouble(const std::string& name, double param)
     addParam <double>(m_lst, name, param);
 }
 
-void PredicateParameters::addString(const std::string& name, const std::string& param)
+void PredicateParameters::addString(const std::string& name,
+                                    const std::string& param)
 {
     addParam <std::string>(m_lst, name, param);
+}
+
+void PredicateParameters::resetDouble(const std::string& name, double param)
+{
+    resetParam <double>(m_lst, name, param);
+}
+
+void PredicateParameters::resetString(const std::string& name,
+                                      const std::string& param)
+{
+    resetParam <std::string>(m_lst, name, param);
 }
 
 void PredicateParameters::sort()

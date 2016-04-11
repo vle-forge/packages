@@ -55,6 +55,21 @@ public:
      */
     typedef std::pair < bool, devs::Time > Result;
 
+    Activities()
+        : mPriorityIncrement(0.)
+    {}
+
+    /**
+     * @brief to set a priority increment that is used to increase the
+     * priority of an activity each time the activity can not start
+     * due to the lack of resources
+     * @param double the value of priority increment
+     */
+    void setPriorityIncrement(const double inc)
+    {
+        mPriorityIncrement = inc;
+    }
+
     Activity& add(const std::string& name,
                   const Activity& act,
                   const Activity::OutFct& out = Activity::OutFct(),
@@ -254,13 +269,25 @@ public:
 
     void clearLatestActivitiesLists();
 
+    /**
+     * @brief free the resource
+     * @param resourcename the name of te resource
+     */
     void setResourceAvailable(const std::string& resourcename)
     {
         mResourceAvailability[resourcename] = true;
     }
 
+    /**
+     * @brief try to assign resources for a list of activities
+     * @param activities the list of activities
+     */
     void assignResources(result_t& activities);
 
+    /**
+     * @brief check if all the resources from a list are available
+     * @param resourcelist the list of resources
+     */
     bool areRessourcesAvailable(const ResourceSolution& resourcelist) const
     {
         for (ResourceSolution::const_iterator it = resourcelist.begin();
@@ -272,7 +299,13 @@ public:
         return true;
     }
 
-    void getRessources(const std::string& activityname, const ResourceSolution& resourcelist)
+    /**
+     * @brief assign a set of ressource to an activity
+     * @param activityname the name of the activity
+     * @param resourcelist the list of resources
+     */
+    void getRessources(const std::string& activityname,
+                       const ResourceSolution& resourcelist)
     {
         for (ResourceSolution::const_iterator it = resourcelist.begin();
              it != resourcelist.end(); it++) {
@@ -281,6 +314,10 @@ public:
         }
     }
 
+    /**
+     * @brief free all the resource assigned to an activity
+     * @param activityname the name of the activity
+     */
     void freeRessources(std::string activityname)
     {
         ActivitiesResourcesIteratorPair pit;
@@ -296,8 +333,20 @@ public:
         }
     }
 
+    /**
+     * @brief returns a list of assigned resources
+     * @param activityname the name of the activity
+     * @returns a pair of iterator (begin, end) on alist of pair
+     * (activityName, resourceName)
+     */
+    ActivitiesResourcesConstIteratorPair resources(std::string activityname) const
+    {
+        return mActivitiesResources.equal_range(activityname);
+    }
 
 private:
+    double mPriorityIncrement;
+
     activities_t     m_lst;
     PrecedencesGraph m_graph;
 
@@ -347,6 +396,21 @@ inline std::ostream& operator<<(
         o << ((it + 1 == r.end()) ? "." : ",");
     }
     return o << "\n";
+}
+
+inline std::ostream& operator<<(
+    std::ostream& o, const ActivitiesResourcesConstIteratorPair& pit)
+{
+    o << "resources: ";
+
+    for (ActivitiesResourcesConstIterator it = pit.first; it != pit.second; ++it) {
+        ActivitiesResourcesConstIterator ita = it;
+        advance(ita,1);
+        o << (*it).second;
+        o << ((ita == pit.second) ? "" : ",");
+    }
+
+    return o;
 }
 
 }}} // namespace vle model decision
