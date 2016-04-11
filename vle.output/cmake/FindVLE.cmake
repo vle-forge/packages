@@ -137,6 +137,7 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(VLE REQUIRED_VARS VLE_INCLUDE_DIRS
 
 if (${_vle_debug})
   message (" vle_debug VLE_INCLUDE_DIRS ${VLE_INCLUDE_DIRS}")
+  message (" vle_debug VLE_CFLAGS_OTHER ${VLE_CFLAGS_OTHER}")
   message (" vle_debug VLE_LIBRARY_DIRS ${VLE_LIBRARY_DIRS}")
   message (" vle_debug VLE_LIBRARIES ${VLE_LIBRARIES}")
 endif ()
