@@ -38,41 +38,33 @@
 #include "MetaManager.hpp"
 #include "VleAPIfacilities.hpp"
 
-//#include <boost/lexical_cast.hpp>
 
 namespace vle {
 namespace recursive {
 
-//private functions
-VleInput::VleInput(const std::string& conf,
+
+VleInput::VleInput(const std::string& _cond, const std::string& _port,
         const vle::value::Value& val):
-        cond(), port(), type(MONO)
+                cond(_cond), port(_port), type(MONO), nbValues(0)
 {
-    std::vector <std::string> splvec;
-    boost::split(splvec, conf, boost::is_any_of("."),
-            boost::token_compress_on);
-    if (splvec.size() == 2) {
-        cond.assign(splvec[0]);
-        port.assign(splvec[1]);
-    } else {
+    if (cond.empty() or port.empty()) {
         throw vle::utils::ArgError(vle::fmt("[MetaManager] : the input"
-                " is expected to be of the form "
-                "'cond_name.port_name', got '%1%'") % conf);
+                " has wrong form:  '%1%.%2%'") % cond % port);
     }
     switch (val.getType()) {
-    case vle::value::Value::TUPLE:
-        nbValues = val.toTuple().size();
-        type = MULTI;
-        break;
-    case vle::value::Value::SET:
-        nbValues = val.toSet().size();
-        type = MULTI;
-        break;
-    default:
-        nbValues = 1;
-        type = MONO;
-        break;
-    }
+        case vle::value::Value::TUPLE:
+            nbValues = val.toTuple().size();
+            type = MULTI;
+            break;
+        case vle::value::Value::SET:
+            nbValues = val.toSet().size();
+            type = MULTI;
+            break;
+        default:
+            nbValues = 1;
+            type = MONO;
+            break;
+        }
 }
 
 VleInput::~VleInput()
@@ -101,9 +93,11 @@ VleInput::getName()
     return ret;
 }
 
+/************************/
+
 VleOutput::VleOutput() :
    id(), view(), absolutePort(), integrationType(LAST), aggregationType(MEAN),
-   mse_times(0), mse_observations(0), maccuMono(0), maccuMulti(0)
+   mse_times(0), mse_observations(0), maccuMono(0), maccuMulti(0), res_value(0)
 {
 }
 
@@ -111,7 +105,7 @@ VleOutput::VleOutput(const std::string& _id,
         const vle::value::Value& val) :
    id(_id), view(), absolutePort(), integrationType(LAST),
    aggregationType(MEAN), mse_times(0), mse_observations(0), maccuMono(0),
-   maccuMulti(0)
+   maccuMulti(0), res_value(0)
 {
     std::string tmp;
     if (val.isString()) {
@@ -173,6 +167,40 @@ VleOutput::VleOutput(const std::string& _id,
     initAggregateResult();
 }
 
+VleOutput::VleOutput(const VleOutput& vleOutput):
+      id(vleOutput.id), view(vleOutput.view),
+      absolutePort(vleOutput.absolutePort),
+      integrationType(vleOutput.integrationType),
+      aggregationType(vleOutput.aggregationType), mse_times(0),
+      mse_observations(0), maccuMono(0), maccuMulti(0), res_value(0)
+{
+    if (vleOutput.mse_times) {
+        mse_times = (vle::value::Tuple*) vleOutput.mse_times->clone();
+    }
+    if (vleOutput.mse_observations) {
+        mse_observations =
+                (vle::value::Tuple*) vleOutput.mse_observations->clone();
+    }
+    if (vleOutput.maccuMono) {
+        maccuMono = new AccuMono(*vleOutput.maccuMono);
+    }
+    if (vleOutput.maccuMulti) {
+        maccuMulti = new AccuMulti(*vleOutput.maccuMulti);
+    }
+    if (vleOutput.res_value) {
+        res_value = vleOutput.res_value->clone();
+    }
+}
+
+VleOutput::~VleOutput()
+{
+    delete mse_times;
+    delete mse_observations;
+    delete maccuMono;
+    delete maccuMulti;
+    delete res_value;
+}
+
 bool
 VleOutput::parsePath(const std::string& path)
 {
@@ -225,7 +253,13 @@ VleOutput::insertReplicate(const vle::value::Matrix& outMat)
         maccuMono->insert(max);
         break;
     } case LAST: {
-        maccuMono->insert(outVec[outVec.size() - 1]->toDouble().value());
+        vle::value::Value* res = outVec[outVec.size() - 1];
+        if (res->isDouble()) {
+            maccuMono->insert(res->toDouble().value());
+        } else {
+            delete res_value;
+            res_value = res->clone();
+        }
         break;
     } case MSE: {
         double sum_square_error = 0;
@@ -271,7 +305,11 @@ VleOutput::buildAggregateResult()
         case LAST:
         case MAX:
         case MSE: {
-            return new vle::value::Double(maccuMono->mean());
+            if (res_value) {
+                return res_value->clone();
+            } else {
+                return new vle::value::Double(maccuMono->mean());
+            }
             break;
         } case ALL: {
             vle::value::Tuple* res = new vle::value::Tuple(maccuMulti->size());
@@ -285,6 +323,8 @@ VleOutput::buildAggregateResult()
     }}
     return 0;
 }
+
+/************************/
 
 unsigned int
 MetaManager::inputsSize() const
@@ -312,7 +352,7 @@ MetaManager::replicasSize() const
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
         mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
-        mInputs(), mReplicate(0), mOutputs(), mWorkingDir("")
+        mInputs(), mReplicate(0), mOutputs(), mWorkingDir(""), mmodules()
 {
 }
 
@@ -388,29 +428,24 @@ MetaManager::run(const vle::value::Map& init)
         throw vle::utils::ArgError("[MetaManager] missing 'vpz'");
     }
 
-    std::string prefix;
-    std::string varname;
+    std::string in_cond;
+    std::string in_port;
+    std::string out_id;
     vle::value::Map::const_iterator itb = init.begin();
     vle::value::Map::const_iterator ite = init.end();
     for (; itb != ite; itb++) {
-        const std::string& conf_name = itb->first;
-        if (!prefix.assign("input_").empty() and
-                !conf_name.compare(0, prefix.size(), prefix)) {
-            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
-            mInputs.push_back(new VleInput(varname, *itb->second));
-        } else if (!prefix.assign("output_").empty() and
-                        !conf_name.compare(0, prefix.size(), prefix)) {
-            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
-            mOutputs.push_back(VleOutput(varname, *itb->second));
-        } else if (!prefix.assign("replicate_").empty() and
-                !conf_name.compare(0, prefix.size(), prefix)) {
+        const std::string& conf = itb->first;
+        if (MetaManager::parseInput(conf, in_cond, in_port)) {
+            mInputs.push_back(new VleInput(in_cond, in_port, *itb->second));
+        } else if (MetaManager::parseInput(conf, in_cond, in_port, "replicate_")){
             if (not mReplicate == 0) {
                 throw vle::utils::ArgError(vle::fmt("[MetaManager] : the"
                         " replica is already defined with '%1%'")
-                   % mReplicate->getName());
+                % mReplicate->getName());
             }
-            varname.assign(conf_name.substr(prefix.size(), conf_name.size()));
-            mReplicate = new VleInput(varname, *itb->second);
+            mReplicate = new VleInput(in_cond, in_port, *itb->second);
+        } else if (MetaManager::parseOutput(conf, out_id)){
+            mOutputs.push_back(VleOutput(out_id, *itb->second));
         }
     }
     //check
@@ -436,6 +471,44 @@ MetaManager::run(const vle::value::Map& init)
     return runIntern(init);
 }
 
+bool
+MetaManager::parseInput(const std::string& conf,
+        std::string& cond, std::string& port,
+        const std::string& prefix)
+{
+    std::string varname;
+    cond.clear();
+    port.clear();
+    if (prefix.size() > 0) {
+        if (conf.compare(0, prefix.size(), prefix) != 0) {
+            return false;
+        }
+        varname.assign(conf.substr(prefix.size(), conf.size()));
+    } else {
+        varname.assign(conf);
+    }
+    std::vector <std::string> splvec;
+    boost::split(splvec, varname, boost::is_any_of("."),
+            boost::token_compress_on);
+    if (splvec.size() != 2) {
+        return false;
+    }
+    cond.assign(splvec[0]);
+    port.assign(splvec[1]);
+    return not cond.empty() and not port.empty();
+}
+
+bool
+MetaManager::parseOutput(const std::string& conf, std::string& idout)
+{
+    idout.clear();
+    std::string prefix = "output_";
+    if (conf.compare(0, prefix.size(), prefix) != 0) {
+        return false;
+    }
+    idout.assign(conf.substr(prefix.size(), conf.size()));
+    return not idout.empty();
+}
 
 vle::value::Matrix*
 MetaManager::runIntern(const vle::value::Map& init)
@@ -484,11 +557,10 @@ MetaManager::runIntern(const vle::value::Map& init)
         vle::manager::Manager planSimulator(vle::manager::LOG_NONE,
                 vle::manager::SIMULATION_NONE,
                 &outstream);
-        vle::utils::ModuleManager modules;
         vle::manager::Error manerror;
 
         vle::value::Matrix* output_mat =  planSimulator.run(
-                new vle::vpz::Vpz(model), modules, mConfigParallelNbSlots,
+                new vle::vpz::Vpz(model), mmodules, mConfigParallelNbSlots,
                 0, 1, &manerror);
         if (manerror.code != 0) {
             throw vle::utils::InternalError(

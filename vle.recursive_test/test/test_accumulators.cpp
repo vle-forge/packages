@@ -47,11 +47,16 @@ BOOST_AUTO_TEST_CASE(test_accumulators)
         acc.insert(3.6);
         BOOST_REQUIRE_CLOSE(acc.mean(),3.4,10e-4);
         BOOST_REQUIRE_CLOSE(acc.moment2(),13.74,10e-4);
+        BOOST_REQUIRE_CLOSE(acc.stdDeviation(), 1.704895,10e-4);
+        BOOST_REQUIRE_CLOSE(acc.variance(), 2.90666,10e-4);
         acc.insert(8);
         acc.insert(3);
         acc.insert(2);
         BOOST_REQUIRE_CLOSE(acc.mean(), 3.8,10e-4);
         BOOST_REQUIRE_CLOSE(acc.moment2(), 18.85143,10e-4);
+        BOOST_REQUIRE_CLOSE(acc.stdDeviation(), 2.268627,10e-4);
+        BOOST_REQUIRE_CLOSE(acc.variance(), 5.146667,10e-4);
+
     }
     {
         vr::AccuMono acc(vr::QUANTILE);

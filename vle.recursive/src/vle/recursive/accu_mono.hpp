@@ -46,10 +46,14 @@ class AccuMono
 {
 
 public:
-    /**
-     * @brief Accu constructor
-     * @param  args, common accumulator initialization structure
-     */
+    AccuMono() :
+        accu(STANDARD),  msum(0), mcount(0), msquareSum(0),
+        mmin(std::numeric_limits<double>::max()),
+        mmax(std::numeric_limits<double>::min()),
+        msorted(false), mvalues(0)
+    {
+    }
+
     AccuMono(AccuType type) :
         accu(type), msum(0), mcount(0), msquareSum(0),
         mmin(std::numeric_limits<double>::max()),
@@ -72,6 +76,18 @@ public:
             break;
         }
     }
+
+    AccuMono(const AccuMono& acc):
+        accu(acc.accu), msum(acc.msum), mcount(acc.mcount),
+        msquareSum(acc.msquareSum), mmin(acc.mmin),  mmax(acc.mmax),
+        msorted(acc.msorted), mvalues(0)
+    {
+        if (acc.mvalues) {
+            mvalues = new std::vector<double>(acc.mvalues->begin(),
+                    acc.mvalues->end());
+        }
+    }
+
     ~AccuMono()
     {
         delete mvalues;
@@ -173,15 +189,41 @@ public:
         }
     }
     /**
-     * @brief Standad deviation,
-     * note: this is not the sample standard deviation
+     * @brief Corrected standard deviation,
      * @return the stdDeviation
      */
     inline double stdDeviation() const
     {
         switch (accu) {
         case STANDARD: {
-            return sqrt(deviationSquareSum()/mcount);
+            if (mcount < 2) {
+                return 0;
+            } else {
+                return sqrt(deviationSquareSum()/(mcount-1));
+            }
+            break;
+        } case MEAN:
+            throw vle::utils::ArgError(" [accu_mono] not available");
+            break;
+        default:
+            throw vle::utils::ArgError(" [accu_mono] not yet implemented (2)");
+            return 0;
+            break;
+        }
+    }
+    /**
+     * @brief Corrected variance,
+     * @return the variance
+     */
+    inline double variance() const
+    {
+        switch (accu) {
+        case STANDARD: {
+            if (mcount < 2) {
+                return 0;
+            } else {
+                return deviationSquareSum()/(mcount-1);
+            }
             break;
         } case MEAN:
             throw vle::utils::ArgError(" [accu_mono] not available");
@@ -324,6 +366,20 @@ public:
         }}
         return 0;
     }
+
+
+    void clear()
+    {
+        msum = 0;
+        mcount = 0;
+        msquareSum = 0;
+        mmin = std::numeric_limits<double>::max();
+        mmax = std::numeric_limits<double>::min();
+        msorted = false;
+        delete mvalues;
+        mvalues = 0;
+    }
+
 protected:
 
     double quantileOnSortedVect(const std::vector<double>& vals, double qOrder)

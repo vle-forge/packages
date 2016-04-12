@@ -22,6 +22,7 @@
 
 #include <vle/value/Map.hpp>
 #include <vle/vpz/Vpz.hpp>
+#include <vle/manager/Manager.hpp>
 
 #include <vle/recursive/accu_multi.hpp>
 
@@ -36,13 +37,16 @@ struct VleInput
 {
     /*
      * @brief VleInput identifies an input of the experiment plan
-     * @param conf, a string of the form 'condname.portname'
+     * @param cond, id of the cond
+     * @param port, id of the port
      * @param val, the value given on port conf_name, is either
      *  * a value::Set or value::Tuple that identifies an experiment plan
      *  * any other value type that identifies a single value
      */
-    VleInput(const std::string& conf, const vle::value::Value& config);
+    VleInput(const std::string& cond, const std::string& port,
+            const vle::value::Value& val);
     virtual ~VleInput();
+
     /**
      * @brief Gets the experiment plan from initialization map
      * @param init, the initialization map
@@ -52,6 +56,7 @@ struct VleInput
     const vle::value::Value& values(const vle::value::Map& init,
             bool replicate=false);
     std::string getName();
+
 
     std::string cond;
     std::string port;
@@ -81,6 +86,8 @@ public:
      *  - aggregation = mean
      */
     VleOutput(const std::string& id, const vle::value::Value& config);
+    VleOutput(const VleOutput& vleOutput);
+    ~VleOutput();
 
     bool parsePath(const std::string& path);
 
@@ -112,6 +119,10 @@ public:
     //for mean aggregation
     AccuMono* maccuMono; //for integration with one dimension
     AccuMulti* maccuMulti; //for integration with multiple dimensions
+
+    //In case one has to handle not double values,
+    //note that agregation is just replacement
+    vle::value::Value* res_value;
 };
 
 /**
@@ -132,6 +143,7 @@ private:
     std::vector<VleOutput> mOutputs;//view * port
     std::vector<vle::value::Value*> mOutputValues;//values are Tuple or Set
     std::string mWorkingDir; //only for mvle
+    vle::utils::ModuleManager mmodules;
 
 public:
     /**
@@ -148,6 +160,33 @@ public:
      * @return the values
      */
     vle::value::Matrix* run(const vle::value::Map& init);
+    /**
+     * @brief Parse a string of the type that should identify an input, eg. :
+     *   input_cond.port
+     *   replicate_cond.port
+     *   cond.port
+     *
+     * @param[in]  conf, the string to parse
+     * @param[in]  with_prefix, tells if one expects 'input_' prefix on conf
+     * @param[out] cond, the condition of the input or empty if not parsed
+     * @param[out] port, the port of the input or empty if not parsed
+     * @param[in] tells the prefix to parse.
+     *
+     * @return if parsing was successfull
+     */
+    static bool parseInput(const std::string& conf,
+            std::string& cond, std::string& port,
+            const std::string& prefix ="input_");
+    /**
+     * @brief Parse a string of the type output_idout that should identify
+     * an output
+     *
+     * @param[in]  conf, the string to parse
+     * @param[out] idout, id of the output
+     *
+     * @return if parsing was successfull
+     */
+    static bool parseOutput(const std::string& conf, std::string& idout);
 
 private:
 

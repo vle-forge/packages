@@ -50,6 +50,11 @@ public:
     {
     }
 
+    AccuMulti(const AccuMulti& acc) : accu(acc.accu),
+        init_size(acc.init_size), mstats(acc.mstats.begin(), acc.mstats.end())
+    {
+    }
+
     ~AccuMulti()
     {}
 
@@ -130,7 +135,7 @@ public:
 private:
     AccuType accu;
     bool init_size;
-    std::vector<AccuMono > mstats;
+    std::vector<AccuMono> mstats;
 };
 
 }} //namespaces
