@@ -95,6 +95,25 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
         virtual ~Resourcetest_1() {}
     };
+
+    class Resourcetest_2: public vmd::KnowledgeBase
+    {
+    public:
+        Resourcetest_2()
+        {
+            vmd::Activity& A = addActivity("A", 1.0, 10.0);
+            vmd::Activity& B = addActivity("B", 1.0, 10.0);
+
+            addResources("Farmer", "Bob");
+
+            A.addResources(extendResources("Bob"));
+            B.addResources(extendResources("Bob"));
+
+        }
+
+        virtual ~Resourcetest_2() {}
+    };
+
 }}}} // namespace vle extension decision ex
 
 /**
@@ -165,5 +184,38 @@ BOOST_AUTO_TEST_CASE(resource_1)
         const vmd::Activity& B =  base.activities().get("B")->second;
         BOOST_REQUIRE(B.isInDoneState());
         BOOST_REQUIRE(A.isInStartedState());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(resource_2)
+{
+    vmd::ex::Resourcetest_2 base;
+    vmd::Activities::result_t lst;
+
+    base.processChanges(0.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        BOOST_REQUIRE(A.isInWaitState());
+        BOOST_REQUIRE(B.isInWaitState());
+    }
+    base.processChanges(1.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        BOOST_REQUIRE(A.isInStartedState());
+        vmd::ActivitiesResourcesConstIteratorPair pit;
+        pit = base.activities().resources("A");
+        BOOST_REQUIRE_EQUAL(std::distance(pit.first, pit.second), 1);
+        BOOST_REQUIRE_EQUAL((*(pit.first)).second, "Bob");
+        BOOST_REQUIRE(B.isInWaitState());
+    }
+    base.setActivityDone("A",2.0);
+    base.processChanges(2.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        BOOST_REQUIRE(A.isInDoneState());
+        BOOST_REQUIRE(B.isInStartedState());
     }
 }

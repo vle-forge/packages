@@ -219,6 +219,21 @@ public:
     {}
 
     /**
+     * @brief a resource can be defined by a id(string),
+     * @param name the name of the resource
+     */
+    void addResources(const std::string& name)
+    {
+        if (not resourceTypeExist(name)) {
+            mResources.insert(Resource(name, name));
+            mPlan.activities().setResourceAvailable(name);
+        } else {
+            throw utils::ModellingError(
+                fmt(_("Decision: resource `%1%' already defined")) % name);
+        }
+    }
+
+    /**
      * @brief a resource is defined by a id(string) an class(string),
      * This operator can be used to use many classes for a single
      * resource
@@ -227,8 +242,19 @@ public:
      */
     void addResources(const std::string& type, const std::string& name)
     {
-        mResources.insert(Resource(type, name));
-        mPlan.activities().setResourceAvailable(name);
+        if (not resourceTypeExist(name)) {
+            mResources.insert(Resource(name, name));
+            mPlan.activities().setResourceAvailable(name);
+        }
+
+        std::string resource = type + "&" + name;
+        if (not resourceTypeExist(resource)) {
+            mResources.insert(Resource(type, name));
+            mPlan.activities().setResourceAvailable(name);
+        } else {
+            throw utils::ModellingError(
+                fmt(_("Decision: resource `%1%' already defined")) % resource);
+        }
     }
 
     /**
