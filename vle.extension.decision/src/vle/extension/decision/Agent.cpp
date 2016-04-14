@@ -38,6 +38,7 @@ devs::Time Agent::init(devs::Time time)
     mState = Output;
     mCurrentTime = time;
     mNextChangeTime = processChanges(time);
+    waiter = mWait;
 
     return 0.0;
 }
@@ -108,8 +109,14 @@ void Agent::internalTransition(devs::Time time)
         clearLatestActivitiesLists();
     case Init:
     case UpdateFact:
-        mNextChangeTime = processChanges(time);
-        mState = Process;
+        waiter--;
+        if (waiter < 0) {
+            mNextChangeTime = processChanges(time);
+            mState = Process;
+            waiter = mWait;
+        } else {
+            mState = UpdateFact;
+        }
         break;
     case Process:
         mState = Output;
@@ -168,8 +175,8 @@ void Agent::confluentTransitions(
     devs::Time time,
     const devs::ExternalEventList& extEventlist)
 {
-    internalTransition(time);
     externalTransition(extEventlist, time);
+    internalTransition(time);
 }
 
 std::unique_ptr<vle::value::Value> Agent::observation(
