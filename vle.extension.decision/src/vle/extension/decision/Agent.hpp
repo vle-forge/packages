@@ -41,12 +41,16 @@ public:
     Agent(const devs::DynamicsInit& mdl,
           const devs::InitEventList& evts)
         : devs::Dynamics(mdl, evts), mState(Init), mCurrentTime(0.0),
-        mPortMode(true)
+          mPortMode(true), mWait(1)
     {
         if (evts.exist("seed")) {
             std::srand(evts.getInt("seed"));
         } else {
             std::srand(unsigned(std::time(0)));
+        }
+
+        if (evts.exist("wait")) {
+            mWait = evts.getInt("wait");
         }
     }
 
@@ -144,6 +148,9 @@ protected:
     KnowledgeBase::Result mNextChangeTime;
 
     bool mPortMode;
+
+    int mWait;
+    int waiter;
 };
 
 }}} // namespace vle ext decision
