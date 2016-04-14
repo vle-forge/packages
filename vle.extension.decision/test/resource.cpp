@@ -60,7 +60,6 @@ namespace vle { namespace extension { namespace decision { namespace ex {
     public:
         Resourcetest_1(vle::utils::ContextPtr ctxp)
             : vmd::KnowledgeBase(ctxp)
-
         {
             vmd::Activity& A = addActivity("A", 1.0, 10.0);
             vmd::Activity& B = addActivity("B", 1.0, 10.0);
@@ -75,6 +74,26 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
         virtual ~Resourcetest_1() {}
     };
+
+    class Resourcetest_2: public vmd::KnowledgeBase
+    {
+    public:
+        Resourcetest_2(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
+        {
+            vmd::Activity& A = addActivity("A", 1.0, 10.0);
+            vmd::Activity& B = addActivity("B", 1.0, 10.0);
+
+            addResources("Farmer", "Bob");
+
+            A.addResources(extendResources("Bob"));
+            B.addResources(extendResources("Bob"));
+
+        }
+
+        virtual ~Resourcetest_2() {}
+    };
+
 }}}} // namespace vle extension decision ex
 
 /**
@@ -150,10 +169,45 @@ void resource_1()
     }
 }
 
+void resource_2()
+{
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Resourcetest_2 base(ctxp);
+    vmd::Activities::result_t lst;
+
+    base.processChanges(0.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        EnsuresEqual(A.isInWaitState(), true);
+        EnsuresEqual(B.isInWaitState(), true);
+    }
+    base.processChanges(1.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        EnsuresEqual(A.isInStartedState(), true);
+        vmd::ActivitiesResourcesConstIteratorPair pit;
+        pit = base.activities().resources("A");
+        EnsuresEqual(std::distance(pit.first, pit.second), 1);
+        EnsuresEqual((*(pit.first)).second, "Bob");
+        EnsuresEqual(B.isInWaitState(), true);
+    }
+    base.setActivityDone("A",2.0);
+    base.processChanges(2.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        EnsuresEqual(A.isInDoneState(), true);
+        EnsuresEqual(B.isInStartedState(), true);
+    }
+}
+
 int main()
 {
     resource_0();
     resource_1();
+    resource_2();
 
     return unit_test::report_errors();
 }
