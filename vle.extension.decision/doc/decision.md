@@ -18,7 +18,20 @@ addResources("worker", "Phil");
 
 ```
 In this case we define 3 resources, they three belongs to 2
-categories.
+categories each
+
+Resources can also be defined with out categories first or only, like
+this:
+```
+addResources("Bob");
+addResources("Bill");
+addResources("Phil");
+...
+addResources("worker", "Bob");
+addResources("worker", "Bill");
+addResources("worker", "Phil");
+
+```
 
 Once the resources have be defined, they can be mobilised to define
 requirement for activities.
@@ -66,16 +79,15 @@ Example of settings with multiple categories:
 ```
 In this case the activity prefers to start with 2 young farmers.
 
-If you want to mention a resource by Id, just add the Id to the
-categories of the resource.
+If you want to mention a resource by Id, you can.
 
-Example:
+Example of settings direct by ids:
 ```
-addResources("Bob", "Bob");
-addResources("Bill", "Bill");
-addResources("Phil", "Phil");
-addResources("farmworker", "Bob");
-addResources("farmworker", "Bill");
+        ...
+	parameter {
+           resources = "Bob + Bill | Bob + Phil";
+           ...
+	}
 ...
 ```
 ## Observing the the resource assigment during the simulation.

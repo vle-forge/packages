@@ -94,6 +94,29 @@ namespace vle { namespace extension { namespace decision { namespace ex {
         virtual ~Resourcetest_2() {}
     };
 
+    class Resourcetest_3: public vmd::KnowledgeBase
+    {
+    public:
+        Resourcetest_3(vle::utils::ContextPtr ctxp)
+            : vmd::KnowledgeBase(ctxp)
+        {
+            vmd::Activity& A = addActivity("A", 1.0, 10.0);
+            vmd::Activity& B = addActivity("B", 1.0, 10.0);
+            vmd::Activity& C = addActivity("C", 1.0, 10.0);
+
+            addResources("Farmer", "Bob");
+            addResources("Farmer", "Bill");
+            addResources("Worker", "Tim");
+
+            A.addResources(extendResources("Bob|Bill"));
+            B.addResources(extendResources("Bob|Bill"));
+            C.addResources(extendResources("Bob|Bill|Tim"));
+
+        }
+
+        virtual ~Resourcetest_3() {}
+    };
+
 }}}} // namespace vle extension decision ex
 
 /**
@@ -203,11 +226,57 @@ void resource_2()
     }
 }
 
+void resource_3()
+{
+    vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+    vmd::ex::Resourcetest_3 base(ctxp);
+    vmd::Activities::result_t lst;
+
+    base.processChanges(0.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        const vmd::Activity& C =  base.activities().get("C")->second;
+        EnsuresEqual(A.isInWaitState(), true);
+        EnsuresEqual(B.isInWaitState(), true);
+        EnsuresEqual(C.isInWaitState(), true);
+    }
+
+    base.processChanges(1.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        const vmd::Activity& C =  base.activities().get("C")->second;
+        EnsuresEqual(A.isInStartedState(), true);
+        {
+            vmd::ActivitiesResourcesConstIteratorPair pit;
+            pit = base.activities().resources("A");
+            EnsuresEqual(std::distance(pit.first, pit.second), 1);
+            EnsuresEqual((*(pit.first)).second, "Bob");
+        }
+        EnsuresEqual(B.isInStartedState(), true);
+        {
+            vmd::ActivitiesResourcesConstIteratorPair pit;
+            pit = base.activities().resources("B");
+            EnsuresEqual(std::distance(pit.first, pit.second), 1);
+            EnsuresEqual((*(pit.first)).second, "Bill");
+        }
+        EnsuresEqual(C.isInStartedState(), true);
+        {
+            vmd::ActivitiesResourcesConstIteratorPair pit;
+            pit = base.activities().resources("C");
+            EnsuresEqual(std::distance(pit.first, pit.second), 1);
+            EnsuresEqual((*(pit.first)).second, "Tim");
+        }
+    }
+}
+
 int main()
 {
     resource_0();
     resource_1();
     resource_2();
+    resource_3();
 
     return unit_test::report_errors();
 }
