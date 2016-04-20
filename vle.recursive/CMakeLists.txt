@@ -178,6 +178,10 @@ endif ()
 if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_subdirectory(src)
 endif ()
+if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/R")
+  add_subdirectory(R)
+endif ()
+
 
 if (Boost_UNIT_TEST_FRAMEWORK_FOUND AND WITH_TEST)
   if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test")
