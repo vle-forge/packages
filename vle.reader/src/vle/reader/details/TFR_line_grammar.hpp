@@ -69,7 +69,7 @@ struct TFR_data_tofill
             switch (params.col_types[colIndex]) {
             case vv::Value::DOUBLE : {
                 double val;
-                if (valStr.empty()) {
+                if (valStr.empty() or valStr == "NA") {
                     val = NAN;
                 } else {
                     val = boost::lexical_cast<double>(valStr);
