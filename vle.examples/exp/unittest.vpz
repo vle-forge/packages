@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <vle_project author="Gauthier Quesnel" date="" version="0.6">
  <structures>
-  <model type="coupled" name="top" width="459">
+  <model width="459" name="top" type="coupled">
    <submodels>
-    <model height="45" conditions="cd" type="atomic" x="255" y="25" dynamics="unittest" name="d" width="100">
+    <model height="45" width="100" conditions="cd" dynamics="unittest" y="25" name="d" x="255" type="atomic">
      <in>
       <port name="in"/>
      </in>
@@ -11,7 +11,7 @@
       <port name="out"/>
      </out>
     </model>
-    <model height="60" type="atomic" x="255" y="175" dynamics="unittest" name="e" width="100">
+    <model height="60" width="100" dynamics="unittest" y="175" name="e" x="255" type="atomic">
      <in>
       <port name="in1"/>
       <port name="in2"/>
@@ -20,7 +20,7 @@
       <port name="out"/>
      </out>
     </model>
-    <model height="45" type="coupled" x="140" y="25" name="top2" width="100">
+    <model height="45" width="100" y="25" name="top2" x="140" type="coupled">
      <in>
       <port name="in"/>
      </in>
@@ -28,7 +28,7 @@
       <port name="out"/>
      </out>
      <submodels>
-      <model type="atomic" dynamics="unittest" name="f">
+      <model height="176" dynamics="unittest" y="109" name="f" x="167" type="atomic">
        <in>
         <port name="in"/>
        </in>
@@ -36,7 +36,7 @@
         <port name="out"/>
        </out>
       </model>
-      <model type="atomic" dynamics="unittest" name="g">
+      <model height="148" dynamics="unittest" y="45" name="g" x="267" type="atomic">
        <in>
         <port name="in"/>
        </in>
@@ -56,7 +56,7 @@
       </connection>
      </connections>
     </model>
-    <model height="45" type="coupled" x="25" y="175" name="top1" width="100">
+    <model height="45" width="100" y="175" name="top1" x="25" type="coupled">
      <in>
       <port name="in"/>
      </in>
@@ -64,7 +64,7 @@
       <port name="out"/>
      </out>
      <submodels>
-      <model type="atomic" dynamics="unittest" observables="obs2" name="a">
+      <model height="203" dynamics="unittest" observables="obs2" y="148" name="a" x="471" type="atomic">
        <in>
         <port name="in"/>
        </in>
@@ -72,7 +72,7 @@
         <port name="out"/>
        </out>
       </model>
-      <model type="atomic" dynamics="unittest" observables="obs2" name="b">
+      <model height="92" dynamics="unittest" observables="obs2" y="252" name="b" x="227" type="atomic">
        <in>
         <port name="in"/>
        </in>
@@ -80,7 +80,7 @@
         <port name="out"/>
        </out>
       </model>
-      <model type="atomic" dynamics="unittest" observables="obs2" name="c">
+      <model height="233" dynamics="unittest" observables="obs2" y="74" name="c" x="324" type="atomic">
        <in>
         <port name="in1"/>
         <port name="in2"/>
@@ -89,7 +89,7 @@
         <port name="out"/>
        </out>
       </model>
-      <model type="atomic" dynamics="unittest" observables="obs1" name="x">
+      <model height="63" dynamics="unittest" observables="obs1" y="224" name="x" x="68" type="atomic">
        <in>
         <port name="in"/>
        </in>
@@ -155,9 +155,9 @@
   </model>
  </structures>
  <dynamics>
-  <dynamic location="192.168.1.1:324" library="liba" type="distant" language="python" name="a"/>
-  <dynamic library="libu" type="local" language="python" name="b"/>
-  <dynamic library="DevsTransform" type="local" name="unittest" package="vle.examples"/>
+  <dynamic location="192.168.1.1:324" library="liba" name="a" type="distant" language="python"/>
+  <dynamic library="libu" name="b" type="local" language="python"/>
+  <dynamic library="DevsTransform" name="unittest" type="local" package="vle.examples"/>
  </dynamics>
  <experiment name="graphtester">
   <conditions>
@@ -194,9 +194,6 @@
    <outputs>
     <output location="" format="local" plugin="storage" name="view1" package="vle.output">
      <map>
-      <key name="columns">
-       <integer>15</integer>
-      </key>
       <key name="header">
        <string>none</string>
       </key>
@@ -205,6 +202,9 @@
       </key>
       <key name="inc_rows">
        <integer>10</integer>
+      </key>
+      <key name="columns">
+       <integer>15</integer>
       </key>
       <key name="rows">
        <integer>15</integer>
@@ -214,9 +214,6 @@
 
     <output location="" format="local" plugin="storage" name="view2" package="vle.output">
      <map>
-      <key name="columns">
-       <integer>15</integer>
-      </key>
       <key name="header">
        <string>none</string>
       </key>
@@ -225,6 +222,9 @@
       </key>
       <key name="inc_rows">
        <integer>10</integer>
+      </key>
+      <key name="columns">
+       <integer>15</integer>
       </key>
       <key name="rows">
        <integer>15</integer>
@@ -253,30 +253,30 @@
     </observable>
 
    </observables>
-   <view timestep="1.000000000000000" output="view1" type="timed" name="view1"/>
+   <view name="view1" timestep="1.000000000000000" type="timed" output="view1"/>
 
-   <view timestep="1.000000000000000" output="view2" type="timed" name="view2"/>
+   <view name="view2" timestep="1.000000000000000" type="timed" output="view2"/>
 
   </views>
  </experiment>
  <classes>
   <class name="beepbeep">
-   <model type="coupled" name="top">
+   <model name="top" type="coupled">
     <out>
      <port name="out"/>
     </out>
     <submodels>
-     <model type="atomic" dynamics="gensbeep" name="a">
+     <model height="108" dynamics="gensbeep" y="48" name="a" x="91" type="atomic">
       <out>
        <port name="out"/>
       </out>
      </model>
-     <model type="atomic" dynamics="gensbeep" name="b">
+     <model height="109" dynamics="gensbeep" y="69" name="b" x="144" type="atomic">
       <out>
        <port name="out"/>
       </out>
      </model>
-     <model type="atomic" dynamics="gensbeep" name="c">
+     <model height="110" width="67" dynamics="gensbeep" y="100" name="c" x="205" type="atomic">
       <out>
        <port name="out"/>
       </out>
@@ -299,42 +299,42 @@
    </model>
   </class>
   <class name="beepbeepbeep">
-   <model type="coupled" name="top">
+   <model name="top" type="coupled">
     <out>
      <port name="out"/>
     </out>
     <submodels>
-     <model type="atomic" dynamics="gensbeep" name="a">
+     <model height="112" dynamics="gensbeep" y="15" name="a" x="54" type="atomic">
       <out>
        <port name="out"/>
       </out>
      </model>
-     <model type="atomic" dynamics="gensbeep" name="b">
+     <model height="125" dynamics="gensbeep" y="135" name="b" x="99" type="atomic">
       <out>
        <port name="out"/>
       </out>
      </model>
-     <model type="atomic" dynamics="gensbeep" name="c">
+     <model height="146" dynamics="gensbeep" y="101" name="c" x="132" type="atomic">
       <out>
        <port name="out"/>
       </out>
      </model>
-     <model type="coupled" name="d">
+     <model height="171" y="86" name="d" x="209" type="coupled">
       <out>
        <port name="out"/>
       </out>
       <submodels>
-       <model type="atomic" dynamics="gensbeep" name="a">
+       <model height="134" dynamics="gensbeep" y="64" name="a" x="104" type="atomic">
         <out>
          <port name="out"/>
         </out>
        </model>
-       <model type="atomic" dynamics="gensbeep" name="b">
+       <model height="140" dynamics="gensbeep" y="114" name="b" x="174" type="atomic">
         <out>
          <port name="out"/>
         </out>
        </model>
-       <model type="atomic" dynamics="gensbeep" name="c">
+       <model height="124" dynamics="gensbeep" y="131" name="c" x="270" type="atomic">
         <out>
          <port name="out"/>
         </out>

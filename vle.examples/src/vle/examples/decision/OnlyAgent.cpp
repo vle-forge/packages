@@ -31,9 +31,6 @@
  */
 
 #include <vle/extension/Decision.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
-#include <vle/utils/Trace.hpp>
-#include <boost/cast.hpp>
 #include <sstream>
 
 namespace vd = vle::devs;
@@ -42,29 +39,31 @@ namespace vmd = vle::extension::decision;
 
 namespace vle { namespace examples { namespace decision {
 
+using namespace std::placeholders;
+
 class OnlyAgent : public vmd::Agent
 {
 public:
     OnlyAgent(const vd::DynamicsInit& mdl, const vd::InitEventList& evts)
         : vmd::Agent(mdl, evts), mStart(false)
     {
-        addActivity("A", 0.0, 100.0).addOutputFunction(boost::bind(
+        addActivity("A", 0.0, 100.0).addOutputFunction(std::bind(
             &OnlyAgent::aout, this, _1, _2, _3));
-        addActivity("B", 0.5, 100.0).addOutputFunction(boost::bind(
+        addActivity("B", 0.5, 100.0).addOutputFunction(std::bind(
             &OnlyAgent::aout, this, _1, _2, _3));
-        addActivity("C", 0.6, 100.0).addOutputFunction(boost::bind(
+        addActivity("C", 0.6, 100.0).addOutputFunction(std::bind(
             &OnlyAgent::aout, this, _1, _2, _3));
-        addActivity("D", 0.9, 100.0).addOutputFunction(boost::bind(
+        addActivity("D", 0.9, 100.0).addOutputFunction(std::bind(
             &OnlyAgent::aout, this, _1, _2, _3));
-        addActivity("E", 1.1, 100.0).addOutputFunction(boost::bind(
+        addActivity("E", 1.1, 100.0).addOutputFunction(std::bind(
             &OnlyAgent::aout, this, _1, _2, _3));
-        addActivity("F", 1.9, 100.0).addOutputFunction(boost::bind(
+        addActivity("F", 1.9, 100.0).addOutputFunction(std::bind(
             &OnlyAgent::aout, this, _1, _2, _3));
-        addActivity("G", 1.95, 100.0).addOutputFunction(boost::bind(
+        addActivity("G", 1.95, 100.0).addOutputFunction(std::bind(
             &OnlyAgent::aout, this, _1, _2, _3));
-        addActivity("H", 2.1, 100.0).addOutputFunction(boost::bind(
+        addActivity("H", 2.1, 100.0).addOutputFunction(std::bind(
             &OnlyAgent::aout, this, _1, _2, _3));
-        addActivity("I", 9.9, 100.0).addOutputFunction(boost::bind(
+        addActivity("I", 9.9, 100.0).addOutputFunction(std::bind(
             &OnlyAgent::aout, this, _1, _2, _3));
     }
 
@@ -72,13 +71,14 @@ public:
     {
     }
 
-    virtual vv::Value* observation(const vd::ObservationEvent& evt) const
+    virtual std::unique_ptr<vv::Value> observation(
+    		const vd::ObservationEvent& evt) const override
     {
         if (evt.onPort("text")) {
             std::ostringstream out;
             out << *this;
 
-            return new vv::String(out.str());
+            return vv::String::create(out.str());
         }
 
         return 0;
@@ -88,8 +88,7 @@ public:
               vd::ExternalEventList& out)
     {
         if (activity.isInStartedState()) {
-            vd::ExternalEvent* evt = new vd::ExternalEvent("out");
-            out.push_back(evt);
+        	out.emplace_back("out");
         }
     }
 
@@ -99,4 +98,4 @@ private:
 
 }}} // namespace vle examples decision
 
-DECLARE_DYNAMICS_DBG(vle::examples::decision::OnlyAgent)
+DECLARE_DYNAMICS(vle::examples::decision::OnlyAgent)

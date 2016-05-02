@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<vle_project version="1.0" author="Ronan Trépos" date="2014-Apr-17 12:48:05">
+<vle_project version="1.0" date="2014-Apr-17 12:48:05" author="Ronan Trépos">
  <structures>
-<model name="model1" x="0" y="0" width="1504" height="501" type="coupled">
+<model width="1504" y="0" x="0" height="501" type="coupled" name="model1">
 <submodels>
-<model name="A1" x="77" y="76" conditions="cond_time_step" width="100" height="45" observables="obsA1" type="atomic" dynamics="dynA1">
+<model dynamics="dynA1" width="100" y="76" x="77" height="45" observables="obsA1" type="atomic" conditions="cond_time_step" name="A1">
 <out>
  <port name="a"/>
 </out>
 </model>
-<model name="B1" x="291" y="107" conditions="cond_time_step,condB1,cond_init_b" width="100" height="45" observables="obsB1" type="atomic" dynamics="dynB1">
+<model dynamics="dynB1" width="100" y="107" x="291" height="45" observables="obsB1" type="atomic" conditions="cond_time_step,condB1,cond_init_b" name="B1">
 <in>
  <port name="a"/>
 </in>
@@ -16,7 +16,7 @@
  <port name="b"/>
 </out>
 </model>
-<model name="C1" x="468" y="107" conditions="cond_time_step,condC1,cond_init_b" width="100" height="45" observables="obsC1" type="atomic" dynamics="dynC1">
+<model dynamics="dynC1" width="100" y="107" x="468" height="45" observables="obsC1" type="atomic" conditions="cond_time_step,condC1,cond_init_b" name="C1">
 <in>
  <port name="b"/>
 </in>
@@ -24,7 +24,7 @@
  <port name="c"/>
 </out>
 </model>
-<model name="D1" x="608" y="296" conditions="condD1,cond_time_step" width="100" height="60" observables="obsD1" type="atomic" dynamics="dynD1">
+<model dynamics="dynD1" width="100" y="296" x="608" height="60" observables="obsD1" type="atomic" conditions="condD1,cond_time_step" name="D1">
 <in>
  <port name="a"/>
  <port name="c"/>
@@ -33,7 +33,7 @@
  <port name="d"/>
 </out>
 </model>
-<model name="GenericSum" x="822" y="176" conditions="cond_sum,cond_time_step" width="100" height="90" observables="obsSum" type="atomic" dynamics="dynGenericSum">
+<model dynamics="dynGenericSum" width="100" y="176" x="822" height="90" observables="obsSum" type="atomic" conditions="cond_sum,cond_time_step" name="GenericSum">
 <in>
  <port name="a"/>
  <port name="b"/>
@@ -47,55 +47,55 @@
 </submodels>
 <connections>
 <connection type="internal">
- <origin model="A1" port="a"/>
- <destination model="GenericSum" port="a"/>
+ <origin port="a" model="A1"/>
+ <destination port="a" model="GenericSum"/>
 </connection>
 <connection type="internal">
- <origin model="A1" port="a"/>
- <destination model="D1" port="a"/>
+ <origin port="a" model="A1"/>
+ <destination port="a" model="D1"/>
 </connection>
 <connection type="internal">
- <origin model="A1" port="a"/>
- <destination model="B1" port="a"/>
+ <origin port="a" model="A1"/>
+ <destination port="a" model="B1"/>
 </connection>
 <connection type="internal">
- <origin model="B1" port="b"/>
- <destination model="C1" port="b"/>
+ <origin port="b" model="B1"/>
+ <destination port="b" model="C1"/>
 </connection>
 <connection type="internal">
- <origin model="B1" port="b"/>
- <destination model="GenericSum" port="b"/>
+ <origin port="b" model="B1"/>
+ <destination port="b" model="GenericSum"/>
 </connection>
 <connection type="internal">
- <origin model="C1" port="c"/>
- <destination model="GenericSum" port="c"/>
+ <origin port="c" model="C1"/>
+ <destination port="c" model="GenericSum"/>
 </connection>
 <connection type="internal">
- <origin model="C1" port="c"/>
- <destination model="D1" port="c"/>
+ <origin port="c" model="C1"/>
+ <destination port="c" model="D1"/>
 </connection>
 <connection type="internal">
- <origin model="D1" port="d"/>
- <destination model="GenericSum" port="d"/>
+ <origin port="d" model="D1"/>
+ <destination port="d" model="GenericSum"/>
 </connection>
 </connections>
 </model>
 </structures>
  <dynamics>
-<dynamic name="dynA1" package="vle.discrete-time_test" library="A1"/>
-<dynamic name="dynB1" package="vle.discrete-time_test" library="B1"/>
-<dynamic name="dynC1" package="vle.discrete-time_test" library="C1"/>
-<dynamic name="dynD1" package="vle.discrete-time_test" library="D1"/>
-<dynamic name="dynGenericSum" package="vle.discrete-time.generic" library="GenericSum"/>
+<dynamic package="vle.discrete-time_test" library="A1" name="dynA1"/>
+<dynamic package="vle.discrete-time_test" library="B1" name="dynB1"/>
+<dynamic package="vle.discrete-time_test" library="C1" name="dynC1"/>
+<dynamic package="vle.discrete-time_test" library="D1" name="dynD1"/>
+<dynamic package="vle.discrete-time.generic" library="GenericSum" name="dynGenericSum"/>
 </dynamics>
- <experiment name="model1" combination="linear">
+ <experiment duration="1,1" combination="linear" name="model1">
 <conditions>
 <condition name="simulation_engine">
 <port name="begin">
 <double>0.0</double>
 </port>
 <port name="duration">
-<double>1.0</double>
+<double>1.1</double>
 </port>
 </condition>
 <condition name="condB1">
@@ -143,16 +143,16 @@
 </conditions>
 <views>
 <outputs>
-<output format="local" plugin="file" name="ff" package="vle.output" location=""/>
 
-<output format="local" plugin="console" name="view" package="vle.output" location=""/>
+
+<output plugin="console" package="vle.output" location="" format="local" name="view"/>
 
 </outputs>
 <observables>
 <observable name="obsA1">
 <port name="a">
  <attachedview name="view"/>
- <attachedview name="ff"/>
+ 
 </port>
 
 </observable>
@@ -160,7 +160,7 @@
 <observable name="obsB1">
 <port name="b">
  <attachedview name="view"/>
- <attachedview name="ff"/>
+ 
 </port>
 
 </observable>
@@ -168,7 +168,7 @@
 <observable name="obsC1">
 <port name="c">
  <attachedview name="view"/>
- <attachedview name="ff"/>
+ 
 </port>
 
 </observable>
@@ -176,23 +176,23 @@
 <observable name="obsD1">
 <port name="d">
  <attachedview name="view"/>
- <attachedview name="ff"/>
+ 
 </port>
 
 </observable>
 
 <observable name="obsSum">
 <port name="Sum">
- <attachedview name="ff"/>
+ 
  <attachedview name="view"/>
 </port>
 
 </observable>
 
 </observables>
-<view name="ff" timestep="0.100000000000000" type="timed" output="ff"/>
 
-<view name="view" timestep="0.100000000000000" type="timed" output="view"/>
+
+<view timestep="0.100000000000000" output="view" type="timed" name="view"/>
 
 </views>
 </experiment>

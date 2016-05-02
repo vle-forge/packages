@@ -1,3 +1,4 @@
 VleBuildDynamic(RecursiveSimulation RecursiveSimulation.cpp)
 VleBuildDynamic(SimpleSimulation SimpleSimulation.cpp)
-VleBuildDynamic(TwoTimesModel TwoTimesModel.cpp)
+##TODO TwoTimesModel is removed since the Coordinator API isn't available anymore
+#VleBuildDynamic(TwoTimesModel TwoTimesModel.cpp) 

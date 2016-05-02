@@ -48,7 +48,9 @@
  * @@tagdynamic@@
  */
 
-#include <vle/devs/DynamicsDbg.hpp>
+#include <boost/format.hpp>
+#include <vle/devs/Dynamics.hpp>
+
 
 namespace vle { namespace examples { namespace smartgardeners {
 
@@ -68,7 +70,7 @@ public:
     virtual ~DifferenceEquationAdaptor()
     { }
 
-    virtual vle::devs::Time init(const vle::devs::Time& time)
+    virtual vle::devs::Time init(vle::devs::Time time) override
     {
         {
             const vle::vpz::ConnectionList& in_list =
@@ -77,11 +79,10 @@ public:
             for (vle::vpz::ConnectionList::const_iterator it =
                      in_list.begin(); it != in_list.end(); ++it) {
                 if (not getModel().existOutputPort(it->first)) {
-                    throw utils::InternalError(
-                        fmt(_(
-                                "[%1%] DifferenceEquation adaptor - "   \
-                                "%2% output port is missing")) %
-                        getModelName() % it->first);
+                    throw utils::InternalError((
+                        boost::format("[%1%] DifferenceEquation adaptor - "   \
+                                "%2% output port is missing") %
+                        getModelName() % it->first).str());
                 }
                 mValues[it->first] = 0.;
             }
@@ -94,12 +95,11 @@ public:
             for (vle::vpz::ConnectionList::const_iterator it =
                      out_list.begin(); it != out_list.end(); ++it) {
                 if (not getModel().existInputPort(it->first))
-                    throw utils::InternalError(
-                        fmt(_(
-                                "[%1%] DifferenceEquation adaptor - "   \
+                    throw utils::InternalError((
+                        boost::format("[%1%] DifferenceEquation adaptor - "   \
                                 "%2% input port is missing or "         \
-                                "%2% output port is unused")) %
-                        getModelName() % it->first);
+                                "%2% output port is unused") %
+                        getModelName() % it->first).str());
             }
         }
 
@@ -110,26 +110,26 @@ public:
         return vle::devs::infinity;
     }
 
-    virtual void output(const vle::devs::Time& /* time */,
-			vle::devs::ExternalEventList& output) const
+    virtual void output(vle::devs::Time /* time */,
+			vle::devs::ExternalEventList& output) const override
     {
         if (mPhase == SEND) {
             for (values::const_iterator it = mValues.begin();
                  it != mValues.end(); ++it) {
-                devs::ExternalEvent* evt = new devs::ExternalEvent(it->first);
-                evt->attributes().add("name",new value::String(it->first));
-                evt->attributes().add("value",new value::Double(it->second));
-                output.push_back(evt);
+                output.emplace_back(it->first);
+                value::Map& m = output.back().addMap();
+                m.addString("name",it->first);
+                m.addDouble("value", it->second);
             }
         }
     }
 
-    virtual vle::devs::Time timeAdvance() const
+    virtual vle::devs::Time timeAdvance() const override
     {
         return mSigma;
     }
 
-    virtual void internalTransition(const vle::devs::Time& time)
+    virtual void internalTransition(vle::devs::Time time) override
     {
         if (mPhase == STEP) {
             ++mStepNumber;
@@ -143,26 +143,24 @@ public:
     }
 
     virtual void externalTransition(
-	const vle::devs::ExternalEventList& events,
-	const vle::devs::Time& time)
+            const vle::devs::ExternalEventList& events,
+            vle::devs::Time time) override
     {
         vle::devs::ExternalEventList::const_iterator it = events.begin();
 
         while (it != events.end()) {
             if (mPhase == INIT or mPhase == STEP or mPhase == SEND) {
-                std::string name = (*it)->getPortName();
+                std::string name = it->getPortName();
                 values::iterator itv = mValues.find(name);
-
-                if (itv != mValues.end() and
-                    (*it)->getStringAttributeValue("name") == name) {
-                    itv->second = (*it)->getDoubleAttributeValue("value");
+                const value::Map& attrs = it->attributes()->toMap();
+                if (itv != mValues.end() and attrs.getString("name") == name) {
+                    itv->second = attrs.getDouble("value");
                 } else {
-                    throw utils::InternalError(
-                        fmt(_(
-                                "[%1%] DifferenceEquation adaptor - "     \
-                                "wrong variable name on %2% port: %3%")) %
+                    throw utils::InternalError((
+                        boost::format("[%1%] DifferenceEquation adaptor - "     \
+                                "wrong variable name on %2% port: %3%") %
                         getModelName() % name %
-                        (*it)->getStringAttributeValue("name"));
+                        attrs.getString("name")).str());
                 }
 
                 if (mPhase == INIT) {
@@ -187,15 +185,15 @@ public:
     }
 
     virtual void confluentTransitions(
-        const vle::devs::Time& time,
-        const vle::devs::ExternalEventList& extEventlist)
+        vle::devs::Time time,
+        const vle::devs::ExternalEventList& extEventlist) override
     {
         externalTransition(extEventlist, time);
         internalTransition(time);
     }
 
-    virtual vle::value::Value* observation(
-        const vle::devs::ObservationEvent& event) const
+    virtual std::unique_ptr<vle::value::Value> observation(
+        const vle::devs::ObservationEvent& event) const override
     {
         values::const_iterator it = mValues.find(event.getPortName());
 
@@ -222,4 +220,4 @@ public:
 
 }}} // namespaces
 
-DECLARE_DYNAMICS_DBG(vle::examples::smartgardeners::DifferenceEquationAdaptor)
+DECLARE_DYNAMICS(vle::examples::smartgardeners::DifferenceEquationAdaptor)

@@ -28,6 +28,10 @@
 #include <string>
 #include <vector>
 #include <vle/value/Value.hpp>
+#include <vle/value/String.hpp>
+#include <vle/value/Set.hpp>
+#include <vle/value/Double.hpp>
+#include <vle/value/Integer.hpp>
 
 namespace vle {
 namespace reader {

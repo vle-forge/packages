@@ -64,9 +64,9 @@ public:
         {
             if (name != ((Simple*)equation)->mVariableName) {
                 throw utils::InternalError(
-                    fmt(_("DifferenceEquation::simple - wrong variable" \
-                          " name: %1% in %2%")) % name %
-                    ((Simple*)equation)->mVariableName);
+                    (boost::format("DifferenceEquation::simple - wrong variable" \
+                          " name: %1% in %2%") % name %
+                    ((Simple*)equation)->mVariableName).str());
             }
         }
 
@@ -170,11 +170,11 @@ private:
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-    virtual void output(const devs::Time& time,
-                        devs::ExternalEventList& output) const;
+    virtual void output(devs::Time time,
+                        devs::ExternalEventList& output) const override;
 
-    virtual value::Value* observation(
-        const devs::ObservationEvent& event) const;
+    virtual std::unique_ptr<vle::value::Value>  observation(
+        const devs::ObservationEvent& event) const override;
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 

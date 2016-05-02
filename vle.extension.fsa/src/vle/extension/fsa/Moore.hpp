@@ -29,10 +29,9 @@
 #ifndef VLE_EXTENSION_FSA_MOORE_HPP
 #define VLE_EXTENSION_FSA_MOORE_HPP 1
 
+#include <functional>
 #include <vle/extension/fsa/FSA.hpp>
-#include <boost/assign.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+
 
 namespace vle { namespace extension { namespace fsa {
 
@@ -92,7 +91,7 @@ public:
 private:
     // output
     typedef std::map < int, std::string > Outputs;
-    typedef boost::function < void (const devs::Time&,
+    typedef std::function < void (const devs::Time&,
                                     devs::ExternalEventList&) > OutputFunc;
     typedef std::map < int, OutputFunc > OutputFuncs;
 
@@ -101,7 +100,7 @@ private:
     typedef std::map < int, Transition > Transitions;
 
     // action
-    typedef boost::function <
+    typedef std::function <
         void (const devs::Time&,
               const devs::ExternalEvent* event) > Action;
     typedef std::map < int, Action > Actions;
@@ -156,17 +155,17 @@ private:
     void process(const devs::Time& time,
                  const devs::ExternalEvent* event);
 
-    virtual devs::Time init(const devs::Time& time);
-    virtual void output(const devs::Time& time,
-                        devs::ExternalEventList& output) const;
-    virtual devs::Time timeAdvance() const;
-    virtual void internalTransition(const devs::Time& time);
+    virtual devs::Time init(devs::Time time) override;
+    virtual void output(devs::Time time,
+                        devs::ExternalEventList& output) const override;
+    virtual devs::Time timeAdvance() const override;
+    virtual void internalTransition(devs::Time time) override;
     virtual void externalTransition(
         const devs::ExternalEventList& event,
-        const devs::Time& time);
+        devs::Time time) override;
     virtual void confluentTransitions(
-        const devs::Time& time,
-        const devs::ExternalEventList& extEventlist)
+        devs::Time time,
+        const devs::ExternalEventList& extEventlist) override
     {
         externalTransition(extEventlist, time);
         internalTransition(time);
@@ -183,8 +182,8 @@ private:
 template < typename I >
 void operator<<(MooreTransition_t<I> transition, Event_t event)
 {
-    boost::assign::insert(transition.obj->transitions(transition.state))(
-        event.event, transition.nextState);
+    transition.obj->transitions(transition.state).insert(
+            std::pair<std::string, int>(event.event, transition.nextState));
 }
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
@@ -192,8 +191,9 @@ void operator<<(MooreTransition_t<I> transition, Event_t event)
 template < typename X, typename I >
 MooreInAction_t<X,I> operator>>(MooreInAction_t<X,I> action, int state)
 {
-    boost::assign::insert(action.obj->actions())(
-        state, boost::bind(action.func, action.obj, _1, _2));
+    action.obj->actions().insert(std::make_pair(
+        state, std::bind(action.func, action.obj, std::placeholders::_1,
+                std::placeholders::_2)));
     return action;
 }
 
@@ -202,7 +202,7 @@ MooreInAction_t<X,I> operator>>(MooreInAction_t<X,I> action, int state)
 template < typename I >
 void operator>>(MooreOutput_t<I> output, const std::string& port)
 {
-    boost::assign::insert(output.obj->outputs())(output.state, port);
+    output.obj->outputs().insert(std::make_pair(output.state, port));
 }
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
@@ -210,8 +210,9 @@ void operator>>(MooreOutput_t<I> output, const std::string& port)
 template < typename X, typename I >
 void operator>>(MooreOutputFunc_t<X,I> output, int state)
 {
-    boost::assign::insert(output.obj->outputFuncs())(
-        state, boost::bind(output.func, output.obj, _1, _2));
+    output.obj->outputFuncs().insert(std::make_pair(
+        state, std::bind(output.func, output.obj, std::placeholders::_1,
+                std::placeholders::_2)));
 }
 
 }}} // namespace vle extension fsa

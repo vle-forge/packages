@@ -34,16 +34,19 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-#include <boost/lexical_cast.hpp>
+#include <string>
 #include <boost/version.hpp>
 #include <stdexcept>
 #include <vle/manager/Manager.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Package.hpp>
-#include <vle/utils/Path.hpp>
-#include <vle/utils/ModuleManager.hpp>
+
+
+#include <vle/value/Matrix.hpp>
 #include <vle/vle.hpp>
+#include <iostream>
+#include <iomanip>
 
 struct F
 {
@@ -60,286 +63,310 @@ using namespace vle;
 
 BOOST_AUTO_TEST_CASE(test_petrinet_and)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-and.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("petrinet-and.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)5);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)11);
 
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][10]), 0.75, 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][10]), 1.0, 10e-5);
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        5);
+    //due to appoximation
+    BOOST_REQUIRE(result.rows() >= 11);
+    BOOST_REQUIRE(result.rows() <= 12);
+
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 0.75, 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 1.0, 10e-5);
 }
 
 BOOST_AUTO_TEST_CASE(test_petrinet_or)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-or.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("petrinet-or.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)5);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)11);
 
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][10]), 0.75, 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][10]), 2.0, 10e-5);
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        5);
+    //due to appoximation
+    BOOST_REQUIRE(result.rows() >= 11);
+    BOOST_REQUIRE(result.rows() <= 12);
+
+
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 0.75, 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 2.0, 10e-5);
 }
 
 BOOST_AUTO_TEST_CASE(test_petrinet_nand1)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-nand1.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("petrinet-nand1.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)5);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)11);
 
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][10]), 0., 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][10]), 0., 10e-5);
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        5);
+    //due to appoximation
+    BOOST_REQUIRE(result.rows() >= 11);
+    BOOST_REQUIRE(result.rows() <= 12);
+
+
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 0., 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 0., 10e-5);
 }
 
 BOOST_AUTO_TEST_CASE(test_petrinet_nand2)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-nand2.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("petrinet-nand2.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)5);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)11);
 
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][10]), 0.5, 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][10]), 1., 10e-5);
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        5);
+    //due to appoximation
+    BOOST_REQUIRE(result.rows() >= 11);
+    BOOST_REQUIRE(result.rows() <= 12);
+
+
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 0.5, 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 1., 10e-5);
 }
 
 BOOST_AUTO_TEST_CASE(test_petrinet_and_timed)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-and-timed.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("petrinet-and-timed.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)5);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)20);
 
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][19]), 1.7, 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][19]), 3., 10e-5);
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        5);
+    //due to appoximation
+    BOOST_REQUIRE(result.rows() >= 20);
+    BOOST_REQUIRE(result.rows() <= 21);
+
+
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,19), 1.7, 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,19), 3., 10e-5);
 }
 
 BOOST_AUTO_TEST_CASE(test_petrinet_or_priority)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-or-priority.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("petrinet-or-priority.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)5);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)11);
 
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][10]), 1., 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][10]), 6., 10e-5);
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        5);
+    //due to appoximation
+    BOOST_REQUIRE(result.rows() >= 11);
+    BOOST_REQUIRE(result.rows() <= 12);
+
+
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 1., 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 6., 10e-5);
 }
 
 BOOST_AUTO_TEST_CASE(test_petrinet_meteo)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-meteo.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("petrinet-meteo.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)6);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)31);
+
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        6);
+    BOOST_REQUIRE_EQUAL(result.rows(),
+                        31);
 
 //#if BOOST_VERSION < 104000
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][30]), 29., 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,30), 29., 10e-5);
 //#else
-    //BOOST_REQUIRE_CLOSE(value::toDouble(result[4][30]), 28., 10e-5);
+    //BOOST_REQUIRE_CLOSE(result.getDouble(4,30), 28., 10e-5);
 //#endif
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[5][30]), 4., 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(5,30), 4., 10e-5);
 }
 
 BOOST_AUTO_TEST_CASE(test_petrinet_inout)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-inout.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("petrinet-inout.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)5);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)11);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[0][10]), 1., 1.);
 
-    BOOST_REQUIRE_CLOSE((double)value::toInteger(result[2][10]), 6., 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][10]), 1., 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][10]), 6., 10e-5);
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        5);
+    //due to appoximation
+    BOOST_REQUIRE(result.rows() >= 11);
+    BOOST_REQUIRE(result.rows() <= 12);
+
+    BOOST_REQUIRE_CLOSE(result.getDouble(0,10), 1., 1.);
+
+    BOOST_REQUIRE(result.getInt(2,10) == 6);
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 1., 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 6., 10e-5);
 }
 
 BOOST_AUTO_TEST_CASE(test_petrinet_conflict)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("petrinet-conflict.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("petrinet-conflict.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)5);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)11);
 
-    BOOST_REQUIRE_CLOSE((double)value::toInteger(result[2][10]), 1., 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][10]), 1., 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][10]), 5., 10e-5);
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        5);
+    //due to appoximation
+    BOOST_REQUIRE(result.rows() >= 11);
+    BOOST_REQUIRE(result.rows() <= 12);
+
+
+    BOOST_REQUIRE(result.getInt(2,10) == 1);
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 1., 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 5., 10e-5);
 }

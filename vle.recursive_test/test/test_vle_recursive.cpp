@@ -25,7 +25,6 @@
 //@@tagtest@@
 //@@tagdepends: vle.recursive @@endtagdepends
 
-#include <iostream>
 #define BOOST_TEST_MAIN
 #define BOOST_AUTO_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
@@ -62,17 +61,17 @@ BOOST_AUTO_TEST_CASE(test_api)
     init.addInt("config_parallel_nbslots",2);
     init.addString("package","vle.recursive_test");
     init.addString("vpz","ExBohachevsky.vpz");
-    init.add("input_cond.x1", x1);
-    init.add("input_cond.x2", x2);
+    init.add("input_cond.x1", x1.clone());
+    init.add("input_cond.x2", x2.clone());
     init.addString("output_y", "view/ExBohachevsky:ExBohachevsky.y");
     init.addString("output_ynoise",
             "view/ExBohachevsky:ExBohachevsky.y_noise");
-    init.add("replicate_cond.seed",r);
+    init.add("replicate_cond.seed",r.clone());
     vr::MetaManager meta;
-    vv::Matrix* res = meta.run(init);
-    BOOST_REQUIRE_CLOSE(res->getDouble(0/*col*/,1),209.6,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getDouble(1,1),209.6486,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getDouble(0,2),0.0,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getDouble(1,2),0.04861,10e-3);
-    delete res;
+    std::unique_ptr<vv::Matrix> res = meta.run(init);
+
+    BOOST_REQUIRE_CLOSE(res->getDouble(0/*col*/,1),209.60005,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getDouble(1,1),209.6,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getDouble(0,2),5.43077761310471e-05,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getDouble(1,2),0.0,10e-3);
 }

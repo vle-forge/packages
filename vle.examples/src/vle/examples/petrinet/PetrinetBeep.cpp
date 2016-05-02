@@ -53,14 +53,14 @@ namespace vle { namespace examples { namespace petrinet {
         virtual ~PetrinetBeep()
         { }
 
-        virtual devs::Time init(const devs::Time& /* time */)
+        virtual devs::Time init(devs::Time /* time */) override
         { return mStartTime; }
 
-        virtual void output(const devs::Time& /* time */,
-                            devs::ExternalEventList& output) const
-        { output.push_back(new devs::ExternalEvent("out")); }
+        virtual void output(devs::Time /* time */,
+                            devs::ExternalEventList& output) const override
+        { output.emplace_back("out"); }
 
-        virtual devs::Time timeAdvance() const
+        virtual devs::Time timeAdvance() const override
         { return mTimeStep; }
 
     private:

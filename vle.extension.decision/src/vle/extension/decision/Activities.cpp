@@ -28,7 +28,7 @@
 
 #include <vle/extension/decision/Activities.hpp>
 #include <vle/utils/Exception.hpp>
-#include <vle/utils/i18n.hpp>
+#include <boost/format.hpp>
 #include <numeric>
 
 namespace vle { namespace extension { namespace decision {
@@ -40,8 +40,8 @@ Activity& Activities::add(const std::string& name, const Activity& act,
     iterator it(m_lst.find(name));
 
     if (it != m_lst.end()) {
-        throw utils::ArgError(
-            vle::fmt(_("Decision: activity '%1%' already exist")) % name);
+        throw utils::ArgError((boost::format(
+                "Decision: activity '%1%' already exist") % name).str());
     }
 
     Activity& a((*m_lst.insert(value_type(name, act)).first).second);
@@ -63,8 +63,8 @@ Activity& Activities::add(const std::string& name,
     iterator it(m_lst.find(name));
 
     if (it != m_lst.end()) {
-        throw utils::ArgError(
-            vle::fmt(_("Decision: activity '%1%' already exist")) % name);
+        throw utils::ArgError((boost::format(
+                "Decision: activity '%1%' already exist") % name).str());
     }
 
     Activity& a((*m_lst.insert(value_type(name, Activity())).first).second);
@@ -104,7 +104,7 @@ void Activities::remove(const std::string& name)
     iterator it(m_lst.find(name));
 
     if (it != m_lst.end()) {
-        throw utils::ArgError(_("Decision: activity does not exist"));
+        throw utils::ArgError("Decision: activity does not exist");
     }
 
     m_lst.erase(it);
@@ -411,7 +411,7 @@ Activities::process(const devs::Time& time)
                 break;
 
             default:
-                throw utils::InternalError(_("Decision: unknown state"));
+                throw utils::InternalError("Decision: unknown state");
             }
 
             if (not isUpdated and update.first) {

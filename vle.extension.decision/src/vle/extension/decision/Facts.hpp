@@ -30,7 +30,7 @@
 #define VLE_EXT_DECISION_FACTS_HPP 1
 
 #include <vle/value/Value.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -38,7 +38,7 @@ namespace vle { namespace extension { namespace decision {
  * @brief Fact is a function which take a value from an external event an
  * change the state of the KnowledgeBase.
  */
-typedef boost::function < void (const vle::value::Value&) > Fact;
+typedef std::function < void (const vle::value::Value&) > Fact;
 
 }}} // namespace vle model decision
 

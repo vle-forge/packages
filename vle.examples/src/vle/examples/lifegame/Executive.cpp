@@ -47,18 +47,17 @@ public :
     {
     }
 
-    virtual devs::Time init(const devs::Time& /*time*/)
+    virtual devs::Time init(devs::Time /*time*/) override
     {
         translator::MatrixTranslator tr(*this);
 
         tr.translate(*m_buffer);
-        delete m_buffer;
 
         return devs::infinity;
     }
 
 private:
-    value::Value* m_buffer;
+    std::unique_ptr<value::Value> m_buffer;
 };
 
 }}} // namespace vle examples lifegame

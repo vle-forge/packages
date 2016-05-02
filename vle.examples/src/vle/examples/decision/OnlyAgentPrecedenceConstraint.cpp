@@ -31,9 +31,6 @@
  */
 
 #include <vle/extension/Decision.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
-#include <vle/utils/Trace.hpp>
-#include <boost/cast.hpp>
 #include <sstream>
 
 namespace vd = vle::devs;
@@ -41,6 +38,8 @@ namespace vv = vle::value;
 namespace vmd = vle::extension::decision;
 
 namespace vle { namespace examples { namespace decision {
+
+using namespace std::placeholders;
 
 class OnlyAgentPrecedenceConstraint : public vmd::Agent
 {
@@ -51,25 +50,25 @@ public:
     {
         vmd::Activity& a = addActivity("A", 0, devs::infinity);
         a.addOutputFunction(
-            boost::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
+            std::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
                         _3));
 
         vmd::Activity& b = addActivity("B", devs::negativeInfinity,
                                        devs::infinity);
         b.addOutputFunction(
-            boost::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
+            std::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
                         _3));
 
         vmd::Activity& c = addActivity("C", devs::negativeInfinity,
                                        devs::infinity);
         c.addOutputFunction(
-            boost::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
+            std::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
                         _3));
 
         vmd::Activity& d = addActivity("D", devs::negativeInfinity,
                                        devs::infinity);
         d.addOutputFunction(
-            boost::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
+            std::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
                         _3));
 
         addStartToStartConstraint("A", "B", 1.0, devs::infinity);
@@ -81,15 +80,15 @@ public:
     {
     }
 
-    virtual vv::Value* observation(const vd::ObservationEvent& evt) const
+    virtual std::unique_ptr<vv::Value> observation(
+    		const vd::ObservationEvent& evt) const override
     {
         if (evt.onPort("text")) {
             std::ostringstream out;
             out << *this;
 
-            return new vv::String(out.str());
+            return value::String::create(out.str());
         }
-
         return 0;
     }
 
@@ -97,8 +96,7 @@ public:
               vd::ExternalEventList& out)
     {
         if (activity.isInStartedState()) {
-            vd::ExternalEvent* evt = new vd::ExternalEvent("out");
-            out.push_back(evt);
+        	out.emplace_back("out");
         }
     }
 
@@ -108,4 +106,4 @@ private:
 
 }}} // namespace vle examples decision
 
-DECLARE_DYNAMICS_DBG(vle::examples::decision::OnlyAgentPrecedenceConstraint)
+DECLARE_DYNAMICS(vle::examples::decision::OnlyAgentPrecedenceConstraint)

@@ -63,7 +63,7 @@ public:
     { }
 
 private:
-    void listen(const vd::Time& /*time*/, const vd::ExternalEvent* /*evt*/)
+    void listen(const vd::Time& /*time*/, const vd::ExternalEvent& /*evt*/)
     {
         if (mReceived) {
             throw "error";

@@ -28,7 +28,7 @@
 
 #include <vle/extension/decision/PrecedenceConstraint.hpp>
 #include <vle/utils/Exception.hpp>
-#include <vle/utils/i18n.hpp>
+#include <boost/format.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -42,12 +42,12 @@ PrecedenceConstraint::PrecedenceConstraint(iterator first,
 {
     if (mintimelag < 0.0) {
         throw utils::ModellingError(
-            _("Decision: Precedence constraint, bad min TL"));
+            "Decision: Precedence constraint, bad min TL");
     }
 
     if (mintimelag > maxtimelag) {
         throw utils::ModellingError(
-            _("Decision: Precedence constraint, FS min >= max TL"));
+            "Decision: Precedence constraint, FS min >= max TL");
     }
 }
 
@@ -67,7 +67,7 @@ PrecedenceConstraint::isValid(const devs::Time& time) const
             case Activity::STARTED:
             case Activity::FF:
             case Activity::DONE:
-                throw utils::InternalError(_("Decision: impossible state (SS)"));
+                throw utils::InternalError("Decision: impossible state (SS)");
             case Activity::FAILED:
                 return std::make_pair(Failed, devs::infinity);
             }
@@ -304,8 +304,9 @@ PrecedenceConstraint::isValid(const devs::Time& time) const
         break;
     }
 
-    throw utils::InternalError(fmt(
-            _("Decision: unknown precedence constraint %1%")) % (int)m_type);
+    throw utils::InternalError((boost::format(
+            "Decision: unknown precedence constraint %1%")
+            % (int)m_type).str());
 }
 
 }}} // namespace vle model decision

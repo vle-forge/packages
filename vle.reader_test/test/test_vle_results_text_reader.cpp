@@ -37,19 +37,22 @@
 #include <vle/value/Map.hpp>
 #include <vle/value/Set.hpp>
 #include <vle/utils/Package.hpp>
+#include <vle/utils/Context.hpp>
 
 #include <vle/reader/vle_results_text_reader.hpp>
 
 #include <iostream>
 
-BOOST_AUTO_TEST_CASE(test_csv_vle_results)
+BOOST_AUTO_TEST_CASE(test_vle_results_text_reader)
 {
     {
-        vle::utils::Package pkg("vle.reader_test");
+        auto ctx = vle::utils::make_context();
+        vle::utils::Package pkg(ctx, "vle.reader_test");
         vle::reader::VleResultsTextReader tfr(
                 pkg.getDataFile("Bohachevsky_view.dat"));
         vle::value::Matrix mat;
         tfr.readFile(mat);
+        std::cout << " mat res:\n" << mat << "\n";
         BOOST_REQUIRE((mat.rows() == 2));
         BOOST_REQUIRE((mat.columns() == 2));
         BOOST_REQUIRE_CLOSE(mat.getDouble(0,1), 1, 10e-5);

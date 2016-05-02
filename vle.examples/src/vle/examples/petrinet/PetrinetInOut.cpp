@@ -50,7 +50,7 @@ namespace vle { namespace examples { namespace petrinet {
         virtual ~PetrinetInOut()
         { }
 
-        virtual void build()
+        virtual void build() override
         {
             addOutputPlace("P1", "out");
             addInputTransition("T1", "in");

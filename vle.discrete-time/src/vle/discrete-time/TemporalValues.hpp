@@ -68,11 +68,12 @@ struct VectUpdate
 struct VarValueUpdate
 {
     VarValueUpdate(const VarValueUpdate& v);
-    VarValueUpdate(const vle::devs::Time& t, vle::value::Value* val);
+    VarValueUpdate(const vle::devs::Time& t,
+            std::unique_ptr<vle::value::Value> val);
     virtual ~VarValueUpdate();
 
     vle::devs::Time timeOfUpdate;
-    vle::value::Value* value;
+    std::unique_ptr<vle::value::Value> value;
 };
 
 struct VarMono;
@@ -85,7 +86,7 @@ struct VarInterface
     bool allow_update;
     bool history_size_given;
     unsigned int history_size;
-    vle::value::Value* init_value;
+    std::unique_ptr<vle::value::Value> init_value;
     TemporalValuesProvider* tvp;
 
     VarInterface(TemporalValuesProvider* eq);
@@ -170,7 +171,7 @@ struct VarMulti : public VarInterface
 struct VarValue : public VarInterface
 {
     typedef std::deque<VarValueUpdate*> History;
-    typedef std::map<SNAPSHOT_ID, vle::value::Value*> Snapshot;
+    typedef std::map<SNAPSHOT_ID, std::unique_ptr<vle::value::Value>> Snapshot;
 
     History history;
     Snapshot* snapshot;

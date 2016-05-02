@@ -178,7 +178,7 @@ DiscreteTimeExec::initializeFromInitEventList(
 }
 
 vle::devs::Time
-DiscreteTimeExec::init(const vle::devs::Time& t)
+DiscreteTimeExec::init(vle::devs::Time t)
 {
     return mpimpl->init(this, t);
 }
@@ -190,7 +190,7 @@ DiscreteTimeExec::timeAdvance() const
 }
 
  void
-DiscreteTimeExec::internalTransition(const vle::devs::Time& t)
+DiscreteTimeExec::internalTransition(vle::devs::Time t)
 {
      mpimpl->internalTransition(t);
 }
@@ -198,14 +198,14 @@ DiscreteTimeExec::internalTransition(const vle::devs::Time& t)
  void
 DiscreteTimeExec::externalTransition(
     const vle::devs::ExternalEventList& event,
-    const vle::devs::Time& t)
+    vle::devs::Time t)
 {
      mpimpl->externalTransition(event, t);
 }
 
- void
+void
 DiscreteTimeExec::confluentTransitions(
-    const vle::devs::Time& t,
+    vle::devs::Time t,
     const vle::devs::ExternalEventList& event)
 {
      mpimpl->confluentTransitions(t, event);
@@ -213,13 +213,13 @@ DiscreteTimeExec::confluentTransitions(
 
 
  void
-DiscreteTimeExec::output(const vle::devs::Time& time,
+DiscreteTimeExec::output(vle::devs::Time time,
                         vle::devs::ExternalEventList& output) const
 {
      mpimpl->output(getModel(), time, output);
 }
 
-vle::value::Value*
+std::unique_ptr<vle::value::Value>
 DiscreteTimeExec::observation(const vle::devs::ObservationEvent& event) const
 {
      return mpimpl->observation(event);

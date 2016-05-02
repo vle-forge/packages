@@ -21,11 +21,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#include <vle/value/Tuple.hpp>
+#include <vle/value/Null.hpp>
+#include <boost/format.hpp>
+#include <vle/devs/Executive.hpp>
 #include <vle/discrete-time/TemporalValues.hpp>
 #include <vle/discrete-time/details/DiscreteTimeGen.hpp>
-#include <vle/value/Tuple.hpp>
-#include <vle/devs/Executive.hpp>
+
 
 namespace vle {
 namespace discrete_time {
@@ -48,8 +50,8 @@ Pimpl::time_step(double val)
 {
     if (devs_internal.initialized) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Error time_step can be set only in the "
-                        "constructor '\n") % tvp.get_model_name());
+                (boost::format("[%1%] Error time_step can be set only in the "
+                        "constructor '\n") % tvp.get_model_name()).str());
     }
     devs_options.dt = val;
 }
@@ -59,17 +61,17 @@ Pimpl::init_value(const std::string& v, const vle::value::Value& val)
 {
     if (devs_internal.initialized) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Error init_value can be used only in the "
-                        "constructor '\n") % tvp.get_model_name());
+                (boost::format("[%1%] Error init_value can be used only in the "
+                        "constructor '\n") % tvp.get_model_name()).str());
     }
     Variables::iterator itf = tvp.getVariables().find(v);
     if (itf == tvp.getVariables().end()) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Cannot initialize variable '%2%' because "
-                        "it is not found '\n") % tvp.get_model_name() % v);
+                (boost::format("[%1%] Cannot initialize variable '%2%' because "
+                     "it is not found '\n") % tvp.get_model_name() % v).str());
     }
-    delete itf->second->init_value;
-    itf->second->init_value = val.clone();
+    itf->second->init_value.reset();
+    itf->second->init_value = std::unique_ptr<vle::value::Value>(val.clone());
 }
 
 void
@@ -77,21 +79,21 @@ Pimpl::dim(const std::string& v, unsigned int val)
 {
     if (devs_internal.initialized) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Error dim can be used only in the "
-                        "constructor '\n") % tvp.get_model_name());
+                (boost::format("[%1%] Error dim can be used only in the "
+                        "constructor '\n") % tvp.get_model_name()).str());
     }
     Variables::iterator itf = tvp.getVariables().find(v);
     if (itf == tvp.getVariables().end()) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Cannot initialize dim of variable '%2%' "
+                (boost::format("[%1%] Cannot initialize dim of variable '%2%' "
                         "because it is not found '\n")
-        % tvp.get_model_name() % v);
+        % tvp.get_model_name() % v).str());
     }
     if(! itf->second->isVarMulti()) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Cannot initialize dim of variable '%2%' "
+                (boost::format("[%1%] Cannot initialize dim of variable '%2%' "
                         "because it is not a vect '\n")
-        % tvp.get_model_name() % v);
+        % tvp.get_model_name() % v).str());
     }
     itf->second->toVarMulti().dim = val;
 }
@@ -101,15 +103,15 @@ Pimpl::history_size(const std::string& v, unsigned int val)
 {
     if (devs_internal.initialized) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Error history_size can be used only in the "
-                        "constructor '\n") % tvp.get_model_name());
+                (boost::format("[%1%] Error history_size can be used only in the "
+                        "constructor '\n") % tvp.get_model_name()).str());
     }
     Variables::iterator itf = tvp.getVariables().find(v);
     if (itf == tvp.getVariables().end()) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Cannot initialize history_size of variable "
+                (boost::format("[%1%] Cannot initialize history_size of variable "
                         "'%2%' because it is not found '\n")
-        % tvp.get_model_name() % v);
+        % tvp.get_model_name() % v).str());
     }
     itf->second->history_size = val;
 }
@@ -119,7 +121,7 @@ Pimpl::sync(const std::string& v, unsigned int val)
 {
 //    if (devs_internal.initialized) {
 //        throw vu::ModellingError(
-//                vle::fmt("[%1%] Error sync can be used only in the "
+//                (boost::format("[%1%] Error sync can be used only in the "
 //                        "constructor '\n") % tvp.get_model_name());
 //    }
     devs_options.syncs.insert(std::make_pair(v,val));
@@ -130,8 +132,8 @@ Pimpl::output_nil(const std::string& v, bool val)
 {
     if (devs_internal.initialized) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Error output_nil can be used only in the "
-                        "constructor '\n") % tvp.get_model_name());
+                (boost::format("[%1%] Error output_nil can be used only in the "
+                        "constructor '\n") % tvp.get_model_name()).str());
     }
     devs_options.outputNils.insert(std::make_pair(v,val));
 }
@@ -141,8 +143,8 @@ Pimpl::output_period(const std::string& v, unsigned int val)
 {
     if (devs_internal.initialized) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Error output_period can be used only in the "
-                        "constructor '\n") % tvp.get_model_name());
+                (boost::format("[%1%] Error output_period can be used only in the "
+                        "constructor '\n") % tvp.get_model_name()).str());
     }
     devs_options.outputPeriods.insert(std::make_pair(v,val));
 }
@@ -152,15 +154,15 @@ Pimpl::allow_update(const std::string& v, bool val)
 {
     if (devs_internal.initialized) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Error allow_update can be used only in the "
-                        "constructor '\n") % tvp.get_model_name());
+                (boost::format("[%1%] Error allow_update can be used only in the "
+                        "constructor '\n") % tvp.get_model_name()).str());
     }
     Variables::iterator itf = tvp.getVariables().find(v);
     if (itf == tvp.getVariables().end()) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Cannot initialize allow_update of variable "
+                (boost::format("[%1%] Cannot initialize allow_update of variable "
                         "'%2%' because it is not found '\n")
-        % tvp.get_model_name() % v);
+        % tvp.get_model_name() % v).str());
     }
     devs_options.addAllowUpdate(val, v);
 }
@@ -170,15 +172,15 @@ Pimpl::error_no_sync(const std::string& v, bool val)
 {
     if (devs_internal.initialized) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Error error_no_sync can be used only in the "
-                        "constructor '\n") % tvp.get_model_name());
+                (boost::format("[%1%] Error error_no_sync can be used only in the "
+                        "constructor '\n") % tvp.get_model_name()).str());
     }
     Variables::iterator itf = tvp.getVariables().find(v);
     if (itf == tvp.getVariables().end()) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Cannot initialize error_no_sync of variable "
+                (boost::format("[%1%] Cannot initialize error_no_sync of variable "
                         "'%2%' because it is not found '\n")
-        % tvp.get_model_name() % v);
+        % tvp.get_model_name() % v).str());
     }
     itf->second->error_no_sync = val;
 }
@@ -188,8 +190,8 @@ Pimpl::bags_to_eat(unsigned int val)
 {
     if (devs_internal.initialized) {
         throw vu::ModellingError(
-                vle::fmt("[%1%] Error bags_to_eat can be used only in the "
-                        "constructor '\n") % tvp.get_model_name());
+                (boost::format("[%1%] Error bags_to_eat can be used only in the "
+                        "constructor '\n") % tvp.get_model_name()).str());
     }
     devs_options.bags_to_eat= val;
 }
@@ -227,25 +229,24 @@ Pimpl::outputVar(const vle::vpz::AtomicModel& model, const vle::devs::Time& time
     for (; itb!=ite; itb++) {
         const std::string& var_name = itb->first;
         VarInterface* v = itb->second;
-        vle::value::Value* fe = devs_options.getForcingEvent(time, true,
-                var_name);
+
+        std::unique_ptr<vle::value::Value> fe =
+                devs_options.getForcingEvent(time, true, var_name);
         if (fe) {
             v->update(time, *fe);
-            delete fe;
+            fe.reset();
         }
         if (model.existOutputPort(var_name) &&
                 devs_options.shouldOutput(this->currentTimeStep, var_name)) {
-            vle::devs::ExternalEvent* e =
-                    new vle::devs::ExternalEvent(var_name);
+            value::Map* outputVal = new value::Map();
             if (devs_options.shouldOutputNil(v->lastUpdateTime(),
                     time, var_name)) {
-                e->putAttribute("value", new vle::value::Null);
+                outputVal->addNull("value");
             } else {
                 switch (v->getType()) {
                 case MONO:{
                     VarMono* vmono = static_cast < VarMono* >(v);
-                    e->putAttribute("value",
-                            new vle::value::Double(vmono->getVal(time,0)));
+                    outputVal->addDouble("value", vmono->getVal(time,0));
                     break;
                 } case MULTI: {
                     VarMulti* vmulti = static_cast < VarMulti* >(v);
@@ -260,20 +261,24 @@ Pimpl::outputVar(const vle::vpz::AtomicModel& model, const vle::devs::Time& time
                     for (; itb!=ite; itb++, itval++) {
                         *itb = *itval;
                     }
-                    e->putAttribute("value", extTuple);
+                    outputVal->add("value", std::unique_ptr<vle::value::Value>(
+                            extTuple));
                     break;
                 } case VALUE_VLE: {
                     VarValue* vval = static_cast < VarValue* >(v);
-                    e->putAttribute("value", vval->getVal(time,0).clone());
+                    outputVal->add("value", std::unique_ptr<vle::value::Value>(
+                            vval->getVal(time,0).clone()));
                     break;
                 }}
             }
-            output.push_back(e);
+            output.emplace_back(var_name);
+            output.back().attributes() =
+                    std::shared_ptr<value::Value>(outputVal);
         }
         fe = devs_options.getForcingEvent(time, false, var_name);
         if (fe) {
             v->update(time, *fe);
-            delete fe;
+            fe.reset();
         }
     }
 }
@@ -422,9 +427,9 @@ Pimpl::initializeFromInitEventList(
             std::string tmpEvt = "allow_update_";
             tmpEvt += var_name;
             if (events.exist(tmpEvt)) {
-                throw vle::utils::ArgError(vle::fmt("[%1%] forcing_%2% "
+                throw vle::utils::ArgError((boost::format("[%1%] forcing_%2% "
                         "parameter cannot be used with allow_update_%2%")
-                % tvp.get_model_name() % var_name);
+                % tvp.get_model_name() % var_name).str());
             }
             devs_options.addForcingEvents(tvp.get_model_name(),
                     *itb->second, var_name);
@@ -543,8 +548,8 @@ Pimpl::internalTransition(const vle::devs::Time& t)
         std::string varError;
         varOnSyncError(varError);
         throw vu::InternalError(
-                vle::fmt("[%1%] Error missing sync: '%2%'\n")
-        % tvp.get_model_name() % varError);
+                (boost::format("[%1%] Error missing sync: '%2%'\n")
+        % tvp.get_model_name() % varError).str());
         break;
     } case WAIT_BAGS: {
         if (devs_guards.bags_eaten_eq_bags_to_eat) {
@@ -594,8 +599,8 @@ Pimpl::externalTransition(const vle::devs::ExternalEventList& event,
                 std::string varError;
                 varOnSyncError(varError);
                 throw vu::InternalError(
-                        vle::fmt("[%1%] Error missing sync: '%2%'\n")
-                % tvp.get_model_name() % varError);
+                        (boost::format("[%1%] Error missing sync: '%2%'\n")
+                % tvp.get_model_name() % varError).str());
             }
         } else if (devs_guards.LWUt_eq_NCt and devs_guards.all_synchronized) {
             if (devs_guards.bags_to_eat_eq_0) {
@@ -644,8 +649,8 @@ Pimpl::confluentTransitions(const vle::devs::Time& t,
         std::string varError;
         varOnSyncError(varError);
         throw vu::InternalError(
-                vle::fmt("[%1%] Error missing sync: '%2%'\n")
-        % tvp.get_model_name() % varError);
+                (boost::format("[%1%] Error missing sync: '%2%'\n")
+        % tvp.get_model_name() % varError).str());
     }
     break;
     case WAIT_BAGS:
@@ -698,7 +703,7 @@ Pimpl::output(const vle::vpz::AtomicModel& model,
     }
 }
 
-vle::value::Value*
+std::unique_ptr<vle::value::Value>
 Pimpl::observation(
         const vle::devs::ObservationEvent& event) const
 {
@@ -739,10 +744,12 @@ Pimpl::observation(
         case MONO: {
             VarMono* vmono = static_cast < VarMono* >(v);
             if (! snapshot) {
-                return new vle::value::Double(
-                        vmono->getVal(event.getTime(),0));
+                return std::unique_ptr<vle::value::Value>(
+                        new vle::value::Double(
+                                vmono->getVal(event.getTime(),0)));
             } else if (vmono->hasSnapshot(snap)) {
-                return new vle::value::Double(vmono->getSnapshot(snap));
+                return std::unique_ptr<vle::value::Value>(
+                        new vle::value::Double(vmono->getSnapshot(snap)));
             }
             break;
         } case MULTI: {
@@ -754,13 +761,13 @@ Pimpl::observation(
                 for (unsigned int i=0; i < vmulti->dim; i++) {
                     (*res)[i] = v[i];
                 }
-                return res;
+                return std::unique_ptr<vle::value::Value>(res);
             } else if (vmulti->hasSnapshot(snap)) {
                 const std::vector<double>& v = vmulti->getSnapshot(snap);
                 for (unsigned int i=0; i < vmulti->dim; i++) {
                     (*res)[i] = v[i];
                 }
-                return res;
+                return std::unique_ptr<vle::value::Value>(res);
             }
             delete res;
             break;
@@ -770,7 +777,7 @@ Pimpl::observation(
                 vvalue->getVal(event.getTime(),0).clone();
             } else if (vvalue->hasSnapshot(snap)) {
                 const vle::value::Value& v = vvalue->getSnapshot(snap);
-                return v.clone();
+                return std::unique_ptr<vle::value::Value>(v.clone());
             }
             break;
         }}
@@ -882,14 +889,14 @@ Pimpl::handleExtEvt(const vle::devs::Time& t,
     vle::devs::ExternalEventList::const_iterator itb = ext.begin();
     vle::devs::ExternalEventList::const_iterator ite = ext.end();
     for (; itb != ite; itb++) {
-        if ((*itb)->getPortName() == "dyn_init") {
+        if (itb->getPortName() == "dyn_init") {
             if (devs_options.dyn_allow
-                    and (*itb)->attributes().exist("value")) {
+                    and itb->attributes()->toMap().exist("value")) {
                 devs_options.configDynOptions(
-                        (*itb)->attributes().getMap("value"));
+                        itb->attributes()->toMap().getMap("value"));
             }
         } else {
-            handleExtVar(t, (*itb)->getPortName(), (*itb)->attributes());
+            handleExtVar(t, itb->getPortName(), itb->attributes()->toMap());
         }
     }
 }
@@ -901,9 +908,9 @@ Pimpl::handleExtVar(const vle::devs::Time& t,
     Variables::iterator it = tvp.getVariables().find(port);
     if(it == tvp.getVariables().end()){
         throw vu::InternalError(
-                vle::fmt("[%1%] Unrecognised port '%2%' "
+                (boost::format("[%1%] Unrecognised port '%2%' "
                         "which does not match a variable \n")
-        % tvp.get_model_name() % port);
+        % tvp.get_model_name() % port).str());
     }
 
     VarInterface* var = it->second;
@@ -924,7 +931,7 @@ DEVS_Options::DEVS_Options():
         bags_to_eat(0), dt(1.0), syncs(), outputPeriods(), outputNils(),
         forcingEvents(0), allowUpdates(0), outputPeriodsGlobal(0),
         outputNilsGlobal(0), snapshot_before(false), snapshot_after(false),
-        dyn_allow(false), dyn_type(MONO), dyn_sync(0), dyn_init_value(0),
+        dyn_allow(false), dyn_type(MONO), dyn_sync(0), dyn_init_value(),
         dyn_dim(2)
 {
 }
@@ -935,7 +942,7 @@ DEVS_Options::~DEVS_Options()
     delete outputPeriodsGlobal;
     delete forcingEvents;
     delete allowUpdates;
-    delete dyn_init_value;
+    dyn_init_value.reset();
 }
 
 void
@@ -950,8 +957,8 @@ DEVS_Options::setGlobalOutputPeriods(
         const std::string& dtd, int period)
 {
     if (period <= 0) {
-        throw vle::utils::ArgError(vle::fmt("[%1%] output_period parameter "
-                "must be positive") % dtd);
+        throw vle::utils::ArgError((boost::format("[%1%] output_period parameter "
+                "must be positive") % dtd).str());
     }
     delete outputPeriodsGlobal;
     outputPeriodsGlobal = new vle::value::Integer(period);
@@ -982,9 +989,9 @@ DEVS_Options::addForcingEvents(const std::string& dtd,
         }
         break;
     } default: {
-        throw vle::utils::ArgError(vle::fmt("[%1%] forcing_%2% parameter "
+        throw vle::utils::ArgError((boost::format("[%1%] forcing_%2% parameter "
                 "must be a vle::value::Set or a vle::value::Map")
-            % dtd % varname);
+            % dtd % varname).str());
         break;
     }}
     addAllowUpdate(true, varname);
@@ -1020,7 +1027,7 @@ DEVS_Options::shouldOutputNil(double lastUpdateTime,
     return (itf != outputNils.end() && itf->second);
 }
 
-vle::value::Value*
+std::unique_ptr<vle::value::Value>
 DEVS_Options::getForcingEvent(double currentTime, bool beforeCompute,
         const std::string& varname) const
 {
@@ -1073,11 +1080,13 @@ DEVS_Options::configDynOptions(const vle::value::Map& events)
             dyn_sync = (unsigned int) events.getBoolean("dyn_sync");
         }
     }
-    delete dyn_init_value;
+    dyn_init_value.reset();
     if (events.exist("dyn_init_value")) {
-        dyn_init_value = events.get("dyn_init_value")->clone();
+        dyn_init_value = std::unique_ptr<vle::value::Value>(
+                events.get("dyn_init_value")->clone());
     } else {
-        dyn_init_value = new value::Double(0.0);
+        dyn_init_value = std::unique_ptr<vle::value::Value>(
+                new value::Double(0.0));
     }
 }
 

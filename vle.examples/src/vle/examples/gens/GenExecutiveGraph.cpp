@@ -26,7 +26,6 @@
  */
 
 #include <vle/devs/Executive.hpp>
-#include <vle/devs/ExecutiveDbg.hpp>
 #include <vle/translator/GraphTranslator.hpp>
 
 namespace vle { namespace examples { namespace gens {
@@ -43,7 +42,7 @@ public:
     virtual ~GenExecutiveGraph()
     {}
 
-    virtual devs::Time init(const devs::Time& /* time */)
+    virtual devs::Time init(devs::Time /* time */) override
     {
         translator::GraphTranslator tr(*this);
 
@@ -69,4 +68,4 @@ public:
 
 }}} // namespace vle examples gens
 
-DECLARE_EXECUTIVE_DBG(vle::examples::gens::GenExecutiveGraph)
+DECLARE_EXECUTIVE(vle::examples::gens::GenExecutiveGraph)

@@ -107,22 +107,23 @@ public:
         return extVars().find(v) != extVars().end();
     }
 
-    virtual vd::Time init(const vd::Time& time) = 0;
+    virtual vd::Time init(vd::Time time) = 0;
 
-    virtual void output(const vd::Time& time,
+    virtual void output(vd::Time time,
             vd::ExternalEventList& output) const = 0;
 
     virtual vd::Time timeAdvance() const = 0;
 
-    virtual void confluentTransitions(const vd::Time& time,
+    virtual void confluentTransitions(vd::Time time,
             const vd::ExternalEventList& extEventlist) = 0;
 
-    virtual void internalTransition(const vd::Time& event) = 0;
+    virtual void internalTransition(vd::Time event) = 0;
 
     virtual void externalTransition(const vd::ExternalEventList& event,
-            const vd::Time& time) = 0;
+            vd::Time time) = 0;
 
-    virtual vv::Value* observation(const vd::ObservationEvent& event) const = 0;
+    virtual std::unique_ptr<value::Value> observation(
+            const vd::ObservationEvent& event) const = 0;
 
 protected:
 

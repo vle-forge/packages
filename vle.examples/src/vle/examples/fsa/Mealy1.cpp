@@ -68,7 +68,7 @@ public:
         const vd::ExternalEventList& events)
     {
         // in2 have a greater priority than in1
-        if (events.front()->onPort("in1")) {
+        if (events.front().onPort("in1")) {
             vd::ExternalEventList list;
 
             list.push_back(events.back());

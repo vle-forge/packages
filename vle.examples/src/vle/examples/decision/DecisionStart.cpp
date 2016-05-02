@@ -33,7 +33,7 @@
 
 
 #include <vle/devs/Dynamics.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <vle/value/Boolean.hpp>
 
 namespace vd = vle::devs;
@@ -54,23 +54,22 @@ public:
     {
     }
 
-    virtual vd::Time init(const vd::Time& /*time*/)
+    virtual vd::Time init(vd::Time /*time*/) override
     {
         return mStart;
     }
 
-    virtual vd::Time timeAdvance() const
+    virtual vd::Time timeAdvance() const override
     {
         return 1.0;
     }
 
-    virtual void output(const vd::Time& /*time*/,
-                        vd::ExternalEventList& output) const
+    virtual void output(vd::Time /*time*/,
+                        vd::ExternalEventList& output) const override
     {
-	vd::ExternalEvent* ev = new vd::ExternalEvent("out");
-	ev->putAttribute("value", new vv::Boolean(true));
-
-        output.push_back(ev);
+        output.emplace_back("out");
+        value::Map& m = output.back().addMap();
+        m.addBoolean("value", true);
     }
 
 private:
@@ -79,4 +78,4 @@ private:
 
 }}} // namespace vle examples decision
 
-DECLARE_DYNAMICS_DBG(vle::examples::decision::Start)
+DECLARE_DYNAMICS(vle::examples::decision::Start)

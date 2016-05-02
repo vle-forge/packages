@@ -31,9 +31,6 @@
  */
 
 #include <vle/extension/Decision.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
-#include <vle/utils/Trace.hpp>
-#include <boost/cast.hpp>
 #include <sstream>
 
 namespace vd = vle::devs;
@@ -42,26 +39,28 @@ namespace vmd = vle::extension::decision;
 
 namespace vle { namespace examples { namespace decision {
 
+using namespace std::placeholders;
+
 class OnlyAgentWakeUp : public vmd::Agent
 {
 public:
     OnlyAgentWakeUp(const vd::DynamicsInit& mdl, const vd::InitEventList& evts)
         : vmd::Agent(mdl, evts), mWakeup(false)
     {
-        addFact("wakeup", boost::bind(&OnlyAgentWakeUp::wakeup, this, _1));
+        addFact("wakeup", std::bind(&OnlyAgentWakeUp::wakeup, this, _1));
 
         vmd::Activity& a = addActivity("A", 1.0, 100.0);
 
-        a.addOutputFunction(boost::bind(
+        a.addOutputFunction(std::bind(
                 &OnlyAgentWakeUp::aout, this, _1, _2, _3));
 
         vmd::Rule& r = addRule("r1");
-        r.add(boost::bind(&OnlyAgentWakeUp::isWakeup, this));
+        r.add(std::bind(&OnlyAgentWakeUp::isWakeup, this));
 
         a.addRule("r1", r);
 
         vmd::Activity& b = addActivity("B", 6.0, 100.0);
-        b.addOutputFunction(boost::bind(
+        b.addOutputFunction(std::bind(
                 &OnlyAgentWakeUp::aout, this, _1, _2, _3));
     }
 
@@ -85,8 +84,7 @@ public:
               vd::ExternalEventList& out)
     {
         if (activity.isInStartedState()) {
-            vd::ExternalEvent* evt = new vd::ExternalEvent("out");
-            out.push_back(evt);
+            out.emplace_back("out");
         }
     }
 
@@ -96,4 +94,4 @@ private:
 
 }}} // namespace vle examples decision
 
-DECLARE_DYNAMICS_DBG(vle::examples::decision::OnlyAgentWakeUp)
+DECLARE_DYNAMICS(vle::examples::decision::OnlyAgentWakeUp)

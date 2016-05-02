@@ -34,16 +34,16 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-#include <boost/lexical_cast.hpp>
+#include <string>
 #include <stdexcept>
 #include <vle/manager/Manager.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Package.hpp>
-#include <vle/utils/Path.hpp>
-#include <vle/utils/ModuleManager.hpp>
+
+
+#include <vle/value/Matrix.hpp>
 #include <vle/vle.hpp>
-#include <iostream>
 
 struct F
 {
@@ -61,24 +61,25 @@ BOOST_GLOBAL_FIXTURE(F);
 
 BOOST_AUTO_TEST_CASE(test_agentonly)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("agentonly.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
+    		pack.getExpFile("agentonly.vpz")));
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &result = out->getMatrix("storage");
+    value::Matrix& result = out->getMatrix("storage");
 
-    BOOST_REQUIRE_EQUAL(result.columns(), (value::MatrixView::size_type)2);
-    BOOST_REQUIRE_EQUAL(result.rows(), (value::MatrixView::size_type)12);
+    BOOST_REQUIRE_EQUAL(result.columns(), 2);
+    BOOST_REQUIRE_EQUAL(result.rows(), 12);
 
     BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 1);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 2), 4);
@@ -92,20 +93,20 @@ BOOST_AUTO_TEST_CASE(test_agentonly)
     BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 8);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 11), 9);
 
-    delete out;
 }
 
 BOOST_AUTO_TEST_CASE(test_agentonlyprecedenceconstraint)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("agentonlyc.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
+    		pack.getExpFile("agentonlyc.vpz")));
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -125,20 +126,20 @@ BOOST_AUTO_TEST_CASE(test_agentonlyprecedenceconstraint)
     BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 3);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 11), 4);
 
-    delete out;
 }
 
 BOOST_AUTO_TEST_CASE(test_agentonlywakeup)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("agentonlywakeup.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+    		new vpz::Vpz(pack.getExpFile("agentonlywakeup.vpz")));
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -158,6 +159,5 @@ BOOST_AUTO_TEST_CASE(test_agentonlywakeup)
     BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 2);
     BOOST_REQUIRE_EQUAL(result.getInt(1, 11), 2);
 
-    delete out;
 }
 

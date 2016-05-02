@@ -27,9 +27,9 @@
 
 
 #include <vle/devs/Executive.hpp>
-#include <vle/devs/ExecutiveDbg.hpp>
-#include <boost/numeric/conversion/cast.hpp>
+#include <boost/format.hpp>
 #include <stack>
+#include <sstream>
 
 namespace vle { namespace examples { namespace gens {
 
@@ -52,14 +52,14 @@ public:
     {
     }
 
-    virtual devs::Time init(const devs::Time& /* time */)
+    virtual devs::Time init(devs::Time /* time */) override
     {
         m_state = INIT;
         m_buildbeepbeep = true;
         return 0.0;
     }
 
-    virtual devs::Time timeAdvance() const
+    virtual devs::Time timeAdvance() const override
     {
         switch (m_state) {
         case INIT:
@@ -74,7 +74,7 @@ public:
         throw utils::InternalError("GenExecutiveClass ta");
     }
 
-    virtual void internalTransition(const devs::Time& time)
+    virtual void internalTransition(devs::Time time) override
     {
         switch (m_state) {
         case INIT:
@@ -99,8 +99,8 @@ public:
         }
     }
 
-    virtual value::Value* observation(const devs::ObservationEvent& ev)
-        const
+    virtual std::unique_ptr<value::Value> observation(
+    		const devs::ObservationEvent& ev) const override
         {
             if (ev.onPort("nbmodel")) {
                 return value::Integer::create(get_nb_model());
@@ -117,7 +117,7 @@ public:
 private:
     void add_new_model()
     {
-        std::string name((fmt("beep-%1%") % m_stacknames.size()).str());
+        std::string name((boost::format("beep-%1%") % m_stacknames.size()).str());
         if (m_buildbeepbeep) {
             createModelFromClass("beepbeep", name);
         } else {
@@ -132,7 +132,7 @@ private:
     void del_first_model()
     {
         if (m_stacknames.empty()) {
-            throw utils::InternalError(fmt(
+            throw utils::InternalError(boost::format(
                     "Cannot delete any model, the executive have no "
                     "element.").str());
         }
@@ -143,7 +143,7 @@ private:
 
     int get_nb_model() const
     {
-        return boost::numeric_cast < int >(coupledmodel().getModelList().size());
+        return coupledmodel().getModelList().size();
     }
 
 };

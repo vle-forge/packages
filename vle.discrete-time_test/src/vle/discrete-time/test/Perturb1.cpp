@@ -27,6 +27,7 @@
  */
 
 #include <vle/extension/fsa/Statechart.hpp>
+
 #include <iostream>
 
 namespace vle {
@@ -57,19 +58,18 @@ public:
 
     void out1(const vle::devs::Time&  /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("a");
-        e->attributes().addString("name","a");
-        e->attributes().addDouble("value",10);
-        output.push_back(e);
-//        std::cout << " FSA send out1 " << time << std::endl;
+        output.emplace_back("a");
+        value::Map& map = output.back().addMap();
+        map.addString("name","a");
+        map.addDouble("value",10);
     }
 
     void out2(const vle::devs::Time& /* time */, vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("a");
-        e->attributes().addString("name","a");
-        e->attributes().addDouble("value",0);
-        output.push_back(e);
+        output.emplace_back("a");
+        value::Map& map = output.back().addMap();
+        map.addString("name","a");
+        map.addDouble("value",0);
     }
 
 };

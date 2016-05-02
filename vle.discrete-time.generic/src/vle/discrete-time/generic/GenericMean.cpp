@@ -25,8 +25,8 @@
 //@@tagdepends: vle.discrete-time @@endtagdepends
 
 
-#include <vle/DiscreteTimeDbg.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+#include <vle/DiscreteTime.hpp>
+
 
 #include <iostream>
 
@@ -83,5 +83,5 @@ public:
 
 }}}
 
-DECLARE_DYNAMICS_DBG(vle::discrete_time::generic::GenericMean)
+DECLARE_DYNAMICS(vle::discrete_time::generic::GenericMean)
 

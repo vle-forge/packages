@@ -53,7 +53,7 @@
 #include <vle/extension/decision/Activity.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/Package.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <sstream>
 #include <numeric>
 #include <fstream>
@@ -101,7 +101,7 @@ public:
         addOutputFunctions(this) +=
                 O("treat", &Smartgardener::treat);
 
-        vle::utils::Package pack("vle.examples");
+        vle::utils::Package pack(context(), "vle.examples");
         std::string filePath = pack.getDataFile("Smartgardener.txt");
         std::ifstream fileStream(filePath.c_str());
         KnowledgeBase::plan().fill(fileStream);
@@ -133,16 +133,17 @@ public:
     void treat(const std::string& /*name*/, const ved::Activity& /*activity*/,
             vd::ExternalEventList& output)
     {
-        vd::ExternalEvent* evt = new vd::ExternalEvent("x");
-        evt->putAttribute("name", new vv::String("x"));
-        evt->putAttribute("value", new vv::Double(
-                plantlouse_population * (1-treatment_effect_on_plantlouse)));
-        output.push_back(evt);
-        evt = new vd::ExternalEvent("y");
-        evt->putAttribute("name", new vv::String("y"));
-        evt->putAttribute("value", new vv::Double(
-                ladybird_population * (1-treatment_effect_on_ladybird)));
-        output.push_back(evt);
+        output.emplace_back("x");
+        value::Map& m = output.back().addMap();
+        m.addString("name","x");
+        m.addDouble("value",
+                plantlouse_population * (1-treatment_effect_on_plantlouse));
+
+        output.emplace_back("y");
+        value::Map& m2 = output.back().addMap();
+        m2.addString("name","y");
+        m2.addDouble("value",
+                ladybird_population * (1-treatment_effect_on_ladybird));
 
     }
 
@@ -163,4 +164,4 @@ private:
 
 }}}// namespaces
 
-DECLARE_DYNAMICS_DBG(vle::examples::smartgardeners::Smartgardener)
+DECLARE_DYNAMICS(vle::examples::smartgardeners::Smartgardener)

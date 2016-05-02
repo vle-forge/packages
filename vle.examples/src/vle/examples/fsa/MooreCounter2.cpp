@@ -33,8 +33,6 @@
 
 #include <vle/extension/fsa/Moore.hpp>
 
-using namespace boost::assign;
-
 namespace vle { namespace examples { namespace fsa {
 
 namespace vf = vle::extension::fsa;
@@ -70,12 +68,17 @@ public:
     { ++value; }
     void out(const vd::Time& /*time*/,
              vd::ExternalEventList& output) const
-    { output.push_back(buildEventWithAInteger("out", "counter", value)); }
+    {
+        output.emplace_back("out");
+        vle::value::Map& attrs = output.back().addMap();
+        attrs.addString("name","counter");
+        attrs.addInt("value",value);
+    }
 
     virtual ~counter2() { }
 
-    virtual vle::value::Value* observation(
-        const vd::ObservationEvent& event) const
+    virtual std::unique_ptr<vle::value::Value> observation(
+        const vd::ObservationEvent& event) const override
     {
         if (event.onPort("counter")) {
             return vle::value::Integer::create(value);

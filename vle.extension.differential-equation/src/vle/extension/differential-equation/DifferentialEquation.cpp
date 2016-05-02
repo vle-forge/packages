@@ -13,8 +13,9 @@ namespace ts = vle::extension::differential_equation::timeSlicingMethod;
 
 DifferentialEquation::DifferentialEquation(const vd::DynamicsInit& model,
         const vd::InitEventList& events) :
-        vd::Dynamics(model, events), mvars(), mextVars(), meqImpl(0),
-            mdeclarationOn(true), minitConditions(0), mmethParams(0), mmethod()
+        vd::Dynamics(model, events), mvars(), mextVars(), meqImpl(nullptr),
+            mdeclarationOn(true), minitConditions(nullptr),
+            mmethParams(nullptr), mmethod()
 {
     if (!events.exist("method") || !events.get("method")->isString()) {
         throw vu::ModellingError("error method");
@@ -23,16 +24,14 @@ DifferentialEquation::DifferentialEquation(const vd::DynamicsInit& model,
             || !events.get("method-parameters")->isMap()) {
         throw vu::ModellingError("error method-parameters");
     }
-    minitConditions = dynamic_cast<vv::Map*>(events.clone());
-    mmethParams = (vv::Map*) events.get("method-parameters")->clone();
+
+    minitConditions.reset(new vv::Map(events));
+    mmethParams.reset(new vv::Map(events.getMap("method-parameters")));
     mmethod = events.getString("method");
 }
 
 DifferentialEquation::~DifferentialEquation()
 {
-    delete minitConditions;
-    delete mmethParams;
-    delete meqImpl;
 }
 
 DifferentialEquation::Var DifferentialEquation::createVar(
@@ -77,9 +76,9 @@ void DifferentialEquation::reinit(const vv::Set& evt, bool perturb,
             double varVal = evtMap.getDouble("value");
             Variables::iterator itf = vars().find(varName);
             if (itf == vars().end()) {
-                throw utils::ModellingError(
-                        vle::fmt("[%1%] State variable '%2%' not found "
-                                "on perturbation") % getModelName() % varName);
+                throw utils::ModellingError((boost::format(
+                        "[%1%] State variable '%2%' not found "
+                        "on perturbation") % getModelName() % varName).str());
             }
             itf->second.setVal(varVal);
         }
@@ -88,7 +87,7 @@ void DifferentialEquation::reinit(const vv::Set& evt, bool perturb,
 }
 
 /************** DEVS functions *****************/
-vd::Time DifferentialEquation::init(const vd::Time& time)
+vd::Time DifferentialEquation::init(vd::Time time)
 {
     mdeclarationOn = false;
 
@@ -97,7 +96,7 @@ vd::Time DifferentialEquation::init(const vd::Time& time)
     if (minitConditions->exist("variables") &&
             minitConditions->get("variables")->isMap()) {
         vars_map = dynamic_cast<vv::Map*>(
-                minitConditions->get("variables"));
+                minitConditions->get("variables").get());
     }
 
     Variables::iterator itb = mvars.begin();
@@ -126,28 +125,29 @@ vd::Time DifferentialEquation::init(const vd::Time& time)
     ExternVariables::const_iterator iee = mextVars.end();
     for (; ieb != iee; ieb++) {
         if (!getModel().existInputPort(ieb->first)) {
-            throw vu::ModellingError(
-                    vle::fmt("[%1%] Input port corresponding to extern variable"
-                            " '%2%' should be present") % getModelName()
-                            % ieb->first);
+            throw vu::ModellingError((boost::format(
+                    "[%1%] Input port corresponding to extern variable"
+                    " '%2%' should be present") % getModelName()
+                            % ieb->first).str());
         }
     }
 
     //initialisation of method
     if (mmethod == "euler") {
-        meqImpl = new ts::TimeSlicingMethod<ts::Euler>(*this, *mmethParams);
+        meqImpl.reset(new ts::TimeSlicingMethod<ts::Euler>(
+                *this, *mmethParams));
     } else if (mmethod == "rk4") {
-        meqImpl = new ts::TimeSlicingMethod<ts::RK4>(*this, *mmethParams);
+        meqImpl.reset(new ts::TimeSlicingMethod<ts::RK4>(*this, *mmethParams));
     } else if (mmethod == "qss2") {
-        meqImpl = new qss2::QSS2(*this, *mmethParams);
+        meqImpl.reset(new qss2::QSS2(*this, *mmethParams));
     } else {
-        throw vu::InternalError(vle::fmt("[%1%] numerical integration method"
-                " not recognized '%1%'") % mmethod);
+        throw vu::InternalError((boost::format("[%1%] numerical integration method"
+                " not recognized '%1%'") % mmethod).str());
     }
     return meqImpl->init(time);
 }
 
-void DifferentialEquation::output(const vd::Time& time,
+void DifferentialEquation::output(vd::Time time,
         vd::ExternalEventList& output) const
 {
     meqImpl->output(time, output);
@@ -158,24 +158,24 @@ vd::Time DifferentialEquation::timeAdvance() const
     return meqImpl->timeAdvance();
 }
 
-void DifferentialEquation::confluentTransitions(const vd::Time& time,
+void DifferentialEquation::confluentTransitions(vd::Time time,
         const vd::ExternalEventList& extEventlist)
 {
     meqImpl->confluentTransitions(time, extEventlist);
 }
 
-void DifferentialEquation::internalTransition(const vd::Time& event)
+void DifferentialEquation::internalTransition(vd::Time event)
 {
     meqImpl->internalTransition(event);
 }
 
 void DifferentialEquation::externalTransition(
-        const vd::ExternalEventList& event, const vd::Time& time)
+        const vd::ExternalEventList& event, vd::Time time)
 {
     meqImpl->externalTransition(event, time);
 }
 
-vv::Value* DifferentialEquation::observation(
+std::unique_ptr<value::Value> DifferentialEquation::observation(
         const vd::ObservationEvent& event) const
 {
     return meqImpl->observation(event);

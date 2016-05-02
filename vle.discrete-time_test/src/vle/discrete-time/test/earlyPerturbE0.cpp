@@ -25,8 +25,8 @@
  * @@tagdepends: vle.discrete-time @@endtagdepends
  */
 
-#include <vle/DiscreteTimeDbg.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+#include <vle/DiscreteTime.hpp>
+
 
 #include <iostream>
 
@@ -51,7 +51,7 @@ public:
     virtual ~earlyPerturbE0()
     { }
 
-    void compute(const vle::devs::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/) override
     {
         e0 = 1;
     }

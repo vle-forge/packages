@@ -1,147 +1,146 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.1.0.dtd">
-<vle_project version="1.0" date="2014-Apr-23 14:52:59" author="Ronan Trépos">
-<structures>
-<model name="model7" type="coupled" x="0" y="0" width="1177" height="447"  >
+<vle_project date="2014-Apr-23 14:52:59" version="1.0" author="Ronan Trépos">
+ <structures>
+<model x="0" name="model7" type="coupled" width="1177" height="447" y="0">
 <submodels>
-<model name="A1" type="atomic" conditions="condA1,cond_time_step" dynamics="dynA1" observables="obsA1" x="345" y="63" width="100" height="45" >
+<model dynamics="dynA1" x="345" name="A1" type="atomic" conditions="condA1,cond_time_step" width="100" observables="obsA1" height="45" y="63">
 <in>
- <port name="a" />
+ <port name="a"/>
 </in>
 <out>
- <port name="a" />
+ <port name="a"/>
 </out>
 </model>
-<model name="B3" type="atomic" conditions="condB3,cond_init_b,cond_time_step" dynamics="dynB3" observables="obsB3" x="507" y="63" width="100" height="45" >
+<model dynamics="dynB3" x="507" name="B3" type="atomic" conditions="condB3,cond_init_b,cond_time_step" width="100" observables="obsB3" height="45" y="63">
 <in>
- <port name="a" />
+ <port name="a"/>
 </in>
 <out>
- <port name="b" />
+ <port name="b"/>
 </out>
 </model>
-<model name="C3" type="atomic" conditions="condC3,cond_init_c,cond_time_step" dynamics="dynC3" observables="obsC3" x="649" y="63" width="100" height="45" >
+<model dynamics="dynC3" x="649" name="C3" type="atomic" conditions="condC3,cond_init_c,cond_time_step" width="100" observables="obsC3" height="45" y="63">
 <in>
- <port name="b" />
+ <port name="b"/>
 </in>
 </model>
-<model name="Perturb2" type="atomic" dynamics="dynPerturb2" x="47" y="51" width="100" height="60" >
+<model dynamics="dynPerturb2" x="47" name="Perturb2" type="atomic" width="100" height="60" y="51">
 <out>
- <port name="out1" />
- <port name="out2" />
+ <port name="out1"/>
+ <port name="out2"/>
 </out>
 </model>
-<model name="Perturb3" type="atomic" dynamics="dynPerturb3" x="184" y="54" width="100" height="60" >
+<model dynamics="dynPerturb3" x="184" name="Perturb3" type="atomic" width="100" height="60" y="54">
 <in>
- <port name="in1" />
- <port name="in2" />
+ <port name="in1"/>
+ <port name="in2"/>
 </in>
 <out>
- <port name="a" />
+ <port name="a"/>
 </out>
 </model>
 </submodels>
 <connections>
 <connection type="internal">
- <origin model="A1" port="a" />
- <destination model="B3" port="a" />
+ <origin port="a" model="A1"/>
+ <destination port="a" model="B3"/>
 </connection>
 <connection type="internal">
- <origin model="B3" port="b" />
- <destination model="C3" port="b" />
+ <origin port="b" model="B3"/>
+ <destination port="b" model="C3"/>
 </connection>
 <connection type="internal">
- <origin model="Perturb2" port="out1" />
- <destination model="Perturb3" port="in1" />
+ <origin port="out1" model="Perturb2"/>
+ <destination port="in1" model="Perturb3"/>
 </connection>
 <connection type="internal">
- <origin model="Perturb2" port="out2" />
- <destination model="Perturb3" port="in2" />
+ <origin port="out2" model="Perturb2"/>
+ <destination port="in2" model="Perturb3"/>
 </connection>
 <connection type="internal">
- <origin model="Perturb3" port="a" />
- <destination model="A1" port="a" />
+ <origin port="a" model="Perturb3"/>
+ <destination port="a" model="A1"/>
 </connection>
 </connections>
 </model>
 </structures>
-<dynamics>
-<dynamic name="dynA1" library="A1" package="vle.discrete-time_test"  />
-<dynamic name="dynB3" library="B3" package="vle.discrete-time_test"  />
-<dynamic name="dynC3" library="C3" package="vle.discrete-time_test"  />
-<dynamic name="dynPerturb2" library="Perturb2" package="vle.discrete-time_test"  />
-<dynamic name="dynPerturb3" library="Perturb3" package="vle.discrete-time_test"  />
+ <dynamics>
+<dynamic package="vle.discrete-time_test" name="dynA1" library="A1"/>
+<dynamic package="vle.discrete-time_test" name="dynB3" library="B3"/>
+<dynamic package="vle.discrete-time_test" name="dynC3" library="C3"/>
+<dynamic package="vle.discrete-time_test" name="dynPerturb2" library="Perturb2"/>
+<dynamic package="vle.discrete-time_test" name="dynPerturb3" library="Perturb3"/>
 </dynamics>
-<experiment name="model7" combination="linear"  >
+ <experiment duration="21" name="model7" combination="linear">
 <conditions>
-<condition name="simulation_engine" >
-<port name="begin" >
+<condition name="simulation_engine">
+<port name="begin">
 <double>0.0</double>
 </port>
-<port name="duration" >
-<double>20.0</double>
+<port name="duration">
+<double>21</double>
 </port>
 </condition>
-<condition name="condA1" >
- <port name="bags_to_eat" >
+<condition name="condA1">
+ <port name="bags_to_eat">
 <integer>10</integer>
 </port>
 </condition>
-<condition name="condB3" >
- <port name="sync_a" >
+<condition name="condB3">
+ <port name="sync_a">
 <integer>1</integer>
 </port>
 </condition>
-<condition name="condC3" >
- <port name="sync_b" >
+<condition name="condC3">
+ <port name="sync_b">
 <integer>1</integer>
 </port>
 </condition>
-<condition name="cond_init_b" >
- <port name="init_value_b" >
+<condition name="cond_init_b">
+ <port name="init_value_b">
 <double>-3.000000000000000</double>
 </port>
 </condition>
-<condition name="cond_init_c" >
- <port name="init_value_c" >
+<condition name="cond_init_c">
+ <port name="init_value_c">
 <double>-4.000000000000000</double>
 </port>
 </condition>
-<condition name="cond_time_step" >
- <port name="time_step" >
+<condition name="cond_time_step">
+ <port name="time_step">
 <double>1.000000000000000</double>
 </port>
 </condition>
 </conditions>
 <views>
 <outputs>
-<output name="view" location="" format="local" package="vle.output"  plugin="file" />
+<output package="vle.output" name="view" format="local" location="" plugin="file"/>
 
 </outputs>
 <observables>
-<observable name="obsA1" >
-<port name="a" >
- <attachedview name="view" />
+<observable name="obsA1">
+<port name="a">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="obsB3" >
-<port name="b" >
- <attachedview name="view" />
+<observable name="obsB3">
+<port name="b">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="obsC3" >
-<port name="c" >
- <attachedview name="view" />
+<observable name="obsC3">
+<port name="c">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
 </observables>
-<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+<view name="view" type="timed" output="view" timestep="1.000000000000000"/>
 
 </views>
 </experiment>

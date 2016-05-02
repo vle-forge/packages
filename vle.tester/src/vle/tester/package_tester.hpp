@@ -26,12 +26,13 @@
 #define _VLE_UTILS_PACKAGE_TESTER_HPP 1
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <exception>
 #include <math.h>
 
-#include <boost/lexical_cast.hpp>
 #include <vle/utils/Package.hpp>
+#include <vle/utils/Context.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/value/Set.hpp>
 #include <vle/value/Matrix.hpp>
@@ -61,11 +62,13 @@ public:
     static bool check(const std::string& pkgname,
             const std::string& test_file_name)
     {
+        auto ctx = utils::make_context();
+
         std::cout << " check=" << test_file_name << std::endl;
 
         std::vector <std::string> test_report;
         bool fail = false;
-        vu::Package pkg(pkgname);
+        vu::Package pkg(ctx, pkgname);
         std::string test_file_path = pkg.getDataFile(test_file_name);
         vv::Map params;
         std::string separator = " ";
@@ -99,9 +102,7 @@ public:
         std::string precision;
 
         TesterSimulation* tester_sim(0);
-        vv::Map* sim_outputs(0);
-
-
+        std::unique_ptr<vv::Map> sim_outputs;
 
         for (unsigned int i = 0; i < resParsing.rows(); i++) {
             bool fail_i = false;
@@ -116,17 +117,15 @@ public:
             std::ostringstream report_line;
             report_line << "test_" << i;
             report_line << ": ";
-            vv::Value* simulated_val = 0;
+            const vv::Value* simulated_val = 0;
 
             if (not (newpkg == pkgtotest and newvpz == vpzname)) {
 
                 delete tester_sim;
-                delete sim_outputs;
-                sim_outputs = 0;
                 tester_sim = 0;
 
                 try {
-                    tester_sim = new TesterSimulation(newpkg, newvpz);
+                    tester_sim = new TesterSimulation(newpkg, newvpz, ctx);
                 } catch (const std::exception& e) {
                     report_line << "fail to open " << newpkg << "/"
                             << newvpz;
@@ -134,7 +133,7 @@ public:
                 }
                 if (!fail_i){
                     try {
-                        sim_outputs = tester_sim->simulates();
+                        sim_outputs = std::move(tester_sim->simulates());
                     } catch (const std::exception& e){
                         report_line << "running during simulation "
                                 << newpkg << "/" << newvpz << ": ";
@@ -193,7 +192,6 @@ public:
         }
         if (tester_sim != 0) {
             delete tester_sim;
-            delete sim_outputs;
         }
 
         for (unsigned int i=0; i< test_report.size(); i++) {
@@ -203,20 +201,30 @@ public:
     }
 
 private:
+
+    static double str_to_double(const std::string& v)
+    {
+        //note: std::stod expects c++ locale (french one)
+        std::istringstream str_stream(v);
+        double vAsDouble;
+        str_stream >> vAsDouble;
+        return vAsDouble;
+    }
+
     static bool performs_one_test(const std::string& precision,
-            const std::string& valExpected, vv::Value& res)
+            const std::string& valExpected, const vv::Value& res)
     {
         if (precision == "NA") {
             if (res.toString().value() != valExpected) {
                 return false;
             }
         } else {
-            double prec = boost::lexical_cast<double>(precision);
+            double prec = str_to_double(precision);
             double valSim = res.toDouble().value();
             if (std::isnan(valSim)) {
                 return (valExpected == "nan");
             }
-            double valExpect = boost::lexical_cast<double>(valExpected);
+            double valExpect = str_to_double(valExpected);
             if ((valSim < valExpect - prec) || (valSim > valExpect + prec)) {
                 return false;
             }

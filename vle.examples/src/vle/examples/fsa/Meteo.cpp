@@ -31,7 +31,6 @@
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/Rand.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
 
 namespace vle { namespace examples { namespace fsa {
 
@@ -54,34 +53,32 @@ public:
     virtual ~Meteo()
 { }
 
-    virtual vd::Time init(const vd::Time& /* time */)
+    virtual vd::Time init(vd::Time /* time */) override
     {
         mPhase = INIT;
         mValue = mRand.getDouble(5, 30);
         return 0.0;
     }
 
-    virtual vd::Time timeAdvance() const
+    virtual vd::Time timeAdvance() const override
     {
         if (mPhase == RUN) return 1.0;
         if (mPhase == SEND) return 0.0;
         return vd::infinity;
     }
 
-    virtual void output(const vd::Time& /* time */,
-                        vd::ExternalEventList& outputs) const
+    virtual void output(vd::Time /* time */,
+                        vd::ExternalEventList& outputs) const override
     {
         if (mPhase == SEND or mPhase == INIT) {
-            vd::ExternalEvent* ee =
-                new vd::ExternalEvent("out");
-
-            ee << vd::attribute("name", "Tmoy");
-            ee << vd::attribute("value", mValue);
-            outputs.push_back(ee);
+            outputs.emplace_back("out");
+            value::Map& m = outputs.back().addMap();
+            m.addString("name", "Tmoy");
+            m.addDouble("value", mValue);
         }
     }
 
-    virtual void internalTransition(const vd::Time& /* time */)
+    virtual void internalTransition(vd::Time /* time */) override
     {
         if (mPhase == INIT or mPhase == SEND) {
             mPhase = RUN;
@@ -91,11 +88,11 @@ public:
         }
     }
 
-    virtual vle::value::Value* observation(
-        const vd::ObservationEvent& event) const
+    virtual std::unique_ptr<vle::value::Value> observation(
+        const vd::ObservationEvent& event) const override
     {
         if (event.onPort("state")) {
-            return buildDouble(mValue);
+            return value::Double::create(mValue);
         }
         return 0;
     }

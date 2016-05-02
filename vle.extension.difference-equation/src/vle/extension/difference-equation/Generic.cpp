@@ -79,13 +79,14 @@ double Generic::valueExt(int shift)
 }
 
 void Generic::externalTransition(const ExternalEventList& events,
-                                 const Time& time)
+                                 Time time)
 {
     ExternalEventList::const_iterator it = events.begin();
 
     while (it != events.end()) {
-        if ((*it)->onPort("add")) {
-            std::string name = (*it)->getStringAttributeValue("name");
+        const vle::value::Map& attrs = it->attributes()->toMap();
+        if (it->onPort("add")) {
+            std::string name = attrs.getString("name");
 
             if (mAllSynchro) {
                 mSynchros.insert(name);
@@ -102,8 +103,8 @@ void Generic::externalTransition(const ExternalEventList& events,
                 mLastComputeTime = vle::devs::infinity;
                 mSigma = 0;
             }
-       } else if ((*it)->onPort("remove")) {
-            std::string name = (*it)->getStringAttributeValue("name");
+       } else if (it->onPort("remove")) {
+            std::string name = attrs.getString("name");
 
             if (mAllSynchro) {
                 mSynchros.erase(name);

@@ -105,9 +105,9 @@ public:
         {
             if (not mEquation) {
                 throw utils::InternalError(
-                    fmt(_("DifferenceEquation::multiple - " \
-                          "variable %1% not build"))
-                    % name());
+                    (boost::format("DifferenceEquation::multiple - " \
+                          "variable %1% not build")
+                    % name()).str());
             }
 
             if (not *mIterators.mSetValues) {
@@ -134,7 +134,7 @@ public:
         {
             if (not mEquation) {
                 throw utils::InternalError(
-                    _("DifferenceEquation::multiple - variable not build"));
+                    "DifferenceEquation::multiple - variable not build");
             }
 
             return ((Multiple*)mEquation)->val(mName, mIterators, shift);
@@ -246,13 +246,13 @@ private:
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-    virtual devs::Time init(const devs::Time& time);
+    virtual devs::Time init(devs::Time time) override;
 
-    virtual void output(const devs::Time& time,
-                        devs::ExternalEventList& output) const;
+    virtual void output(devs::Time time,
+                        devs::ExternalEventList& output) const override;
 
-    virtual value::Value* observation(
-        const devs::ObservationEvent& event) const;
+    virtual std::unique_ptr<vle::value::Value> observation(
+        const devs::ObservationEvent& event) const override;
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 

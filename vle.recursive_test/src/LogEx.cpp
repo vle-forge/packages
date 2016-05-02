@@ -26,8 +26,8 @@
  */
 
 
-#include <vle/DiscreteTimeDbg.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+#include <vle/DiscreteTime.hpp>
+
 #include <vle/utils/Rand.hpp>
 
 
@@ -55,18 +55,12 @@ public:
     {
     }
 
-    void compute(const vle::devs::Time& t)
+    void compute(const vle::devs::Time& t) override
     {
         y = x() + std::log(t+1);
         y_noise = x() + std::log(t+1) + mrand.normal(0, 1);
     }
 
-
-    virtual vle::value::Value* observation(
-    const vle::devs::ObservationEvent&  event ) const
-    {
-        return DiscreteTimeDyn::observation(event);
-    }
 
     Var x;
     Var y;
@@ -76,5 +70,5 @@ public:
 
 }}}
 
-DECLARE_DYNAMICS_DBG(vle::recursive::test::LogEx)
+DECLARE_DYNAMICS(vle::recursive::test::LogEx)
 

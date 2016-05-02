@@ -54,11 +54,10 @@ public:
 
     void out(const vle::devs::Time& /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* evt = new vle::devs::ExternalEvent("fsa");
-
-        evt->putAttribute("name", new vle::value::String("fsa"));
-        evt->putAttribute("value", new vle::value::Double(1.0));
-        output.push_back(evt);
+        output.emplace_back("fsa");
+        value::Map& map = output.back().addMap();
+        map.addString("name","fsa");
+        map.addDouble("value",1.0);
     }
 };
 

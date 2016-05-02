@@ -1,4 +1,4 @@
 add_subdirectory(differential-equation)
 
-install(FILES DifferentialEquationDbg.hpp DifferentialEquation.hpp
+install(FILES DifferentialEquation.hpp
   DESTINATION src/vle/extension)

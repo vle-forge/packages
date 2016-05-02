@@ -27,9 +27,7 @@
  */
 
 #include <vle/devs/Executive.hpp>
-#include <vle/devs/ExecutiveDbg.hpp>
 #include <vle/discrete-time/TemporalValues.hpp>
-#include <boost/numeric/conversion/cast.hpp>
 #include <sstream>
 
 
@@ -57,22 +55,21 @@ public:
     {
     }
 
-    virtual vle::devs::Time init(const vle::devs::Time& /* time */)
+    virtual vle::devs::Time init(vle::devs::Time /* time */) override
     {
         num_model = 1;
         return 2;
     }
 
-    virtual void output(const vle::devs::Time& /* time */,
-            vle::devs::ExternalEventList& /* output */) const
+    virtual void output(vle::devs::Time /* time */,
+            vle::devs::ExternalEventList& /* output */) const override
     {
     }
 
-    virtual vle::devs::Time timeAdvance() const
+    virtual vle::devs::Time timeAdvance() const override
     { return 2.0; }
 
-    virtual void internalTransition(
-            const vle::devs::Time& /* time */)
+    virtual void internalTransition(vle::devs::Time /* time */) override
     {
         num_model ++;
         std::stringstream is, is2;
@@ -88,7 +85,7 @@ public:
     unsigned int num_model;
 };
 
-DECLARE_EXECUTIVE_DBG(executiveDT_dsdevs)
+DECLARE_EXECUTIVE(executiveDT_dsdevs)
 
 }}}
 

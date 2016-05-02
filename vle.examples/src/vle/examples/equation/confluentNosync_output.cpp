@@ -30,8 +30,9 @@
  * any time t.
  */
 
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <vle/utils/Exception.hpp>
+#include <vle/devs/Dynamics.hpp>
 
 namespace vle { namespace examples { namespace equation {
 
@@ -50,17 +51,17 @@ public:
     ~confluentNosync_output()
     {
     }
-    virtual vle::devs::Time init(const vle::devs::Time& /* time */)
+    virtual vle::devs::Time init(vle::devs::Time /* time */) override
     {
         return vd::infinity;
     }
-    vle::devs::Time timeAdvance() const
+    vle::devs::Time timeAdvance() const override
     {
         return vd::infinity;
     }
     void externalTransition(
         const vle::devs::ExternalEventList& /* event */,
-        const vle::devs::Time& time)
+        vle::devs::Time time) override
     {
         if(time == lastWakeUp){
             throw vu::InternalError("two values at the same time");
@@ -72,4 +73,4 @@ public:
 
 }}} // namespace vle examples equation
 
-DECLARE_DYNAMICS_DBG(vle::examples::equation::confluentNosync_output)
+DECLARE_DYNAMICS(vle::examples::equation::confluentNosync_output)

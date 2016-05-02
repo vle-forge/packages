@@ -30,6 +30,7 @@
 #define VLE_EXTENSION_FSA_FSA_HPP 1
 
 #include <vle/devs/Dynamics.hpp>
+#include <boost/format.hpp>
 
 namespace vle { namespace extension { namespace fsa {
 
@@ -91,11 +92,12 @@ public:
      */
     void initialState(int state);
 
-    virtual vle::value::Value* observation(
-        const vle::devs::ObservationEvent& event) const
+    virtual std::unique_ptr<vle::value::Value> observation(
+        const vle::devs::ObservationEvent& event) const override
     {
         if (event.onPort("state")) {
-            return buildInteger(currentState());
+            return std::unique_ptr<vle::value::Value>(
+                    new vle::value::Integer(currentState()));
         }
         return 0;
     }
@@ -140,8 +142,9 @@ protected:
     bool isInit() const
     { return mInit; }
 
-    vle::devs::ExternalEvent* cloneExternalEvent(
-        vle::devs::ExternalEvent* event) const;
+    void copyExternalEventAttrs(
+        const vle::devs::ExternalEvent& event,
+        vle::devs::ExternalEvent& tofill) const;
 
     States& states() { return mStates; }
 
@@ -173,8 +176,8 @@ State_t<I> operator<<(State_t<I> state, int name)
 {
     if (state.obj->existState(name)) {
         throw vle::utils::ModellingError(
-            vle::fmt(_("[%1%] FSA::Base: state %2% is already defined"))
-            % state.obj->getModelName() % name);
+            (boost::format("[%1%] FSA::Base: state %2% is already defined")
+            % state.obj->getModelName() % name).str());
     }
 
     state.obj->states().push_back(name);

@@ -51,7 +51,7 @@ namespace vle { namespace examples { namespace petrinet {
         virtual ~PetrinetTrigger()
         { }
 
-        virtual void build()
+        virtual void build() override
         {
             addPlace("P1");
             addPlace("P2");

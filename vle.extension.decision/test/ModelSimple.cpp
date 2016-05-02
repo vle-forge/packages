@@ -40,14 +40,15 @@ public:
                 const vle::devs::InitEventList& evts)
         : vmd::Agent(mdl, evts), today(0), yesterday(0)
     {
-        addFact("today", boost::bind(&SimpleAgent::date, this, _1));
+        addFact("today", std::bind(&SimpleAgent::date, this,
+                std::placeholders::_1));
 
         vmd::Rule& r1 = addRule("Rule 1");
-        r1.add(boost::bind(&vmd::ex::SimpleAgent::haveGoodTemp, this));
-        r1.add(boost::bind(&vmd::ex::SimpleAgent::isAlwaysTrue, this));
+        r1.add(std::bind(&vmd::ex::SimpleAgent::haveGoodTemp, this));
+        r1.add(std::bind(&vmd::ex::SimpleAgent::isAlwaysTrue, this));
 
         vmd::Rule& r2 = addRule("Rule 2");
-        r2.add(boost::bind(&vmd::ex::SimpleAgent::haveGoodTemp, this));
+        r2.add(std::bind(&vmd::ex::SimpleAgent::haveGoodTemp, this));
 
         vmd::Activity& act1 = addActivity("act1");
         act1.addRule("Rule 1", r1);

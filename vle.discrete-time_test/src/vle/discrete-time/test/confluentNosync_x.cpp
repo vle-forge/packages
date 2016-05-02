@@ -27,7 +27,7 @@
  */
 
 #include <vle/DiscreteTime.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <iostream>
 
 
@@ -55,7 +55,7 @@ public:
     {
     }
 
-    void compute(const vle::devs::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/) override
     {
         x =  x(-1) + 1;
     }
@@ -64,7 +64,7 @@ public:
     Var y_nosync;
 };
 
-DECLARE_DYNAMICS_DBG(confluentNosync_x)
+DECLARE_DYNAMICS(confluentNosync_x)
 
 }}}
 

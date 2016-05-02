@@ -30,6 +30,7 @@
 #include <vle/devs/ExternalEvent.hpp>
 #include <vle/utils/Tools.hpp>
 #include <vle/value/Double.hpp>
+#include <vle/value/Set.hpp>
 #include <vle/utils/Exception.hpp>
 #include <cmath>
 
@@ -75,7 +76,7 @@ CellQSS::CellQSS(const vle::devs::DynamicsInit& model,
 
     for (value::MapValue::const_iterator it = lst.begin(); it != lst.end();
          ++it) {
-        const value::Set& tab(*value::toSetValue(it->second));
+        const value::Set& tab = it->second->toSet();
 
         unsigned int index = value::toInteger(tab.get(0));
         double init = value::toDouble(tab.get(1));
@@ -163,11 +164,11 @@ void CellQSS::setValue(unsigned int i,double p_value)
 
 void CellQSS::updateSigma(unsigned int i)
 {
-    // Mise à jour de tous les sigma
+    // Mise ï¿½ jour de tous les sigma
     for (unsigned int j = 0;j < m_functionNumber;j++)
         if (i != j) setSigma(j,getSigma(j) - getSigma(i));
 
-    // Calcul du sigma de la ième fonction
+    // Calcul du sigma de la iï¿½me fonction
     if (std::abs(getGradient(i)) < m_threshold)
         setSigma(i,devs::infinity);
     else {
@@ -180,7 +181,7 @@ void CellQSS::updateSigma(unsigned int i)
         setSigma(i, std::max(0.0, r));
     }
 
-    // Recherche de la prochaine fonction à calculer
+    // Recherche de la prochaine fonction ï¿½ calculer
     unsigned int j = 1;
     unsigned int j_min = 0;
     double v_min = getSigma(0);
@@ -209,7 +210,7 @@ void CellQSS::finish()
     delete[] m_state;
 }
 
-devs::Time CellQSS::init(const Time& /* time */)
+devs::Time CellQSS::init(Time /* time */)
 {
     vector < pair < unsigned int , double > >::const_iterator it =
         m_initialValueList.begin();
@@ -232,7 +233,7 @@ devs::Time CellQSS::init(const Time& /* time */)
     return Time(0);
 }
 
-void CellQSS::internalTransition(const Time& time)
+void CellQSS::internalTransition(Time time)
 {
     unsigned int i = m_currentModel;
 
@@ -250,21 +251,21 @@ void CellQSS::internalTransition(const Time& time)
         updateSigma(i);
         break;
     case RUN:
-        // Mise à jour de l'index
+        // Mise ï¿½ jour de l'index
         if (getGradient(i) > 0) setIndex(i,getIndex(i)+1);
         else setIndex(i,getIndex(i)-1);
-        // Mise à jour de x
+        // Mise ï¿½ jour de x
         setValue(i,d(getIndex(i)));
-        // Mise à jour du gradient
+        // Mise ï¿½ jour du gradient
         setGradient(i,compute(i));
-        // Mise à jour de sigma
+        // Mise ï¿½ jour de sigma
         updateSigma(i);
     }
     setLastTime(i, time);
 }
 
 void CellQSS::externalTransition(const ExternalEventList& event,
-                                 const Time& time)
+                                 Time time)
 {
     CellDevs::externalTransition(event,time);
 
@@ -276,12 +277,12 @@ void CellQSS::externalTransition(const ExternalEventList& event,
                 double e = time - getLastTime(i);
 
                 setCurrentTime(i,time);
-                // Mise à jour de la valeur de la fonction
+                // Mise ï¿½ jour de la valeur de la fonction
                 if (e > 0)
                     setValue(i,getValue(i)+e*getGradient(i));
-                // Mise à jour du gradient
+                // Mise ï¿½ jour du gradient
                 setGradient(i,compute(i));
-                // Mise à jour de sigma
+                // Mise ï¿½ jour de sigma
                 updateSigma(i);
 
                 if (getSigma(i) < 0.0) {
@@ -304,7 +305,7 @@ void CellQSS::processPerturbation(const ExternalEvent& /* event */)
     CellDevs::setSigma(0);
 }
 
-Value* CellQSS::observation(const ObservationEvent& event) const
+std::unique_ptr<Value> CellQSS::observation(const ObservationEvent& event) const
 {
     return value::Double::create(getDoubleState(event.getPortName()));
 }

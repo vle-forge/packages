@@ -106,7 +106,7 @@ struct  DEVS_Options
     bool dyn_allow;
     VAR_TYPE dyn_type;
     unsigned int dyn_sync;
-    vle::value::Value* dyn_init_value;
+    std::unique_ptr<vle::value::Value> dyn_init_value;
     unsigned int dyn_dim;
 
 
@@ -135,7 +135,7 @@ struct  DEVS_Options
     shouldOutputNil(double lastUpdateTime, double currentTime,
             const std::string& varname) const;
 
-    vle::value::Value*
+    std::unique_ptr<vle::value::Value>
     getForcingEvent(double currentTime, bool beforeCompute,
             const std::string& varname) const;
 
@@ -228,7 +228,7 @@ struct Pimpl
            const vle::devs::Time& time,
            vle::devs::ExternalEventList& output) const;
 
-   vle::value::Value*
+   std::unique_ptr<vle::value::Value>
    observation(
            const vle::devs::ObservationEvent& event) const;
 

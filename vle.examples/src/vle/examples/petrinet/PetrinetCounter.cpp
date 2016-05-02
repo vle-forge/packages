@@ -52,10 +52,11 @@ namespace vle { namespace examples { namespace petrinet {
         { }
 
         virtual void externalTransition(const devs::ExternalEventList& evts,
-                                        const devs::Time& time)
+                                        devs::Time time) override
         { mDate = time; mNumber += evts.size(); }
 
-        virtual value::Value* observation(const devs::ObservationEvent& e) const
+        virtual std::unique_ptr<value::Value> observation(
+                const devs::ObservationEvent& e) const override
         { return e.onPort("date") ?
             value::Double::create(mDate) :
                 value::Double::create(mNumber); }

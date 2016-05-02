@@ -31,7 +31,7 @@
 
 #include <vle/extension/decision/Plan.hpp>
 #include <vle/utils/Exception.hpp>
-#include <vle/utils/i18n.hpp>
+#include <boost/format.hpp>
 #include <string>
 #include <map>
 
@@ -72,7 +72,8 @@ public:
 
         if (it == end()) {
             throw utils::ArgError(
-                fmt(_("Decision: plan library, plan `%1%' is unknown")) % name);
+                (boost::format("Decision: plan library, plan `%1%' is unknown")
+                        % name).str());
         }
 
         return it;
@@ -84,7 +85,8 @@ public:
 
         if (it == end()) {
             throw utils::ArgError(
-                fmt(_("Decision: plan library, plan `%1%' is unknonw")) % name);
+                (boost::format("Decision: plan library, plan `%1%' is unknonw")
+                        % name).str());
         }
 
         return it;

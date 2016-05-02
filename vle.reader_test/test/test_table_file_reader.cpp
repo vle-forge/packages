@@ -37,6 +37,7 @@
 #include <vle/value/Map.hpp>
 #include <vle/value/Set.hpp>
 #include <vle/utils/Package.hpp>
+#include <vle/utils/Context.hpp>
 
 #include <iostream>
 #include <vle/reader/table_file_reader.hpp>
@@ -44,6 +45,9 @@
 
 BOOST_AUTO_TEST_CASE(test_table_file_reader)
 {
+    auto ctx = vle::utils::make_context();
+
+    vle::utils::Package pkg(ctx, "vle.reader_test");
     {
         vle::value::Map params;
         params.addString("sep"," ");
@@ -51,7 +55,6 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         columns.addString("double");
         columns.addString("double");
         columns.addString("double");
-        vle::utils::Package pkg("vle.reader_test");
         vle::reader::TableFileReader tfr(pkg.getDataFile("data.txt"));
         tfr.setParams(params);
         vle::value::Matrix mat;
@@ -72,7 +75,6 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         columns.addString("double");
         columns.addString("double");
         columns.addString("double");
-        vle::utils::Package pkg("vle.reader_test");
         vle::reader::TableFileReader tfr(
                 pkg.getDataFile("dataWithCommaSep.txt"));
         tfr.setParams(params);
@@ -89,7 +91,6 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         BOOST_REQUIRE_CLOSE(set.getDouble(2), 10.3, 10e-5);
     }
     {
-        vle::utils::Package pkg("vle.reader_test");
         vle::reader::TableFileReader tfr(
                 pkg.getDataFile("dataWithHeader.txt"));
         vle::value::Set header;
@@ -104,7 +105,6 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         columns.addString("double");
         columns.addString("double");
         columns.addString("double");
-        vle::utils::Package pkg("vle.reader_test");
         vle::reader::TableFileReader tfr(pkg.getDataFile("data.txt"));
         tfr.setParams(params);
         vle::value::Set set;

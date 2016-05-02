@@ -49,14 +49,15 @@ namespace vle { namespace extension { namespace decision { namespace ex {
         KnowledgeBase()
             : vmd::KnowledgeBase(), today(0), yesterday(0)
         {
-            addFact("today", boost::bind(&vmd::ex::KnowledgeBase::date, this, _1));
+            addFact("today", std::bind(&vmd::ex::KnowledgeBase::date, this,
+                    std::placeholders::_1));
 
             vmd::Rule& r1 = addRule("Rule 1");
-            r1.add(boost::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
-            r1.add(boost::bind(&vmd::ex::KnowledgeBase::isAlwaysTrue, this));
+            r1.add(std::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
+            r1.add(std::bind(&vmd::ex::KnowledgeBase::isAlwaysTrue, this));
 
             vmd::Rule& r2 = addRule("Rule 2");
-            r2.add(boost::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
+            r2.add(std::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
 
             vmd::Activity& act1 = addActivity("act1");
             act1.addRule("Rule 1", r1);

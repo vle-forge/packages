@@ -78,10 +78,9 @@ private:
 
     void out(const vd::Time& /*time*/, vd::ExternalEventList& output) const
     {
-        vd::ExternalEvent* evt1 = new vd::ExternalEvent("out");
-
-        evt1->putAttribute("value", new vv::Double(0));
-        output.push_back(evt1);
+        output.emplace_back("out");
+        vle::value::Map& attrs = output.back().addMap();
+        attrs.addDouble("value",0);
     }
 
     bool mTransit;

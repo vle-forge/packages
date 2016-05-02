@@ -2,4 +2,3 @@
 #add_subdirectory(models)
 add_subdirectory(discrete-time)
 install(FILES AgentDT.hpp DESTINATION src/vle)
-install(FILES AgentDTDbg.hpp DESTINATION src/vle)

@@ -60,29 +60,29 @@ namespace vle { namespace examples { namespace petrinet {
         virtual ~PetrinetMeteo()
         { }
 
-        virtual void output(const devs::Time& /* time */,
-                            devs::ExternalEventList& output) const
+        virtual void output(devs::Time /* time */,
+                            devs::ExternalEventList& output) const override
         {
             if (mActive) {
-                output.push_back(buildEvent("yes"));
+                output.emplace_back("yes");
             } else {
-                output.push_back(buildEvent("no"));
+                output.emplace_back("no");
             }
         }
 
-        virtual devs::Time timeAdvance() const
+        virtual devs::Time timeAdvance() const override
         {
             return devs::Time(1);
         }
 
-        virtual devs::Time init(const devs::Time& /* time */)
+        virtual devs::Time init(devs::Time /* time */) override
         {
             mActive = mInit;
             mNextTime = mRand.getInt(mMin, mMax);
             return devs::Time(0);
         }
 
-        virtual void internalTransition(const devs::Time& /* event */)
+        virtual void internalTransition(devs::Time /* event */) override
         {
             if (mNextTime == 0) {
                 mActive = not mActive;
@@ -92,11 +92,11 @@ namespace vle { namespace examples { namespace petrinet {
             }
         }
 
-        virtual value::Value* observation(
-            const devs::ObservationEvent& event) const
+        virtual std::unique_ptr<value::Value> observation(
+            const devs::ObservationEvent& event) const override
         {
             if (event.onPort("state")) {
-                return buildBoolean(mActive);
+                return value::Boolean::create(mActive);
             }
             return 0;
         }

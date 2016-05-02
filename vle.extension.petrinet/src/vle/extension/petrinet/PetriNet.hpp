@@ -31,6 +31,7 @@
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/Rand.hpp>
+#include <vle/value/Set.hpp>
 #include <vector>
 #include <map>
 
@@ -446,16 +447,16 @@ namespace vle { namespace extension {
         /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
         virtual devs::Time init(
-            const devs::Time& time);
+            devs::Time time) override;
 
         virtual void output(
-            const devs::Time& time,
-            devs::ExternalEventList& output) const;
+            devs::Time time,
+            devs::ExternalEventList& output) const override;
 
-        virtual devs::Time timeAdvance() const;
+        virtual devs::Time timeAdvance() const override;
 
         virtual void confluentTransitions(
-            const devs::Time& time,
+            devs::Time time,
             const devs::ExternalEventList& events)
         {
             externalTransition(events, time);
@@ -463,19 +464,19 @@ namespace vle { namespace extension {
         }
 
         virtual void internalTransition(
-            const devs::Time& event);
+            devs::Time event) override;
 
         virtual void externalTransition(
             const devs::ExternalEventList& event,
-            const devs::Time& time);
+            devs::Time time) override;
 
-        virtual value::Value* observation(
-            const devs::ObservationEvent& event) const;
+        virtual std::unique_ptr<value::Value> observation(
+            const devs::ObservationEvent& event) const override;
 
         /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
         // initial values
-        value::Map* mInitEvents;
+        std::unique_ptr<value::Map> mInitEvents;
 
         // structure
         PlaceList mPlaces;

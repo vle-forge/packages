@@ -31,6 +31,7 @@
 #include <vle/examples/counter/NormalGenerator.hpp>
 #include <vle/examples/counter/RegularGenerator.hpp>
 #include <vle/examples/counter/UniformGenerator.hpp>
+#include <boost/format.hpp>
 #include <vle/utils/Rand.hpp>
 
 
@@ -51,7 +52,7 @@ GeneratorWrapper::~GeneratorWrapper()
     delete m_generator;
 }
 
-devs::Time GeneratorWrapper::init(const vle::devs::Time& /* time */)
+devs::Time GeneratorWrapper::init(vle::devs::Time /* time */)
 {
     std::string formalism(value::toString(m_events.get("formalism")));
 
@@ -71,8 +72,8 @@ devs::Time GeneratorWrapper::init(const vle::devs::Time& /* time */)
             value::toDouble(m_events.get("average")),
             value::toDouble(m_events.get("stdvariation")));
     } else {
-        throw utils::InternalError(fmt(_("Unknow generator %1%")) %
-              formalism);
+        throw utils::InternalError((boost::format("Unknow generator %1%") %
+              formalism).str());
     }
 
     m_generator->init();
@@ -80,10 +81,10 @@ devs::Time GeneratorWrapper::init(const vle::devs::Time& /* time */)
     return devs::Time(0);
 }
 
-void GeneratorWrapper::output(const devs::Time& /* time */,
+void GeneratorWrapper::output(devs::Time /* time */,
                               devs::ExternalEventList& output) const
 {
-    output.push_back(new devs::ExternalEvent("out"));
+    output.emplace_back("out");
 }
 
 devs::Time GeneratorWrapper::timeAdvance() const
@@ -91,7 +92,7 @@ devs::Time GeneratorWrapper::timeAdvance() const
     return devs::Time(m_timeStep);
 }
 
-void GeneratorWrapper::internalTransition(const devs::Time& /* event */)
+void GeneratorWrapper::internalTransition(devs::Time /* event */)
 {
     m_time += m_timeStep;
     m_timeStep = m_generator->generate();

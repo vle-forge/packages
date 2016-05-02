@@ -31,7 +31,7 @@
 
 
 #include <vle/devs/Dynamics.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <vle/value/Boolean.hpp>
 
 namespace vd = vle::devs;
@@ -44,7 +44,7 @@ class Retarder : public vd::Dynamics
 public:
     Retarder(const vd::DynamicsInit& model,
              const vd::InitEventList& events)
-        : vd::Dynamics(model, events), mVal(0)
+        : vd::Dynamics(model, events), mVal()
     {
     }
 
@@ -52,40 +52,40 @@ public:
     {
     }
 
-    virtual vd::Time timeAdvance() const
+    virtual vd::Time timeAdvance() const override
     {
-        if (mVal == 0) {
+        if (mVal == nullptr) {
             return vd::infinity;
         } else {
             return 0.0;
         }
     }
 
-    virtual void output(const vd::Time& /*time*/,
-                        vd::ExternalEventList& output) const
+    virtual void output(vd::Time /*time*/,
+                        vd::ExternalEventList& output) const override
     {
         if (mVal) {
-            vd::ExternalEvent* evt = new vd::ExternalEvent("out");
-            evt->putAttribute("value", mVal);
-            output.push_back(evt);
+            output.emplace_back("out");
+            value::Map& m = output.back().addMap();
+            m.add("value", std::move(mVal));
         }
     }
 
-    virtual void internalTransition(const devs::Time& /*time*/)
+    virtual void internalTransition(devs::Time /*time*/) override
     {
         mVal = 0;
     }
 
     virtual void externalTransition(const vd::ExternalEventList& events,
-                                    const devs::Time& /*time*/)
+                                    devs::Time /*time*/) override
     {
         for (vd::ExternalEventList::const_iterator it = events.begin();
              it != events.end(); ++it) {
-            mVal = (*it)->getAttributeValue("value").clone();
+            mVal = it->attributes()->toMap().get("value")->clone();//TODO
         }
     }
 
-    vv::Value*  mVal;
+    mutable std::unique_ptr<vv::Value>  mVal;//note: modifie ds output (const)
 };
 
 }}} // namespace vle examples decision

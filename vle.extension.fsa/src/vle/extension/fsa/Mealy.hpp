@@ -29,9 +29,8 @@
 #ifndef VLE_EXTENSION_FSA_MEALY_HPP
 #define VLE_EXTENSION_FSA_MEALY_HPP 1
 
+#include <functional>
 #include <vle/extension/fsa/FSA.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
 
 namespace vle { namespace extension { namespace fsa {
 
@@ -68,7 +67,7 @@ private:
     typedef std::map < int, Output > Outputs;
 
     typedef std::map < std::string,
-            boost::function <
+            std::function <
                 void (const devs::Time&,
                       devs::ExternalEventList&) >  > OutputFunc;
     typedef std::map < int, OutputFunc > OutputFuncs;
@@ -78,7 +77,7 @@ private:
     typedef std::map < int, Transition > Transitions;
 
     // action
-    typedef boost::function <
+    typedef std::function <
         void (const devs::Time&,
               const devs::ExternalEvent* event) > Action;
     typedef std::map < std::string, Action > Actions;
@@ -147,17 +146,17 @@ private:
     void process(const devs::Time& time,
                  const devs::ExternalEvent* event);
 
-    virtual devs::Time init(const devs::Time& time);
-    virtual void output(const devs::Time& time,
-                        devs::ExternalEventList& output) const;
-    virtual devs::Time timeAdvance() const;
-    virtual void internalTransition(const devs::Time& event);
+    virtual devs::Time init(devs::Time time) override;
+    virtual void output(devs::Time time,
+                        devs::ExternalEventList& output) const override;
+    virtual devs::Time timeAdvance() const override;
+    virtual void internalTransition(devs::Time event) override;
     virtual void externalTransition(
         const devs::ExternalEventList& event,
-        const devs::Time& time);
+        devs::Time time) override;
     virtual void confluentTransitions(
-        const devs::Time& time,
-        const devs::ExternalEventList& extEventlist)
+        devs::Time time,
+        const devs::ExternalEventList& extEventlist) override
     {
         externalTransition(extEventlist, time);
         internalTransition(time);
@@ -195,7 +194,8 @@ MealyTransition_t<I> operator<<(MealyTransition_t<I> transition,
                                 Output_t<X> func)
 {
     transition.obj->outputFuncs(transition.state)[transition.event] =
-        boost::bind(func.output, transition.obj, _1, _2);
+        std::bind(func.output, transition.obj, std::placeholders::_1,
+                std::placeholders::_2);
     return transition;
 }
 
@@ -204,7 +204,8 @@ MealyTransition_t<I> operator<<(MealyTransition_t<I> transition,
                                 Action_t<X> action)
 {
     transition.obj->actions(transition.state)[transition.event] =
-        boost::bind(action.action, transition.obj, _1, _2);
+        std::bind(action.action, transition.obj, std::placeholders::_1,
+                std::placeholders::_2);
     return transition;
 }
 

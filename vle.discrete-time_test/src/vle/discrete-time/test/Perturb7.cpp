@@ -54,16 +54,16 @@ public:
 
     void out(const vle::devs::Time&  /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("a");
-        e->attributes().addString("name","a");
-        e->attributes().addDouble("value",a+3);
-        output.push_back(e);
+        output.emplace_back("a");
+        value::Map& map = output.back().addMap();
+        map.addString("name","a");
+        map.addDouble("value",a+3);
     }
 
     void a_in(const vle::devs::Time&  /*time*/,
-            const vle::devs::ExternalEvent*  event )
+            const vle::devs::ExternalEvent&  event )
     {
-        a = event->getAttributeValue("value").toDouble().value();
+        a = event.getMap().getDouble("value");
     }
 
     double a;

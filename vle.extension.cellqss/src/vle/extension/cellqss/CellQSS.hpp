@@ -43,14 +43,15 @@ namespace vle { namespace extension {
         virtual ~CellQSS() { }
 
         virtual void finish();
-        virtual devs::Time init(const devs::Time& /* time */);
-        virtual void internalTransition(const devs::Time& event);
+        virtual devs::Time init(devs::Time /* time */) override;
+        virtual void internalTransition(devs::Time event) override;
         virtual void externalTransition(const devs::ExternalEventList& event,
-                                        const devs::Time& time);
-        virtual value::Value* observation(const devs::ObservationEvent& event)
-            const;
+                                        devs::Time time) override;
+        virtual std::unique_ptr<value::Value> observation(
+                const devs::ObservationEvent& event) const override;
 
-        virtual void processPerturbation(const devs::ExternalEvent& event);
+        virtual void processPerturbation(
+                const devs::ExternalEvent& event) override;
 
     protected:
         const devs::Time & getCurrentTime(unsigned int i) const;

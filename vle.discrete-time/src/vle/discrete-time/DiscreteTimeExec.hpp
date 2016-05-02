@@ -82,26 +82,25 @@ public:
     //DEVS implementation
     //////////////////////
 
-    virtual vle::devs::Time init(const vle::devs::Time& time);
+    virtual vle::devs::Time init(vle::devs::Time time) override;
 
-    virtual vle::devs::Time timeAdvance() const;
+    virtual vle::devs::Time timeAdvance() const override;
 
-    virtual void internalTransition(
-        const vle::devs::Time& time);
+    virtual void internalTransition(vle::devs::Time time) override;
 
     virtual void externalTransition(
         const vle::devs::ExternalEventList& event,
-        const vle::devs::Time& time);
+        vle::devs::Time time) override;
 
     virtual void confluentTransitions(
-        const vle::devs::Time& internal,
-        const vle::devs::ExternalEventList& extEventlist);
+        vle::devs::Time internal,
+        const vle::devs::ExternalEventList& extEventlist) override;
 
-    virtual void output(const vle::devs::Time& /* time */,
-                        vle::devs::ExternalEventList& /* output */) const;
+    virtual void output(vle::devs::Time /* time */,
+        vle::devs::ExternalEventList& /* output */) const override;
 
-    virtual vle::value::Value* observation(
-    const vle::devs::ObservationEvent& /* event */) const;
+    virtual std::unique_ptr<vle::value::Value> observation(
+    const vle::devs::ObservationEvent& /* event */) const override;
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
     ////////////////////

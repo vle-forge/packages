@@ -33,9 +33,8 @@
 #include <vle/value/String.hpp>
 #include <vle/value/Set.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/bind.hpp>
-#include <boost/checked_delete.hpp>
 #include <cassert>
+#include <algorithm>
 
 using std::map;
 using std::pair;
@@ -67,16 +66,15 @@ CellDevs::CellDevs(const vle::devs::DynamicsInit& model,
     InitEventList::const_iterator it = events.begin();
     while (it != events.end()) {
         string name = it->first;
-        const value::Value* value = it->second;
 
         if (name == "Delay")
-            setDelay(value::toDouble(value));
+            setDelay(it->second->toDouble().value());
         else
             if (name == "Neighbourhood") {
-                const value::Set* set = value::toSetValue(value);
-                value::VectorValue::const_iterator it2 = set->begin();
+                const value::Set& set = it->second->toSet();
+                value::VectorValue::const_iterator it2 = set.begin();
 
-                while (it2 != set->end()) {
+                while (it2 != set.end()) {
                     std::string neighbour = vle::value::toString(*it2);
 
                     m_neighbourPortList.push_back(neighbour);
@@ -84,26 +82,28 @@ CellDevs::CellDevs(const vle::devs::DynamicsInit& model,
                 }
             } else {
                 if (m_state.find(name) != m_state.end()) {
-                    initState(name,value->clone());
+                    initState(name,it->second->clone());
                 } else {
-                    m_parameters[name] = value->clone();;
+                    m_parameters.add(name, it->second->clone());
                 }
             }
         ++it;
     }
 }
 
-typedef std::map < std::string, std::pair < value::Value* , bool > > State_t;
 typedef std::map < std::string,
-                   std::map < std::string , value::Value* > > NeighbourState_t;
-typedef std::map < std::string, value::Value* > Parameters_t;
+                   std::pair < std::unique_ptr<value::Value> ,
+                               bool > > State_t;
+typedef std::map < std::string,
+                   std::map< std::string ,
+                             std::unique_ptr<value::Value> > > NeighbourState_t;
+typedef std::map < std::string, std::unique_ptr<value::Value> > Parameters_t;
 
 struct StateDeleter
     : std::unary_function < State_t::value_type, void >
 {
     void operator()(State_t::value_type &value) const
     {
-        delete value.second.first;
         value.second.first = 0;
     }
 };
@@ -111,15 +111,16 @@ struct StateDeleter
 struct NeighbourStateDeleter
     : std::unary_function < NeighbourState_t::value_type, void >
 {
-    void operator()(NeighbourState_t::value_type &value) const
+    void operator()(NeighbourState_t::value_type & /*value*/) const
     {
-        typedef std::map < std::string, value::Value* > map_t;
+//        typedef std::map < std::string, std::unique_ptr<value::Value> > map_t;
 
-        std::for_each(value.second.begin(), value.second.end(),
-                      boost::bind(
-                          boost::checked_deleter < value::Value >(),
-                          boost::bind(
-                              &map_t::value_type::second, _1)));
+////TODO
+//        std::for_each(value.second.begin(), value.second.end(),
+//                      boost::bind(
+//                          boost::checked_deleter < value::Value >(),
+//                          boost::bind(
+//                              &map_t::value_type::second, _1)));
     }
 };
 
@@ -130,12 +131,12 @@ CellDevs::~CellDevs()
 
     std::for_each(m_neighbourState.begin(), m_neighbourState.end(),
                   NeighbourStateDeleter());
-
-    std::for_each(m_parameters.begin(), m_parameters.end(),
-                  boost::bind(
-                      boost::checked_deleter < value::Value >(),
-                      boost::bind(
-                          &Parameters_t::value_type::second, _1)));
+////TODO
+//    std::for_each(m_parameters.begin(), m_parameters.end(),
+//                  boost::bind(
+//                      boost::checked_deleter < value::Value >(),
+//                      boost::bind(
+//                          &Parameters_t::value_type::second, _1)));
 }
 
 Time const & CellDevs::getSigma() const
@@ -164,19 +165,22 @@ void CellDevs::hiddenState(std::string const & p_name)
 {
     assert(m_state.find(p_name) != m_state.end());
 
-    value::Value* v_value = getState(p_name);
+    const value::Value& v_value = getState(p_name);
 
-    m_state[p_name] = pair < value::Value* , bool >(v_value,false);
+    m_state[p_name] = pair < std::unique_ptr<value::Value> , bool >(
+            v_value.clone(),false);
 }
 
 void CellDevs::initState(std::string const & p_name,
-                         value::Value* p_value,
+                         std::unique_ptr<value::Value> p_value,
                          bool p_visible)
 {
     assert(m_state.find(p_name) == m_state.end());
 
     m_stateNameList.push_back(p_name);
-    m_state[p_name] = pair < value::Value* , bool >(p_value,p_visible);
+
+    m_state[p_name] = pair<std::unique_ptr<value::Value>,bool>(
+            std::move(p_value),p_visible);
     if (p_visible) m_modified = true;
 }
 
@@ -220,7 +224,7 @@ void CellDevs::initStringState(std::string const & p_name,
 
 
 void CellDevs::initNeighbourhood(std::string const & p_stateName,
-                                 value::Value* p_value)
+                                 std::unique_ptr<value::Value> p_value)
 {
     vector < string >::const_iterator it = m_neighbourPortList.begin();
 
@@ -228,8 +232,6 @@ void CellDevs::initNeighbourhood(std::string const & p_stateName,
         initNeighbourState(*it,p_stateName, p_value->clone());
         ++it;
     }
-
-    delete p_value;
 }
 
 void CellDevs::initDoubleNeighbourhood(std::string const & p_stateName,
@@ -263,15 +265,14 @@ void CellDevs::initStringNeighbourhood(std::string const & p_stateName,
 
 void CellDevs::initNeighbourState(std::string const & p_neighbourName,
                                   std::string const & p_stateName,
-                                  value::Value* p_value)
+                                  std::unique_ptr<value::Value> p_value)
 {
     NeighbourState_t::iterator it = m_neighbourState.find(p_neighbourName);
     if (it != m_neighbourState.end()) {
-        std::map < std::string , value::Value* >::iterator jt;
+        std::map < std::string , std::unique_ptr<value::Value> >::iterator jt;
         jt = it->second.find(p_stateName);
 
         if (jt != it->second.end()) {
-            delete jt->second;
             jt->second = p_value->clone();
         } else {
             it->second[p_stateName] = p_value->clone();
@@ -279,8 +280,6 @@ void CellDevs::initNeighbourState(std::string const & p_neighbourName,
     } else {
         m_neighbourState[p_neighbourName][p_stateName] = p_value->clone();
     }
-
-    delete p_value;
 }
 
 void CellDevs::initDoubleNeighbourState(std::string const & p_neighbourName,
@@ -343,12 +342,13 @@ double CellDevs::getDelay() const
     return m_delay;
 }
 
-value::Value* CellDevs::getState(std::string const & p_name) const
+const value::Value&
+CellDevs::getState(std::string const & p_name) const
 {
     assert(existState(p_name));
     assert(m_state.find(p_name) != m_state.end());
 
-    return m_state.find(p_name)->second.first;
+    return *(m_state.find(p_name)->second.first);
 }
 
 double CellDevs::getDoubleState(std::string const & p_name) const
@@ -371,8 +371,9 @@ string CellDevs::getStringState(std::string const & p_name) const
     return (value::toString(getState(p_name)));
 }
 
-value::Value* CellDevs::getNeighbourState(std::string const & p_neighbourName,
-                                         std::string const & p_stateName) const
+const value::Value& CellDevs::getNeighbourState(
+        std::string const & p_neighbourName,
+        std::string const & p_stateName) const
 {
     assert(m_neighbourState.find(p_neighbourName) !=
            m_neighbourState.end());
@@ -380,8 +381,8 @@ value::Value* CellDevs::getNeighbourState(std::string const & p_neighbourName,
            find(p_stateName) != m_neighbourState.
            find(p_neighbourName)->second.end());
 
-    return m_neighbourState.find(p_neighbourName)->second.
-        find(p_stateName)->second;
+    return *(m_neighbourState.find(p_neighbourName)->second.
+        find(p_stateName)->second);
 }
 
 double CellDevs::getDoubleNeighbourState(std::string const & p_neighbourName,
@@ -417,13 +418,14 @@ unsigned int CellDevs::getBooleanNeighbourStateNumber(std::string const & p_stat
                                                       bool p_value) const
 {
     unsigned int v_counter = 0;
-    map < string , map < string , value::Value* > >::const_iterator it =
+    map < string , map < string ,
+                   std::unique_ptr<value::Value> > >::const_iterator it =
         m_neighbourState.begin();
 
     while (it != m_neighbourState.end()) {
-        value::Value* v_value = it->second.find(p_stateName)->second;
+        const value::Value& v_value = *(it->second.find(p_stateName)->second);
 
-        if (value::toBoolean(v_value) == p_value)
+        if (v_value.toBoolean().value() == p_value)
             v_counter++;
         it++;
     }
@@ -434,13 +436,14 @@ unsigned int CellDevs::getIntegerNeighbourStateNumber(std::string const & p_stat
                                                       long p_value) const
 {
     unsigned int v_counter = 0;
-    map < string , map < string , value::Value* > >::const_iterator it =
+    map < string , map < string ,
+                   std::unique_ptr<value::Value> > >::const_iterator it =
         m_neighbourState.begin();
 
     while (it != m_neighbourState.end()) {
-        value::Value* v_value = it->second.find(p_stateName)->second;
+        const value::Value& v_value = *(it->second.find(p_stateName)->second);
 
-        if (value::toInteger(v_value) == p_value)
+        if (v_value.toInteger().value()  == p_value)
             v_counter++;
         it++;
     }
@@ -448,17 +451,18 @@ unsigned int CellDevs::getIntegerNeighbourStateNumber(std::string const & p_stat
 }
 
 void CellDevs::setState(std::string const & p_name,
-                        value::Value* p_value)
+        std::unique_ptr<value::Value> p_value)
 {
     assert(existState(p_name));
 
-    std::map < string ,  pair < value::Value* , bool > >::iterator it =
+    std::map < string ,
+               pair <std::unique_ptr<value::Value> , bool > >::iterator it =
         m_state.find(p_name);
 
     bool v_visible = it->second.second;
 
-    delete it->second.first;
-    it->second = std::pair < value::Value* , bool >(p_value, v_visible);
+    it->second = std::pair < std::unique_ptr<value::Value> ,
+                        bool >(std::move(p_value), v_visible);
 
     if (v_visible)
         m_modified = true;
@@ -487,17 +491,17 @@ void CellDevs::setStringState(std::string const & p_name,
 
 void CellDevs::setNeighbourState(std::string const & p_neighbourName,
                                  std::string const & p_stateName,
-                                 const value::Value* p_value)
+                                 const value::Value& p_value)
 {
     assert(m_neighbourState.find(p_neighbourName) !=
            m_neighbourState.end());
 
-    std::map < string , value::Value* >& v_state = m_neighbourState.
-        find(p_neighbourName)->second;
-    std::map < string , value::Value* >::iterator it = v_state.find(p_stateName);
+    std::map < string , std::unique_ptr<value::Value> >& v_state =
+            m_neighbourState.find(p_neighbourName)->second;
+    std::map < string , std::unique_ptr<value::Value> >::iterator it =
+            v_state.find(p_stateName);
 
-    delete it->second;
-    it->second = p_value->clone();
+    it->second = p_value.clone();
 }
 
 //***********************************************************************
@@ -508,26 +512,28 @@ void CellDevs::setNeighbourState(std::string const & p_neighbourName,
 //***********************************************************************
 //***********************************************************************
 
-Time CellDevs::init(const Time& /* time */)
+Time CellDevs::init(Time /* time */)
 {
     setLastTime(Time(0));
     m_neighbourModified = false;
     return devs::infinity;
 }
 
-void CellDevs::output(const Time& /* time */, ExternalEventList& output) const
+void CellDevs::output(Time /* time */, ExternalEventList& output) const
 {
     if (m_modified) {
-        ExternalEvent* e = new ExternalEvent("out");
-        map < string , pair < value::Value* , bool > >::const_iterator it =
+        output.emplace_back("out");
+        value::Map& attr = output.back().addMap();
+
+        map <string ,
+             pair< std::unique_ptr<value::Value>,bool > >::const_iterator it =
             m_state.begin();
 
         while (it != m_state.end()) {
             if (it->second.second)
-                e->putAttribute(it->first,it->second.first->clone());
+                attr.add(it->first,it->second.first->clone());
             ++it;
         }
-        output.push_back(e);
     }
 }
 
@@ -536,27 +542,28 @@ Time CellDevs::timeAdvance() const
     return m_sigma;
 }
 
-void CellDevs::internalTransition(const vle::devs::Time& /* time */)
+void CellDevs::internalTransition(vle::devs::Time /* time */)
 {
     if (m_modified)
         m_modified = false;
 }
 
 void CellDevs::externalTransition(const ExternalEventList& event,
-                                  const Time& time)
+                                  Time time)
 {
     ExternalEventList::const_iterator it = event.begin();
 
     while (it != event.end()) {
-        string v_portName = (*it)->getPortName();
+        string v_portName = it->getPortName();
 
         if (existNeighbourState(v_portName)) {
-            map < string , value::Value* >::const_iterator it2 =
+            map <string, std::unique_ptr<value::Value> >::const_iterator it2 =
                 m_neighbourState[v_portName].begin();
 
             while (it2 != m_neighbourState[v_portName].end()) {
                 string v_name = it2->first;
-                const value::Value* v_value = &(*it)->getAttributeValue(v_name);
+                const value::Value& v_value =
+                        *it->attributes()->toMap().get(v_name);
                 setNeighbourState(v_portName,v_name,v_value);
                 ++it2;
             }
@@ -564,15 +571,16 @@ void CellDevs::externalTransition(const ExternalEventList& event,
             updateSigma(time);
         }
         else // c'est une perturbation
-            processPerturbation(**it);
+            processPerturbation(*it);
         ++it;
     }
 }
 
-Value* CellDevs::observation(const ObservationEvent& event) const
+std::unique_ptr<vle::value::Value> CellDevs::observation(
+        const ObservationEvent& event) const
 {
     if (existState(event.getPortName())) {
-        return getState(event.getPortName())->clone();
+        return getState(event.getPortName()).clone();
     } else {
         return 0;
     }

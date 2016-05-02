@@ -122,7 +122,7 @@ void Discontinuities::registerPerturb(const vd::Time& time,
     idPert.assign(ss.str());
     std::set<std::string>& idModels = registeredDiscs[idPert];
     idModels.insert(modelId);
-    pertsForReinit.add(new vv::Map(dataCarried));
+    pertsForReinit.add(std::unique_ptr<vv::Value>(new vv::Map(dataCarried)));
     vv::Set& idModelsAll = discsToPropagate.addSet(idPert);
     idModelsAll.addString(modelId);
     registeredPerturb = true;
@@ -139,13 +139,14 @@ void Discontinuities::resetDiscontinuities()
     registeredNewDisc = false;
 }
 
-vv::Map* Discontinuities::buildDiscsToPropagate(const vd::Time& time) const
+std::unique_ptr<vv::Map> Discontinuities::buildDiscsToPropagate(
+        const vd::Time& time) const
 {
     //for dbg
     if ((time != registeredTime) || discsToPropagate.empty()) {
         throw vu::InternalError("INT error : nothing to propagate ");
     }
-    return new vv::Map(discsToPropagate);
+    return std::unique_ptr<vv::Map>(new vv::Map(discsToPropagate));
 }
 
 const vv::Set& Discontinuities::getPerturbsForReinit() const

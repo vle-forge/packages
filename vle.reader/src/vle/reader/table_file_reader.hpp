@@ -28,20 +28,22 @@
 #include <string>
 #include <ostream>
 #include <fstream>
-#include <boost/algorithm/string/replace.hpp>
+#include <regex>
+#include <vle/utils/Exception.hpp>
+#include <boost/format.hpp>
 #include <vle/value/Matrix.hpp>
 #include <vle/value/Set.hpp>
 #include <vle/value/Map.hpp>
-#include <vle/utils/Exception.hpp>
 #include <vle/value/Map.hpp>
-#include <vle/reader/details/TFR_line_grammar.hpp>
-#include <vle/reader/details/vle_reader_params.hpp>
+#include <vle/reader/details/vle_line_parser.hpp>
+
 
 
 namespace vle {
 namespace reader {
 
 namespace vv = vle::value;
+namespace vu = vle::utils;
 
 
 class TableFileReader
@@ -57,8 +59,6 @@ public:
         file_path(filepath), filestream(0), params_parser(), report(),
         stream_place()
     {
-        boost::replace_all(file_path, "\r\n", "");
-        boost::replace_all(file_path, "\n", "");
     }
 
     virtual ~TableFileReader()
@@ -90,10 +90,15 @@ public:
         }
         params_parser.separator = sep;
         params_parser.col_types.clear();
-        TFR_set_tofill tofill(params_parser, lineToFill);
-        TFR_line_grammar g(params_parser, tofill);
         std::string line;
-        bool res = parseLine(g, line);
+
+
+
+        lineToFill.clear();
+        stream_place = filestream->tellg();
+        std::getline(*filestream, line);
+        bool res = vle_line_parser::parseLine(params_parser, line, lineToFill);
+
         if (filestream->eof() or not filestream->good()) {
             clearFileStream();
         }
@@ -105,10 +110,14 @@ public:
         if (filestream == 0) {
             openFileStream();
         }
-        TFR_set_tofill tofill(params_parser, lineToFill);
-        TFR_line_grammar g(params_parser, tofill);
+
         std::string line;
-        bool res = parseLine(g, line);
+
+        lineToFill.clear();
+        stream_place = filestream->tellg();
+        std::getline(*filestream, line);
+        bool res = vle_line_parser::parseLine(params_parser, line, lineToFill);
+
         if (filestream->eof() or not filestream->good()) {
             clearFileStream();
         }
@@ -130,14 +139,29 @@ public:
         clearFileStream();
         openFileStream();
 
-        TFR_matrix_tofill tofill(params_parser, matrixToFill);
-        TFR_line_grammar g(params_parser, tofill);
         std::string line;
         bool res = true;
+        vle::value::Set lineToFill;
         do {
-            res = res & parseLine(g,line);
-            tofill.nextRow();
-        } while (not filestream->eof() and filestream->good());
+            stream_place = filestream->tellg();
+            std::getline(*filestream, line);
+            if (not line.empty()){
+                res = res and vle_line_parser::parseLine(
+                        params_parser,line,lineToFill);
+                if (matrixToFill.rows() == 0) {
+                    if (params_parser.col_types.size() > 0) {
+                        matrixToFill.resize(lineToFill.size(), 1);
+                    }
+                } else {
+                    matrixToFill.addRow();
+                }
+                for (unsigned int i=0;i<matrixToFill.columns();i++) {
+                    matrixToFill.set(i, matrixToFill.rows()-1, std::move(
+                            lineToFill.give(i)));
+                }
+            }
+        } while (not filestream->eof() and filestream->good()
+                 and not line.empty());
         clearFileStream();
         return res;
     }
@@ -186,35 +210,6 @@ private:
     int stream_place;
 
 
-    bool parseLine(TFR_line_grammar& g, std::string& line)
-    {
-        stream_place = filestream->tellg();
-        std::getline(*filestream, line);
-        if (line.empty()) {
-            return false;
-        }
-        if (not line.empty()) {
-            parse_info<> resParsing =
-                    BOOST_SPIRIT_CLASSIC_NS::parse(line.c_str(), g);
-            if (! resParsing.full) {
-                std::ostringstream report_line;
-                report_line << line << " (failed to parse, reason: "
-                        << resParsing.stop << ")";
-                report.push_back(report_line.str());
-                return false;
-            } else if ((g.tofill.params.col_types.size() > 0) &&
-                    (g.tofill.params.col_types.size()!= g.tofill.currColIndex)){
-                std::ostringstream report_line;
-                report_line << line << " (wrong number of elements, expected: "
-                        << g.tofill.params.col_types.size() <<  "; got "
-                        << g.tofill.currColIndex << ")";
-                report.push_back(report_line.str());
-                return false;
-            }
-        }
-        return true;
-    }
-
     void clearFileStream()
     {
         if (filestream != 0) {
@@ -228,8 +223,8 @@ private:
     {
         filestream = new std::ifstream(file_path.c_str());
         if (not filestream->good() or not filestream->is_open()) {
-            throw vu::ArgError(vle::fmt("vle.reader: fails to topen %1% ") %
-                    file_path);
+            throw vu::ArgError((boost::format("vle.reader: fails to topen %1% ") %
+                    file_path).str());
         }
         stream_place = filestream->tellg();
     }

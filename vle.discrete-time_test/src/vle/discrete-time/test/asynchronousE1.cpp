@@ -27,7 +27,7 @@
  */
 
 #include <vle/DiscreteTime.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <iostream>
 
 
@@ -53,7 +53,7 @@ public:
     {
     }
 
-    void compute(const vle::devs::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/) override
     {
         e1 = e0() + 1;
     }

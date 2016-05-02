@@ -29,11 +29,9 @@
 #ifndef VLE_EXTENSION_FSA_FDDEVS_HPP
 #define VLE_EXTENSION_FSA_FDDEVS_HPP 1
 
+#include <functional>
 #include <vle/extension/fsa/FSA.hpp>
-#include <vle/utils/i18n.hpp>
-#include <boost/assign.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include <boost/format.hpp>
 
 namespace vle { namespace extension { namespace fsa {
 
@@ -117,7 +115,7 @@ private:
 
     // output
     typedef std::map < int , std::string > Outputs;
-    typedef boost::function < void (const devs::Time&,
+    typedef std::function < void (const devs::Time&,
                                     devs::ExternalEventList&) > OutputFunc;
     typedef std::map < int , OutputFunc > OutputFuncs;
 
@@ -144,8 +142,8 @@ public:
     }
 
     virtual void confluentTransitions(
-        const devs::Time& time,
-        const devs::ExternalEventList& extEventlist)
+        devs::Time time,
+        const devs::ExternalEventList& extEventlist) override
     {
         externalTransition(extEventlist, time);
         internalTransition(time);
@@ -188,18 +186,18 @@ private:
     // Next states in case of internal transition
     Internals mInternals;
 
-    void process(const devs::ExternalEvent* event,
+    void process(const std::string& portname,
                  const devs::Time& time);
 
-    virtual devs::Time init(const devs::Time& time);
-    virtual void output(const devs::Time& time,
-                        devs::ExternalEventList& output) const;
-    virtual devs::Time timeAdvance() const
+    virtual devs::Time init(devs::Time time) override;
+    virtual void output(devs::Time time,
+                        devs::ExternalEventList& output) const override;
+    virtual devs::Time timeAdvance() const override
     { return mSigma; }
-    virtual void internalTransition(const devs::Time& event);
+    virtual void internalTransition(devs::Time event) override;
     virtual void externalTransition(
         const devs::ExternalEventList& events,
-        const devs::Time& time);
+        devs::Time time) override;
 
     devs::Time mLastTime;
     devs::Time mSigma;
@@ -210,7 +208,7 @@ private:
 template < typename I >
 void operator>>(Internal_t<I> internal, int newState)
 {
-    boost::assign::insert(internal.obj->internals())(internal.state, newState);
+    internal.obj->internals().insert(std::make_pair(internal.state, newState));
 }
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
@@ -218,7 +216,7 @@ void operator>>(Internal_t<I> internal, int newState)
 template < typename I >
 void operator<<(Duration_t<I> duration, const devs::Time& value)
 {
-    boost::assign::insert(duration.obj->durations())(duration.state, value);
+    duration.obj->durations().insert(std::make_pair(duration.state, value));
 }
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
@@ -226,7 +224,9 @@ void operator<<(Duration_t<I> duration, const devs::Time& value)
 template < typename I >
 void operator>>(External_t<I> external, int state)
 {
-    boost::assign::insert(external.obj->externals(external.state))(external.input, state);
+
+    external.obj->externals(external.state).insert(
+            std::make_pair(external.input, state));
 }
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
@@ -234,7 +234,7 @@ void operator>>(External_t<I> external, int state)
 template < typename I >
 void operator>>(FDDevsOutput_t<I> output, const std::string& port)
 {
-    boost::assign::insert(output.obj->outputs())(output.state, port);
+    output.obj->outputs().insert(std::make_pair(output.state, port));
 }
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
@@ -242,8 +242,9 @@ void operator>>(FDDevsOutput_t<I> output, const std::string& port)
 template < typename X, typename I >
 void operator>>(FDDevsOutputFunc_t<X,I> output, int state)
 {
-    boost::assign::insert(output.obj->outputFuncs())(
-        state, boost::bind(output.func, output.obj, _1, _2));
+    output.obj->outputFuncs().insert(std::make_pair(
+        state, std::bind(output.func, output.obj, std::placeholders::_1,
+                std::placeholders::_2)));
 }
 
 }}} // namespace vle extension fsa

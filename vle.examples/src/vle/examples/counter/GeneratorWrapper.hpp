@@ -43,15 +43,14 @@ namespace vle { namespace examples { namespace generator {
 
         virtual ~GeneratorWrapper();
 
-        virtual vle::devs::Time init(const vle::devs::Time& /* time */);
+        virtual vle::devs::Time init(vle::devs::Time /* time */) override;
 
-        virtual void output(const vle::devs::Time& time,
-                            vle::devs::ExternalEventList& output) const;
+        virtual void output(vle::devs::Time time,
+                vle::devs::ExternalEventList& output) const override;
 
-        virtual vle::devs::Time timeAdvance() const;
-        virtual void internalTransition(
-                            const vle::devs::Time& event);
-        virtual void finish() { }
+        virtual vle::devs::Time timeAdvance() const override;
+        virtual void internalTransition(vle::devs::Time event) override;
+        virtual void finish() override { } ;
 
     private:
         vle::devs::InitEventList m_events;

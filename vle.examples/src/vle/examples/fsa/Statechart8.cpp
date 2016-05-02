@@ -69,7 +69,7 @@ private:
 
     void add(const vd::Time& /* time */)
     { ++x; }
-    void in(const vd::Time& /* time */, const vd::ExternalEvent* /* event */)
+    void in(const vd::Time& /* time */, const vd::ExternalEvent& /* event */)
     { ++x; }
     void start(const vd::Time& /* time */)
     { x = 0; }

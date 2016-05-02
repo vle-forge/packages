@@ -26,7 +26,7 @@
  */
 
 #include <vle/DiscreteTime.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <iostream>
 
 
@@ -53,7 +53,7 @@ public:
     }
 
 
-    void compute(const vle::devs::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/) override
     {
         b = a();
     }
@@ -62,7 +62,7 @@ public:
     Var b;
 };
 
-DECLARE_DYNAMICS_DBG(executiveDT_B)
+DECLARE_DYNAMICS(executiveDT_B)
 
 }}}
 

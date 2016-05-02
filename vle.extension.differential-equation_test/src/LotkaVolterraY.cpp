@@ -25,7 +25,7 @@
  * @@tagdepends: vle.extension.differential-equation @@endtagdepends
  */
 #include <vle/extension/DifferentialEquation.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 
 namespace differential_equation { namespace test { namespace dynamics  {
 
@@ -66,4 +66,4 @@ namespace differential_equation { namespace test { namespace dynamics  {
 }}} // namespace differential_equation test dynamics
 
 DECLARE_DYNAMICS(differential_equation::test::dynamics::LotkaVolterraY)
-    //DECLARE_DYNAMICS_DBG(differential_equation::test::dynamics::LotkaVolterraY)
+    //DECLARE_DYNAMICS(differential_equation::test::dynamics::LotkaVolterraY)

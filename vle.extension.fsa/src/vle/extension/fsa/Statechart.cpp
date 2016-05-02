@@ -31,21 +31,21 @@
 namespace vle { namespace extension { namespace fsa {
 
 void Statechart::buildOutputs(int transition,
-			      const devs::Time& time,
-			      devs::ExternalEventList& output) const
+        const devs::Time& time,
+        devs::ExternalEventList& output) const
 {
     if (transition != -1) {
-	OutputFuncsIterator itof = mOutputFuncs.find(transition);
+        OutputFuncsIterator itof = mOutputFuncs.find(transition);
 
-	if (itof != mOutputFuncs.end()) {
-	    (itof->second)(time, output);
-	} else {
-	    OutputsIterator ito = mOutputs.find(transition);
+        if (itof != mOutputFuncs.end()) {
+            (itof->second)(time, output);
+        } else {
+            OutputsIterator ito = mOutputs.find(transition);
 
-	    if (ito != mOutputs.end()) {
-		output.push_back(buildEvent(ito->second));
-	    }
-	}
+            if (ito != mOutputs.end()) {
+                output.emplace_back(ito->second);
+            }
+        }
     }
 }
 
@@ -67,35 +67,35 @@ void Statechart::checkGuards(const devs::Time& time)
     if (it != mTransitionsMap.end()) {
         TransitionsIterator itt = it->second.begin();
 
-	while (not mValidGuard and itt != it->second.end()) {
-	    // transition without event/after/when
-	    if (mEvents.find(*itt) == mEvents.end() and
-		mAfters.find(*itt) == mAfters.end() and
-		mWhens.find(*itt) == mWhens.end() and
-		mAfterFuncs.find(*itt) == mAfterFuncs.end() and
-		mWhenFuncs.find(*itt) == mWhenFuncs.end()) {
-		GuardsIterator itg = mGuards.find(*itt);
+        while (not mValidGuard and itt != it->second.end()) {
+            // transition without event/after/when
+            if (mEvents.find(*itt) == mEvents.end() and
+                    mAfters.find(*itt) == mAfters.end() and
+                    mWhens.find(*itt) == mWhens.end() and
+                    mAfterFuncs.find(*itt) == mAfterFuncs.end() and
+                    mWhenFuncs.find(*itt) == mWhenFuncs.end()) {
+                GuardsIterator itg = mGuards.find(*itt);
 
-		if (itg != mGuards.end()) { // guarded transition
-		    if ((itg->second)(time)) {
-			mToProcessGuard = std::make_pair(*itt,
-							 mNextStates[*itt]);
-			mValidGuard = true;
-			mPhase = PROCESSING;
-		    }
-		} else { // automatic transition
+                if (itg != mGuards.end()) { // guarded transition
+                    if ((itg->second)(time)) {
+                        mToProcessGuard = std::make_pair(*itt,
+                                mNextStates[*itt]);
+                        mValidGuard = true;
+                        mPhase = PROCESSING;
+                    }
+                } else { // automatic transition
                     mToProcessGuard = std::make_pair(*itt, mNextStates[*itt]);
                     mValidGuard = true;
                     mPhase = PROCESSING;
                 }
             }
-	    ++itt;
+            ++itt;
         }
     }
 }
 
 Statechart::Transitions Statechart::findTransition(
-    const devs::ExternalEvent* event) const
+        const devs::ExternalEvent& event) const
 {
     TransitionsMapIterator it = mTransitionsMap.find(currentState());
     Transitions transitions;
@@ -106,7 +106,7 @@ Statechart::Transitions Statechart::findTransition(
         while (itt != it->second.end()) {
             EventsIterator ite = mEvents.find(*itt);
 
-            if (ite != mEvents.end() and ite->second == event->getPortName()) {
+            if (ite != mEvents.end() and ite->second == event.getPortName()) {
                 transitions.push_back(ite->first);
             }
             ++itt;
@@ -116,7 +116,7 @@ Statechart::Transitions Statechart::findTransition(
 }
 
 bool Statechart::process(const devs::Time& time,
-			 const devs::ExternalEvent* event)
+        const devs::ExternalEvent& event)
 {
     bool proceed = true;
     Transitions transitions = findTransition(event);
@@ -146,7 +146,7 @@ bool Statechart::process(const devs::Time& time,
 }
 
 void Statechart::process(const devs::Time& time,
-			 int transitionId)
+        int transitionId)
 {
     processOutStateAction(time);
     processGuardTransitionAction(transitionId, time);
@@ -190,12 +190,12 @@ void Statechart::processOutStateAction(const devs::Time& time)
 }
 
 void Statechart::processEventTransitionAction(
-    int transition,
-    const devs::Time& time,
-    const devs::ExternalEvent* event)
+        int transition,
+        const devs::Time& time,
+        const devs::ExternalEvent& event)
 {
     EventTransitionActionsIterator it =
-        mEventTransitionActions.find(transition);
+            mEventTransitionActions.find(transition);
 
     if (it != mEventTransitionActions.end()) {
         (it->second)(time, event);
@@ -203,11 +203,11 @@ void Statechart::processEventTransitionAction(
 }
 
 void Statechart::processGuardTransitionAction(
-    int transition,
-    const devs::Time& time)
+        int transition,
+        const devs::Time& time)
 {
     GuardTransitionActionsIterator it =
-        mGuardTransitionActions.find(transition);
+            mGuardTransitionActions.find(transition);
 
     if (it != mGuardTransitionActions.end()) {
         (it->second)(time);
@@ -215,16 +215,16 @@ void Statechart::processGuardTransitionAction(
 }
 
 bool Statechart::processEventInStateActions(
-    const devs::Time& time,
-    const devs::ExternalEvent* event)
+        const devs::Time& time,
+        const devs::ExternalEvent& event)
 {
     bool proceed = false;
 
     if (mEventInStateActions.find(currentState()) !=
-        mEventInStateActions.end()) {
+            mEventInStateActions.end()) {
         EventInStateActions& actions = eventInStateActions(
-            currentState());
-        EventInStateActionsIterator it = actions.find(event->getPortName());
+                currentState());
+        EventInStateActionsIterator it = actions.find(event.getPortName());
 
         if (it != actions.end()) {
             (it->second)(time, event);
@@ -233,18 +233,6 @@ bool Statechart::processEventInStateActions(
         }
     }
     return proceed;
-}
-
-void Statechart::removeProcessEvent(devs::ExternalEventList* events,
-				    devs::ExternalEvent* event)
-{
-    events->erase(events->begin());
-
-    delete event;
-    if (events->empty()) {
-	mToProcessEvents.pop_front();
-	delete events;
-    }
 }
 
 void Statechart::setSigma(const devs::Time& time)
@@ -308,7 +296,7 @@ void Statechart::setSigma(const devs::Time& time)
                             }
                         } else {
                             if (mEvents.find(*itt) == mEvents.end() and
-                                mGuards.find(*itt) == mGuards.end()) {
+                                    mGuards.find(*itt) == mGuards.end()) {
                                 sigma = 0;
                                 id.clear();
                                 id.push_back(*itt);
@@ -333,7 +321,7 @@ void Statechart::setSigma(const devs::Time& time)
 
                 if (itn != mNextStates.end()) {
                     mToProcessAfterWhen.push_back(
-                        std::make_pair(*it, itn->second));
+                            std::make_pair(*it, itn->second));
                 }
                 ++it;
             }
@@ -349,26 +337,26 @@ void Statechart::updateSigma(const devs::Time& time)
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-void Statechart::output(const devs::Time& time,
-			devs::ExternalEventList& output) const
+void Statechart::output(devs::Time time,
+        devs::ExternalEventList& output) const
 {
     if (mPhase == SEND) {
         if (not mToProcessEvents.empty()) {
-	    buildOutputs(mFiredTransition, time, output);
-	}
-	if (mValidGuard) {
-	    buildOutputs(mToProcessGuard.first, time, output);
-	} else if (mValidAfterWhen) {
-	    buildOutputs(mToProcessAfterWhen.front().first, time, output);
-	}
+            buildOutputs(mFiredTransition, time, output);
+        }
+        if (mValidGuard) {
+            buildOutputs(mToProcessGuard.first, time, output);
+        } else if (mValidAfterWhen) {
+            buildOutputs(mToProcessAfterWhen.front().first, time, output);
+        }
     }
 }
 
-devs::Time Statechart::init(const devs::Time& time)
+devs::Time Statechart::init(devs::Time time)
 {
     if (not isInit()) {
         throw utils::InternalError(
-            _("FSA::Statechart model, initial state not defined"));
+                "FSA::Statechart model, initial state not defined");
     }
 
     currentState(initialState());
@@ -389,28 +377,28 @@ devs::Time Statechart::init(const devs::Time& time)
 }
 
 void Statechart::externalTransition(
-    const devs::ExternalEventList& events,
-    const devs::Time& time)
+        const devs::ExternalEventList& events, devs::Time time)
 {
+    ExternalEventListPtr clonedEvents(new devs::ExternalEventList);
+                    ;
     if (events.size() > 1) {
         devs::ExternalEventList sortedEvents = select(events);
-        devs::ExternalEventList* clonedEvents =
-            new devs::ExternalEventList;
         devs::ExternalEventList::const_iterator it = sortedEvents.begin();
 
         while (it != sortedEvents.end()) {
-            clonedEvents->push_back(cloneExternalEvent(*it));
+            clonedEvents->emplace_back(it->getPortName());
+            devs::ExternalEvent& e = clonedEvents->back();
+            copyExternalEventAttrs(*it, e);
             ++it;
         }
-        mToProcessEvents.push_back(clonedEvents);
     } else {
         devs::ExternalEventList::const_iterator it = events.begin();
-        devs::ExternalEventList* clonedEvents =
-            new devs::ExternalEventList;
+        clonedEvents->emplace_back(it->getPortName());
+        devs::ExternalEvent& e = clonedEvents->back();
+        copyExternalEventAttrs(*it, e);
 
-        clonedEvents->push_back(cloneExternalEvent(*it));
-        mToProcessEvents.push_back(clonedEvents);
     }
+    mToProcessEvents.emplace_back(std::move(clonedEvents));
     updateSigma(time);
     mLastTime = time;
     if (mPhase != SEND) {
@@ -427,7 +415,7 @@ devs::Time Statechart::timeAdvance() const
     }
 }
 
-void Statechart::internalTransition(const devs::Time& time)
+void Statechart::internalTransition(devs::Time time)
 {
     bool update = true;
 
@@ -436,15 +424,16 @@ void Statechart::internalTransition(const devs::Time& time)
     {
         if (mValidGuard) {
             process(time, mToProcessGuard.first);
-	    mPhase = SEND;
+            mPhase = SEND;
         } else {
             if (not mToProcessEvents.empty()) {
-                devs::ExternalEventList* events = mToProcessEvents.front();
-                devs::ExternalEvent* event = events->front();
+                const devs::ExternalEventList& events = *mToProcessEvents.front();
+                const devs::ExternalEvent& event = events.front();
 
                 if (process(time, event)) {
                     if (findTransition(event).empty()) { // eventInState
-                        removeProcessEvent(events, event);
+                        //removeProcessEvent(events, &event);//TODO
+                        mToProcessEvents.pop_front();
                         if (mToProcessEvents.empty()) {
                             if (mValidGuard) {
                                 mPhase = PROCESSING;
@@ -459,7 +448,8 @@ void Statechart::internalTransition(const devs::Time& time)
                         mPhase = SEND;
                     }
                 } else {
-                    removeProcessEvent(events, event);
+                    //removeProcessEvent(events, &event);//TODO
+                    mToProcessEvents.pop_front();
                     if (mToProcessEvents.empty()) {
                         mPhase = IDLE;
                     } else {
@@ -469,7 +459,7 @@ void Statechart::internalTransition(const devs::Time& time)
                 }
             }
         }
-	break;
+        break;
     }
     case IDLE:
     {
@@ -493,59 +483,60 @@ void Statechart::internalTransition(const devs::Time& time)
             processActivities(time);
             checkGuards(time);
         }
-	break;
+        break;
     }
     case SEND:
     {
         if (mValidGuard) {
             mValidGuard = false;
             if (mToProcessEvents.empty()) {
-		processIn(time, mToProcessGuard.second);
+                processIn(time, mToProcessGuard.second);
                 if (mValidGuard) {
                     mPhase = PROCESSING;
                 } else {
                     mPhase = IDLE;
                 }
             } else {
-		processIn(time, mToProcessGuard.second);
-		mPhase = PROCESSING;
-	    }
+                processIn(time, mToProcessGuard.second);
+                mPhase = PROCESSING;
+            }
         } else {
             if (not mToProcessEvents.empty()) {
-                devs::ExternalEventList* events = mToProcessEvents.front();
-                devs::ExternalEvent* event = events->front();
+                const devs::ExternalEventList& events = *mToProcessEvents.front();
+                const devs::ExternalEvent& event = events.front();
 
-		processIn(time, mNextStates.at(mFiredTransition));
+                processIn(time, mNextStates.at(mFiredTransition));
 
                 if (findTransition(event).empty()) { // eventInState
                     process(time, event);
                 }
 
-		removeProcessEvent(events, event);
+                //removeProcessEvent(events, &event);//TODO
+                mToProcessEvents.pop_front();
                 if (mToProcessEvents.empty()) {
-		    if (not mValidGuard) {
-			mPhase = IDLE;
-		    } else {
-			mPhase = PROCESSING;
-		    }
+                    if (not mValidGuard) {
+                        mPhase = IDLE;
+                    } else {
+                        mPhase = PROCESSING;
+                    }
                 } else {
-		    mPhase = PROCESSING;
-		}
+                    mPhase = PROCESSING;
+                }
             } else {
-		if (mValidAfterWhen) {
-		    processIn(time, mToProcessAfterWhen.front().second);
-		    mValidAfterWhen = false;
+                if (mValidAfterWhen) {
+                    processIn(time, mToProcessAfterWhen.front().second);
+                    mValidAfterWhen = false;
                     mToProcessAfterWhen.clear();
                     if (not mValidGuard) {
                         mPhase = IDLE;
                     }
-		}
-	    }
+                }
+            }
         }
     }
     }
     if (mPhase == IDLE and update) {
-	setSigma(time);
+        setSigma(time);
     }
     mLastTime = time;
 }

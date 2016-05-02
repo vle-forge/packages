@@ -31,7 +31,7 @@
  */
 
 #include <vle/devs/Dynamics.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <vle/value/Boolean.hpp>
 
 namespace vd = vle::devs;
@@ -52,22 +52,23 @@ public:
     {
     }
 
-    virtual vd::Time init(const vd::Time /*time*/)
+    virtual vd::Time init(vd::Time /*time*/) override
     {
         mCounter = 0;
         return vd::infinity;
     }
 
     virtual void externalTransition(const vd::ExternalEventList& events,
-                                    const devs::Time& /*time*/)
+                                    devs::Time /*time*/) override
     {
         mCounter += events.size();
     }
 
-    virtual vv::Value* observation(const vd::ObservationEvent& event) const
+    virtual std::unique_ptr<vv::Value> observation(
+    		const vd::ObservationEvent& event) const  override
     {
         if (event.onPort("counter")) {
-            return new vv::Integer(mCounter);
+            return vv::Integer::create(mCounter);
         }
 
         return vd::Dynamics::observation(event);
@@ -79,4 +80,4 @@ private:
 
 }}} // namespace vle examples decision
 
-DECLARE_DYNAMICS_DBG(vle::examples::decision::Counter)
+DECLARE_DYNAMICS(vle::examples::decision::Counter)

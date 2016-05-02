@@ -24,7 +24,7 @@
  * @@tagdepends: vle.discrete-time @@endtagdepends
  */
 #include <vle/DiscreteTime.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <iostream>
 
 
@@ -56,7 +56,7 @@ public:
     {
     }
 
-    void compute(const vle::devs::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/) override
     {
         for (unsigned int i =0; i<dim(y); i++ ) {
             y[i] = x[0]() - x[1]() + x[2]() + i;
@@ -73,7 +73,7 @@ public:
     Var res;
 };
 
-DECLARE_DYNAMICS_DBG(vectorAndValues_y)
+DECLARE_DYNAMICS(vectorAndValues_y)
 
 }}}
 

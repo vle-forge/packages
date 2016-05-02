@@ -27,12 +27,11 @@
 
 /*
  * @@tagdynamic@@
- * @@tagdepends: vle.extension.fsa, vle.extension.difference-equation@@endtagdepends
+ * @@tagdepends: vle.extension.fsa @@endtagdepends
  */
 
 
 #include <vle/extension/fsa/Statechart.hpp>
-#include <vle/extension/difference-equation/Base.hpp>
 
 namespace vle { namespace examples { namespace fsa {
 
@@ -81,12 +80,22 @@ public:
     {
         param_pair_map::const_iterator it = mStages.find(time);
 
-        output << (ve::DifferenceEquation::Var("A") = it->second.first);
-        output << (ve::DifferenceEquation::Var("B") = it->second.second);
+        output.emplace_back("A");
+        vle::value::Map& attrs = output.back().addMap();
+        attrs.addString("name","A");
+        attrs.addDouble("value",it->second.first);
+
+        output.emplace_back("B");
+        vle::value::Map& attrs2 = output.back().addMap();
+        attrs2.addString("name","B");
+        attrs2.addDouble("value",it->second.second);
+
     }
 
-    void in(const vd::Time& /* time */, const vd::ExternalEvent* event)
-    { Y << ve::DifferenceEquation::Var("Y", event); }
+    void in(const vd::Time& /* time */, const vd::ExternalEvent& event)
+    {
+        Y = event.attributes()->toMap().getDouble("value");
+    }
 
     bool c1(const vd::Time& /* time */)
     { return Y >= 30; }

@@ -31,18 +31,19 @@
  ******************/
 BOOST_AUTO_TEST_CASE(test_ExtUpLV)
 {
+    auto ctx = vu::make_context();
     std::cout << "  test_ExtUpLV " << std::endl;
-    vle::utils::Package pack("vle.extension.differential-equation_test");
-    vz::Vpz vpz(pack.getExpFile("ExtUpLV.vpz", vle::utils::PKG_BINARY));
+    vle::utils::Package pack(ctx, "vle.extension.differential-equation_test");
+    std::unique_ptr<vz::Vpz> vpz(new vz::Vpz(pack.getExpFile("ExtUpLV.vpz", vle::utils::PKG_BINARY)));
 
 
-    ttconfOutputPlugins(vpz);
+    ttconfOutputPlugins(*vpz);
 
     //simulation
-    vu::ModuleManager man;
     vm::Error error;
-    vm::Simulation sim(vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-    va::Map *out = sim.run(new vz::Vpz(vpz), man, &error);
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
+    std::unique_ptr<va::Map> out =
+            sim.run(std::move(vpz), &error);
 
 
     //checks that simulation has succeeded
@@ -52,18 +53,16 @@ BOOST_AUTO_TEST_CASE(test_ExtUpLV)
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
     BOOST_REQUIRE_EQUAL(view.columns(),3);
-    BOOST_REQUIRE_EQUAL(view.column(0).size(),51);
+    //note: the number of rows depend on the averaging of sum of 0.01
+    BOOST_REQUIRE(view.rows() <= 52);
+    BOOST_REQUIRE(view.rows() >= 51);
 
     //gets X,Y
-    va::ConstVectorView colX = ttgetColumnFromView(view,
-                                                   "Top model:LotkaVolterraY", "X");
+    int colX = ttgetColumnFromView(view, "Top model:LotkaVolterraY", "X");
 
     //check X at = 0.400 and t=0.41
-    BOOST_REQUIRE_CLOSE(va::toDouble(colX[41]),
-                        10, 10e-5);
-
-    BOOST_REQUIRE_CLOSE(va::toDouble(colX[42]),
-                        1.0, 10e-5);
+    BOOST_REQUIRE_CLOSE(view.getDouble(colX,41), 10, 10e-5);
+    BOOST_REQUIRE_CLOSE(view.getDouble(colX,42), 1.0, 10e-5);
 }
 
 
@@ -72,16 +71,17 @@ BOOST_AUTO_TEST_CASE(test_ExtUpLV)
  ******************/
 BOOST_AUTO_TEST_CASE(test_OutputPeriod)
 {
-    vle::utils::Package pack("vle.extension.differential-equation_test");
-    vz::Vpz vpz(pack.getExpFile("LotkaVolterraOutputPeriod.vpz"));
+    auto ctx = vu::make_context();
+    vle::utils::Package pack(ctx, "vle.extension.differential-equation_test");
+    std::unique_ptr<vz::Vpz> vpz(new vz::Vpz(pack.getExpFile("LotkaVolterraOutputPeriod.vpz")));
 
-    ttconfOutputPlugins(vpz);
+    ttconfOutputPlugins(*vpz);
 
     //simulation
-    vu::ModuleManager man;
     vm::Error error;
-    vm::Simulation sim(vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-    va::Map *out = sim.run(new vz::Vpz(vpz), man, &error);
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
+    std::unique_ptr<va::Map> out =
+            sim.run(std::move(vpz), &error);
 
 
     //checks that simulation has succeeded
@@ -91,14 +91,12 @@ BOOST_AUTO_TEST_CASE(test_OutputPeriod)
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
     BOOST_REQUIRE_EQUAL(view.columns(),4);
-    BOOST_REQUIRE_EQUAL(view.column(0).size(),2);
+    BOOST_REQUIRE_EQUAL(view.rows(),2);
 
     //gets nbExtEvents
-    va::ConstVectorView col = ttgetColumnFromView(view,
-                        "Top model:Counter", "nbExtEvents");
+    int col = ttgetColumnFromView(view, "Top model:Counter", "nbExtEvents");
 
     //check X at = 0.400 and t=0.41
-    BOOST_REQUIRE_CLOSE(va::toDouble(col[1]),
-                        151, 10e-5);
+    BOOST_REQUIRE_CLOSE(view.getDouble(col,1), 151, 10e-5);
 
 }

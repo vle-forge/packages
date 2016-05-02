@@ -102,7 +102,7 @@ public:
 protected:
     virtual void externalTransition(
         const devs::ExternalEventList& event,
-        const devs::Time& time);
+        devs::Time time);
 
 private:
     ValuesMapIterator mValuesIt;

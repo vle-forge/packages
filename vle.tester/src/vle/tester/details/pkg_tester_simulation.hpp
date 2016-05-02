@@ -33,8 +33,10 @@
 #include <vle/vpz/Vpz.hpp>
 #include <vle/vpz/Model.hpp>
 #include <vle/vpz/AtomicModel.hpp>
+#include <vle/utils/Context.hpp>
 #include <vle/utils/Package.hpp>
 #include <vle/utils/Exception.hpp>
+#include <boost/format.hpp>
 #include <vle/utils/Package.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/manager/Manager.hpp>
@@ -54,24 +56,24 @@ namespace va = vle::value;
  */
 class TesterSimulation
 {
+
 public:
     /**
      * TesterSimulation constructor
      * @brief packagename, the name of the current package to test
      */
     TesterSimulation(const std::string& packagename,
-            const std::string& vpzname):
-        mapp(), mvpz(0)
+            const std::string& vpzname, const utils::ContextPtr& ctx):
+        mapp(), mvpz(), mCtx(ctx)
     {
-        vu::Package pkg(packagename);
-        mvpz = new vz::Vpz(pkg.getExpFile(vpzname));
+        vu::Package pkg(mCtx, packagename);
+        mvpz = std::unique_ptr<vz::Vpz>(new vz::Vpz(pkg.getExpFile(vpzname)));
     }
 
 
 
     ~TesterSimulation()
     {
-        delete mvpz;
     }
 
     /**
@@ -108,7 +110,7 @@ public:
                 configOutput->addString("header","top");//A voir
                 vz::Output& output = itb->second;
                 output.setLocalStream("", "storage", "vle.output");
-                output.setData(configOutput);
+                output.setData(std::unique_ptr<value::Value>(configOutput));
             }
         }
     }
@@ -116,16 +118,15 @@ public:
      * @brief Get all views for one simple simulation
      * @return the map corresponding the the output of the simulation
      */
-    va::Map* simulates()
+    std::unique_ptr<va::Map> simulates()
     {
         if (mvpz) {
             setStorageViews();
-            vu::ModuleManager man;
-            vm::Simulation sim(vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-            return sim.run(new vz::Vpz(*mvpz), man, &merror);
+            vm::Simulation sim(mCtx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
+            std::unique_ptr<va::Map> res = sim.run(std::move(mvpz), &merror);
+            return res;
         } else {
-
-            return 0;
+            return std::unique_ptr<va::Map>();
         }
     }
 
@@ -137,47 +138,36 @@ public:
     va::Matrix& getView(va::Map& sim_outputs, const std::string& viewname)
     {
         if (! sim_outputs.exist(viewname)) {
-            throw vu::ArgError( vle::fmt(" View not found : %1%")
-            % viewname);
+            throw vu::ArgError((boost::format(" View not found : %1%")
+            % viewname).str());
         }
         return sim_outputs.getMatrix(viewname);
     }
 
 
-    va::Value* getColElt(va::Map& sim_outputs, const std::string& viewname,
+    const va::Value*  getColElt(va::Map& sim_outputs, const std::string& viewname,
             const std::string& colName,
             unsigned int i)
     {
-        va::VectorView vectorview = getCol(sim_outputs, viewname, colName);
-        if (vectorview.size() <= i) {
-            throw vu::ArgError( vle::fmt(" index to big : %1%")
-            % i);
+        va::Matrix& view = getView(sim_outputs, viewname);
+        if (view.rows() <= i) {
+            throw vu::ArgError((boost::format(" index to big : %1%") % i).str());
         }
-        return vectorview[i];
+
+        for(unsigned int j=1; j < view.columns(); j++){
+            if(view.getString(j,0).compare(colName) == 0){
+                return view.get(j,i).get();
+            }
+        }
+        return 0;
     }
 
 private:
-    va::VectorView getCol(va::Map& sim_outputs,
-            const std::string& viewname, const std::string& colName)
-    {
-        va::Matrix& view = getView(sim_outputs, viewname);
-
-        for(unsigned int j=1; j < view.columns(); j++){
-
-            if(view.getString(j,0).compare(colName) == 0){
-                return view.column(j);
-            }
-        }
-
-        throw vu::ArgError( vle::fmt(" Model.Port not found : %1%") % colName);
-        return view.column(0);
-
-    }
 
     vle::Init mapp;
-    vz::Vpz* mvpz;
+    std::unique_ptr<vz::Vpz> mvpz;
     vm::Error merror;
-
+    utils::ContextPtr mCtx;
 };
 
 }}//namespaces

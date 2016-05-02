@@ -28,11 +28,9 @@
  * @@tagdepends: vle.extension.difference-equation @@endtagdepends
  */
 
-#ifndef EXAMPLES_EQUATION_CONFLUENTNOSYNC_X_HPP
-#define EXAMPLES_EQUATION_CONFLUENTNOSYNC_X_HPP
 
 #include <vle/extension/difference-equation/Simple.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 
 namespace vle { namespace examples { namespace equation {
 
@@ -68,6 +66,5 @@ public:
 
 }}} // namespace vle examples equation
 
-DECLARE_DYNAMICS_DBG(vle::examples::equation::confluentNosync_x)
+DECLARE_DYNAMICS(vle::examples::equation::confluentNosync_x)
 
-#endif

@@ -35,26 +35,30 @@ namespace vle { namespace extension { namespace fsa {
 void Base::initialState(int state)
 {
     if (not existState(state)) {
-        throw utils::InternalError(fmt(
-                _("FSA::Base model, unknow state %1%")) % state);
+        throw utils::InternalError((boost::format(
+                "FSA::Base model, unknow state %1%") % state).str());
     }
 
     mInitialState = state;
     mInit = true;
 }
 
-vle::devs::ExternalEvent* Base::cloneExternalEvent(
-    vle::devs::ExternalEvent* event) const
-{
-    vle::devs::ExternalEvent* ee = new vle::devs::ExternalEvent(
-        event->getPortName());
-    vle::value::Map::const_iterator it = event->getAttributes().begin();
 
-    while (it != event->getAttributes().end()) {
-        ee->putAttribute(it->first, it->second->clone());
-        ++it;
+void Base::copyExternalEventAttrs(
+    const vle::devs::ExternalEvent& event,
+    vle::devs::ExternalEvent& tofill) const
+{
+    if (event.attributes()) {
+        vle::value::Map::const_iterator it = event.getMap().begin();
+        if (tofill.attributes() == nullptr) {
+            tofill.addMap();
+        }
+
+        while (it != event.getMap().end()) {
+            tofill.attributes()->toMap().add(it->first, it->second->clone());
+            ++it;
+        }
     }
-    return ee;
 }
 
 }}} // namespace vle extension fsa

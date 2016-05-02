@@ -29,7 +29,6 @@
 #ifndef VLE_EXTENSION_CELLDEVS_CELLDEVS_HPP
 #define VLE_EXTENSION_CELLDEVS_CELLDEVS_HPP
 
-#include <vle/devs/Simulator.hpp>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Value.hpp>
 
@@ -38,12 +37,12 @@ namespace vle { namespace extension {
     class CellDevs : public devs::Dynamics
     {
     private:
-        // variable utilisée par ta() pour connaître la durée de
-        // l'état courant
+        // variable utilisee par ta() pour connaetre la duree de
+        // l'etat courant
         devs::Time m_sigma;
-        // date du dernier événement
+        // date du dernier evenement
         devs::Time m_lastTime;
-        // délai de transmission de l'état courant aux cellules voisines
+        // delai de transmission de l'etat courant aux cellules voisines
         double m_delay;
         // Si une variable d'etat non cachee est modifiee alors m_modified
         // est affectee ; la fonction de sortie la reinitialise
@@ -52,15 +51,16 @@ namespace vle { namespace extension {
         // Liste des noms de variable
         std::vector < std::string > m_stateNameList;
         // L'etat d'une cellule est un map de Value
-        std::map < std::string ,  std::pair < value::Value* , bool > > m_state;
+        std::map<std::string,std::pair<std::unique_ptr<value::Value>,bool > >
+            m_state;
         // Liste des etats des voisins
         std::map < std::string , std::map < std::string ,
-            value::Value* > > m_neighbourState;
+            std::unique_ptr<value::Value> > > m_neighbourState;
         // Liste des ports lies aux voisins
         std::vector < std::string > m_neighbourPortList;
 
     protected:
-	std::map < std::string, value::Value* > m_parameters;
+	    vle::value::Map m_parameters;
 
     public:
         CellDevs(const vle::devs::DynamicsInit& model,
@@ -80,7 +80,7 @@ namespace vle { namespace extension {
         // Init state
 
         void initState(std::string const & p_name,
-                       value::Value* p_value,
+                       std::unique_ptr<value::Value> p_value,
                        bool p_visible=true);
         void initDoubleState(std::string const & p_name,
                              double p_value,
@@ -96,7 +96,7 @@ namespace vle { namespace extension {
                              bool p_visible=true);
 
         void initNeighbourhood(std::string const & p_stateName,
-                               value::Value* p_value);
+                        std::unique_ptr<value::Value> p_value);
         void initDoubleNeighbourhood(std::string const & p_stateName,
                                      double p_value);
         void initIntegerNeighbourhood(std::string const & p_stateName,
@@ -107,7 +107,7 @@ namespace vle { namespace extension {
                                      std::string const & p_value);
         void initNeighbourState(std::string const & p_neighbourName,
                                 std::string const & p_stateName,
-                                value::Value* p_value);
+                                std::unique_ptr<value::Value> p_value);
         void initDoubleNeighbourState(std::string const & p_neighbourName,
                                       std::string const & p_stateName,
                                       double p_value);
@@ -126,8 +126,9 @@ namespace vle { namespace extension {
         bool isNeighbourEvent(devs::ExternalEvent* p_event) const;
 
         bool existNeighbourState(std::string const & p_name) const;
-        value::Value* getNeighbourState(std::string const & p_neighbourName,
-                                       std::string const & p_stateName) const;
+        const value::Value& getNeighbourState(
+                std::string const & p_neighbourName,
+                std::string const & p_stateName) const;
         double getDoubleNeighbourState(std::string const & p_neighbourName,
                                        std::string const & p_stateName) const;
         long getIntegerNeighbourState(std::string const & p_neighbourName,
@@ -152,13 +153,15 @@ namespace vle { namespace extension {
         void setDelay(double p_delay) { m_delay = p_delay; }
 
         // Get and set state
-        value::Value* getState(std::string const & p_name) const;
+        const value::Value& getState(
+                std::string const & p_name) const;
         double getDoubleState(std::string const & p_name) const;
         long getIntegerState(std::string const & p_name) const;
         bool getBooleanState(std::string const & p_name) const;
         std::string getStringState(std::string const & p_name) const;
 
-        void setState(std::string const & p_name,value::Value* p_value);
+        void setState(std::string const & p_name,
+                std::unique_ptr<value::Value> p_value);
         void setDoubleState(std::string const & p_name,double p_value);
         void setIntegerState(std::string const & p_name,long p_value);
         void setBooleanState(std::string const & p_name,bool p_value);
@@ -169,7 +172,7 @@ namespace vle { namespace extension {
 
         void setNeighbourState(std::string const & p_neighbourName,
                                std::string const & p_stateName,
-                               const value::Value* p_value);
+                               const value::Value& p_value);
 
         inline bool isNeighbourModified() const
         { return m_neighbourModified; }
@@ -181,15 +184,17 @@ namespace vle { namespace extension {
         { m_neighbourModified = false; }
 
         // DEVS Methods
-        virtual vle::devs::Time init(const vle::devs::Time& /* time */);
-        virtual void output(const vle::devs::Time& /* time */,
-                            vle::devs::ExternalEventList& /* output */) const;
-        virtual vle::devs::Time timeAdvance() const;
-        virtual void externalTransition(const vle::devs::ExternalEventList& /* event */,
-                                        const vle::devs::Time& /* time */);
-        virtual void internalTransition(const vle::devs::Time& /* time */);
-        virtual vle::value::Value* observation(
-            const vle::devs::ObservationEvent& /* event */) const;
+        virtual vle::devs::Time init(vle::devs::Time /* time */) override;
+        virtual void output(
+                vle::devs::Time /* time */,
+                vle::devs::ExternalEventList& /* output */) const override;
+        virtual vle::devs::Time timeAdvance() const override;
+        virtual void externalTransition(
+                const vle::devs::ExternalEventList& /* event */,
+                vle::devs::Time /* time */) override;
+        virtual void internalTransition(vle::devs::Time /* time */) override;
+        virtual std::unique_ptr<vle::value::Value> observation(
+            const vle::devs::ObservationEvent& /* event */) const override;
 
         virtual void processPerturbation(const vle::devs::ExternalEvent& /* event */) =0;
 //        virtual void processParameters(const std::string& /* name */, const vle::value::Value& /* value */) { }

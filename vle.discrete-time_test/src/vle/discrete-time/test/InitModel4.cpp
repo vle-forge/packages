@@ -27,9 +27,7 @@
  */
 
 #include <vle/devs/Executive.hpp>
-#include <vle/devs/ExecutiveDbg.hpp>
 #include <vle/discrete-time/TemporalValues.hpp>
-#include <boost/numeric/conversion/cast.hpp>
 #include <stack>
 
 
@@ -60,19 +58,22 @@ public:
     {
     }
 
-    virtual vle::devs::Time init(const vle::devs::Time& /* time */)
+    virtual vle::devs::Time init(vle::devs::Time /* time */) override
     {
         {//init d(0) = a(0) + c(0)
             vz::Condition& cond = conditions().get("cond_init_d");
             cond.clearValueOfPort("init_value_d");
             d_0 = a_0 + c_0;
-            cond.setValueToPort("init_value_d", vle::value::Double(d_0));
+            cond.setValueToPort("init_value_d",
+                    std::unique_ptr<vle::value::Value>(
+                         new vle::value::Double(d_0)));
         }
         {//init sum a + b + c + d;
             vz::Condition& cond = conditions().get("cond_init_sum_res");
             cond.clearValueOfPort("init_value_sum_res");
             cond.setValueToPort("init_value_sum_res",
-                    vle::value::Double(a_0 + b_0 + c_0 + d_0));
+                    std::unique_ptr<vle::value::Value>(
+                         new vle::value::Double(a_0 + b_0 + c_0 + d_0)));
         }
         createModelFromClass("model4", "model4");
         return vle::devs::infinity;
@@ -85,7 +86,7 @@ public:
 
 };
 
-DECLARE_EXECUTIVE_DBG(InitModel4)
+DECLARE_EXECUTIVE(InitModel4)
 
 }}}
 

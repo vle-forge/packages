@@ -48,17 +48,17 @@ public:
     virtual ~DeleteConnection()
     {}
 
-    virtual devs::Time init(const devs::Time& /*time*/)
+    virtual devs::Time init(devs::Time /*time*/) override
     {
         return timeAdvance();
     }
 
-    virtual devs::Time timeAdvance() const
+    virtual devs::Time timeAdvance() const override
     {
         return mRemaining;
     }
 
-    virtual void internalTransition(const devs::Time& time)
+    virtual void internalTransition(devs::Time time) override
     {
         devs::Time tmp = std::abs(std::min(time, mAlarm) -
                                   std::max(time, mAlarm));
@@ -72,7 +72,7 @@ public:
     }
 
     virtual void externalTransition(const devs::ExternalEventList& /*events*/,
-                                    const devs::Time& time)
+                                    devs::Time time) override
     {
         mRemaining = std::abs(std::min(time, mAlarm) - std::max(time, mAlarm));
     }

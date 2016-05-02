@@ -41,7 +41,7 @@
 
 namespace vmd = vle::extension::decision;
 namespace vd = vle::devs;
-using vle::fmt;
+using boost::format;
 
 namespace vle { namespace extension { namespace decision { namespace ex {
 
@@ -51,15 +51,15 @@ public:
     KnowledgeBase()
         : vmd::KnowledgeBase(), today(0), yesterday(0)
     {
-        addFact("today", boost::bind(&vmd::ex::KnowledgeBase::date,
-                                     this, _1));
+        addFact("today", std::bind(&vmd::ex::KnowledgeBase::date,
+                                     this, std::placeholders::_1));
 
         vmd::Rule& r1 = addRule("Rule 1");
-        r1.add(boost::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
-        r1.add(boost::bind(&vmd::ex::KnowledgeBase::isAlwaysTrue, this));
+        r1.add(std::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
+        r1.add(std::bind(&vmd::ex::KnowledgeBase::isAlwaysTrue, this));
 
         vmd::Rule& r2 = addRule("Rule 2");
-        r2.add(boost::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
+        r2.add(std::bind(&vmd::ex::KnowledgeBase::haveGoodTemp, this));
 
         vmd::Activity& act1 = addActivity("act1");
         act1.addRule("Rule 1", r1);
@@ -198,7 +198,7 @@ public:
     KB5() :
         vmd::KnowledgeBase(), mNbUpdate(0), mNbAck(0), mNbOut(0)
     {
-        std::cout << fmt("KB5 start\n");
+        std::cout << "KB5 start\n";
         vmd::Activity& a = addActivity("A", 0.0, vd::infinity);
         vmd::Activity& b = addActivity("B", 1.0, vd::infinity);
         vmd::Activity& c = addActivity("C", 1.0, vd::infinity);
@@ -239,7 +239,8 @@ public:
 
     void update(const std::string& name, const Activity& act)
     {
-        std::cout << fmt("new state of %1% is %2%\n") % name % act.state();
+        std::cout << boost::format("new state of %1% is %2%\n")
+                     % name % act.state();
         mNbUpdate++;
     }
 
@@ -526,6 +527,6 @@ BOOST_AUTO_TEST_CASE(Activities_test_slot_function)
 
     // All activity switch from wait to start and from start to end.
     BOOST_REQUIRE_EQUAL(base.getNumberOfUpdate(), 12);
-    std::cout << fmt("%1% %2%\n") % base.getNumberOfOut() %
+    std::cout << boost::format("%1% %2%\n") % base.getNumberOfOut() %
         base.getNumberOfUpdate();
 }

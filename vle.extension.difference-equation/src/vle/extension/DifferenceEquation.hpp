@@ -31,28 +31,16 @@
 #include <vle/extension/difference-equation/Base.hpp>
 #endif
 
-#ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_GENERICDBG_HPP
-#include <vle/extension/difference-equation/GenericDbg.hpp>
-#endif
-
 #ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_GENERIC_HPP
 #include <vle/extension/difference-equation/Generic.hpp>
 #endif
 
-#ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_MULTIPLEDBG_HPP
-#include <vle/extension/difference-equation/MultipleDbg.hpp>
-#endif
-
 #ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_MULTIPLE_HPP
 #include <vle/extension/difference-equation/Multiple.hpp>
 #endif
 
-#ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_SIMPLEDBG_HPP
-#include <vle/extension/difference-equation/SimpleDbg.hpp>
-#endif
-
-#ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_MULTIPLE_HPP
-#include <vle/extension/difference-equation/Multiple.hpp>
+#ifndef VLE_EXTENSION_DIFFERENCE_EQUATION_SIMPLE_HPP
+#include <vle/extension/difference-equation/Simple.hpp>
 #endif
 
 #endif

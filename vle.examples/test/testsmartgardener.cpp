@@ -34,14 +34,15 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-#include <boost/lexical_cast.hpp>
+#include <string>
 #include <stdexcept>
 #include <vle/manager/Manager.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Package.hpp>
-#include <vle/utils/Path.hpp>
-#include <vle/utils/ModuleManager.hpp>
+
+
+#include <vle/value/Matrix.hpp>
 #include <vle/vle.hpp>
 
 struct F
@@ -59,39 +60,39 @@ using namespace vle;
 
 BOOST_AUTO_TEST_CASE(test_qss4)
 {
-    vle::utils::Package pack("vle.examples");
-    vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("smartgardener.vpz"));
+    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    std::unique_ptr<vpz::Vpz> file(
+            new vpz::Vpz(pack.getExpFile("smartgardener.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
     o.setLocalStream("", "storage", "vle.output");
 
-    utils::ModuleManager man;
+
     manager::Error error;
-    manager::Simulation sim(manager::LOG_NONE,
+    manager::Simulation sim(ctx, manager::LOG_NONE,
                             manager::SIMULATION_NONE,
                             NULL);
-    value::Map *out = sim.run(file, man, &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
     BOOST_REQUIRE_EQUAL(out->size(), 1);
 
-    value::Matrix &matrix = out->getMatrix("view");
-    value::MatrixView result(matrix.value());
+    value::Matrix& result = out->getMatrix("view");
 
-    BOOST_REQUIRE_EQUAL(result.shape()[0],
-                        (value::MatrixView::size_type)5);
-    BOOST_REQUIRE_EQUAL(result.shape()[1],
-                        (value::MatrixView::size_type)101);
+
+    BOOST_REQUIRE_EQUAL(result.columns(),
+                        5);
+    //due to approximation
+    BOOST_REQUIRE(result.rows() >= 101);
+    BOOST_REQUIRE(result.rows() <= 102);
 
     //at the maximum of population of ladybirds
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][38]), 146.5673122, 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][38]), 1748.3006172, 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,38), 146.5673122, 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,38), 1748.3006172, 10e-5);
 
     //at the end
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[3][100]), 15.913027015, 10e-5);
-    BOOST_REQUIRE_CLOSE(value::toDouble(result[4][100]), 122.1797197, 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(3,100), 15.913027015, 10e-5);
+    BOOST_REQUIRE_CLOSE(result.getDouble(4,100), 122.1797197, 10e-5);
 
-
-    delete out;
 }

@@ -56,27 +56,26 @@ public:
 
     void out1(const vle::devs::Time&  /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("g");
-        e->attributes().addString("name","g");
-        e->attributes().addDouble("value",10);
-        output.push_back(e);
-        e = new vle::devs::ExternalEvent("b");
-        e->attributes().addString("name","b");
-        e->attributes().addDouble("value",10);
-        output.push_back(e);
-//        std::cout << " FSA send out1 " << time << std::endl;
+        output.emplace_back("g");
+        value::Map& map = output.back().addMap();
+        map.addString("name","g");
+        map.addDouble("value",10);
+        output.emplace_back("b");
+        value::Map& map2 = output.back().addMap();//TODO pas compris error qaund ion utilise la meme ref map (sur unique_ptr<Value>)
+        map2.addString("name","b");
+        map2.addDouble("value",10);
     }
 
     void out2(const vle::devs::Time& /* time */, vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("g");
-        e->attributes().addString("name","g");
-        e->attributes().addDouble("value",0);
-        output.push_back(e);
-        e = new vle::devs::ExternalEvent("b");
-        e->attributes().addString("name","b");
-        e->attributes().addDouble("value",0);
-        output.push_back(e);
+        output.emplace_back("g");
+        value::Map& map = output.back().addMap();
+        map.addString("name","g");
+        map.addDouble("value",0);
+        output.emplace_back("b");
+        value::Map& map2 = output.back().addMap();
+        map2.addString("name","b");
+        map2.addDouble("value",0);
     }
 
 };

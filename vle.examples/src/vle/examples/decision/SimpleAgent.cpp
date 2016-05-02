@@ -32,7 +32,7 @@
 
 #include <vle/extension/decision/Agent.hpp>
 #include <vle/extension/decision/Activity.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <sstream>
 
 namespace vd = vle::devs;
@@ -47,13 +47,14 @@ public:
     SimpleAgent(const vd::DynamicsInit& mdl, const vd::InitEventList& evts)
         : vmd::Agent(mdl, evts), mStart(false)
     {
-        addFact("start", boost::bind(&SimpleAgent::start, this, _1));
+        addFact("start", std::bind(&SimpleAgent::start, this,
+                std::placeholders::_1));
 
         vmd::Rule& r = addRule("rule");
-        r.add(boost::bind(&SimpleAgent::isStarted, this));
+        r.add(std::bind(&SimpleAgent::isStarted, this));
 
         vmd::Rule& r2 = addRule("rule2");
-        r2.add(boost::bind(&SimpleAgent::alwaysFalse, this));
+        r2.add(std::bind(&SimpleAgent::alwaysFalse, this));
 
         vmd::Activity& b = addActivity("B", 0.0, 10.0);
         b.addRule("rule2", r2);
@@ -85,16 +86,16 @@ public:
         return false;
     }
 
-    virtual vv::Value* observation(const vd::ObservationEvent& evt) const
+    virtual std::unique_ptr<vv::Value> observation(
+            const vd::ObservationEvent& evt) const override
     {
         if (evt.onPort("text")) {
             std::ostringstream out;
             out << *this;
-
-            return new vv::String(out.str());
+            return vv::String::create(out.str());
         }
 
-        return 0;
+        return nullptr;
     }
 
 private:
@@ -103,4 +104,4 @@ private:
 
 }}} // namespace vle examples decision
 
-DECLARE_DYNAMICS_DBG(vle::examples::decision::SimpleAgent)
+DECLARE_DYNAMICS(vle::examples::decision::SimpleAgent)

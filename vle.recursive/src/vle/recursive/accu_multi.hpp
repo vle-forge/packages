@@ -76,10 +76,11 @@ public:
         return mstats.size();
     }
 
-    void insert(const vle::value::ConstVectorView& col)
+    void insertColumn(const vle::value::Matrix& m,
+            unsigned int col)
     {
-        unsigned int nbEl = col.size();
-        bool hasName = not col[0]->isDouble();
+        unsigned int nbEl = m.rows();
+        bool hasName = not m.get(0,0)->isDouble();
         if (hasName) {//first element is the col name
             nbEl --;
         }
@@ -92,9 +93,9 @@ public:
         }
         for (unsigned int i=0; i < nbEl ; i++) {
             if (hasName) {
-                mstats[i].insert(col[i+1]->toDouble().value());
+                mstats[i].insert(m.getDouble(col, i+1));
             } else {
-                mstats[i].insert(col[i]->toDouble().value());
+                mstats[i].insert(m.getDouble(col, 1));
             }
         }
     }

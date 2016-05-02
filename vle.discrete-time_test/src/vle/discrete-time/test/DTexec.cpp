@@ -27,8 +27,7 @@
  */
 
 #include <vle/discrete-time/DiscreteTimeExec.hpp>
-#include <vle/devs/ExecutiveDbg.hpp>
-#include <vle/utils/i18n.hpp>
+#include <boost/format.hpp>
 
 namespace vle {
 namespace discrete_time {
@@ -50,11 +49,11 @@ public:
     {
     }
 
-    void compute(const vle::devs::Time& /*t*/)
+    void compute(const vle::devs::Time& /*t*/) override
     {
         num_model = num_model(-1) + 1;
-        std::string current((vle::fmt("A_%1%") % (num_model())).str());
-        std::string inPort((vle::fmt("a_%1%") % (num_model())).str());
+        std::string current((boost::format("A_%1%") % (num_model())).str());
+        std::string inPort((boost::format("a_%1%") % (num_model())).str());
         createModelFromClass("AClass", current);
         addInputPort("GenericSum", inPort);
         addConnection(current, "a", "GenericSum", inPort);
@@ -63,7 +62,7 @@ public:
     Var num_model;
 };
 
-DECLARE_EXECUTIVE_DBG(DTexec)
+DECLARE_EXECUTIVE(DTexec)
 
 }}}
 

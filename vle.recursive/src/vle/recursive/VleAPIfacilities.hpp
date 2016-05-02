@@ -20,8 +20,6 @@
 #ifndef VLE_RECURSIVE_VLEAPIFACILITIES_HPP_
 #define VLE_RECURSIVE_VLEAPIFACILITIES_HPP_
 
-#include <boost/algorithm/string/predicate.hpp>
-
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/manager/Manager.hpp>
@@ -49,6 +47,17 @@ class VleAPIfacilities
 public:
 
     /**
+     * @brief tells if a string finishes wit ha given suffix
+     * @param value: the string to check
+     * @param suffix: the suffix to search for
+     */
+    static bool ends_with(const std::string& value, const  std::string& suffix)
+    {
+        if (suffix.size() > value.size()) return false;
+        return std::equal(suffix.rbegin(), suffix.rend(), value.rbegin());
+    }
+
+    /**
      * @brief Build a map object gathering a list of conditions
      * @param vpz, the vpz containing the conditions
      * @param conditions, the list of conditions to use for building
@@ -69,9 +78,9 @@ public:
                 for (vv::MapValue::const_iterator itv = vl.begin();
                         itv != vl.end(); ++itv) {
                     if (initValues->exist(itv->first)) {
-                        throw vu::InternalError(vle::fmt(_(
+                        throw vu::InternalError((boost::format(
                                 "Multiples condition with the same init port "
-                                "name '%1%'")) % itv->first);
+                                "name '%1%'") % itv->first).str());
                     }
                     initValues->add(itv->first,itv->second->clone());
                 }
@@ -136,9 +145,9 @@ public:
 
         //configure output plugins for column names
         if(plugin == "storage"){
-            vv::Map* configOutput = new vv::Map();
-            configOutput->addString("header","top");
-            out.setData(configOutput);
+            std::unique_ptr<vv::Value> configOutput = vv::Map::create();
+            configOutput->toMap().addString("header","top");
+            out.setData(std::move(configOutput));
 
         }
 
@@ -179,9 +188,9 @@ public:
             out.setLocalStream("",plugin,"vle.output");
             //configure output plugins for column names
             if(plugin == "storage"){
-                vv::Map* configOutput = new vv::Map();
-                configOutput->addString("header","top");
-                out.setData(configOutput);
+                std::unique_ptr<vv::Value> configOutput = vv::Map::create();
+                configOutput->toMap().addString("header","top");
+                out.setData(std::move(configOutput));
             }
         }
     }
@@ -263,7 +272,7 @@ public:
             return true;
             break;
         } default :{
-            throw vu::InternalError();
+            throw vu::InternalError(" value not handled");
         }
         }
     }
@@ -277,13 +286,14 @@ public:
      * @param port, the name of the port observed
      * @return the simulated value
      */
-    static const vv::Value* findLastOutputValue(
+    static const std::unique_ptr<vv::Value>& findLastOutputValue(
             const vv::Map& result, const std::string& view,
             const std::string& model_path, const std::string& port)
     {
         vv::Map::const_iterator it = result.find(view);
         if (it == result.end()) {
-            throw vu::ArgError(vle::fmt("view '%1%' not found)") % view);
+            throw vu::ArgError((boost::format("view '%1%' not found)")
+                                % view).str());
         }
         const vv::Matrix& outMat = vv::toMatrixValue(*it->second);
         std::string absoluteModPath(model_path);
@@ -296,11 +306,10 @@ public:
             }
         }
         if (colIndex == 999) {
-            throw vu::ArgError(vle::fmt("view.port '%1%' not found)")
-                 % absoluteModPath);
+            throw vu::ArgError((boost::format("view.port '%1%' not found)")
+                 % absoluteModPath).str());
         }
-        const vv::ConstVectorView& outVec = outMat.column(colIndex);
-        return (outVec[outVec.size() - 1]);
+        return outMat.get(colIndex, outMat.rows()-1);
     }
 
 
@@ -312,38 +321,39 @@ public:
      * @return the simulated value, note that only one port
      * with name 'port' should be present in the view
      */
-    static const vv::Value* findLastOutputValue(
+    static const std::unique_ptr<vv::Value>& findLastOutputValue(
         const vv::Map& result, const std::string& view,
         const std::string& port)
     {
         vv::Map::const_iterator it = result.find(view);
         if (it == result.end()) {
-            throw vu::ArgError(vle::fmt(
-                "view '%1%' not found)") % view);
+            throw vu::ArgError((boost::format(
+                "view '%1%' not found)") % view).str());
         }
         const vv::Matrix& outMat = vv::toMatrixValue(*it->second);
         bool found = false;
-        vv::Value* res = 0;
         for (unsigned int i=0; i < outMat.columns(); i++) {
-            if (boost::algorithm::ends_with(outMat.getString(i,0), port)) {
+            if (VleAPIfacilities::ends_with(outMat.getString(i,0), port)) {
                 if(found){
-                    throw vu::ArgError(vle::fmt(
+                    throw vu::ArgError((boost::format(
                             "[VleAPIFacilities]  Ambiguous port '%1%' "
                             " in view '%2%' (found more than once)")
-                            % port % view);
+                            % port % view).str());
                 }
                 found = true;
-                const vv::ConstVectorView& outVec = outMat.column(i);
-                res = outVec[outVec.size() - 1];
+                return outMat.get(i, outMat.rows()-1);
             }
         }
         if(not found){
-            throw vu::ArgError(vle::fmt(
+            throw vu::ArgError((boost::format(
                "[VleAPIFacilities] port '%1%' not found in view '%2%' ")
-            % port % view);
+            % port % view).str());
         }
-        return res;
+        return std::move(std::unique_ptr<vv::Value>(nullptr));
     }
+
+
+
 
 };
 

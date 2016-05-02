@@ -227,15 +227,15 @@ public:
             }
         }
         if (params.exist("output_period")) {
-            const value::Value* v = params.get("output_period");
+            const value::Value& v = *(params.get("output_period"));
             options.output_period = 0;
-            if (v->isInteger()) {
-                options.output_period = (double) v->toInteger().value();
+            if (v.isInteger()) {
+                options.output_period = (double) v.toInteger().value();
             }
             if (options.output_period < 1) {
                 throw utils::ModellingError(
-                        vle::fmt("[%1%] Parameter 'output_period' should "
-                                "be an Integer > 0"));
+                        (boost::format("[%1%] Parameter 'output_period' should "
+                                "be an Integer > 0")).str());
             }
         }
     }
@@ -471,19 +471,17 @@ private:
         vd::ExternalEventList::const_iterator ite = ext.end();
         for (; itb != ite; itb++) {
             //get port name
-            const std::string& portName = (*itb)->getPortName();
-
+            const std::string& portName = itb->getPortName();
+            const value::Map& attrs = itb->attributes()->toMap();
             //update targeted variable
             if (portName == "perturb") {
-                discontinuities.registerPerturb(t, (*itb)->getAttributes());
+                discontinuities.registerPerturb(t, attrs);
             } else if (isExtVar(portName)) {
                 //get event informations and set default values
-                const std::string& varName = (*itb)->getStringAttributeValue(
-                        "name");
-                double varValue = (*itb)->getDoubleAttributeValue("value");
+                const std::string& varName = attrs.getString("name");
+                double varValue = attrs.getDouble("value");
                 ExternVariables::iterator itf = extVars().find(portName);
-                bool hasDiscontinuity = (*itb)->existAttributeValue(
-                        "discontinuities");
+                bool hasDiscontinuity = attrs.exist("discontinuities");
                 //for dbg
                 if (varName != portName) {
                     throw utils::InternalError("Unhandled update mode...");
@@ -493,7 +491,7 @@ private:
                     throw utils::InternalError("TODO 22");
                 }
                 if (hasDiscontinuity) {
-                    discontinuities.registerExtDisc(t, (*itb)->getAttributes());
+                    discontinuities.registerExtDisc(t, attrs);
 
                 }
 
@@ -501,8 +499,8 @@ private:
 
             } else {
                 throw utils::InternalError(
-                        vle::fmt("[%1%] Unrecognised port '%2%' on mode PORT")
-                                % getModelName() % portName);
+                        (boost::format("[%1%] Unrecognised port '%2%' on mode PORT")
+                                % getModelName() % portName).str());
             }
         }
     }
@@ -524,14 +522,14 @@ private:
         for (; itb != ite; itb++) {
             const Variable& v = itb->second;
             if (getModel().existOutputPort(v.getName())) {
-                vd::ExternalEvent* ee = new vd::ExternalEvent(v.getName());
-                ee->putAttribute("name", new vv::String(v.getName()));
-                ee->putAttribute("value", new vv::Double(v.getVal()));
+                extEvtList.emplace_back(v.getName());
+                value::Map& m = extEvtList.back().addMap();
+                m.addString("name", v.getName());
+                m.addDouble("value", v.getVal());
                 if (discontinuity) {
-                    ee->putAttribute("discontinuities",
+                    m.add("discontinuities",
                             discontinuities.buildDiscsToPropagate(time));
                 }
-                extEvtList.push_back(ee);
             }
         }
     }
@@ -585,13 +583,13 @@ private:
     }
 
     /************** DEVS functions *****************/
-    vd::Time init(const vd::Time& /*time*/)
+    vd::Time init(vd::Time /*time*/) override
     {
         state = INIT_SEND;
         return timeAdvance();
     }
 
-    void output(const vd::Time& time, vd::ExternalEventList& ext) const
+    void output(vd::Time time, vd::ExternalEventList& ext) const override
     {
         switch (state) {
         case INIT_SEND:
@@ -620,7 +618,7 @@ private:
         }
     }
 
-    vd::Time timeAdvance() const
+    vd::Time timeAdvance() const override
     {
         switch (state) {
         case INIT_SEND:
@@ -647,7 +645,7 @@ private:
      * @brief Implementation of internal transition DEVS
      * function
      */
-    void internalTransition(const vd::Time& t)
+    void internalTransition(vd::Time t) override
     {
         processOut(t, INTERNAL);
         updateGuards(t, INTERNAL);
@@ -677,7 +675,7 @@ private:
     }
 
     void externalTransition(const vd::ExternalEventList& event,
-            const vd::Time& t)
+            vd::Time t) override
     {
         processOut(t, EXTERNAL);
 
@@ -730,8 +728,8 @@ private:
         processIn(t, EXTERNAL);
     }
 
-    void confluentTransitions(const vd::Time& t,
-            const vd::ExternalEventList& ext)
+    void confluentTransitions(vd::Time t,
+            const vd::ExternalEventList& ext) override
     {
         processOut(t, CONFLUENT);
         handleExtEvt(t, ext);
@@ -787,7 +785,8 @@ private:
     /***
      * @brief Implementation of observation DEVS function
      */
-    vv::Value* observation(const vd::ObservationEvent& event) const
+    std::unique_ptr<vv::Value> observation(
+            const vd::ObservationEvent& event) const override
     {
         const std::string& port = event.getPortName();
         {
@@ -797,13 +796,13 @@ private:
                         itf);
                 if (itfBU != varImprovers.mcont.end()) {
                     const VarImprover& vi = itfBU->second;
-                    return new vv::Double(vi.getBuVal());
+                    return vv::Double::create(vi.getBuVal());
                 }
             }
             ExternVariables::const_iterator ief = extVars().find(port);
             if (ief != extVars().end()) {
                 const ExternVariable& extVar = ief->second;
-                return new vv::Double(extVar.getVal());
+                return vv::Double::create(extVar.getVal());
             }
         }
         return 0;

@@ -51,7 +51,7 @@ void Moore::process(const devs::Time& time,
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-void Moore::output(const devs::Time& time,
+void Moore::output(devs::Time time,
 		   devs::ExternalEventList& output) const
 {
     if (mPhase == PROCESSING) {
@@ -63,17 +63,17 @@ void Moore::output(const devs::Time& time,
             OutputsIterator ito = mOutputs.find(currentState());
 
             if (ito != mOutputs.end()) {
-                output.push_back(buildEvent(ito->second));
+                output.emplace_back(ito->second);
             }
         }
     }
 }
 
-devs::Time Moore::init(const devs::Time& time)
+devs::Time Moore::init(devs::Time time)
 {
     if (not isInit()) {
         throw utils::InternalError(
-            _("FSA::Moore model, initial state not defined"));
+            "FSA::Moore model, initial state not defined");
     }
 
     currentState(initialState());
@@ -92,7 +92,7 @@ devs::Time Moore::init(const devs::Time& time)
 }
 
 void Moore::externalTransition(const devs::ExternalEventList& events,
-			       const devs::Time& /* time */)
+			       devs::Time /* time */)
 {
     // mNewStates.clear();
     if (events.size() > 1) {
@@ -102,7 +102,9 @@ void Moore::externalTransition(const devs::ExternalEventList& events,
         devs::ExternalEventList::const_iterator it = sortedEvents.begin();
 
         while (it != sortedEvents.end()) {
-            clonedEvents->push_back(cloneExternalEvent(*it));
+            clonedEvents->emplace_back(it->getPortName());
+            devs::ExternalEvent& e = clonedEvents->back();
+            copyExternalEventAttrs(*it, e);
             ++it;
         }
         mToProcessEvents.push_back(clonedEvents);
@@ -110,8 +112,9 @@ void Moore::externalTransition(const devs::ExternalEventList& events,
         devs::ExternalEventList::const_iterator it = events.begin();
         devs::ExternalEventList* clonedEvents =
             new devs::ExternalEventList;
-
-        clonedEvents->push_back(cloneExternalEvent(*it));
+        clonedEvents->emplace_back(it->getPortName());
+        devs::ExternalEvent& e = clonedEvents->back();
+        copyExternalEventAttrs(*it, e);
         mToProcessEvents.push_back(clonedEvents);
     }
     mPhase = PROCESSING;
@@ -126,17 +129,16 @@ devs::Time Moore::timeAdvance() const
     }
 }
 
-void Moore::internalTransition(const devs::Time& time)
+void Moore::internalTransition(devs::Time time)
 {
     if (mPhase == PROCESSING)
     {
         devs::ExternalEventList* events = mToProcessEvents.front();
-        devs::ExternalEvent* event = events->front();
+        devs::ExternalEvent& event = events->front();
 
-        process(time, event);
+        process(time, &event);
 
         events->erase(events->begin());
-        delete event;
 
         if (events->empty()) {
             mToProcessEvents.pop_front();

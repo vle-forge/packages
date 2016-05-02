@@ -29,7 +29,7 @@
 #include <vle/extension/decision/Plan.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/Parser.hpp>
-#include <vle/utils/i18n.hpp>
+#include <boost/format.hpp>
 #include <vle/utils/DateTime.hpp>
 #include <string>
 #include <sstream>
@@ -49,7 +49,8 @@ Plan::Plan(KnowledgeBase& kb, const std::string& buffer)
         utils::Parser parser(in);
         fill(parser.root(), 0);
     } catch (const std::exception& e) {
-        throw utils::ArgError(fmt(_("Decision plan error in %1%")) % e.what());
+        throw utils::ArgError((boost::format("Decision plan error in %1%")
+                % e.what()).str());
     }
 }
 
@@ -60,7 +61,8 @@ Plan::Plan(KnowledgeBase& kb, std::istream& stream)
         utils::Parser parser(stream);
         fill(parser.root(), 0);
     } catch (const std::exception& e) {
-        throw utils::ArgError(fmt(_("Decision plan error: %1%")) % e.what());
+        throw utils::ArgError((boost::format("Decision plan error: %1%")
+                % e.what()).str());
     }
 }
 
@@ -71,7 +73,8 @@ void Plan::fill(const std::string& buffer, const devs::Time& loadTime)
         utils::Parser parser(in);
         fill(parser.root(), loadTime);
     } catch (const std::exception& e) {
-        throw utils::ArgError(fmt(_("Decision plan error in %1%")) % e.what());
+        throw utils::ArgError((boost::format("Decision plan error in %1%")
+                % e.what()).str());
     }
 }
 
@@ -81,7 +84,8 @@ void Plan::fill(std::istream& stream, const devs::Time& loadTime)
         utils::Parser parser(stream);
         fill(parser.root(), loadTime);
     } catch (const std::exception& e) {
-        throw utils::ArgError(fmt(_("Decision plan error: %1%")) % e.what());
+        throw utils::ArgError((boost::format("Decision plan error: %1%")
+                % e.what()).str());
     }
 }
 
@@ -92,7 +96,8 @@ void Plan::fill(const std::string& buffer)
         utils::Parser parser(in);
         fill(parser.root(), 0);
     } catch (const std::exception& e) {
-        throw utils::ArgError(fmt(_("Decision plan error in %1%")) % e.what());
+        throw utils::ArgError((boost::format("Decision plan error in %1%")
+                % e.what()).str());
     }
 }
 
@@ -102,7 +107,8 @@ void Plan::fill(std::istream& stream)
         utils::Parser parser(stream);
         fill(parser.root(), 0);
     } catch (const std::exception& e) {
-        throw utils::ArgError(fmt(_("Decision plan error: %1%")) % e.what());
+        throw utils::ArgError((boost::format("Decision plan error: %1%")
+                % e.what()).str());
     }
 }
 
@@ -142,7 +148,7 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
 
         UB::StringsResult id = block.strings.equal_range("id");
         if (id.first == id.second) {
-            throw utils::ArgError(_("Decision: rule needs id"));
+            throw utils::ArgError("Decision: rule needs id");
         }
 
         Rule& rule = mRules.add(id.first->second);
@@ -163,7 +169,7 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
 
         UB::StringsResult id = block.strings.equal_range("id");
         if (id.first == id.second) {
-            throw utils::ArgError(_("Decision: activity needs id"));
+            throw utils::ArgError("Decision: activity needs id");
         }
 
         Activity& act = mActivities.add(id.first->second, Activity());
@@ -320,12 +326,12 @@ void Plan::fillPrecedences(const utils::Block::BlocksResult& preds,
                                                         valuesecond,
                                                         valuemintl, valuemaxtl);
             } else {
-                throw utils::ArgError(fmt(
-                        _("Decision: precendence type `%1%' unknown")) %
-                    type.first->second);
+                throw utils::ArgError((
+                        boost::format("Decision: precendence type `%1%' unknown") %
+                    type.first->second).str());
             }
         } else {
-            throw utils::ArgError(_("Decision: precedences type unknown"));
+            throw utils::ArgError("Decision: precedences type unknown");
         }
     }
 }
@@ -344,8 +350,8 @@ Plan::DateResult Plan::getDate(const std::string& dateName,
     if((hasRealDate && hasStringDate) ||
             (hasRealDate && hasRelativeDate) ||
             (hasStringDate && hasRelativeDate)) {
-        throw utils::ArgError(fmt(_(
-         "Decision: date '%1%' should not be given twice ")) % dateName);
+        throw utils::ArgError((boost::format(
+         "Decision: date '%1%' should not be given twice ") % dateName).str());
     }
     if (hasRealDate){
         return DateResult(true,devs::Time((double) dateReal.first->second));

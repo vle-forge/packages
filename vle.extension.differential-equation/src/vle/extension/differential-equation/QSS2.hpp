@@ -638,8 +638,8 @@ public:
     {
         if (!params.exist("DeltaQ") || !params.get("DeltaQ")->isMap()) {
             throw vu::ModellingError(
-                    vle::fmt("[%1%] QSS2 expects a Map for 'DeltaQ' "
-                            "parameters") % getModelName());
+                    (boost::format("[%1%] QSS2 expects a Map for 'DeltaQ' "
+                            "parameters") % getModelName()).str());
         }
         const vv::Map& deltaQs = params.getMap("DeltaQ");
         //initialisation of variable indexes and real values
@@ -682,7 +682,7 @@ private:
      */
     void processIn(const vd::Time& t, TransitionType trans)
     {
-//        DTraceExtension(vle::fmt("[%1%] QSS2 ::processIn (in) state = '%2%',"
+//        DTraceExtension(boost::format("[%1%] QSS2 ::processIn (in) state = '%2%',"
 //                " trans= '%3%'" ) % getModelName() % state % trans)
         switch (state) {
         case INIT_SEND:
@@ -750,7 +750,7 @@ private:
      */
     void processOut(const vd::Time& t, TransitionType trans)
     {
-//        DTraceExtension(vle::fmt("[%1%] QSS2 ::processOut (out) state = '%2%',"
+//        DTraceExtension(boost::format("[%1%] QSS2 ::processOut (out) state = '%2%',"
 //                " trans= '%3%'" ) % getModelName() % state % trans)
         switch (state) {
         case INIT_SEND:
@@ -933,41 +933,40 @@ private:
         vd::ExternalEventList::const_iterator ite = ext.end();
         for (; itb != ite; itb++) {
             //get port name
-            const std::string& portName = (*itb)->getPortName();
+            const std::string& portName = itb->getPortName();
+            const vv::Map& attrs= itb->attributes()->toMap();
 
-//            DTraceExtension(vle::fmt("[%1%] QSS2::handleExtEvt "
+//            DTraceExtension(boost::format("[%1%] QSS2::handleExtEvt "
 //              "state = '%2%', port= '%3%', attributes='%4%'" )
 //              % getModelName() % state % portName % (*itb)->attributes())
 
             //update targeted variable
             if (portName == "perturb") {
-                discontinuities.registerPerturb(t, (*itb)->getAttributes());
+                discontinuities.registerPerturb(t, attrs);
             } else if (isExtVar(portName)) {
                 //get event informations and set default values
-                double varValue = (*itb)->getDoubleAttributeValue("value");
+                double varValue = attrs.getDouble("value");
                 double varGrad = 0;
-                if ((*itb)->existAttributeValue("gradient")) {
-                    varGrad = (*itb)->getDoubleAttributeValue("gradient");
+                if (attrs.exist("gradient")) {
+                    varGrad = attrs.getDouble("gradient");
                 } else {
                     if (options.expectGradients) {
-                        throw vu::ModellingError(
-                                vle::fmt(
-                                        "[%1%] External variable update of '%2%' is expected "
+                        throw vu::ModellingError((boost::format(
+                          "[%1%] External variable update of '%2%' is expected "
                                                 "to carry gradient")
-                                        % getModelName() % portName);
+                                        % getModelName() % portName).str());
                     }
                 }
                 ExternVariables::iterator itf = extVars().find(portName);
-                bool hasDiscontinuity = (*itb)->existAttributeValue(
-                        "discontinuities");
+                bool hasDiscontinuity = attrs.exist("discontinuities");
                 if (hasDiscontinuity) {
-                    discontinuities.registerExtDisc(t, (*itb)->getAttributes());
+                    discontinuities.registerExtDisc(t, attrs);
                 }
                 extUps.registerExtUp(itf, varValue, varGrad, t);
             } else {
                 throw vu::ModellingError(
-                        vle::fmt("[%1%] Unrecognised port '%2%'")
-                                % getModelName() % portName);
+                        (boost::format("[%1%] Unrecognised port '%2%'")
+                                % getModelName() % portName).str());
             }
         }
     }
@@ -990,12 +989,12 @@ private:
                         quantizedVariable);
                 const VarImprover& vi = itfvi->second;
 
-                vd::ExternalEvent* ee = new vd::ExternalEvent(v.getName());
-                ee->putAttribute("name", new vv::String(v.getName()));
-                ee->putAttribute("value", new vv::Double(vi.y0));
-                ee->putAttribute("gradient", new vv::Double(vi.y1));
+                extEvtList.emplace_back(v.getName());
+                vv::Map& m = extEvtList.back().addMap();
+                m.addString("name", v.getName());
+                m.addDouble("value", vi.y0);
+                m.addDouble("gradient", vi.y1);
 
-                extEvtList.push_back(ee);
             }
         }
     }
@@ -1017,27 +1016,28 @@ private:
             const Variable& v = itb->second;
             if (getModel().existOutputPort(v.getName())) {
                 const VarImprover& vi = varImprovers.get(v.getName());
-                vd::ExternalEvent* ee = new vd::ExternalEvent(v.getName());
-                ee->putAttribute("name", new vv::String(v.getName()));
-                ee->putAttribute("value", new vv::Double(vi.y0));
-                ee->putAttribute("gradient", new vv::Double(vi.y1));
+                extEvtList.emplace_back(v.getName());
+                vv::Map& m = extEvtList.back().addMap();
+                m.addString("name", v.getName());
+                m.addDouble("value", vi.y0);
+                m.addDouble("gradient", vi.y1);
+
                 if (discontinuity) {
-                    ee->putAttribute("discontinuities",
+                    m.add("discontinuities",
                             discontinuities.buildDiscsToPropagate(time));
                 }
-                extEvtList.push_back(ee);
             }
         }
     }
 
     /************** DEVS functions *****************/
-    vd::Time init(const vd::Time& /*time*/)
+    vd::Time init(vd::Time /*time*/)
     {
         state = INIT_SEND;
         return timeAdvance();
     }
 
-    void output(const vd::Time& time, vd::ExternalEventList& ext) const
+    void output(vd::Time time, vd::ExternalEventList& ext) const override
     {
         switch (state) {
         case INIT_SEND:
@@ -1066,7 +1066,7 @@ private:
         }
     }
 
-    vd::Time timeAdvance() const
+    vd::Time timeAdvance() const override
     {
         switch (state) {
         case INIT_SEND:
@@ -1089,7 +1089,7 @@ private:
         }
     }
 
-    void internalTransition(const vd::Time& t)
+    void internalTransition(vd::Time t) override
     {
         processOut(t, INTERNAL);
 
@@ -1126,7 +1126,7 @@ private:
     }
 
     void externalTransition(const vd::ExternalEventList& event,
-            const vd::Time& t)
+            vd::Time t) override
     {
         processOut(t, EXTERNAL);
 
@@ -1173,8 +1173,8 @@ private:
         processIn(t, EXTERNAL);
     }
 
-    void confluentTransitions(const vd::Time& t,
-            const vd::ExternalEventList& ext)
+    void confluentTransitions(vd::Time t,
+            const vd::ExternalEventList& ext) override
     {
         processOut(t, CONFLUENT);
         handleExtEvt(t, ext);
@@ -1243,7 +1243,8 @@ private:
     /***
      * @brief Implementation of observation DEVS function
      */
-    vv::Value* observation(const vd::ObservationEvent& event) const
+    std::unique_ptr<value::Value> observation(
+            const vd::ObservationEvent& event) const override
     {
         const std::string& port = event.getPortName();
         {
@@ -1254,7 +1255,7 @@ private:
                 if (itfvi != varImprovers.mcont.end()) {
                     double e = event.getTime() - lastWakeUp;
                     const VarImprover& vi = itfvi->second;
-                    return new vv::Double(
+                    return vv::Double::create(
                             vi.x0 + vi.x1 * e + (vi.x2 / 2) * e * e);
                 }
             }

@@ -28,7 +28,7 @@
 
 #include <vle/extension/decision/Activity.hpp>
 #include <vle/utils/Exception.hpp>
-#include <vle/utils/i18n.hpp>
+#include <boost/format.hpp>
 #include <boost/format.hpp>
 
 namespace vle { namespace extension { namespace decision {
@@ -46,10 +46,10 @@ void Activity::initStartTimeFinishTime(const devs::Time& start,
                                        const devs::Time& finish)
 {
     if (start > finish) {
-        throw utils::ModellingError(
-        vle::fmt(_("Decision: temporal constraint expected : "
-                "start (%1%) before finish (%2%)"))
-        % start % finish);
+        throw utils::ModellingError((boost::format(
+          "Decision: temporal constraint expected : "
+                "start (%1%) before finish (%2%)")
+                % start % finish).str());
     }
 
     m_date = (DateType)(Activity::START | Activity::FINISH);
@@ -62,10 +62,10 @@ void Activity::initStartTimeFinishRange(const devs::Time& start,
                                         const devs::Time& maxfinish)
 {
     if (not (start < minfinish and minfinish < maxfinish)) {
-        throw utils::ModellingError(
-                vle::fmt(_("Decision: temporal constraint expected : start (%1%) "
-                        "before minfinish (%2%) before maxfinish (%3%)"))
-                % start % minfinish % maxfinish);
+        throw utils::ModellingError((boost::format(
+                "Decision: temporal constraint expected : start (%1%) "
+                        "before minfinish (%2%) before maxfinish (%3%)")
+                % start % minfinish % maxfinish).str());
     }
 
     m_date = (DateType)(Activity::START | Activity::MINF | Activity::MAXF);
@@ -79,10 +79,10 @@ void Activity::initStartRangeFinishTime(const devs::Time& minstart,
                                         const devs::Time& finish)
 {
     if (not (minstart < maxstart and maxstart < finish)) {
-        throw utils::ModellingError(
-        vle::fmt(_("Decision: temporal constraint expected : minstart (%1%)"
-                " before maxstart (%2%) before finish (%3%)"))
-        % minstart % maxstart % finish);
+        throw utils::ModellingError((boost::format(
+                "Decision: temporal constraint expected : minstart (%1%)"
+                " before maxstart (%2%) before finish (%3%)")
+        % minstart % maxstart % finish).str());
     }
 
     m_date = (DateType)(Activity::MINS | Activity::MAXS | Activity::FINISH);
@@ -98,12 +98,12 @@ void Activity::initStartRangeFinishRange(const devs::Time& minstart,
 {
     if (not (minstart < maxstart and minstart < maxfinish
              and minfinish < maxfinish)) {
-        throw utils::ModellingError(
-                vle::fmt(_("Decision: temporal constraint expected : minstart (%1%)"
+        throw utils::ModellingError((boost::format(
+                "Decision: temporal constraint expected : minstart (%1%)"
                         " before maxstart (%2%) and minfinish (%3%) before"
                         " maxfinish (%4%) and minstart (%1%) before"
-                        " maxfinish (%4%)"))
-                % minstart % maxstart % minfinish % maxfinish );
+                        " maxfinish (%4%)")
+                % minstart % maxstart % minfinish % maxfinish ).str());
     }
 
     m_date = (DateType)(Activity::MINF | Activity::MAXF | Activity::MINS |
@@ -167,8 +167,9 @@ bool Activity::isValidTimeConstraint(const devs::Time& time) const
     default:
         break;
     }
-    throw utils::InternalError(fmt(
-            _("Decision: activity time type invalid: %1%")) % (int)m_date);
+    throw utils::InternalError((boost::format(
+            "Decision: activity time type invalid: %1%")
+            % (int)m_date).str());
 }
 
 bool Activity::isBeforeTimeConstraint(const devs::Time& time) const
@@ -189,8 +190,9 @@ bool Activity::isBeforeTimeConstraint(const devs::Time& time) const
     default:
         break;
     }
-    throw utils::InternalError(fmt(
-            _("Decision: activity time type invalid: %1%")) % (int)m_date);
+    throw utils::InternalError((boost::format(
+            "Decision: activity time type invalid: %1%")
+            % (int)m_date).str());
 }
 
 bool Activity::isAfterTimeConstraint(const devs::Time& time) const
@@ -211,8 +213,9 @@ bool Activity::isAfterTimeConstraint(const devs::Time& time) const
     default:
         break;
     }
-    throw utils::InternalError(fmt(
-            _("Decision: activity time type invalid: %1%")) % (int)m_date);
+    throw utils::InternalError((boost::format(
+            "Decision: activity time type invalid: %1%")
+            % (int)m_date).str());
 }
 
 }}} // namespace vle model decision

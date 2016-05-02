@@ -26,7 +26,7 @@
  */
 
 #include <vle/devs/Dynamics.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 
 namespace vle { namespace examples { namespace gens {
 
@@ -43,23 +43,23 @@ public:
     {
     }
 
-    virtual devs::Time init(const devs::Time& /* time */)
+    virtual devs::Time init(devs::Time /* time */) override
     {
         return 0.0;
     }
 
-    virtual devs::Time timeAdvance() const
+    virtual devs::Time timeAdvance() const override
     {
         return 1.0;
     }
 
-    virtual void output(const devs::Time& /* time */,
-                        devs::ExternalEventList& output) const
+    virtual void output(devs::Time /* time */,
+                        devs::ExternalEventList& output) const override
     {
-        output.push_back(buildEvent("out"));
+        output.emplace_back("out");
     }
 };
 
 }}} // namespace vle examples gens
 
-DECLARE_DYNAMICS_DBG(vle::examples::gens::Beep)
+DECLARE_DYNAMICS(vle::examples::gens::Beep)

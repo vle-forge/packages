@@ -29,8 +29,8 @@
 #ifndef FSA_STAGE_HPP
 #define FSA_STAGE_HPP
 
+#include <iostream>
 #include <vle/extension/fsa/Statechart.hpp>
-#include <vle/extension/difference-equation/Base.hpp>
 
 enum state_t {INIT = 1, PS, LV, IF, DF, DRG, FSLA, MP, FIN };
 
@@ -111,9 +111,10 @@ private:
     bool c7(const vd::Time& /* time */) { return CumST_FSLA >= seuil; }
 
     void in(const vd::Time& /* time */,
-            const vd::ExternalEvent* event)
+            const vd::ExternalEvent& event)
     {
-        STi << ve::DifferenceEquation::Var("Tmoy", event);
+
+        STi = event.attributes()->toMap().getDouble("value");
         if (STi > 0.0) {
             STiz = STi;
         } else {

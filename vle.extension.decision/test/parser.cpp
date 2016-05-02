@@ -35,8 +35,6 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <iostream>
 #include <iterator>
-#include <boost/assign/list_of.hpp>
-#include <boost/assign.hpp>
 #include <vle/version.hpp>
 #include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
@@ -45,8 +43,7 @@
 
 namespace vmd = vle::extension::decision;
 namespace vd = vle::devs;
-using vle::fmt;
-using namespace boost::assign;
+using boost::format;
 
 namespace vle { namespace extension { namespace decision { namespace ex {
 
@@ -307,8 +304,9 @@ BOOST_AUTO_TEST_CASE(parser)
     vmd::ex::KnowledgeBase b;
     b.plan().fill(std::string(vmd::ex::Plan1));
 
-    std::cout << fmt("parser: %1%\n") % b;
-    std::cout << fmt("graph: %1%\n") % b.activities().precedencesGraph();
+    std::cout << boost::format("parser: %1%\n") % b;
+    std::cout << boost::format("graph: %1%\n") %
+            b.activities().precedencesGraph();
 
     BOOST_REQUIRE_EQUAL(b.activities().size(), (vmd::Activities::size_type)8);
     BOOST_REQUIRE_EQUAL(

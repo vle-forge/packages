@@ -49,14 +49,16 @@ namespace vle { namespace examples { namespace counter {
 
         // DEVS Methods
         virtual void finish() { }
-        virtual vle::devs::Time init(const vle::devs::Time& /* time */);
-        virtual void output(const vle::devs::Time& /* time */,
-                            vle::devs::ExternalEventList& /* output */) const;
-        virtual vle::devs::Time timeAdvance() const;
-        virtual void internalTransition(const vle::devs::Time& /* event */);
-        virtual void externalTransition(const vle::devs::ExternalEventList& /* event */,
-                                        const vle::devs::Time& /* time */);
-        virtual vle::value::Value* observation(const vle::devs::ObservationEvent& /* event */) const;
+        virtual vle::devs::Time init(vle::devs::Time /* time */) override;
+        virtual void output(vle::devs::Time /* time */,
+                 vle::devs::ExternalEventList& /* output */) const  override;
+        virtual vle::devs::Time timeAdvance() const  override;
+        virtual void internalTransition(vle::devs::Time /* event */)  override;
+        virtual void externalTransition(
+                const vle::devs::ExternalEventList& /* event */,
+                vle::devs::Time /* time */)  override;
+        virtual std::unique_ptr<vle::value::Value> observation(
+                const vle::devs::ObservationEvent& /* event */) const  override;
 
     private:
         long m_counter;

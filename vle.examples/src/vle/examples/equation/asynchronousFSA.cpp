@@ -64,10 +64,10 @@ public:
     }
     void out(const vd::Time& /*time*/, vd::ExternalEventList& output) const
     {
-        vd::ExternalEvent* evt = new vd::ExternalEvent("fsa");
-        evt->putAttribute("name", new vv::String("fsa"));
-        evt->putAttribute("value", new vv::Double(1.0));
-        output.push_back(evt);
+    	output.emplace_back("fsa");
+    	value::Map& m = output.back().addMap();
+    	m.addString("name", "fsa");
+    	m.addDouble("value", 1.0);
     }
 };
 

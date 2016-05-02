@@ -42,10 +42,9 @@
 #include <vle/vpz/Vpz.hpp>
 #include <vle/vpz/Model.hpp>
 #include <vle/vpz/AtomicModel.hpp>
+#include <vle/utils/Context.hpp>
 #include <vle/utils/Package.hpp>
-#include <vle/utils/Path.hpp>
 #include <vle/manager/Simulation.hpp>
-#include <vle/manager/Manager.hpp>
 
 namespace vz = vle::vpz;
 namespace vu = vle::utils;
@@ -63,16 +62,16 @@ struct F
 BOOST_GLOBAL_FIXTURE(F);
 
 
-va::ConstVectorView
+int
 ttgetColumnFromView(const va::Matrix& view, const std::string& model,
                     const std::string& port)
 {
     for(unsigned int j=1; j < view.columns(); j++){
         if(view.getString(j,0) == (model + std::string(".") + port)){
-            return view.column(j);
+            return j;
         }
     }
-    return view.column(0);
+    return -1;
 }
 
 
@@ -85,13 +84,13 @@ ttconfOutputPlugins(vz::Vpz& vpz)
     vz::Outputs::iterator ite =
         vpz.project().experiment().views().outputs().end();
     for(;itb!=ite;itb++) {
-        va::Map* configOutput = new va::Map();
+        std::unique_ptr<va::Map> configOutput(new va::Map());
         configOutput->addInt("rows",10000);
         configOutput->addInt("inc_rows",10000);
         configOutput->addString("header","top");
         vz::Output& output = itb->second;
         output.setLocalStream("", "storage", "vle.output");
-        output.setData(configOutput);
+        output.setData(std::move(configOutput));
     }
 }
 

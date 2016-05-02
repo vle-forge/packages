@@ -58,7 +58,7 @@ public:
     {
     }
 
-    virtual devs::Time init(const devs::Time& /* time */)
+    virtual devs::Time init(devs::Time /* time */) override
     {
         mTimeStep = value::toDouble(m_parameters["TimeStep"]);
 
@@ -76,7 +76,7 @@ public:
         return devs::Time(0.0);
     }
 
-    virtual void internalTransition(const devs::Time& time)
+    virtual void internalTransition(devs::Time time) override
     {
         CellDevs::internalTransition(time);
         switch (mState) {
@@ -113,7 +113,8 @@ public:
         }
     }
 
-    virtual void processPerturbation(const vle::devs::ExternalEvent& /* event */)
+    virtual void processPerturbation(
+            const vle::devs::ExternalEvent& /* event */) override
     {
     }
 

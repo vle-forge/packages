@@ -31,6 +31,7 @@
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/Exception.hpp>
+#include <boost/format.hpp>
 
 namespace vle {
 namespace extension {
@@ -227,9 +228,9 @@ public:
             if (not itVar) {
                 if (not equation) {
                     throw vu::ModellingError(
-                            vle::fmt("[%1%] Manipulation  the Var '%2%' "
+                            (boost::format("[%1%] Manipulation  the Var '%2%' "
                                     "at this stage")
-                                % equation->getModelName() % name );
+                                % equation->getModelName() % name ).str());
 
                 }
                 itVar = &(equation->vars().find(name)->second);
@@ -264,8 +265,8 @@ public:
         {
             if (not itVar or not equation) {
                 throw vu::ModellingError(
-                     vle::fmt("[%1%] Error when const accessing value of '%2%'")
-                        % equation->getModelName() % name );
+                     (boost::format("[%1%] Error when const accessing value of '%2%'")
+                        % equation->getModelName() % name ).str());
             }
             return itVar->getVal();
         }
@@ -408,28 +409,29 @@ protected:
     virtual ~DifferentialEquation();
 
     /************** DEVS functions *****************/
-    vd::Time init(const vd::Time& time);
+    vd::Time init(vd::Time time) override;
 
-    void output(const vd::Time& time, vd::ExternalEventList& output) const;
+    void output(vd::Time time, vd::ExternalEventList& output) const override;
 
     vd::Time timeAdvance() const;
 
-    void confluentTransitions(const vd::Time& time,
-            const vd::ExternalEventList& extEventlist);
+    void confluentTransitions(vd::Time time,
+            const vd::ExternalEventList& extEventlist) override;
 
-    void internalTransition(const vd::Time& event);
+    void internalTransition(vd::Time event) override;
 
     void externalTransition(const vd::ExternalEventList& event,
-            const vd::Time& time);
+            vd::Time time) override;
 
-    vv::Value* observation(const vd::ObservationEvent& event) const;
+    std::unique_ptr<vv::Value> observation(
+            const vd::ObservationEvent& event) const override;
 
     Variables mvars;
     ExternVariables mextVars;
-    DifferentialEquationImpl* meqImpl;
+    std::unique_ptr<DifferentialEquationImpl> meqImpl;
     bool mdeclarationOn;
-    vv::Map* minitConditions;
-    vv::Map* mmethParams;
+    std::unique_ptr<vv::Map> minitConditions;
+    std::unique_ptr<vv::Map> mmethParams;
     std::string mmethod;
 
     friend std::ostream& operator<<(std::ostream& o, const Variable& v);

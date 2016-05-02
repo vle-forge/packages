@@ -25,9 +25,9 @@
  * @@tagdepends: vle.discrete-time @@endtagdepends
  */
 
-#include <vle/DiscreteTimeDbg.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+#include <vle/DiscreteTime.hpp>
 
+#include <sstream>
 #include <iostream>
 
 
@@ -61,7 +61,7 @@ public:
         }
     }
 
-    void compute(const vle::devs::Time& t)
+    void compute(const vle::devs::Time& t) override
     {
         for (unsigned int i=0; i < vars.size(); i++) {
             Var& v = *vars[i];
@@ -83,5 +83,5 @@ public:
 
 }}}
 
-DECLARE_DYNAMICS_DBG(vle::discrete_time::test::incremental_A)
+DECLARE_DYNAMICS(vle::discrete_time::test::incremental_A)
 

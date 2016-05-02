@@ -62,8 +62,8 @@ public:
 
     virtual ~statechart9() { }
 
-    virtual vle::value::Value* observation(
-        const vd::ObservationEvent& event) const
+    virtual std::unique_ptr<vle::value::Value> observation(
+        const vd::ObservationEvent& event) const override
     {
         if (event.onPort("a")) {
             return vle::value::Integer::create(x);
@@ -79,7 +79,7 @@ private:
     { ++x; }
     vle::devs::Time d(const vd::Time& /* time */)
     { return 5.; }
-    void in(const vd::Time& /* time */, const vd::ExternalEvent* /* event */)
+    void in(const vd::Time& /* time */, const vd::ExternalEvent& /* event */)
     { ++x; }
     void start(const vd::Time& /* time */)
     { x = 0; }

@@ -27,6 +27,8 @@
 
 
 #include <iostream>
+#include <cassert>
+#include <algorithm>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/vpz/Vpz.hpp>
 #include <vle/manager/Simulation.hpp>
@@ -46,20 +48,19 @@ public:
     virtual ~SimpleSimulation()
     {}
 
-    devs::Time init(const devs::Time& /* time */)
+    devs::Time init(devs::Time /* time */) override
     {
-        vle::utils::Package pack("vle.examples");
+        vle::utils::Package pack(context(), "vle.examples");
 
-        vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("counter.vpz",
-                vle::utils::PKG_BINARY));
+        std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
+                pack.getExpFile("counter.vpz", vle::utils::PKG_BINARY)));
 
-        utils::ModuleManager man;
 
-        manager::Simulation sim(manager::LOG_NONE,
+        manager::Simulation sim(context(), manager::LOG_NONE,
                                 manager::SIMULATION_NONE,
                                 NULL);
 
-        value::Map *result = sim.run(file, man, NULL);
+        std::unique_ptr<value::Map> result = sim.run(std::move(file), NULL);
 
         assert(result);
 

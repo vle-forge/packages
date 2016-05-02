@@ -29,7 +29,8 @@
  * This dynamic sends a y_nosync value of 10 at 1.0 (in first bag)
  */
 
-#include <vle/devs/DynamicsDbg.hpp>
+
+#include <vle/devs/Dynamics.hpp>
 
 namespace vle { namespace examples { namespace equation {
 
@@ -61,13 +62,13 @@ public:
     void output(const vle::devs::Time& /* time */,
         vle::devs::ExternalEventList& output) const
     {
-        vd::ExternalEvent* ev = new vd::ExternalEvent("y_nosync");
-        ev->putAttribute("value", new vv::String("y_nosync"));
-        ev->putAttribute("value", new vv::Double(10));
-        output.push_back(ev);
+    	output.emplace_back("y_nosync");
+    	value::Map& m = output.back().addMap();
+    	m.addString("name","y_nosync");
+    	m.addDouble("value",10.0);
     }
 };
 
 }}} // namespace vle examples equation
 
-DECLARE_DYNAMICS_DBG(vle::examples::equation::confluentNosync_perturb)
+DECLARE_DYNAMICS(vle::examples::equation::confluentNosync_perturb)

@@ -33,6 +33,7 @@
 
 #include <vle/vpz/AtomicModel.hpp>
 #include <vle/utils/Exception.hpp>
+#include <vle/value/Set.hpp>
 
 #include <vle/extension/differential-equation/DifferentialEquationImpl.hpp>
 
@@ -136,7 +137,8 @@ public:
      * @return a new Set containing the discontinuities to
      * propagate
      */
-    DiscsToPropagate* buildDiscsToPropagate(const vd::Time& time) const;
+    std::unique_ptr<DiscsToPropagate>  buildDiscsToPropagate(
+            const vd::Time& time) const;
 
     /**
      * @brief Acces function to discontinuities to use

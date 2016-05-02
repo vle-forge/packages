@@ -57,12 +57,12 @@ public:
 
     void out(const vd::Time& /* time */, vd::ExternalEventList& output) const
 	{
-	    vd::ExternalEvent* ee = new vd::ExternalEvent("out");
+    	output.emplace_back("out");
+    	value::Map& m = output.back().addMap();
+    	m.addString("name", "a");
+    	m.addDouble("value", 2.0);
+    	m.addInt("type", ve::DifferenceEquation::ADD);
 
-	    ee << vd::attribute("name", std::string("a"));
-            ee << vd::attribute("value", 2.);
-            ee << vd::attribute("type", ve::DifferenceEquation::ADD);
-	    output.push_back(ee);
 	}
 
 };

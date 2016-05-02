@@ -26,10 +26,9 @@
  * @@tagdepends: @@endtagdepends
  */
 
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <iostream>
-
-
+#include <vle/devs/Dynamics.hpp>
 
 
 namespace vle {
@@ -51,17 +50,17 @@ public:
     ~confluentNosync_output()
     {
     }
-    virtual vle::devs::Time init(const vle::devs::Time& /* time */)
+    virtual vle::devs::Time init(vle::devs::Time /* time */) override
     {
         return vle::devs::infinity;
     }
-    vle::devs::Time timeAdvance() const
+    vle::devs::Time timeAdvance() const override
     {
         return vle::devs::infinity;
     }
     void externalTransition(
         const vle::devs::ExternalEventList& /* event */,
-        const vle::devs::Time& time)
+        vle::devs::Time time) override
     {
         if(time == lastWakeUp){
             throw vu::InternalError("two values at the same time");
@@ -71,7 +70,7 @@ public:
     vle::devs::Time lastWakeUp;
 };
 
-DECLARE_DYNAMICS_DBG(confluentNosync_output)
+DECLARE_DYNAMICS(confluentNosync_output)
 
 }}}
 

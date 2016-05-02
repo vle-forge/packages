@@ -53,35 +53,34 @@ void Mealy::process(const devs::Time& time,
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-void Mealy::output(const devs::Time& time,
+void Mealy::output(devs::Time time,
 		   devs::ExternalEventList& output) const
 {
     if (mPhase == PROCESSING) {
-        devs::ExternalEventList* events = mToProcessEvents.front();
-        devs::ExternalEvent* event = events->front();
+        const devs::ExternalEventList& events = *mToProcessEvents.front();
+        const devs::ExternalEvent& event = events.front();
         OutputFuncsIterator itof = mOutputFuncs.find(currentState());
 
         if (itof != mOutputFuncs.end()  and
-            itof->second.find(event->getPortName()) != itof->second.end()) {
-            (itof->second.find(event->getPortName())->second)(time, output);
+            itof->second.find(event.getPortName()) != itof->second.end()) {
+            (itof->second.find(event.getPortName())->second)(time, output);
         } else {
             OutputsIterator ito = mOutputs.find(currentState());
 
             if (ito != mOutputs.end() and
-                ito->second.find(event->getPortName()) != ito->second.end()) {
-
-                output.push_back(
-                    buildEvent(ito->second.find(event->getPortName())->second));
+                ito->second.find(event.getPortName()) != ito->second.end()) {
+                output.emplace_back(
+                    ito->second.find(event.getPortName())->second);
             }
         }
     }
 }
 
-devs::Time Mealy::init(const devs::Time& /* time */)
+devs::Time Mealy::init(devs::Time /* time */)
 {
     if (not isInit()) {
         throw utils::InternalError(
-            _("FSA::Mealy model, initial state not defined"));
+            "FSA::Mealy model, initial state not defined");
     }
 
     currentState(initialState());
@@ -90,7 +89,7 @@ devs::Time Mealy::init(const devs::Time& /* time */)
 }
 
 void Mealy::externalTransition(const devs::ExternalEventList& events,
-			       const devs::Time& /* time */)
+			       devs::Time /* time */)
 {
     if (events.size() > 1) {
         devs::ExternalEventList sortedEvents = select(events);
@@ -99,7 +98,9 @@ void Mealy::externalTransition(const devs::ExternalEventList& events,
         devs::ExternalEventList::const_iterator it = sortedEvents.begin();
 
         while (it != sortedEvents.end()) {
-            clonedEvents->push_back(cloneExternalEvent(*it));
+            clonedEvents->emplace_back(it->getPortName());
+            devs::ExternalEvent& e = clonedEvents->back();
+            copyExternalEventAttrs(*it, e);
             ++it;
         }
         mToProcessEvents.push_back(clonedEvents);
@@ -107,8 +108,10 @@ void Mealy::externalTransition(const devs::ExternalEventList& events,
         devs::ExternalEventList::const_iterator it = events.begin();
         devs::ExternalEventList* clonedEvents =
             new devs::ExternalEventList;
+        clonedEvents->emplace_back(it->getPortName());
+        devs::ExternalEvent& e = clonedEvents->back();
+        copyExternalEventAttrs(*it, e);
 
-        clonedEvents->push_back(cloneExternalEvent(*it));
         mToProcessEvents.push_back(clonedEvents);
     }
     mPhase = PROCESSING;
@@ -123,16 +126,15 @@ devs::Time Mealy::timeAdvance() const
     }
 }
 
-void Mealy::internalTransition(const devs::Time& time)
+void Mealy::internalTransition(devs::Time time)
 {
     if (mPhase == PROCESSING) {
         devs::ExternalEventList* events = mToProcessEvents.front();
-        devs::ExternalEvent* event = events->front();
+        devs::ExternalEvent event = events->front();
 
-        process(time, event);
+        process(time, &event);
 
         events->erase(events->begin());
-        delete event;
 
         if (events->empty()) {
             mToProcessEvents.pop_front();

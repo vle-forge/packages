@@ -5,7 +5,7 @@ LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
 ADD_LIBRARY(fsa STATIC FDDevs.cpp FDDevs.hpp FSA.cpp
   FSA.hpp Mealy.cpp Mealy.hpp Moore.cpp Moore.hpp Statechart.cpp
-  StatechartDbg.hpp Statechart.hpp)
+  Statechart.hpp)
 
 IF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
@@ -20,8 +20,7 @@ TARGET_LINK_LIBRARIES(fsa ${VLE_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS fsa ARCHIVE DESTINATION lib)
 
-install(FILES FDDevs.hpp FSA.hpp Mealy.hpp Moore.hpp
-  StatechartDbg.hpp Statechart.hpp
+install(FILES FDDevs.hpp FSA.hpp Mealy.hpp Moore.hpp Statechart.hpp
   DESTINATION src/vle/extension/fsa)
 
 CONFIGURE_FILE(Version.hpp.in

@@ -50,7 +50,7 @@
  */
 
 
-#include <vle/extension/DifferentialEquationDbg.hpp>
+#include <vle/extension/DifferentialEquation.hpp>
 
 namespace vd = vle::devs;
 namespace ve = vle::extension::differential_equation;
@@ -73,7 +73,7 @@ public:
         x = createExt("x");
     }
 
-    virtual void compute(const vd::Time& /*t*/)
+    virtual void compute(const vd::Time& /*t*/) override
     {
         grad(y) = b * d * x() * y() - e * y();
     }
@@ -91,5 +91,5 @@ private:
 
 }}} // namespaces
 
-DECLARE_DIFFERENTIAL_EQUATION_DBG(vle::examples::smartgardeners::Ladybird)
+DECLARE_DYNAMICS(vle::examples::smartgardeners::Ladybird)
 

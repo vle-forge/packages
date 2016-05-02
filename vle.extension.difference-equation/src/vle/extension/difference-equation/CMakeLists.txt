@@ -4,8 +4,8 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
 LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
 ADD_LIBRARY(difference-equation STATIC Base.cpp Base.hpp
-  Generic.cpp GenericDbg.hpp Generic.hpp Multiple.cpp MultipleDbg.hpp
-  Multiple.hpp Simple.cpp SimpleDbg.hpp Simple.hpp)
+  Generic.cpp Generic.hpp Multiple.cpp
+  Multiple.hpp Simple.cpp Simple.hpp)
 
 IF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
@@ -20,8 +20,8 @@ TARGET_LINK_LIBRARIES(difference-equation ${VLE_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS difference-equation ARCHIVE DESTINATION lib)
 
-install(FILES Base.hpp GenericDbg.hpp Generic.hpp
-  MultipleDbg.hpp Multiple.hpp SimpleDbg.hpp Simple.hpp
+install(FILES Base.hpp Generic.hpp
+  Multiple.hpp Simple.hpp
   DESTINATION src/vle/extension/difference-equation)
 
 CONFIGURE_FILE(Version.hpp.in

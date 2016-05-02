@@ -28,6 +28,7 @@
 
 #include <vle/extension/decision/Library.hpp>
 #include <vle/utils/Parser.hpp>
+#include <boost/format.hpp>
 #include <sstream>
 
 namespace vle { namespace extension { namespace decision {
@@ -41,8 +42,8 @@ void Library::add(const std::string& name, const std::string& content)
 
     if (not r.second) {
         throw utils::ArgError(
-            fmt(_("Decision: plan library, plan `%1%' already exists")) %
-            name);
+            (boost::format("Decision: plan library, plan `%1%' already exists")
+             % name).str());
     }
 }
 
@@ -55,8 +56,8 @@ void Library::add(const std::string& name, std::istream& stream)
 
     if (not r.second) {
         throw utils::ArgError(
-            fmt(_("Decision: plan library, plan `%1%' already exists")) %
-            name);
+            (boost::format("Decision: plan library, plan `%1%' already exists")
+            % name).str());
     }
 }
 

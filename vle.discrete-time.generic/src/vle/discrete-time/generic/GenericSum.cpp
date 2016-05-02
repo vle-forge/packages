@@ -25,9 +25,8 @@
 //@@tagdepends: vle.discrete-time @@endtagdepends
 
 
-#include <vle/DiscreteTimeDbg.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
-
+#include <vle/DiscreteTime.hpp>
+#include <vle/devs/Dynamics.hpp>
 #include <iostream>
 
 
@@ -69,5 +68,5 @@ public:
 
 }}}
 
-DECLARE_DYNAMICS_DBG(vle::discrete_time::generic::GenericSum)
+DECLARE_DYNAMICS(vle::discrete_time::generic::GenericSum)
 

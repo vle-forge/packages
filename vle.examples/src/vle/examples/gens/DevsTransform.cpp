@@ -44,38 +44,39 @@ public:
     virtual ~Transform()
     {}
 
-    virtual devs::Time init(const devs::Time& /* time */)
+    virtual devs::Time init(devs::Time /* time */) override
     {
         m_counter = 0;
         return 0.0;
     }
 
-    virtual devs::Time timeAdvance() const
+    virtual devs::Time timeAdvance() const override
     {
         return 1.0;
     }
 
-    virtual void internalTransition(const devs::Time& /* time */)
+    virtual void internalTransition(devs::Time /* time */) override
     {
         m_counter = 1;
     }
 
     virtual void externalTransition(
         const devs::ExternalEventList& events,
-        const devs::Time& /* time */)
+        devs::Time /* time */) override
     {
         m_counter = m_counter + events.size();
     }
 
-    virtual void output(const devs::Time& /* time */,
-                        devs::ExternalEventList& output) const
+    virtual void output(devs::Time /* time */,
+                        devs::ExternalEventList& output) const override
     {
         for (int i = 0; i < m_counter; ++i) {
-            output.push_back(buildEvent("out"));
+            output.emplace_back("out");
         }
     }
 
-    virtual value::Value* observation(const devs::ObservationEvent&) const
+    virtual std::unique_ptr<value::Value> observation(
+    		const devs::ObservationEvent&) const override
     {
         return value::Integer::create(m_counter);
     }

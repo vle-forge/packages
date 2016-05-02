@@ -25,8 +25,8 @@
  * @@tagdepends: vle.discrete-time @@endtagdepends
  */
 
-#include <vle/DiscreteTimeDbg.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+#include <vle/DiscreteTime.hpp>
+
 
 #include <iostream>
 
@@ -53,7 +53,7 @@ public:
     { }
 
 
-    void compute(const vle::devs::Time& /*time*/)
+    void compute(const vle::devs::Time& /*time*/) override
     { e1 = e0() + e1(-1) + 1; }
 
 private:

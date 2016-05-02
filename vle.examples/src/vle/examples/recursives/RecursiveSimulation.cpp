@@ -26,11 +26,14 @@
  */
 
 
+#include <string>
+#include <cassert>
+
 #include <vle/devs/Dynamics.hpp>
 #include <vle/vpz/Vpz.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/utils/Package.hpp>
-#include <boost/lexical_cast.hpp>
+
 
 namespace vle { namespace examples { namespace recursives {
 
@@ -45,34 +48,40 @@ public:
     virtual ~RecursiveSimulation()
     {}
 
-    virtual devs::Time init(const devs::Time& /* time */)
+    virtual devs::Time init(devs::Time /* time */) override
     {
+
         if (getModelName() == "10") {    // close the recursive simulation
             return devs::infinity;       // creation after
         }                                // 10 recursive models
         return 0.0;
     }
 
-    virtual void internalTransition(const devs::Time& /* time */)
+    virtual void internalTransition(devs::Time /* time */) override
     {
+
+
         const std::string& myname(getModelName());
-        const int nb = boost::lexical_cast < int >(myname);
 
-        vle::utils::Package pack("vle.examples");
 
-        vpz::Vpz *file = new vpz::Vpz(pack.getExpFile("recursive.vpz",
-                vle::utils::PKG_BINARY));
+        const int nb = std::stoi(myname);
+
+        vle::utils::Package pack(context(), "vle.examples");
+
+        std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
+                pack.getExpFile("recursive.vpz", vle::utils::PKG_BINARY)));
+
 
         vpz::BaseModel::rename(file->project().model().model(),
-                               boost::lexical_cast < std::string >(nb + 1));
+                               std::to_string(nb + 1));
 
-        utils::ModuleManager man;
 
-        manager::Simulation sim(manager::LOG_NONE,
+        manager::Error error;
+
+        manager::Simulation sim(context(), manager::LOG_NONE,
                                 manager::SIMULATION_NO_RETURN,
                                 NULL);
-
-        value::Map *result = sim.run(file, man, NULL);
+        std::unique_ptr<value::Map> result = sim.run(std::move(file), &error);
 
         assert(not result);
     }

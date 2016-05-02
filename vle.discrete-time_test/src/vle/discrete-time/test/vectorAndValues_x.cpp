@@ -24,7 +24,7 @@
  * @@tagdepends: vle.discrete-time @@endtagdepends
  */
 #include <vle/DiscreteTime.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <iostream>
 
 
@@ -55,7 +55,7 @@ public:
     }
 
 
-    void compute(const vle::devs::Time& time)
+    void compute(const vle::devs::Time& time) override
     {
         x[0] =  x[0](-1) + 0.8;
         x[1] =  x[0](-1) + 0.5;
@@ -68,7 +68,7 @@ public:
     ValueVle x_value;
 };
 
-DECLARE_DYNAMICS_DBG(vectorAndValues_x)
+DECLARE_DYNAMICS(vectorAndValues_x)
 
 }}}
 

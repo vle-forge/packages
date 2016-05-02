@@ -31,7 +31,6 @@
 
 #include <vle/extension/fsa/FDDevs.hpp>
 
-using namespace boost::assign;
 
 namespace vle { namespace examples { namespace fsa {
 
@@ -70,7 +69,9 @@ public:
 
     void out(const vd::Time& /*time*/,
              vd::ExternalEventList& output) const
-    { output.push_back(buildEvent("out")); }
+    {
+        output.emplace_back("out");
+    }
 };
 
 DECLARE_DYNAMICS(devs1)

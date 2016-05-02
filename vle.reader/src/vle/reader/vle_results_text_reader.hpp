@@ -28,20 +28,19 @@
 #include <string>
 #include <ostream>
 #include <fstream>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
+#include <vle/utils/Exception.hpp>
+#include <boost/format.hpp>
 #include <vle/value/Matrix.hpp>
 #include <vle/value/Set.hpp>
 #include <vle/value/Map.hpp>
-#include <vle/utils/Exception.hpp>
 #include <vle/value/Map.hpp>
-#include <vle/reader/details/TFR_line_grammar.hpp>
+#include <vle/reader/details/vle_line_parser.hpp>
 
 namespace vle {
 namespace reader {
 
 namespace vv = vle::value;
+namespace vu = vle::utils;
 
 class VleResultsTextReader
 {
@@ -49,8 +48,6 @@ public:
     VleResultsTextReader(const std::string& filepath) :
                 file_path(filepath), filestream(0)
     {
-        boost::replace_all(file_path, "\r\n", "");
-        boost::replace_all(file_path, "\n", "");
     }
 
     virtual ~VleResultsTextReader()
@@ -63,39 +60,48 @@ public:
         clearFileStream();
         filestream = new std::ifstream(file_path.c_str());
         if (not filestream->good() or not filestream->is_open()) {
-            throw vu::ArgError(vle::fmt("vle.reader: fails to topen %1% ") %
-                    file_path);
+            throw vu::ArgError((boost::format("vle.reader: fails to open %1% ") %
+                    file_path).str());
         }
         matrixToFill.clear();
 
         //read the first line to get the number of columns
         std::string line;
         std::getline(*filestream, line);
-        std::vector<std::string> strs;
-        boost::split(strs,line,boost::is_any_of("\t"));
-        //build parser parameter
+        value::Set lineToFill;
         vle_reader_params p;
-        p.separator.assign("\t");
-        for (unsigned int i=0; i < strs.size(); i++) {
-            if (not strs[i].empty()) {
+        p.separator="\t";
+        vle_line_parser::parseLine(p, line, lineToFill);
+        lineToFill.remove(lineToFill.size()-1);//extra \t at the end of header
+
+        //build parser parameter
+
+        for (unsigned int i=0; i < lineToFill.size(); i++) {
+            if (not lineToFill.getString(i).empty()) {
                 p.col_types.push_back(vv::Value::DOUBLE);
             }
         }
-        TFR_matrix_tofill tofill(p, matrixToFill);
-        matrixToFill.addRow();
-        for (unsigned int i=0; i < strs.size(); i++) {
-            if (not strs[i].empty()) {
-                boost::replace_all(strs[i], "\"", "");
-                boost::replace_all(strs[i], "#", "");
-                matrixToFill.set(i,0, new vv::String(strs[i]));
+        matrixToFill.resize(p.col_types.size(), 1);
+
+        for (unsigned int i=0; i < lineToFill.size(); i++) {
+            if (not lineToFill.getString(i).empty()) {
+
+                matrixToFill.set(i,0, std::move(lineToFill.give(i)));
             }
         }
 
-        TFR_line_grammar g(p, tofill);
-        tofill.nextRow();
+
         do {
-            parseLine(g,line);
-            tofill.nextRow();
+            std::getline(*filestream, line);
+            if (not line.empty()) {
+                vle_line_parser::parseLine(p,line,lineToFill);
+                matrixToFill.addRow();
+                for (unsigned int i=0;i<matrixToFill.columns();i++) {
+                    matrixToFill.set(i, matrixToFill.rows()-1, std::move(
+                            lineToFill.give(i)));
+                }
+            }
+
         } while (not filestream->eof() and filestream->good());
 
         clearFileStream();
@@ -119,29 +125,6 @@ private:
     std::string file_path;
     std::ifstream* filestream;
     std::vector<std::string> report;
-
-
-    bool parseLine(TFR_line_grammar& g, std::string& line)
-    {
-        std::getline(*filestream, line);
-        if (not line.empty()) {
-            parse_info<> resParsing =
-                    BOOST_SPIRIT_CLASSIC_NS::parse(line.c_str(), g);
-            if (! resParsing.full) {
-                std::ostringstream report_line;
-                report_line << line << " (failed to parse, reason: "
-                        << resParsing.stop << ")";
-                report.push_back(report_line.str());
-            } else if (g.tofill.params.col_types.size() != g.tofill.currColIndex){
-                std::ostringstream report_line;
-                report_line << line << " (wrong number of elements, expected: "
-                        << g.tofill.params.col_types.size() <<  "; got "
-                        << g.tofill.currColIndex << ")";
-                report.push_back(report_line.str());
-            }
-        }
-        return true;
-    }
 
     void clearFileStream()
     {

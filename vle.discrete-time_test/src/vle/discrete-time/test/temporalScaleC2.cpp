@@ -23,8 +23,8 @@
  * @@tagdynamic@@
  * @@tagdepends: vle.discrete-time @@endtagdepends
  */
-#include <vle/DiscreteTimeDbg.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+#include <vle/DiscreteTime.hpp>
+
 
 #include <iostream>
 
@@ -52,7 +52,7 @@ public:
     {
     }
 
-    void compute(const vle::devs::Time& /*t*/)
+    void compute(const vle::devs::Time& /*t*/) override
     {
         //std::cout << " A1::compute  use operator "  << t << std::endl;
         c = b() + a() + 1;
@@ -65,5 +65,5 @@ public:
 
 }}}
 
-DECLARE_DYNAMICS_DBG(vle::discrete_time::test::temporalScaleC2)
+DECLARE_DYNAMICS(vle::discrete_time::test::temporalScaleC2)
 

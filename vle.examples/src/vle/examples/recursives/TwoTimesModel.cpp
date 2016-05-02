@@ -47,7 +47,7 @@ public:
         m_root.finish();
     }
 
-    virtual devs::Time init(const devs::Time& /* t */)
+    virtual devs::Time init(devs::Time /* t */) override
     {
         vle::utils::Package pack("vle.examples");
 
@@ -59,7 +59,7 @@ public:
         return 0.0;
     }
 
-    virtual void internalTransition(const devs::Time& /* t */)
+    virtual void internalTransition(devs::Time /* t */) override
     {
         // If the sub simulation thresh the date 50.0, we stop the sub
         // simulation.
@@ -70,7 +70,7 @@ public:
         m_root.run();            // run one bag of event in the sub-simulation
     }
 
-    virtual devs::Time timeAdvance() const
+    virtual devs::Time timeAdvance() const override
     {
         if (not m_stop) {
             return 0;

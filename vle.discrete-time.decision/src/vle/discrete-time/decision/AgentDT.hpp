@@ -59,7 +59,7 @@ public:
                 const vle::devs::ExternalEventList& ext);
 
     //Dynamics functions overload
-    vle::value::Value* observation(
+    std::unique_ptr<vle::value::Value> observation(
             const vle::devs::ObservationEvent& event) const;
 
     vle::value::Map mdefaultValues;

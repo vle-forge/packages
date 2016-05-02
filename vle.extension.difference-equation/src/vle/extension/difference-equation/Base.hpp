@@ -31,6 +31,7 @@
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/DateTime.hpp>
+#include <boost/format.hpp>
 #include <deque>
 
 namespace vle { namespace extension { namespace DifferenceEquation {
@@ -106,7 +107,7 @@ protected:
         {
             if (not mEquation) {
                 throw utils::InternalError(
-                    _("DifferenceEquation - variable not build"));
+                    "DifferenceEquation - variable not build");
             }
 
             if (mEquation->init(mIterators)) {
@@ -339,20 +340,19 @@ protected:
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-    virtual devs::Time init(const devs::Time& time);
+    virtual devs::Time init(devs::Time time) override;
 
-    virtual devs::Time timeAdvance() const;
+    virtual devs::Time timeAdvance() const override;
 
     virtual void confluentTransitions(
-        const devs::Time& internal,
-        const devs::ExternalEventList& extEventlist);
+        devs::Time internal,
+        const devs::ExternalEventList& extEventlist) override;
 
-    virtual void internalTransition(
-        const devs::Time& time);
+    virtual void internalTransition(devs::Time time) override;
 
     virtual void externalTransition(
         const devs::ExternalEventList& event,
-        const devs::Time& time);
+        devs::Time time) override;
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
@@ -408,7 +408,7 @@ struct Var
     Var(const std::string& name,
         const vle::devs::ExternalEvent* event) :
         name(name),
-        value(event->getDoubleAttributeValue("value")) { }
+        value(event->attributes()->toMap().getDouble("value")) { }
     virtual Var& operator=(double v) { value = v; return *this; }
 
     std::string name;

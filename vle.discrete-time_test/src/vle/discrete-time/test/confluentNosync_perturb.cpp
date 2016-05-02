@@ -26,9 +26,9 @@
  * @@tagdepends: @@endtagdepends
  */
 
-#include <vle/devs/DynamicsDbg.hpp>
-#include <iostream>
 
+#include <iostream>
+#include <vle/devs/Dynamics.hpp>
 
 
 
@@ -48,27 +48,27 @@ public:
     ~confluentNosync_perturb()
     {
     }
-    virtual vle::devs::Time init(const vle::devs::Time& /* time */)
+    virtual vle::devs::Time init(vle::devs::Time /* time */) override
     {
         return 1.0;
     }
 
-    vle::devs::Time timeAdvance() const
+    vle::devs::Time timeAdvance() const override
     {
         return vle::devs::infinity;
     }
 
-    void output(const vle::devs::Time& /* time */,
-        vle::devs::ExternalEventList& output) const
+    void output(vle::devs::Time /* time */,
+        vle::devs::ExternalEventList& output) const override
     {
-        vle::devs::ExternalEvent* ev = new vle::devs::ExternalEvent("y_nosync");
-        ev->putAttribute("value", new vle::value::String("y_nosync"));
-        ev->putAttribute("value", new vle::value::Double(10));
-        output.push_back(ev);
+        output.emplace_back("y_nosync");
+        value::Map& map = output.back().addMap();
+        //map.addString("value","y_nosync");//TODO y avait une erreur
+        map.addDouble("value",10);
     }
 };
 
-DECLARE_DYNAMICS_DBG(confluentNosync_perturb)
+DECLARE_DYNAMICS(confluentNosync_perturb)
 
 }}}
 

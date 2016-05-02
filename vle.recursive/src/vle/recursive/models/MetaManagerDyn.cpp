@@ -19,9 +19,8 @@
 #ifndef VLE_RECURSIVE_MODELS_METAMANAGERDYN_HPP_
 #define VLE_RECURSIVE_MODELS_METAMANAGERDYN_HPP_
 
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/lexical_cast.hpp>
+#include <string>
+#include <boost/format.hpp>
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Value.hpp>
@@ -56,7 +55,7 @@ public:
      */
     MetaManagerDyn(const vd::DynamicsInit& init,
             const vd::InitEventList& events): vd::Dynamics(init,events),
-                    meta(), stepDuration(0.0), mstate(IDLE), mresults(0)
+                    meta(), stepDuration(0.0), mstate(IDLE), mresults(nullptr)
     {
         if (events.exist("vpz") and
                 not events.getString("vpz").empty()){
@@ -71,20 +70,19 @@ public:
      */
     virtual ~MetaManagerDyn()
     {
-        delete mresults;
     }
 
     /**
      * @brief Implementation of Dynamics::init
      */
-    vd::Time init(const vd::Time& /*time*/)
+    vd::Time init(vd::Time /*time*/) override
     {
         return timeAdvance();
     }
     /**
      * @brief Implementation of Dynamics::timeAdvance
      */
-    vd::Time timeAdvance() const
+    vd::Time timeAdvance() const override
     {
         switch(mstate){
         case EXPE_LAUNCH: {
@@ -99,29 +97,28 @@ public:
     /**
      * @brief Implementation of Dynamics::internalTransition
      */
-    void internalTransition(const vd::Time& /* time */)
+    void internalTransition(vd::Time /* time */) override
     {
         switch(mstate){
         case EXPE_LAUNCH: {
             mstate = IDLE;
             break;
         } case IDLE: {
-            throw vu::InternalError(vle::fmt("[%1%] Internal error in "
-                    "dynamic (1)") % getModelName());
+            throw vu::InternalError((boost::format("[%1%] Internal error in "
+                    "dynamic (1)") % getModelName()).str());
             break;
         }}
     }
     /**
      * @brief Implementation of Dynamics::output
      */
-    void output(const vd::Time& /* time */, vd::ExternalEventList& output) const
+    void output(vd::Time /*t*/, vd::ExternalEventList& output) const override
     {
         switch(mstate){
         case EXPE_LAUNCH: {
             if (mresults and getModel().existOutputPort("outputs")) {
-                vd::ExternalEvent* ee = new vd::ExternalEvent("outputs");
-                ee->putAttribute("outputs", mresults->clone());
-                output.push_back(ee);
+                output.emplace_back("outputs");
+                output.back().attributes().reset(new value::Matrix(*mresults));
             }
             break;
         } case IDLE: {
@@ -133,24 +130,23 @@ public:
      * @brief Implementation of Dynamics::externalTransition
      */
     void externalTransition(const vd::ExternalEventList& event,
-        const vd::Time& /* time */)
+        vd::Time /* time */) override
     {
         switch(mstate){
         case EXPE_LAUNCH: {
-            throw vu::ModellingError(vle::fmt("[%1%] A simulation of an "
-                    "experiment plan is already ongoing") % getModelName());
+            throw vu::ModellingError((boost::format("[%1%] A simulation of an "
+                    "experiment plan is already ongoing") % getModelName()).str());
             break;
         } case IDLE: {
             vd::ExternalEventList::const_iterator itb = event.begin();
             vd::ExternalEventList::const_iterator ite = event.end();
             bool found = false;
             for (; itb != ite or not found; itb++) {
-                found =  ((*itb)->getPortName() == "inputs");
+                found =  (itb->getPortName() == "inputs");
             }
             if (found) {
-                delete mresults;
-                mresults = meta.run(
-                        (*itb)->getAttributeValue("inputs").toMap());
+                mresults = std::move(meta.run(
+                        itb->attributes()->toMap().getMap("inputs")));
                 mstate = EXPE_LAUNCH;
             }
             break;
@@ -165,8 +161,8 @@ public:
      * - output_Y_i: where Y is the id of an output and i is the index of
      * simulation input
      */
-    virtual vle::value::Value* observation(
-    const vle::devs::ObservationEvent& event) const
+    virtual std::unique_ptr<vle::value::Value> observation(
+    const vle::devs::ObservationEvent& event) const override
     {
         if (mresults) {
             std::string portName = event.getPortName();
@@ -180,8 +176,7 @@ public:
                 indexes.assign(portName.substr(prefix.size(),
                         portName.size()));
                 std::vector<std::string>  spl;
-                boost::split(spl, indexes, boost::is_any_of("_"),
-                        boost::token_compress_on);
+                MetaManager::split(spl, indexes, '_');
                 if (spl.size() != 2){
                     return 0;
                 }
@@ -195,14 +190,14 @@ public:
                 if (col == -1) {
                     return 0;
                 }
-                int row = boost::lexical_cast<int>(spl[1]);
+                int row = std::stoi(spl[1]);
                 if (not mresults->get(col,row)) {
                     return 0;
                 }
                 return mresults->get(col,row)->clone();
             }
         }
-        return 0;
+        return nullptr;
     }
 
     /**
@@ -222,7 +217,7 @@ public:
     /**
      * @brief Results of simulations
      */
-    vle::value::Matrix* mresults;
+    std::unique_ptr<vle::value::Matrix> mresults;
 
 };
 

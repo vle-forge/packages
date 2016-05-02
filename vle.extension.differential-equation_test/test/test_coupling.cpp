@@ -31,23 +31,23 @@
  ******************/
 BOOST_AUTO_TEST_CASE(test_coupling)
 {
+    auto ctx = vu::make_context();
     std::cout << "  test_coupling " << std::endl;
-    vle::utils::Package pack("vle.extension.differential-equation_test");
-    vz::Vpz vpz(pack.getExpFile("PerturbSeirXY.vpz", vle::utils::PKG_BINARY));
+    vle::utils::Package pack(ctx, "vle.extension.differential-equation_test");
+    std::unique_ptr<vz::Vpz> vpz(new vz::Vpz(pack.getExpFile("PerturbSeirXY.vpz", vle::utils::PKG_BINARY)));
 
 
-    ttconfOutputPlugins(vpz);
+    ttconfOutputPlugins(*vpz);
 
     //simulation
-    vu::ModuleManager man;
     vm::Error error;
-    vm::Simulation sim(vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-    va::Map *out = sim.run(new vz::Vpz(vpz), man, &error);
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
+    std::unique_ptr<va::Map> out =
+              sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
     BOOST_REQUIRE_EQUAL(error.code, 0);
     //checks the number of views
     BOOST_REQUIRE_EQUAL(out->size(),1);
 
-    delete out;
 }

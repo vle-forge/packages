@@ -179,7 +179,7 @@ DiscreteTimeDyn::initializeFromInitEventList(
 }
 
 vle::devs::Time
-DiscreteTimeDyn::init(const vle::devs::Time& t)
+DiscreteTimeDyn::init(vle::devs::Time t)
 {
     return mpimpl->init(this, t);
 }
@@ -191,7 +191,7 @@ DiscreteTimeDyn::timeAdvance() const
 }
 
  void
-DiscreteTimeDyn::internalTransition(const vle::devs::Time& t)
+DiscreteTimeDyn::internalTransition(vle::devs::Time t)
 {
      mpimpl->internalTransition(t);
 }
@@ -199,14 +199,14 @@ DiscreteTimeDyn::internalTransition(const vle::devs::Time& t)
  void
 DiscreteTimeDyn::externalTransition(
     const vle::devs::ExternalEventList& event,
-    const vle::devs::Time& t)
+    vle::devs::Time t)
 {
      mpimpl->externalTransition(event, t);
 }
 
  void
 DiscreteTimeDyn::confluentTransitions(
-    const vle::devs::Time& t,
+    vle::devs::Time t,
     const vle::devs::ExternalEventList& event)
 {
      mpimpl->confluentTransitions(t, event);
@@ -214,13 +214,13 @@ DiscreteTimeDyn::confluentTransitions(
 
 
  void
-DiscreteTimeDyn::output(const vle::devs::Time& time,
+DiscreteTimeDyn::output(vle::devs::Time time,
                         vle::devs::ExternalEventList& output) const
 {
      mpimpl->output(getModel(), time, output);
 }
 
-vle::value::Value*
+std::unique_ptr<vle::value::Value>
 DiscreteTimeDyn::observation(const vle::devs::ObservationEvent& event) const
 {
      return mpimpl->observation(event);

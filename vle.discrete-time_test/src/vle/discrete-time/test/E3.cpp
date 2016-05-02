@@ -25,8 +25,8 @@
  * @@tagdepends: vle.discrete-time @@endtagdepends
  */
 
-#include <vle/DiscreteTimeDbg.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+#include <vle/DiscreteTime.hpp>
+
 
 #include <iostream>
 
@@ -55,7 +55,7 @@ public:
     {
     }
 
-    void compute(const vle::devs::Time& /*t*/)
+    void compute(const vle::devs::Time& /*t*/) override
     {
         //std::cout << " DBG compute E3 " << t << " a(-1)=" << a(-1) << std::endl;
         a = a(-1) + 1;
@@ -70,5 +70,5 @@ public:
 
 }}}
 
-DECLARE_DYNAMICS_DBG(vle::discrete_time::test::E3)
+DECLARE_DYNAMICS(vle::discrete_time::test::E3)
 

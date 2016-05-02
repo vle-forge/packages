@@ -26,7 +26,8 @@
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Value.hpp>
 #include <vle/utils/Exception.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+#include <boost/format.hpp>
+
 
 #include <iostream>
 
@@ -66,9 +67,10 @@ namespace differential_equation { namespace test { namespace dynamics  {
             vd::Dynamics(init, events), mstate(BEFORE_PERT),
             message(events.getMap("message")),
             sendTime(events.getDouble("sendTime")), nbBags(0), currentBag(0)
-        {	if(events.exist("nbBags")){
-                                              nbBags = events.getInt("nbBags");
-                                          }
+        {
+            if(events.exist("nbBags")){
+                nbBags = events.getInt("nbBags");
+            }
         }
 
         virtual ~Perturb()
@@ -78,7 +80,7 @@ namespace differential_equation { namespace test { namespace dynamics  {
         /**
          * @brief Implementation of Dynamics::init
          */
-        vd::Time init(const vd::Time& /*time*/)
+        vd::Time init(vd::Time /*time*/) override
         {
             mstate = BEFORE_PERT;
             return sendTime;
@@ -86,7 +88,7 @@ namespace differential_equation { namespace test { namespace dynamics  {
         /**
          * @brief Implementation of Dynamics::timeAdvance
          */
-        vd::Time timeAdvance() const
+        vd::Time timeAdvance() const override
         {
             switch(mstate){
             case BEFORE_PERT:
@@ -105,7 +107,7 @@ namespace differential_equation { namespace test { namespace dynamics  {
         /**
          * @brief Implementation of Dynamics::internalTransition
          */
-        void internalTransition(const vd::Time& /* time */)
+        void internalTransition(vd::Time /* time */) override
         {
             switch(mstate){
             case BEFORE_PERT: {
@@ -131,21 +133,20 @@ namespace differential_equation { namespace test { namespace dynamics  {
         /**
          * @brief Implementation of Dynamics::output
          */
-        void output(const vd::Time& /* time */, vd::ExternalEventList& output) const
+        void output(vd::Time /* time */,
+                vd::ExternalEventList& output) const override
         {
             switch(mstate){
             case BEFORE_PERT: {
                 if(nbBags == 0){
-                    vd::ExternalEvent* ee = new vd::ExternalEvent("p");
-                    ee->putAttributes(message);
-                    output.push_back(ee);
+                    output.emplace_back("p");
+                    output.back().attributes().reset(message.clone().release());
                 }
                 break;
             } case DURING_PERT: {
                 if(currentBag == nbBags){
-                    vd::ExternalEvent* ee = new vd::ExternalEvent("p");
-                    ee->putAttributes(message);
-                    output.push_back(ee);
+                    output.emplace_back("p");
+                    output.back().attributes().reset(message.clone().release());
                 }
                 break;
             } case AFTER_PERT: {
@@ -157,18 +158,19 @@ namespace differential_equation { namespace test { namespace dynamics  {
          * @brief Implementation of Dynamics::externalTransition
          */
         void externalTransition(const vd::ExternalEventList& /*event*/,
-                                const vd::Time& /* time */)
+                                vd::Time /* time */) override
         {
-            throw vu::ArgError(vle::fmt(_(
-                        "[%1%] Model that does not handle external events "))
-                % getModelName());
+            throw vu::ArgError((boost::format(
+                        "[%1%] Model that does not handle external events ")
+                % getModelName()).str());
         }
         /**
          * @brief Implementation of Dynamics::observation
          */
-        vv::Value* observation(const vd::ObservationEvent& /*event*/) const
+        std::unique_ptr<vv::Value> observation(
+                const vd::ObservationEvent& /*event*/) const override
         {
-            return 0;
+            return nullptr;
         }
     };
 
@@ -176,4 +178,4 @@ namespace differential_equation { namespace test { namespace dynamics  {
 }}} // namespace differential_equation test dynamics
 
 DECLARE_DYNAMICS(differential_equation::test::dynamics::Perturb)
-    //DECLARE_DYNAMICS_DBG(differential_equation::test::dynamics::Perturb)
+    //DECLARE_DYNAMICS(differential_equation::test::dynamics::Perturb)

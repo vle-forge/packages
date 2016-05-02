@@ -33,8 +33,6 @@
 
 #include <vle/extension/fsa/Moore.hpp>
 
-using namespace boost::assign;
-
 namespace vle { namespace examples { namespace fsa {
 
 namespace vf = vle::extension::fsa;
@@ -74,7 +72,7 @@ public:
         const vd::ExternalEventList& events)
     {
         // in1 have a greater priority than in2
-        if (events.front()->onPort("in2")) {
+        if (events.front().onPort("in2")) {
             vd::ExternalEventList list;
 
             list.push_back(events.back());

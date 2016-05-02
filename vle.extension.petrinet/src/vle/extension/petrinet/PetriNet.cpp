@@ -27,7 +27,7 @@
 
 
 #include <vle/extension/petrinet/PetriNet.hpp>
-#include <boost/checked_delete.hpp>
+#include <boost/format.hpp>
 #include <algorithm>
 
 namespace vle { namespace extension {
@@ -40,8 +40,7 @@ bool operator<(const PetriNet::pairTimeTransition& x,
 
 PetriNet::Marking::~Marking()
 {
-    std::for_each(mTokens.begin(), mTokens.end(),
-                  boost::checked_deleter < Token >());
+    for (auto x : mTokens){ delete x; }
 }
 
 void PetriNet::addEnabledTransition(Transition* transition)
@@ -350,9 +349,10 @@ PetriNet::Transition* PetriNet::selectTransition()
 PetriNet::PetriNet(const devs::DynamicsInit& model,
                    const devs::InitEventList& events) :
     devs::Dynamics(model, events),
-    mInitEvents(dynamic_cast < value::Map* >(events.clone())),
+    mInitEvents(nullptr),
     mTokenNumber(0)
 {
+    mInitEvents.reset(new value::Map(events));
     mRand.seed(events.getInt("seed"));
 }
 
@@ -365,17 +365,13 @@ PetriNet::~PetriNet()
          it != mTransitions.end(); it++)
         delete it->second;
 
-    std::for_each(mInputs.begin(), mInputs.end(),
-                  boost::checked_deleter < Input >());
-
-    std::for_each(mOutputs.begin(), mOutputs.end(),
-                  boost::checked_deleter < Output >());
+    for (auto x : mInputs){ delete x; }
+    for (auto x : mOutputs){ delete x; }
 
     for (MarkingList::const_iterator it = mMarkings.begin();
          it != mMarkings.end(); it++)
         delete it->second;
 
-    delete mInitEvents;
 }
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
@@ -387,7 +383,7 @@ void PetriNet::addArc(const std::string& src,
     if (existPlace(src)) {
         if (not existTransition(dst)) {
             throw utils::ModellingError(
-                fmt(_("Petri Net: Unknow transition: %1%")) % dst);
+                (boost::format("Petri Net: Unknow transition: %1%") % dst).str());
         }
 
         Input* input = new Input(mPlaces[src],
@@ -400,7 +396,7 @@ void PetriNet::addArc(const std::string& src,
     } else if (existPlace(dst)) {
         if (not existTransition(src)) {
             throw utils::ModellingError(
-                fmt(_("Petri Net: Unknow transition: %1%")) % src);
+                (boost::format("Petri Net: Unknow transition: %1%") % src).str());
         }
 
         Output* output = new Output(mTransitions[src],
@@ -411,8 +407,8 @@ void PetriNet::addArc(const std::string& src,
         mPlaces[dst]->addOutput(output);
         mOutputs.push_back(output);
     } else {
-        throw utils::ModellingError(fmt(_(
-                "Petri Net: unknow place: %1% or %2%")) % src % dst);
+        throw utils::ModellingError((boost::format(
+                "Petri Net: unknow place: %1% or %2%") % src % dst).str());
     }
 }
 
@@ -421,7 +417,7 @@ void PetriNet::addInitialMarking(const std::string& placeName,
 {
     if (not existPlace(placeName)) {
         throw utils::ModellingError(
-            fmt(_("Petri Net: Unknow place: %1%")) % placeName);
+            (boost::format("Petri Net: Unknow place: %1%") % placeName).str());
     }
 
     if (tokenNumber > 0)
@@ -433,15 +429,15 @@ void PetriNet::addInputTransition(const std::string& transitionName,
                                   double delay)
 {
     if (existTransition(transitionName)) {
-        throw utils::ModellingError(fmt(
-                _("Petri Net: transition '%1%' already exists")) %
-            transitionName);
+        throw utils::ModellingError((boost::format(
+                "Petri Net: transition '%1%' already exists") %
+            transitionName).str());
     }
 
     if (delay < 0.0) {
-        throw utils::ModellingError(fmt(
-                _("Petri Net: delay on transition %1% is negative")) %
-            transitionName);
+        throw utils::ModellingError((boost::format(
+                "Petri Net: delay on transition %1% is negative") %
+            transitionName).str());
     }
 
     mTransitions[transitionName] = new Transition(transitionName, delay);
@@ -452,8 +448,8 @@ void PetriNet::addOutputPlace(const std::string& placeName,
                               const std::string& portName)
 {
     if (existPlace(placeName)) {
-        throw utils::ModellingError(fmt(
-                _("Petri Net: place '%1%' already exists")) % placeName);
+        throw utils::ModellingError((boost::format(
+                "Petri Net: place '%1%' already exists") % placeName).str());
     }
 
     mPlaces[placeName] = new Place(placeName, 0.0);
@@ -465,9 +461,9 @@ void PetriNet::addOutputTransition(const std::string& transitionName,
                                    unsigned int priority)
 {
     if (existTransition(transitionName)) {
-        throw utils::ModellingError(fmt(
-                _("Petri Net: transition '%1%' already exists")) %
-            transitionName);
+        throw utils::ModellingError((boost::format(
+                "Petri Net: transition '%1%' already exists") %
+            transitionName).str());
     }
 
     mTransitions[transitionName] = new Transition(transitionName, 0.0,
@@ -480,13 +476,14 @@ void PetriNet::addPlace(const std::string& placeName,
                         double delay)
 {
     if (existPlace(placeName)) {
-        throw utils::ModellingError(fmt(
-                _("Petri Net: place '%1%' already exists")) % placeName);
+        throw utils::ModellingError((boost::format(
+                "Petri Net: place '%1%' already exists") % placeName).str());
     }
 
     if (delay < 0.0) {
-        throw utils::ModellingError(fmt(
-                _("Petri Net: delay on place %1% is negative")) % placeName);
+        throw utils::ModellingError((boost::format(
+                "Petri Net: delay on place %1% is negative")
+                  % placeName).str());
     }
 
     mPlaces[placeName] = new Place(placeName, delay);
@@ -497,15 +494,15 @@ void PetriNet::addTransition(const std::string& transitionName,
                              unsigned int priority)
 {
     if (existTransition(transitionName)) {
-        throw utils::ModellingError(fmt(
-                _("Petri Net: transition '%1%' already exists")) %
-            transitionName);
+        throw utils::ModellingError((boost::format(
+                "Petri Net: transition '%1%' already exists") %
+            transitionName).str());
     }
 
     if (delay < 0.0) {
-        throw utils::ModellingError(fmt(
-                _("Petri Net: delay on transition %1% is negative")) %
-            transitionName);
+        throw utils::ModellingError((boost::format(
+                "Petri Net: delay on transition %1% is negative") %
+            transitionName).str());
     }
 
     mTransitions[transitionName] = new Transition(transitionName, delay,
@@ -543,9 +540,9 @@ void PetriNet::initArcs(const value::VectorValue& arcs)
 {
     for(value::VectorValue::const_iterator it = arcs.begin();
         it != arcs.end(); it++) {
-        value::VectorValue arc = value::toSet(*it);
-        std::string first = value::toString(arc[0]);
-        std::string second = value::toString(arc[1]);
+        const value::VectorValue& arc = value::toSet(*it);
+        const std::string& first = value::toString(arc[0]);
+        const std::string& second = value::toString(arc[1]);
         unsigned int tokenNumber = 1;
 
         if (arc.size() > 2) {
@@ -559,8 +556,8 @@ void PetriNet::initInitialMarking(const value::VectorValue& initialMarkings)
 {
     for(value::VectorValue::const_iterator it = initialMarkings.begin();
         it != initialMarkings.end(); it++) {
-        value::VectorValue initialMarking = value::toSet(*it);
-        std::string name = value::toString(initialMarking[0]);
+        const value::VectorValue& initialMarking = value::toSet(*it);
+        const std::string& name = value::toString(initialMarking[0]);
         unsigned int tokenNumber = value::toInteger(initialMarking[1]);
 
         addInitialMarking(name, tokenNumber);
@@ -571,7 +568,7 @@ void PetriNet::initPlaces(const value::VectorValue& places)
 {
     for(value::VectorValue::const_iterator it = places.begin();
         it != places.end(); it++) {
-        value::VectorValue place = value::toSet(*it);
+        const value::VectorValue& place = value::toSet(*it);
         const std::string& name(value::toString(place[0]));
         double delay = 0.0;
 
@@ -594,7 +591,7 @@ void PetriNet::initTransitions(const value::VectorValue& transitions)
 {
     for(value::VectorValue::const_iterator it = transitions.begin();
         it != transitions.end(); it++) {
-        value::VectorValue transition = value::toSet(*it);
+        const value::VectorValue& transition = value::toSet(*it);
         const std::string& name(value::toString(transition[0]));
 
         if (transition.size() > 1) {
@@ -636,7 +633,7 @@ void PetriNet::initTransitions(const value::VectorValue& transitions)
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-devs::Time PetriNet::init(const devs::Time& time)
+devs::Time PetriNet::init(devs::Time time)
 {
     build();
     buildInitialMarking(time);
@@ -646,7 +643,7 @@ devs::Time PetriNet::init(const devs::Time& time)
     return mSigma;
 }
 
-void PetriNet::output(const devs::Time& time,
+void PetriNet::output(devs::Time time,
                       devs::ExternalEventList& output) const
 {
     if (mPhase == VLE_EXTENSION_PETRINE_OUT or
@@ -668,7 +665,7 @@ void PetriNet::output(const devs::Time& time,
                     while (itt != itm->second->getTokens().end()) {
                         if (not (*itt)->sent() and
                             (*itt)->getTime() == time) {
-                            output.push_back(buildEvent(portName));
+                            output.emplace_back(portName);
                         }
                         ++itt;
                     }
@@ -684,7 +681,7 @@ void PetriNet::output(const devs::Time& time,
             while (it != mOutTransitionMarkings.end()) {
                 if (it->second.second) {
                     const std::string& portName = it->second.first;
-                    output.push_back(buildEvent(portName));
+                    output.emplace_back(portName);
                 }
                 ++it;
             }
@@ -710,7 +707,7 @@ devs::Time PetriNet::timeAdvance() const
     return devs::infinity;
 }
 
-void PetriNet::internalTransition(const devs::Time& time)
+void PetriNet::internalTransition(devs::Time time)
 {
     switch (mPhase) {
     case VLE_EXTENSION_PETRINE_IDLE:
@@ -746,14 +743,14 @@ void PetriNet::internalTransition(const devs::Time& time)
 }
 
 void PetriNet::externalTransition(const devs::ExternalEventList& event,
-                                  const devs::Time& time)
+                                  devs::Time time)
 {
     devs::ExternalEventList::const_iterator it = event.begin();
 
     disableOutTransition();
     disableOutPlace(time);
     while (it != event.end()) {
-        const std::string& port = (*it)->getPortName();
+        const std::string& port = it->getPortName();
 
         if (mInPlaceMarkings.find(port) != mInPlaceMarkings.end()) {
             Place* place = mPlaces[mInPlaceMarkings[port].first];
@@ -782,20 +779,22 @@ void PetriNet::externalTransition(const devs::ExternalEventList& event,
     mPhase = VLE_EXTENSION_PETRINE_IDLE;
 }
 
-value::Value* PetriNet::observation(const devs::ObservationEvent& event) const
+std::unique_ptr<value::Value> PetriNet::observation(
+        const devs::ObservationEvent& event) const
 {
     if (event.onPort("token")) {
-        return buildInteger(mTokenNumber);
+        return value::Integer::create(mTokenNumber);
     } else if (event.onPort("marking")) {
-        value::Set* markings = value::Set::create();
+        std::unique_ptr<value::Value> markings = value::Set::create();
         MarkingList::const_iterator it = mMarkings.begin();
 
         while (it != mMarkings.end()) {
-            value::Set* marking = value::Set::create();
+            std::unique_ptr<value::Value> marking = value::Set::create();
 
-            marking->add(buildString(it->first));
-            marking->add(buildInteger(it->second->getTokenNumber()));
-            markings->add(marking);
+            marking->toSet().add(value::String::create(it->first));
+            marking->toSet().add(value::Integer::create(
+                    it->second->getTokenNumber()));
+            markings->toSet().add(std::move(marking));
             ++it;
         }
         return markings;

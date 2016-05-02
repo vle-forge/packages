@@ -25,6 +25,7 @@
 #include <vle/discrete-time/decision/AgentDT.hpp>
 #include <vle/value/String.hpp>
 #include <cassert>
+#include <sstream>
 #include <iomanip>
 
 namespace vle {
@@ -142,8 +143,8 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
 
     for (devs::ExternalEventList::const_iterator it = ext.begin();
          it != ext.end(); ++it) {
-        const std::string& port((*it)->getPortName());
-        const value::Map& atts = (*it)->getAttributes();
+        const std::string& port(it->getPortName());
+        const value::Map& atts = it->attributes()->toMap();
 
         if (port == "ack") {
 
@@ -156,7 +157,8 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
                 KnowledgeBase::setActivityFailed(activity, t);
             } else {
                 throw utils::ModellingError(
-                    fmt(_("Decision: unknown order `%1%'")) % order);
+                    (boost::format("Decision: unknown order `%1%'")
+                     % order).str());
             }
         } else {
             DiscreteTimeDyn::handleExtVar(t, port, atts);
@@ -164,8 +166,8 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
     }
     for (devs::ExternalEventList::const_iterator it = ext.begin();
              it != ext.end(); ++it) {
-        const std::string& port((*it)->getPortName());
-        const value::Map& atts = (*it)->getAttributes();
+        const std::string& port(it->getPortName());
+        const value::Map& atts = it->attributes()->toMap();
         if (KnowledgeBase::facts().exist(port)) {
             applyFact(port, *atts.get("value"));
         }
@@ -173,28 +175,31 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
     //KnowledgeBase::processChanges(t);
 }
 
-value::Value*
+std::unique_ptr<vle::value::Value>
 AgentDT::observation(const devs::ObservationEvent& event) const
 {
     const std::string port = event.getPortName();
     if (port == "KnowledgeBase") {
         std::stringstream out;
         out << *this;
-        return new value::String(out.str());
+        return std::unique_ptr<vle::value::Value>(
+                new value::String(out.str()));
     } else if (port == "Activities") {
         std::stringstream out;
         out << activities();
-        return new value::String(out.str());
+        return std::unique_ptr<vle::value::Value>(
+                new value::String(out.str()));
     } else if ((port.compare(0, 9, "Activity_") == 0) and port.size() > 9) {
         std::string activity(port, 9, std::string::npos);
         const vdec::Activity& act(activities().get(activity)->second);
         std::stringstream out;
         out << act.state();
-        return new value::String(out.str());
+        return std::unique_ptr<vle::value::Value>(new value::String(out.str()));
     } else if ((port.compare(0, 6, "Rules_") == 0) and port.size() > 6) {
         std::string rule(port, 6, std::string::npos);
         const vdec::Rule& ru(rules().get(rule));
-        return new value::Boolean(ru.isAvailable());
+        return std::unique_ptr<vle::value::Value>(
+                new value::Boolean(ru.isAvailable()));
     }
     return DiscreteTimeDyn::observation(event);
 }

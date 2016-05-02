@@ -30,7 +30,7 @@
 #define VLE_EXT_DECISION_TABLE_HPP
 
 #include <vle/utils/Exception.hpp>
-#include <vle/utils/i18n.hpp>
+#include <boost/format.hpp>
 #include <string>
 #include <map>
 
@@ -65,7 +65,7 @@ public:
 
         if (not r.second) {
             throw utils::ArgError(
-                fmt(_("Decision: id `%1%' already exists")) % name);
+                (boost::format("Decision: id `%1%' already exists") % name).str());
         }
     }
 
@@ -132,7 +132,7 @@ public:
 
         if (it == mLst.end()) {
             throw utils::ArgError(
-                fmt(_("Decision: unknown id `%1%'")) % name);
+                (boost::format("Decision: unknown id `%1%'") % name).str());
         }
 
         return it;
@@ -153,7 +153,7 @@ public:
 
         if (it == mLst.end()) {
             throw utils::ArgError(
-                fmt(_("Decision: unknown id `%1%'")) % name);
+                (boost::format("Decision: unknown id `%1%'") % name).str());
         }
 
         return it;

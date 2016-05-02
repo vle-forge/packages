@@ -59,20 +59,20 @@ public:
 
     void out1(const vle::devs::Time&  /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("g");
-        e->attributes().addString("name","g");
-        e->attributes().addDouble("value",10);
-        output.push_back(e);
-        //std::cout << " Perturb9 send g=10 " << time << std::endl;
+
+        output.emplace_back("g");
+        value::Map& map = output.back().addMap();
+        map.addString("name","g");
+        map.addDouble("value",10);
     }
 
     void out2(const vle::devs::Time& /*time*/ , vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("g");
-        e->attributes().addString("name","g");
-        e->attributes().addDouble("value",0);
-        output.push_back(e);
-        //std::cout << " Perturb9 send g=0 " << time << std::endl;
+
+        output.emplace_back("g");
+        value::Map& map = output.back().addMap();
+        map.addString("name","g");
+        map.addDouble("value",0);
     }
 
 };

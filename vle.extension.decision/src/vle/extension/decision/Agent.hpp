@@ -58,7 +58,7 @@ public:
 
     /* * * * * DEVS methods * * * * */
 
-    virtual devs::Time init(const devs::Time& time);
+    virtual devs::Time init(devs::Time time) override;
 
     /**
      * @brief Process the output function: compute the output function.
@@ -66,22 +66,22 @@ public:
      * @param output the list of external events (output parameter).
      */
     virtual void output(
-        const devs::Time& time,
-        devs::ExternalEventList& output) const;
+        devs::Time time,
+        devs::ExternalEventList& output) const override;
 
     /**
      * @brief Process the time advance function: compute the duration of the
      * current state.
      * @return duration of the current state.
      */
-    virtual devs::Time timeAdvance() const;
+    virtual devs::Time timeAdvance() const override;
 
     /**
      * @brief Process an internal transition: compute the new state of the
      * model with the internal transition function.
      * @param time the date of occurence of this event.
      */
-    virtual void internalTransition(const devs::Time& time);
+    virtual void internalTransition(devs::Time time) override;
 
     /**
      * @brief Process an external transition: compute the new state of the
@@ -91,7 +91,7 @@ public:
      */
     virtual void externalTransition(
         const devs::ExternalEventList& events,
-        const devs::Time& time);
+        devs::Time time) override;
 
     /**
      * @brief Process the confluent transition: select the transition to
@@ -102,8 +102,8 @@ public:
      * @return Event::INTERNAL if internal is priority or Event::EXTERNAL.
      */
     virtual void confluentTransitions(
-        const devs::Time& time,
-        const devs::ExternalEventList& extEventlist);
+        devs::Time time,
+        const devs::ExternalEventList& extEventlist) override;
 
     /**
      * @brief Process an observation event: compute the current state of the
@@ -111,8 +111,8 @@ public:
      * @param event the state event with of the port
      * @return the value of state variable
      */
-    virtual value::Value* observation(
-        const devs::ObservationEvent& event) const;
+    virtual std::unique_ptr<vle::value::Value> observation(
+        const devs::ObservationEvent& event) const override;
 
     /**
      * @brief When the simulation of the atomic model is finished, the

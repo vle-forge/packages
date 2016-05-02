@@ -24,7 +24,7 @@
 # set -x
 
 output=ext.log
-pkgs="vle.output vle.extension.celldevs vle.discrete-time 
+pkgs="vle.extension.celldevs vle.discrete-time 
 vle.discrete-time.generic vle.extension.cellqss vle.extension.decision 
 vle.discrete-time.decision vle.reader vle.tester vle.recursive 
 vle.extension.difference-equation vle.extension.differential-equation

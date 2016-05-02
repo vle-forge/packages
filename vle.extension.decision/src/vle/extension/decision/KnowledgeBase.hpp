@@ -569,28 +569,30 @@ private:
 template < typename X, typename F >
 AddFacts < X > operator+=(AddFacts < X > add, f < F > pred)
 {
-    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1));
+    add.kb->facts().add(pred.name, std::bind(pred.func, add.kb,
+            std::placeholders::_1));
     return add;
 }
 
 template < typename X, typename F >
 AddFacts < X > operator,(AddFacts < X > add, f < F > pred)
 {
-    add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1));
+    add.kb->facts().add(pred.name, std::bind(pred.func, add.kb,
+            std::placeholders::_1));
     return add;
 }
 
 template < typename X, typename F >
 AddPredicates < X > operator+=(AddPredicates < X > add, p < F > pred)
 {
-    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb));
+    add.kb->predicates().add(pred.name, std::bind(pred.func, add.kb));
     return add;
 }
 
 template < typename X, typename F >
 AddPredicates < X > operator,(AddPredicates < X > add, p < F > pred)
 {
-    add.kb->predicates().add(pred.name, boost::bind(pred.func, add.kb));
+    add.kb->predicates().add(pred.name, std::bind(pred.func, add.kb));
     return add;
 }
 
@@ -599,7 +601,8 @@ AddAcknowledgeFunctions < X > operator+=(AddAcknowledgeFunctions < X > add,
                                          a < F > pred)
 {
     add.kb->acknowledgeFunctions().add(pred.name,
-                                       boost::bind(pred.func, add.kb, _1, _2));
+            std::bind(pred.func, add.kb,
+                    std::placeholders::_1, std::placeholders::_2));
     return add;
 }
 
@@ -608,7 +611,8 @@ AddAcknowledgeFunctions < X > operator,(AddAcknowledgeFunctions < X > add,
                                         a < F > pred)
 {
     add.kb->acknowledgeFunctions().add(pred.name,
-                                       boost::bind(pred.func, add.kb, _1, _2));
+            std::bind(pred.func, add.kb,
+                    std::placeholders::_1, std::placeholders::_2));
     return add;
 }
 
@@ -617,7 +621,8 @@ AddOutputFunctions < X > operator+=(AddOutputFunctions < X > add,
                                     o < F > pred)
 {
     add.kb->outputFunctions().add(pred.name,
-                                  boost::bind(pred.func, add.kb, _1, _2, _3));
+            std::bind(pred.func, add.kb, std::placeholders::_1,
+                    std::placeholders::_2, std::placeholders::_3));
     return add;
 }
 
@@ -626,7 +631,8 @@ AddOutputFunctions < X > operator,(AddOutputFunctions < X > add,
                                    o < F > pred)
 {
     add.kb->outputFunctions().add(pred.name,
-                                  boost::bind(pred.func, add.kb, _1, _2, _3));
+            std::bind(pred.func, add.kb, std::placeholders::_1,
+                    std::placeholders::_2, std::placeholders::_3));
     return add;
 }
 
@@ -635,7 +641,8 @@ AddUpdateFunctions < X > operator+=(AddUpdateFunctions < X > add,
                                     u < F > pred)
 {
     add.kb->updateFunctions().add(pred.name,
-                                  boost::bind(pred.func, add.kb, _1, _2));
+            std::bind(pred.func, add.kb,
+                    std::placeholders::_1, std::placeholders::_2));
     return add;
 }
 
@@ -644,7 +651,8 @@ AddUpdateFunctions < X > operator,(AddUpdateFunctions < X > add,
                                    u < F > pred)
 {
     add.kb->updateFunctions().add(pred.name,
-                                  boost::bind(pred.func, add.kb, _1, _2));
+            std::bind(pred.func, add.kb,
+                    std::placeholders::_1, std::placeholders::_2));
     return add;
 }
 

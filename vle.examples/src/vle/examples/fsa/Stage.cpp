@@ -31,10 +31,6 @@
  */
 
 #include <vle/examples/fsa/Stage.hpp>
-#include <boost/assign.hpp>
-#include <boost/date_time.hpp>
-
-using namespace boost::assign;
 
 namespace vle { namespace examples { namespace fsa {
 
@@ -43,19 +39,17 @@ Stage::Stage(const vd::DynamicsInit& init,
     vf::Statechart(init, events)
 {
     if (events.exist("datsemis")) {
-	date_sem = boost::gregorian::date(
-	    boost::gregorian::from_string(
-		vle::value::toString(events.get("datsemis")))).julian_day();
+        date_sem = utils::DateTime::toJulianDayNumber(
+                events.getString("datsemis"));
     }
     if (events.exist("datDF")) {
-	date_DF = boost::gregorian::date(
-	    boost::gregorian::from_string(
-		vle::value::toString(events.get("datDF")))).julian_day();
+        date_DF = utils::DateTime::toJulianDayNumber(
+                        events.getString("datDF"));
     }
     if (events.exist("datrec")) {
-	date_rec = boost::gregorian::date(
-	    boost::gregorian::from_string(
-		vle::value::toString(events.get("datrec")))).julian_day();
+        date_rec = utils::DateTime::toJulianDayNumber(
+                                events.getString("datrec"));
+
     }
 
     if (events.exist("stlv"))

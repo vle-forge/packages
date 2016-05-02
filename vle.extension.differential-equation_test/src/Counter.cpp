@@ -28,7 +28,7 @@
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Value.hpp>
 #include <vle/utils/Exception.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 
 #include <iostream>
 
@@ -65,28 +65,28 @@ namespace differential_equation { namespace test { namespace dynamics  {
         /**
          * @brief Implementation of Dynamics::init
          */
-        vd::Time init(const vd::Time& /*time*/)
+        vd::Time init(vd::Time /*time*/) override
         {
             return vd::infinity;
         }
         /**
          * @brief Implementation of Dynamics::timeAdvance
          */
-        vd::Time timeAdvance() const
+        vd::Time timeAdvance() const override
         {
             return vd::infinity;
         }
         /**
          * @brief Implementation of Dynamics::internalTransition
          */
-        void internalTransition(const vd::Time& /* time */)
+        void internalTransition(vd::Time /* time */) override
         {
         }
         /**
          * @brief Implementation of Dynamics::output
          */
-        void output(const vd::Time& /* time */,
-                vd::ExternalEventList& /*output*/) const
+        void output(vd::Time /* time */,
+                vd::ExternalEventList& /*output*/) const override
         {
         }
 
@@ -94,16 +94,17 @@ namespace differential_equation { namespace test { namespace dynamics  {
          * @brief Implementation of Dynamics::externalTransition
          */
         void externalTransition(const vd::ExternalEventList& /*event*/,
-                                const vd::Time& /* time */)
+                                vd::Time /* time */) override
         {
             nbExtEvent++;
         }
         /**
          * @brief Implementation of Dynamics::observation
          */
-        vv::Value* observation(const vd::ObservationEvent& /*event*/) const
+        std::unique_ptr<vv::Value> observation(
+                const vd::ObservationEvent& /*event*/) const override
         {
-            return new vv::Double((double) nbExtEvent);
+            return vv::Double::create((double) nbExtEvent);
         }
     };
 
@@ -111,4 +112,4 @@ namespace differential_equation { namespace test { namespace dynamics  {
 }}} // namespace differential_equation test dynamics
 
 DECLARE_DYNAMICS(differential_equation::test::dynamics::Counter)
-    //DECLARE_DYNAMICS_DBG(differential_equation::test::dynamics::Counter)
+    //DECLARE_DYNAMICS(differential_equation::test::dynamics::Counter)

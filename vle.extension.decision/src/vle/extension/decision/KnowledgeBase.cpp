@@ -27,7 +27,7 @@
 
 
 #include <vle/extension/decision/KnowledgeBase.hpp>
-#include <vle/utils/i18n.hpp>
+#include <boost/format.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -39,8 +39,8 @@ void KnowledgeBase::setActivityDone(const std::string& name,
     Activities::iterator it(mPlan.activities().get(name));
 
     if (not it->second.isInStartedState()) {
-        throw utils::ArgError(fmt(
-                _("Decision: activity '%1%' is not started")) % name);
+        throw utils::ArgError((boost::format(
+                "Decision: activity '%1%' is not started") % name).str());
     }
 
     mPlan.activities().setFFAct(it);
@@ -54,8 +54,8 @@ void KnowledgeBase::setActivityFailed(const std::string& name,
     Activities::iterator it(mPlan.activities().get(name));
 
     if (it->second.isInDoneState()) {
-        throw utils::ArgError(fmt(
-                _("Decision: activity '%1%' is already finish")) % name);
+        throw utils::ArgError((boost::format(
+                "Decision: activity '%1%' is already finish") % name).str());
     }
 
     if (not it->second.isInFailedState()) {
@@ -176,8 +176,8 @@ KnowledgeBase::Result KnowledgeBase::processChanges(const devs::Time& time)
                                            //pre.mintimelag, pre.maxtimelag);
             //break;
         //default:
-            //throw utils::ArgError(fmt(_(
-                        //"Decision: unknow precedence type `%1%'")) %
+            //throw utils::ArgError(boost::format(
+                        //"Decision: unknow precedence type `%1%'") %
                 //pre.type);
         //}
     //}

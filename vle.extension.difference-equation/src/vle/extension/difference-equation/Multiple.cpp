@@ -28,6 +28,7 @@
 
 #include <vle/extension/difference-equation/Multiple.hpp>
 #include <vle/value/Tuple.hpp>
+#include <vle/value/Set.hpp>
 
 namespace vle { namespace extension { namespace DifferenceEquation {
 
@@ -245,17 +246,17 @@ double Multiple::val(const std::string& name,
 {
     if (shift > 0) {
         throw utils::ModellingError(
-            fmt(_("[%1%] DifferenceEquation::getValue - " \
-                  "positive shift on %2%")) %
-            getModelName() % name);
+            (boost::format("[%1%] DifferenceEquation::getValue - " \
+                  "positive shift on %2%") %
+            getModelName() % name).str());
     }
 
     if (shift == 0) {
 
         if (not *iterators.mSetValues) {
             throw utils::InternalError(
-                fmt(_("[%1%] - forbidden to use %2%() before computing of %2%"))
-                % getModelName() % name);
+                (boost::format("[%1%] - forbidden to use %2%() before computing of %2%")
+                % getModelName() % name).str());
         }
 
         return iterators.mMultipleValues->front();
@@ -266,8 +267,8 @@ double Multiple::val(const std::string& name,
 
         if ((int)(iterators.mMultipleValues->size() - 1) < -shift) {
             throw utils::InternalError(
-                fmt(_("[%1%] - %2%[%3%] - shift too large")) % getModelName() %
-                name % shift);
+                (boost::format("[%1%] - %2%[%3%] - shift too large") % getModelName() %
+                name % shift).str());
         }
 
         return (*iterators.mMultipleValues)[-shift];
@@ -280,16 +281,16 @@ double Multiple::val(const std::string& name) const
         mValues.find(name);
 
     if (it == mValues.end()) {
-        throw utils::InternalError(fmt(_(
+        throw utils::InternalError((boost::format(
                     "[%1%] DifferenceEquation::getValue: invalid variable" \
-                    " name: %2%")) % getModelName() % name);
+                    " name: %2%") % getModelName() % name).str());
     }
     return it->second.front();
 }
 
 /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
-Time Multiple::init(const Time& time)
+Time Multiple::init(Time time)
 {
 
     {
@@ -305,8 +306,8 @@ Time Multiple::init(const Time& time)
         }
         if (not ok) {
             throw utils::InternalError(
-                fmt(_("[%1%] DifferenceEquation::Multiple: undeclared " \
-                      "variable: %2%")) % getModelName() % it->first);
+                (boost::format("[%1%] DifferenceEquation::Multiple: undeclared " \
+                      "variable: %2%") % getModelName() % it->first).str());
         }
     }
 
@@ -326,57 +327,58 @@ Time Multiple::init(const Time& time)
     return t;
 }
 
-void Multiple::output(const Time& /* time */,
+void Multiple::output(Time /* time */,
                       ExternalEventList& output) const
 {
+
+
     MultipleValuesMap::const_iterator it =
         mValues.begin();
 
     while (it != mValues.end()) {
         if (mState == SEND_INIT and not it->second.empty()) {
-            ExternalEvent* ee = new ExternalEvent(it->first);
-
-            Set* values = Set::create();
+            output.emplace_back(it->first);
+            vle::value::Map& attrs = output.back().addMap();
+            attrs.addString("name",it->first);
+            Set& values = attrs.addSet("init");
             unsigned int i = 0;
 
             while (i < it->second.size()) {
-                values->addDouble(it->second[i]);
+                values.addDouble(it->second[i]);
                 ++i;
             }
-            ee << attribute("name", it->first);
-            ee << attribute("init", values);
-            output.push_back(ee);
         }
         else if (mActive and (mState == PRE_INIT or mState == PRE_INIT2
                               or mState == POST or mState == POST2)) {
             if (getModel().existOutputPort(it->first)) {
-                ExternalEvent* ee = new ExternalEvent(it->first);
+                output.emplace_back(it->first);
+                vle::value::Map& attrs = output.back().addMap();
 
                 if (mState == PRE_INIT or mState == PRE_INIT2
                     or mState == POST or mState == POST2) {
-                    ee << attribute("name", it->first);
-                    ee << attribute("value", val(it->first));
+                    attrs.addString("name",it->first);
+                    attrs.addDouble("value",val(it->first));
                 }
-                output.push_back(ee);
             }
         }
         ++it;
     }
 }
 
-Value* Multiple::observation(const ObservationEvent& event) const
+std::unique_ptr<vle::value::Value> Multiple::observation(
+        const ObservationEvent& event) const
 {
     if (mState == INIT) {
         throw utils::InternalError(
-            fmt(_("[%1%] DifferenceEquation::Multiple: model not initialized" \
-                  " (perhaps, a cycle of synchronous variables)")) %
-            getModelName());
+            (boost::format("[%1%] DifferenceEquation::Multiple: model not initialized" \
+                  " (perhaps, a cycle of synchronous variables)") %
+            getModelName()).str());
     }
 
     if (event.getPortName() != "all") {
         return Double::create(val(event.getPortName()));
     } else {
-        Tuple* values = Tuple::create();
+        Tuple* values = new vle::value::Tuple();
         MultipleValuesMap::const_iterator it =
             mValues.begin();
 
@@ -384,7 +386,7 @@ Value* Multiple::observation(const ObservationEvent& event) const
             values->add(it->second[0]);
             ++it;
         }
-        return values;
+        return std::unique_ptr<Value>(values);
     }
 }
 

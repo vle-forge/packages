@@ -50,7 +50,7 @@ namespace vle { namespace examples { namespace petrinet {
         virtual ~PetrinetConflict()
         { }
 
-        virtual void build()
+        virtual void build() override
         {
             addPlace("P1");
             addOutputPlace("P2", "out");

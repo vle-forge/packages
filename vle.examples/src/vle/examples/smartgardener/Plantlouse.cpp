@@ -51,7 +51,7 @@
 
 
 #include <vle/extension/DifferenceEquation.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 
 
 namespace vd = vle::devs;
@@ -78,13 +78,13 @@ public:
     {}
 
 
-virtual void compute(const vd::Time& time)
-{ 
-    x = x(-1) + timeStep(time) * (a* x(-1)-b*y()*x(-1));
-}
+    virtual void compute(const vd::Time& time) override
+            {
+        x = x(-1) + timeStep(time) * (a* x(-1)-b*y()*x(-1));
+            }
 
-virtual void initValue(const vd::Time& /*time*/)
-{ }
+    virtual void initValue(const vd::Time& /*time*/) override
+    { }
 
 private:
     double a;
@@ -95,5 +95,5 @@ private:
 
 }}} // namespaces
 
-DECLARE_DYNAMICS_DBG(vle::examples::smartgardeners::Plantlouse)
+DECLARE_DYNAMICS(vle::examples::smartgardeners::Plantlouse)
 

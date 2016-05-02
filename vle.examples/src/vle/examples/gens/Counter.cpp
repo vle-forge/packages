@@ -26,7 +26,7 @@
  */
 
 #include <vle/devs/Dynamics.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 
 namespace vle { namespace examples { namespace gens {
 
@@ -45,19 +45,19 @@ public:
     {
     }
 
-    virtual devs::Time init(const devs::Time& /* time */)
+    virtual devs::Time init(devs::Time /* time */) override
     {
         m_counter = 0;
         return devs::infinity;
     }
 
-    virtual void output(const devs::Time& /* time */,
-                        devs::ExternalEventList& output) const
+    virtual void output(devs::Time /* time */,
+                        devs::ExternalEventList& output) const override
     {
-        output.push_back(buildEvent("out"));
+        output.emplace_back("out");
     }
 
-    virtual devs::Time timeAdvance() const
+    virtual devs::Time timeAdvance() const override
     {
         if (m_active) {
             return devs::Time(0.0);
@@ -67,28 +67,29 @@ public:
         }
     }
 
-    virtual void internalTransition(const devs::Time& /* event */)
+    virtual void internalTransition(devs::Time /* event */) override
     {
         m_active = false;
     }
 
     virtual void externalTransition(const devs::ExternalEventList& events,
-                                    const devs::Time& /* time */)
+                                    devs::Time /* time */) override
     {
         m_counter += events.size();
         m_active = true;
     }
 
-    virtual value::Value* observation(const devs::ObservationEvent&  ev) const
+    virtual std::unique_ptr<value::Value> observation(
+    		const devs::ObservationEvent&  ev) const override
     {
         if (ev.onPort("c")) {
             if (m_counter > 100 and m_counter < 500) {
                 return 0;
             } else {
-                return buildDouble(m_counter);
+                return value::Double::create(m_counter);
             }
         } else if (ev.onPort("value")) {
-            return buildInteger(0);
+            return value::Integer::create(0);
         }
         return 0;
     }
@@ -100,4 +101,4 @@ private:
 
 }}} // namespace vle examples gens
 
-DECLARE_DYNAMICS_DBG(vle::examples::gens::Counter)
+DECLARE_DYNAMICS(vle::examples::gens::Counter)

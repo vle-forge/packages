@@ -26,7 +26,7 @@
  */
 
 #include <vle/DiscreteTime.hpp>
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <iostream>
 
 
@@ -54,7 +54,7 @@ public:
     {
     }
 
-    void compute(const vle::devs::Time& /*t*/)
+    void compute(const vle::devs::Time& /*t*/) override
     {
         //std::cout << " DBG compute D3 " << t << " b(-1)=" << b(-1) << std::endl;
         d = d(-1) + a() + c() + 1;
@@ -67,5 +67,5 @@ public:
 
 }}}
 
-DECLARE_DYNAMICS_DBG(vle::discrete_time::test::D3)
+DECLARE_DYNAMICS(vle::discrete_time::test::D3)
 

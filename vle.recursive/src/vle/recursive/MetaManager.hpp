@@ -22,8 +22,7 @@
 
 #include <vle/value/Map.hpp>
 #include <vle/vpz/Vpz.hpp>
-#include <vle/manager/Manager.hpp>
-
+#include <vle/utils/Context.hpp>
 #include <vle/recursive/accu_multi.hpp>
 
 namespace vle {
@@ -106,23 +105,23 @@ public:
     /**
      * @brief build a vle value (Tuple or Double) from aggregation
      */
-    vle::value::Value* buildAggregateResult();
+    std::unique_ptr<vle::value::Value> buildAggregateResult();
 
     std::string id;
     std::string view;
     std::string absolutePort;
     OUTPUT_INTEGRATION_TYPE integrationType;
     AccuType aggregationType;
-    vle::value::Tuple* mse_times;
-    vle::value::Tuple* mse_observations;
+    std::unique_ptr<vle::value::Tuple> mse_times;
+    std::unique_ptr<vle::value::Tuple> mse_observations;
 
     //for mean aggregation
-    AccuMono* maccuMono; //for integration with one dimension
-    AccuMulti* maccuMulti; //for integration with multiple dimensions
+    std::unique_ptr<AccuMono> maccuMono; //for integration with one dimension
+    std::unique_ptr<AccuMulti> maccuMulti; //for integration with multiple dims
 
     //In case one has to handle not double values,
     //note that agregation is just replacement
-    vle::value::Value* res_value;
+    std::unique_ptr<vle::value::Value> res_value;
 };
 
 /**
@@ -131,6 +130,9 @@ public:
  */
 class MetaManager
 {
+
+
+
 private:
     std::string mIdVpz;
     std::string mIdPackage;
@@ -138,14 +140,19 @@ private:
     bool mRemoveSimulationFiles;
     unsigned int mConfigParallelNbSlots;
     unsigned int mConfigParallelMaxExpes;
-    std::vector<VleInput*> mInputs;
-    VleInput* mReplicate;
+    std::vector<std::unique_ptr<VleInput>> mInputs;
+    std::unique_ptr<VleInput> mReplicate;
     std::vector<VleOutput> mOutputs;//view * port
-    std::vector<vle::value::Value*> mOutputValues;//values are Tuple or Set
+    std::vector<std::unique_ptr<value::Value>>
+      mOutputValues;//values are Tuple or Set
     std::string mWorkingDir; //only for mvle
-    vle::utils::ModuleManager mmodules;
+    utils::ContextPtr mCtx;
 
 public:
+    //split a string with a char
+    static void split(std::vector<std::string>& elems,
+            const std::string &s, char delim);
+
     /**
      * @brief MetaManager constructor
      */
@@ -159,7 +166,7 @@ public:
      * @param init, the initialization map
      * @return the values
      */
-    vle::value::Matrix* run(const vle::value::Map& init);
+    std::unique_ptr<vle::value::Matrix> run(const vle::value::Map& init);
     /**
      * @brief Parse a string of the type that should identify an input, eg. :
      *   input_cond.port
@@ -192,7 +199,8 @@ private:
 
     unsigned int inputsSize() const;
     unsigned int replicasSize() const;
-    vle::value::Matrix* runIntern(const vle::value::Map& init);
+    std::unique_ptr<vle::value::Matrix> runIntern(
+            const vle::value::Map& init);
     void postInputsIntern(vle::vpz::Vpz& model, const vle::value::Map& init);
     void clear();
 };

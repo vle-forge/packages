@@ -56,18 +56,18 @@ public:
 
     void out1(const vle::devs::Time&  /*time*/, vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("out1");
-        e->attributes().addString("name","out1");
-        output.push_back(e);
-        //std::cout << " Perturb2 send out1 " << time << std::endl;
+        output.emplace_back("out1");
+        value::Map& map = output.back().addMap();
+        map.addString("name","out1");
     }
 
     void out2(const vle::devs::Time& /* time */, vle::devs::ExternalEventList& output) const
     {
-        vle::devs::ExternalEvent* e = new vle::devs::ExternalEvent("out2");
-        e->attributes().addString("name","out2");
-        output.push_back(e);
-        //std::cout << " Perturb2 send out2 " << time << std::endl;
+
+        output.emplace_back("out2");
+        value::Map& map = output.back().addMap();
+        map.addString("name","out2");
+
     }
 
 };

@@ -18,7 +18,7 @@
 
 //@@tagdynamic@@
 
-#include <vle/devs/DynamicsDbg.hpp>
+
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/utils/Rand.hpp>
@@ -51,8 +51,10 @@ public:
     {
         double x1 = events.getDouble("x1");
         double x2 = events.getDouble("x2");
+
         my = pow(x1,2) + 2 * pow(x2,2) - 0.3 * cos(3 * M_PI * x1)
                 - 0.4 * cos(4 * M_PI * x2) + 0.7;
+
         mrand.seed(events.getInt("seed"));
         double noise = mrand.normal(0,0.1);
         my_noise = my + noise;
@@ -61,19 +63,21 @@ public:
     virtual ~ExBohachevsky()
     {
     }
-    vd::Time init(const vd::Time& /* time */)
+    vd::Time init(vd::Time /* time */) override
     {
         return vd::infinity;
     }
-    vv::Value* observation(const vd::ObservationEvent& event) const
+    std::unique_ptr<value::Value> observation(
+            const vd::ObservationEvent& event) const override
     {
         if (event.onPort("y")) {
-                return buildDouble(my);
+
+                return value::Double::create(my);
         }
         if (event.onPort("y_noise")) {
-            return buildDouble(my_noise);
+            return value::Double::create(my_noise);
         }
-        return 0;
+        return nullptr;
     }
 private:
     /**
@@ -87,4 +91,4 @@ private:
 
 }}}// namespaces
 
-DECLARE_DYNAMICS_DBG(vle::recursive::test::ExBohachevsky)
+DECLARE_DYNAMICS(vle::recursive::test::ExBohachevsky)

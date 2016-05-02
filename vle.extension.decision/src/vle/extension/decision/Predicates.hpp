@@ -29,8 +29,7 @@
 #ifndef VLE_EXT_DECISION_PREDICATES_HPP
 #define VLE_EXT_DECISION_PREDICATES_HPP
 
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 #include <vector>
 #include <ostream>
 
@@ -40,7 +39,7 @@ namespace vle { namespace extension { namespace decision {
  * @brief Defines a Predicate like a function which returns a boolean
  * without parameter.
  */
-typedef boost::function < bool (void) > Predicate;
+typedef std::function < bool (void) > Predicate;
 
 class Predicates
 {

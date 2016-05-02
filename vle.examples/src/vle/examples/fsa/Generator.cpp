@@ -29,9 +29,11 @@
  * @@tagdynamic@@
  */
 
+#include <string>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/Rand.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
+
 
 namespace vle { namespace examples { namespace fsa {
 
@@ -61,7 +63,7 @@ public:
     virtual ~generator()
     { }
 
-    virtual vd::Time init(const vd::Time& time)
+    virtual vd::Time init(vd::Time time) override
     {
         {
             std::vector < double >::iterator jt = mDates.begin();
@@ -81,7 +83,7 @@ public:
         return *it;
     }
 
-    virtual vd::Time timeAdvance() const
+    virtual vd::Time timeAdvance() const override
     {
         std::vector < vd::Time >::const_iterator it =
             std::min_element(mSigmas.begin(), mSigmas.end());
@@ -89,19 +91,17 @@ public:
         return *it;
     }
 
-    virtual void output(const vd::Time& /* time */,
-                        vd::ExternalEventList& outputs) const
+    virtual void output(vd::Time /* time */,
+                        vd::ExternalEventList& outputs) const override
     {
         std::vector < vd::Time >::const_iterator it =
             std::min_element(mSigmas.begin(), mSigmas.end());
-        int index = boost::lexical_cast < int >(
-            std::distance(mSigmas.begin(), it)) + 1;
+        int index = ((int) std::distance(mSigmas.begin(), it)) + 1;
 
-        outputs.push_back(
-            buildEvent((boost::format("out%1%") % index).str()));
+        outputs.emplace_back((boost::format("out%1%") % index).str());
     }
 
-    virtual void internalTransition(const vd::Time& time)
+    virtual void internalTransition(vd::Time time) override
     {
         std::vector < vd::Time >::iterator it =
             std::min_element(mSigmas.begin(), mSigmas.end());
@@ -119,7 +119,7 @@ public:
 
     virtual void externalTransition(
         const vd::ExternalEventList& /*event*/,
-        const vd::Time& time)
+        vd::Time time) override
     {
         for (std::vector < vd::Time >::iterator it = mSigmas.begin();
              it != mSigmas.end(); ++it) {
@@ -128,13 +128,13 @@ public:
         mLastTime = time;
     }
 
-    virtual vle::value::Value* observation(
-        const vd::ObservationEvent& event) const
+    virtual std::unique_ptr<vle::value::Value> observation(
+        const vd::ObservationEvent& event) const override
     {
         std::string sub(event.getPortName(), 0, 4);
 
         if (sub == "date") {
-            int index = boost::lexical_cast < int >(
+            int index = std::stoi(
                 std::string(event.getPortName(), 4,
                             event.getPortName().size() - 4)) - 1;
 

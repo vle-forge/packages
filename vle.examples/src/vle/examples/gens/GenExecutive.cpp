@@ -27,9 +27,9 @@
 
 
 #include <vle/devs/Executive.hpp>
-#include <vle/devs/ExecutiveDbg.hpp>
-#include <boost/numeric/conversion/cast.hpp>
+#include <boost/format.hpp>
 #include <stack>
+#include <sstream>
 
 namespace vle { namespace examples { namespace gens {
 
@@ -43,7 +43,7 @@ class GenExecutive : public devs::Executive
 public:
     GenExecutive(const devs::ExecutiveInit& mdl,
                  const devs::InitEventList& events) :
-        devs::Executive(mdl, events)
+        devs::Executive(mdl, events), m_state(INIT)
     {
     }
 
@@ -51,7 +51,7 @@ public:
     {
     }
 
-    virtual devs::Time init(const devs::Time& /* time */)
+    virtual devs::Time init(devs::Time /* time */) override
     {
         vpz::Dynamic dyn("gensbeep");
         dyn.setPackage("vle.examples");
@@ -63,7 +63,7 @@ public:
         return 0.0;
     }
 
-    virtual devs::Time timeAdvance() const
+    virtual devs::Time timeAdvance() const override
     {
         switch (m_state) {
         case INIT:
@@ -78,7 +78,7 @@ public:
         throw utils::InternalError("GenExecutive ta");
     }
 
-    virtual void internalTransition(const devs::Time& time)
+    virtual void internalTransition(devs::Time time) override
     {
         switch (m_state) {
         case INIT:
@@ -103,7 +103,8 @@ public:
         }
     }
 
-    virtual value::Value* observation(const devs::ObservationEvent& ev) const
+    virtual std::unique_ptr<value::Value> observation(
+    		const devs::ObservationEvent& ev) const override
     {
         if (ev.onPort("nbmodel")) {
             return value::Integer::create(get_nb_model());
@@ -112,11 +113,11 @@ public:
             coupledmodel().writeXML(out);
             return value::String::create(out.str());
         } else if (ev.onPort("adjacency_matrix")) {
-            value::Set *set = value::Set::create();
+            std::unique_ptr<value::Set> set(new vle::value::Set());
             set->add(value::Integer::create(1));
             if(get_nb_model() > 0 and ev.getTime() < 50.0){
                 set->add(value::String::create("add"));
-                std::string name = (fmt("beep_%1%") % m_stacknames.size()).str();
+                std::string name = (boost::format("beep_%1%") % m_stacknames.size()).str();
                 set->add(value::String::create(name));
                 set->add(value::String::create("2"));
                 std::string edge =  name + std::string(" counter ");
@@ -124,7 +125,7 @@ public:
             }
             else if(get_nb_model() > 0){
                 set->add(value::String::create("delete"));
-                std::string name = (fmt(
+                std::string name = (boost::format(
                         "beep_%1%") % (get_nb_model())).str();
                 set->add(value::String::create(name));
             }
@@ -142,7 +143,7 @@ public:
 
     void add_new_model()
     {
-        std::string name((fmt("beep_%1%") % m_stacknames.size()).str());
+        std::string name((boost::format("beep_%1%") % m_stacknames.size()).str());
 
         std::vector < std::string > outputs;
         outputs.push_back("out");
@@ -156,7 +157,7 @@ public:
     void del_first_model()
     {
         if (m_stacknames.empty()) {
-            throw utils::InternalError(fmt(
+            throw utils::InternalError(boost::format(
                     "Cannot delete any model, the executive have no "
                     "element.").str());
         }
@@ -167,11 +168,11 @@ public:
 
     int get_nb_model() const
     {
-        return boost::numeric_cast < int >(coupledmodel().getModelList().size()) - 1;
+        return (coupledmodel().getModelList().size()) - 1;
     }
 
 };
 
 }}} // namespace vle examples gens
 
-DECLARE_EXECUTIVE_DBG(vle::examples::gens::GenExecutive)
+DECLARE_EXECUTIVE(vle::examples::gens::GenExecutive)

@@ -30,10 +30,10 @@
 
 namespace vle { namespace examples { namespace counter {
 
-void Counter::output(const devs::Time& /* time */,
+void Counter::output(devs::Time /* time */,
                      devs::ExternalEventList& output) const
 {
-    output.push_back(buildEvent("out"));
+    output.emplace_back("out");
 }
 
 devs::Time Counter::timeAdvance() const
@@ -42,28 +42,29 @@ devs::Time Counter::timeAdvance() const
     else return devs::infinity;
 }
 
-devs::Time Counter::init(const devs::Time& /* time */)
+devs::Time Counter::init(devs::Time /* time */)
 {
     m_counter = 0;
     m_active = false;
     return devs::infinity;
 }
 
-void Counter::internalTransition(const devs::Time& /* event */)
+void Counter::internalTransition(devs::Time /* event */)
 {
     m_active = false;
 }
 
 void Counter::externalTransition(const devs::ExternalEventList& /* event */,
-                                 const devs::Time& /* time */)
+                                 devs::Time /* time */)
 {
     m_counter++;
     m_active = true;
 }
 
-value::Value* Counter::observation(const devs::ObservationEvent& event) const
+std::unique_ptr<value::Value> Counter::observation(
+        const devs::ObservationEvent& event) const
 {
-    if (event.onPort("c")) return buildDouble(m_counter);
+    if (event.onPort("c")) return value::Double::create(m_counter);
     return 0;
 }
 

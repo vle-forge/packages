@@ -27,6 +27,7 @@
 
 
 #include <vle/extension/difference-equation/Simple.hpp>
+#include <vle/value/Set.hpp>
 
 namespace vle { namespace extension { namespace DifferenceEquation {
 
@@ -49,8 +50,8 @@ Simple::Simple(const DynamicsInit& model,
 
             if (getModel().getOutputPortNumber() > 1) {
                 throw utils::ModellingError(
-                    fmt(_("[%1%] DifferenceEquation::Simple: invalid "  \
-                          "number of output port")) % getModelName());
+                    (boost::format("[%1%] DifferenceEquation::Simple: invalid "  \
+                          "number of output port") % getModelName()).str());
             }
 
             mVariableName = getModel().getOutputPortList().begin()->first;
@@ -112,9 +113,9 @@ void Simple::updateValues(const Time& time)
 void Simple::size(int size)
 {
     if (size == 0) {
-        throw utils::ModellingError(fmt(_(
-                    "[%1%] DifferenceEquation::size - not null size")) %
-            getModelName());
+        throw utils::ModellingError((boost::format(
+                    "[%1%] DifferenceEquation::size - not null size") %
+            getModelName()).str());
     }
 
     mSize = size;
@@ -124,9 +125,9 @@ double Simple::val() const
 {
     if (not mSetValue) {
         throw utils::InternalError(
-            fmt(_("[%1%] DifferenceEquation::getValue - forbidden to use " \
-                  "%2%() before computing of %2%"))
-            % getModelName() % mVariableName);
+            (boost::format("[%1%] DifferenceEquation::getValue - forbidden to use " \
+                  "%2%() before computing of %2%")
+            % getModelName() % mVariableName).str());
     }
 
     return mValues.front();
@@ -135,16 +136,16 @@ double Simple::val() const
 double Simple::val(int shift) const
 {
     if (shift > 0) {
-        throw utils::ModellingError(fmt(_(
-                    "[%1%] DifferenceEquation::getValue - positive shift on %2%")) %
-            getModelName() % mVariableName);
+        throw utils::ModellingError((boost::format(
+                    "[%1%] DifferenceEquation::getValue - positive shift on %2%") %
+            getModelName() % mVariableName).str());
     }
 
     if (shift == 0 and not mSetValue) {
         throw utils::InternalError(
-            fmt(_("[%1%] DifferenceEquation::getValue - forbidden to use " \
-                  "%2%() before computing of %2%"))
-            % getModelName() % mVariableName);
+            (boost::format("[%1%] DifferenceEquation::getValue - forbidden to use " \
+                  "%2%() before computing of %2%")
+            % getModelName() % mVariableName).str());
     }
 
     ++shift;
@@ -152,55 +153,54 @@ double Simple::val(int shift) const
         return mValues.front();
     } else {
         if ((int)(mValues.size() - 1) < -shift) {
-            throw utils::InternalError(fmt(_(
-                        "[%1%] - %2%[%3%] - shift too large")) %
-                getModelName() % mVariableName % shift);
+            throw utils::InternalError((boost::format(
+                        "[%1%] - %2%[%3%] - shift too large") %
+                getModelName() % mVariableName % shift).str());
         }
 
         return mValues[-shift];
     }
 }
 
-void Simple::output(const Time& /* time */,
+void Simple::output(Time /* time */,
                     ExternalEventList& output) const
 {
     if (mState == SEND_INIT and not mValues.empty()) {
-        ExternalEvent* ee = new ExternalEvent(mPortName);
+        output.emplace_back(mPortName);
+        vle::value::Map& attrs = output.back().addMap();
+        attrs.addString("name",mVariableName);
+        Set& values = attrs.addSet("init");
 
-        Set* values = Set::create();
         std::deque < double>::const_iterator it = mValues.begin();
 
         while (it != mValues.end()) {
-            values->addDouble(*it++);
+            values.addDouble(*it++);
         }
-        ee << attribute("name", mVariableName);
-        ee << attribute("init", values);
-        output.push_back(ee);
     } else {
         if (mActive and (mState == PRE_INIT or mState == PRE_INIT2
                          or mState == POST or mState == POST2)) {
-            ExternalEvent* ee = new ExternalEvent(mPortName);
-
-            ee << attribute("name", mVariableName);
-            ee << attribute("value", val());
-            output.push_back(ee);
+            output.emplace_back(mPortName);
+            vle::value::Map& attrs = output.back().addMap();
+            attrs.addString("name",mVariableName);
+            attrs.addDouble("value",val());
         }
     }
 }
 
-Value* Simple::observation(const ObservationEvent& event) const
+std::unique_ptr<vle::value::Value>
+Simple::observation(const ObservationEvent& event) const
 {
     if (mState == INIT) {
         throw utils::InternalError(
-            fmt(_("[%1%] DifferenceEquation::Simple: model not initialized" \
-                  " (perhaps, a cycle of synchronous variables)")) %
-            getModelName());
+            (boost::format("[%1%] DifferenceEquation::Simple: model not initialized" \
+                  " (perhaps, a cycle of synchronous variables)") %
+            getModelName()).str());
     }
 
     if (event.getPortName() != mVariableName) {
-        throw utils::InternalError(fmt(_(
+        throw utils::InternalError((boost::format(
                     "[%1%] DifferenceEquation::observation: invalid variable" \
-                    " name: %2%")) % getModelName() % event.getPortName());
+                    " name: %2%") % getModelName() % event.getPortName()).str());
     }
     return Double::create(val());
 }

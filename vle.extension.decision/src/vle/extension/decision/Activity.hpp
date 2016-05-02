@@ -29,27 +29,27 @@
 #ifndef VLE_EXT_DECISION_ACTIVITY_HPP
 #define VLE_EXT_DECISION_ACTIVITY_HPP 1
 
+#include <functional>
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/devs/ExternalEventList.hpp>
 #include <vle/devs/Time.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+
 
 namespace vle { namespace extension { namespace decision {
 
 class Activity
 {
 public:
-    typedef boost::function <
+    typedef std::function <
         void (const std::string&,
               const Activity&) > AckFct;
 
-    typedef boost::function <
+    typedef std::function <
         void (const std::string&,
               const Activity&,
               vle::devs::ExternalEventList&) > OutFct;
 
-    typedef boost::function <
+    typedef std::function <
         void (const std::string&,
               const Activity&) > UpdateFct;
 

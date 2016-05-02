@@ -31,23 +31,25 @@
  ******************/
 BOOST_AUTO_TEST_CASE(test_RK4_LotkaVolterra)
 {
+
+    auto ctx = vu::make_context();
     std::cout << "  test_RK4_LotkaVolterra " << std::endl;
-    vle::utils::Package pack("vle.extension.differential-equation_test");
-    vz::Vpz vpz(pack.getExpFile("LotkaVolterra.vpz", vle::utils::PKG_BINARY));
+    vle::utils::Package pack(ctx, "vle.extension.differential-equation_test");
+    std::unique_ptr<vz::Vpz> vpz(new vz::Vpz(
+            pack.getExpFile("LotkaVolterra.vpz", vle::utils::PKG_BINARY)));
 
 
-    ttconfOutputPlugins(vpz);
+    ttconfOutputPlugins(*vpz);
 
     std::vector<std::string> conds;
     conds.push_back("condRK4");
     conds.push_back("condLV");
-    ttattachConditions(vpz,conds,"LotkaVolterra");
+    ttattachConditions(*vpz,conds,"LotkaVolterra");
 
     //simulation
-    vu::ModuleManager man;
     vm::Error error;
-    vm::Simulation sim(vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-    va::Map *out = sim.run(new vz::Vpz(vpz), man, &error);
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
+    std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
 
     //checks that simulation has succeeded
@@ -57,30 +59,30 @@ BOOST_AUTO_TEST_CASE(test_RK4_LotkaVolterra)
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
     BOOST_REQUIRE_EQUAL(view.columns(),3);
-    BOOST_REQUIRE_EQUAL(view.column(0).size(),15002);
+    //note: the number of rows depend on the averaging of sum of 0.01
+    BOOST_REQUIRE(view.rows() <= 15003);
+    BOOST_REQUIRE(view.rows() >= 15002);
 
     //gets X,Y
-    va::ConstVectorView colX = ttgetColumnFromView(view,
-                                                   "Top model:LotkaVolterra", "X");
-    va::ConstVectorView colY = ttgetColumnFromView(view,
-                                                   "Top model:LotkaVolterra", "Y");
+    int colX = ttgetColumnFromView(view, "Top model:LotkaVolterra", "X");
+    int colY = ttgetColumnFromView(view, "Top model:LotkaVolterra", "Y");
 
     //check X,Y line 10
-    BOOST_REQUIRE_CLOSE(va::toDouble(colX[10]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colX,10),
                         9.676110, 10e-5);
-    BOOST_REQUIRE_CLOSE(va::toDouble(colY[10]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colY,10),
                         5.317448, 10e-5);
 
     //check X,Y line 30
-    BOOST_REQUIRE_CLOSE(va::toDouble(colX[30]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colX,30),
                         8.901151, 10e-5);
-    BOOST_REQUIRE_CLOSE(va::toDouble(colY[30]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colY,30),
                         6.030798, 10e-5);
 
     //check X,Y line 15000
-    BOOST_REQUIRE_CLOSE(va::toDouble(colX[15000]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colX,15000),
                         0.7127354, 10e-5);
-    BOOST_REQUIRE_CLOSE(va::toDouble(colY[15000]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colY,15000),
                         0.07558043, 10e-5);
 }
 
@@ -90,22 +92,24 @@ BOOST_AUTO_TEST_CASE(test_RK4_LotkaVolterra)
  ******************/
 BOOST_AUTO_TEST_CASE(test_RK4_Seir)
 {
-    std::cout << "  test_RK4_Seir " << std::endl;
-    vle::utils::Package pack("vle.extension.differential-equation_test");
-    vz::Vpz vpz(pack.getExpFile("Seir.vpz", vle::utils::PKG_BINARY));
 
-    ttconfOutputPlugins(vpz);
+    auto ctx = vu::make_context();
+    std::cout << "  test_RK4_Seir " << std::endl;
+    vle::utils::Package pack(ctx, "vle.extension.differential-equation_test");
+    std::unique_ptr<vz::Vpz> vpz(new vz::Vpz(
+            pack.getExpFile("Seir.vpz", vle::utils::PKG_BINARY)));
+
+    ttconfOutputPlugins(*vpz);
 
     std::vector<std::string> conds;
     conds.push_back("condRK4");
     conds.push_back("condSeir");
-    ttattachConditions(vpz,conds,"Seir");
+    ttattachConditions(*vpz,conds,"Seir");
 
     //simulation
-    vu::ModuleManager man;
     vm::Error error;
-    vm::Simulation sim(vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-    va::Map *out = sim.run(new vz::Vpz(vpz), man, &error);
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
+    std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
     BOOST_REQUIRE_EQUAL(error.code, 0);
@@ -114,26 +118,24 @@ BOOST_AUTO_TEST_CASE(test_RK4_Seir)
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
     BOOST_REQUIRE_EQUAL(view.columns(),5);
-    BOOST_REQUIRE_EQUAL(view.column(0).size(),1502);
+    //note: the number of rows depend on the averaging of sum of 0.01
+    BOOST_REQUIRE(view.rows() <= 1503);
+    BOOST_REQUIRE(view.rows() >= 1502);
 
 
     //gets S,E,I,R
-    va::ConstVectorView colS = ttgetColumnFromView(view,
-                                                   "Top model:Seir", "S");
-    va::ConstVectorView colE = ttgetColumnFromView(view,
-                                                   "Top model:Seir", "E");
-    va::ConstVectorView colI = ttgetColumnFromView(view,
-                                                   "Top model:Seir", "I");
-    va::ConstVectorView colR = ttgetColumnFromView(view,
-                                                   "Top model:Seir", "R");
+    int colS = ttgetColumnFromView(view, "Top model:Seir", "S");
+    int colE = ttgetColumnFromView(view, "Top model:Seir", "E");
+    int colI = ttgetColumnFromView(view, "Top model:Seir", "I");
+    int colR = ttgetColumnFromView(view, "Top model:Seir", "R");
 
     //check S,E,I,R line 1500, TODO 10-3 diff with deSolve
-    BOOST_REQUIRE_CLOSE(va::toDouble(colS[1501]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colS,1501),
                         0.635933347641559, 10e-5);
-    BOOST_REQUIRE_CLOSE(va::toDouble(colE[1501]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colE,1501),
                         0.654326066542035, 10e-5);
-    BOOST_REQUIRE_CLOSE(va::toDouble(colI[1501]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colI,1501),
                         2.97469330853422, 10e-5);
-    BOOST_REQUIRE_CLOSE(va::toDouble(colR[1501]),
+    BOOST_REQUIRE_CLOSE(view.getDouble(colR,1501),
                         6.73504727728219, 10e-5);
 }

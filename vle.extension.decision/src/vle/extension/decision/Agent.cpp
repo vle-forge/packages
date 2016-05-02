@@ -29,10 +29,11 @@
 #include <vle/extension/decision/Agent.hpp>
 #include <vle/value/String.hpp>
 #include <cassert>
+#include <sstream>
 
 namespace vle { namespace extension { namespace decision {
 
-devs::Time Agent::init(const devs::Time& time)
+devs::Time Agent::init(devs::Time time)
 {
     mState = Output;
     mCurrentTime = time;
@@ -41,7 +42,7 @@ devs::Time Agent::init(const devs::Time& time)
     return 0.0;
 }
 
-void Agent::output(const devs::Time& time,
+void Agent::output(devs::Time time,
                    devs::ExternalEventList& output) const
 {
     if (mState == Output) {
@@ -95,10 +96,10 @@ devs::Time Agent::timeAdvance() const
         }
     }
 
-    throw utils::InternalError();
+    throw utils::InternalError("[Decision:Agent] timeAdvance");
 }
 
-void Agent::internalTransition(const devs::Time& time)
+void Agent::internalTransition(devs::Time time)
 {
     mCurrentTime = time;
 
@@ -118,14 +119,14 @@ void Agent::internalTransition(const devs::Time& time)
 
 void Agent::externalTransition(
     const devs::ExternalEventList& events,
-    const devs::Time& time)
+    devs::Time time)
 {
     mCurrentTime = time;
 
     for (devs::ExternalEventList::const_iterator it = events.begin();
          it != events.end(); ++it) {
-        const std::string& port((*it)->getPortName());
-        const value::Map& atts = (*it)->getAttributes();
+        const std::string& port(it->getPortName());
+        const value::Map& atts = it->attributes()->toMap();
 
         if (port == "ack") {
             const std::string& activity(atts.getString("name"));
@@ -137,7 +138,8 @@ void Agent::externalTransition(
                 setActivityFailed(activity, time);
             } else {
                 throw utils::ModellingError(
-                    fmt(_("Decision: unknown order `%1%'")) % order);
+                    (boost::format("Decision: unknown order `%1%'")
+                    % order).str());
             }
         } else {
             value::Map::const_iterator jt = atts.value().find("value");
@@ -147,14 +149,14 @@ void Agent::externalTransition(
 
             if (jt == atts.end() or not jt->second) {
                 throw utils::ModellingError(
-                    fmt(_("Decision: no value in this message: `%1%'")) %
-                    (*it));
+                    (boost::format("Decision: no value in this message: `%1%'")
+                    % atts).str());
             }
 
             if (mPortMode) {
                 applyFact(port, *jt->second);
             } else {
-                const std::string& fact((*it)->getStringAttributeValue("name"));
+                const std::string& fact(atts.getString("name"));
                 applyFact(fact, *jt->second);
             }
         }
@@ -164,14 +166,14 @@ void Agent::externalTransition(
 }
 
 void Agent::confluentTransitions(
-    const devs::Time& time,
+    devs::Time time,
     const devs::ExternalEventList& extEventlist)
 {
     internalTransition(time);
     externalTransition(extEventlist, time);
 }
 
-value::Value* Agent::observation(
+std::unique_ptr<vle::value::Value> Agent::observation(
     const devs::ObservationEvent& event) const
 {
     const std::string port = event.getPortName();
@@ -179,21 +181,22 @@ value::Value* Agent::observation(
     if (port == "KnowledgeBase") {
         std::stringstream out;
         out << *this;
-        return new value::String(out.str());
+        return std::unique_ptr<vle::value::Value>(new value::String(out.str()));
     } else if (port == "Activities") {
         std::stringstream out;
         out << activities();
-        return new value::String(out.str());
+        return std::unique_ptr<vle::value::Value>(new value::String(out.str()));
     } else if ((port.compare(0, 9, "Activity_") == 0) and port.size() > 9) {
         std::string activity(port, 9, std::string::npos);
         const Activity& act(activities().get(activity)->second);
         std::stringstream out;
         out << act.state();
-        return new value::String(out.str());
+        return std::unique_ptr<vle::value::Value>(new value::String(out.str()));
     } else if ((port.compare(0, 6, "Rules_") == 0) and port.size() > 6) {
         std::string rule(port, 6, std::string::npos);
         const Rule& ru(rules().get(rule));
-        return new value::Boolean(ru.isAvailable());
+        return std::unique_ptr<vle::value::Value>(
+                new value::Boolean(ru.isAvailable()));
     }
     return 0;
 }

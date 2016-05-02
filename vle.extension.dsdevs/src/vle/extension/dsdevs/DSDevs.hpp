@@ -29,7 +29,7 @@
 #ifndef VLE_EXTENSION_DSDEVS_DSDEVS_HPP
 #define VLE_EXTENSION_DSDEVS_DSDEVS_HPP
 
-#include <vle/devs/Simulator.hpp>
+//#include <vle/devs/Simulator.hpp>
 #include <vle/devs/Executive.hpp>
 #include <vle/vpz/CoupledModel.hpp>
 #include <vle/value/Value.hpp>
@@ -129,26 +129,26 @@ namespace vle { namespace extension {
 
         virtual ~DSDevs() { }
 
-        virtual devs::Time init(const devs::Time& time);
+        virtual devs::Time init(devs::Time time) override;
 
         virtual void output(
-            const devs::Time& /* time */,
-            devs::ExternalEventList& /* output */) const;
+            devs::Time /* time */,
+            devs::ExternalEventList& /* output */) const override;
 
-        virtual devs::Time timeAdvance() const;
+        virtual devs::Time timeAdvance() const override;
 
         virtual void confluentTransitions(
-            const devs::Time& /* time */,
-            const devs::ExternalEventList& /* extEventlist */);
+            devs::Time /* time */,
+            const devs::ExternalEventList& /* extEventlist */) override;
 
-        virtual void internalTransition(const devs::Time& /* event */);
+        virtual void internalTransition(devs::Time /* event */) override;
 
         virtual void externalTransition(
             const devs::ExternalEventList& /* event */,
-            const devs::Time& /* time */);
+            devs::Time /* time */) override;
 
-        virtual value::Value* observation(
-            const devs::ObservationEvent& /* event */) const;
+        virtual std::unique_ptr<value::Value> observation(
+            const devs::ObservationEvent& /* event */) const override;
 
         /*
          *
@@ -156,13 +156,13 @@ namespace vle { namespace extension {
          *
          */
 
-        static value::Map* buildMessageAddConnection(
+        static std::unique_ptr<value::Map> buildMessageAddConnection(
             const std::string& srcModelName,
             const std::string& srcPortName,
             const std::string& dstModelName,
             const std::string& dstPortName);
 
-        static value::Map* buildMessageChangeConnection(
+        static std::unique_ptr<value::Map> buildMessageChangeConnection(
             const std::string& srcModelName,
             const std::string& srcPortName,
             const std::string& oldDstModelName,
@@ -170,47 +170,47 @@ namespace vle { namespace extension {
             const std::string& newDstModelName,
             const std::string& newDstPortName);
 
-        static value::Map* buildMessageRemoveConnection(
+        static std::unique_ptr<value::Map> buildMessageRemoveConnection(
             const std::string& srcModelName,
             const std::string& srcPortName,
             const std::string& dstModelName,
             const std::string& dstPortName);
 
-        static value::Map* buildMessageAddModel(
+        static std::unique_ptr<value::Map> buildMessageAddModel(
             const std::string& prefixModelName,
             const std::string& className,
             const std::string& xmlDynamics,
             const std::string& xmlInits,
-            value::Set* connection);
+            std::unique_ptr<value::Set> connection);
 
-        static value::Map* buildMessageRemoveModel(
+        static std::unique_ptr<value::Map> buildMessageRemoveModel(
             const std::string& modelName);
 
-        static value::Map* buildMessageChangeModel(
+        static std::unique_ptr<value::Map> buildMessageChangeModel(
             const std::string& modelName,
             const std::string& className,
             const std::string& newClassName);
 
-        static value::Map* buildMessageBuildModel(
+        static std::unique_ptr<value::Map> buildMessageBuildModel(
             const std::string& prefixModelName,
             const std::string& className,
             const std::string& xmlCode,
             const std::string& xmlDynamics,
             const std::string& xmlInits);
 
-        static value::Map* buildMessageAddInputPort(
+        static std::unique_ptr<value::Map> buildMessageAddInputPort(
             const std::string& modelName,
             const std::string& portName);
 
-        static value::Map* buildMessageAddOutputPort(
+        static std::unique_ptr<value::Map> buildMessageAddOutputPort(
             const std::string& modelName,
             const std::string& portName);
 
-        static value::Map* buildMessageRemoveInputPort(
+        static std::unique_ptr<value::Map> buildMessageRemoveInputPort(
             const std::string& modelName,
             const std::string& portName);
 
-        static value::Map* buildMessageRemoveOutputPort(
+        static std::unique_ptr<value::Map> buildMessageRemoveOutputPort(
             const std::string& modelName,
             const std::string& portName);
 
@@ -220,74 +220,74 @@ namespace vle { namespace extension {
          *
          */
 
-        static value::Set* addToBagAddConnection(
+        static std::unique_ptr<value::Set> addToBagAddConnection(
             const std::string& srcModelName,
             const std::string& srcPortName,
             const std::string& dstModelName,
             const std::string& dstPortName,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagChangeConnection(
+        static std::unique_ptr<value::Set> addToBagChangeConnection(
             const std::string& srcModelName,
             const std::string& srcPortName,
             const std::string& oldDstModelName,
             const std::string& oldDstPortName,
             const std::string& newDstModelName,
             const std::string& newDstPortName,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagRemoveConnection(
+        static std::unique_ptr<value::Set> addToBagRemoveConnection(
             const std::string& srcModelName,
             const std::string& srcPortName,
             const std::string& dstModelName,
             const std::string& dstPortName,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagAddModel(
+        static std::unique_ptr<value::Set> addToBagAddModel(
             const std::string& prefixModelName,
             const std::string& className,
             const std::string& xmlDynamics,
             const std::string& xmlInits,
-            value::Set* connection,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> connection,
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagRemoveModel(
+        static std::unique_ptr<value::Set> addToBagRemoveModel(
             const std::string& modelName,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagChangeModel(
+        static std::unique_ptr<value::Set> addToBagChangeModel(
             const std::string& modelName,
             const std::string& className,
             const std::string& newClassName,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagBuildModel(
+        static std::unique_ptr<value::Set> addToBagBuildModel(
             const std::string& prefixModelName,
             const std::string& className,
             const std::string& xmlCode,
             const std::string& xmlDynamics,
             const std::string& xmlInits,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagAddInputPort(
+        static std::unique_ptr<value::Set> addToBagAddInputPort(
             const std::string& modelName,
             const std::string& portName,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagAddOutputPort(
+        static std::unique_ptr<value::Set> addToBagAddOutputPort(
             const std::string& modelName,
             const std::string& portName,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagRemoveInputPort(
+        static std::unique_ptr<value::Set> addToBagRemoveInputPort(
             const std::string& modelName,
             const std::string& portName,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
-        static value::Set* addToBagRemoveOutputPort(
+        static std::unique_ptr<value::Set> addToBagRemoveOutputPort(
             const std::string& modelName,
             const std::string& portName,
-            value::Set* currentbag);
+            std::unique_ptr<value::Set> currentbag);
 
     protected:
         bool addConnectionT(const std::string& srcModelName,
