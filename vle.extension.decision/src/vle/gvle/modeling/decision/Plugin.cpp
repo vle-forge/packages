@@ -277,7 +277,7 @@ const std::string PluginDecision::ACK_TEMPLATE_DEFINITION =
     "      a.addRule(it->first, it->second);\n"                         \
     "   }\n"                                                            \
     "   a.addParams(activity.params());\n"                              \
-    "   if (a.Params().exist(\"priority\")){\n"                         \
+    "   if (a.params().exist(\"priority\")){\n"                         \
     "      a.setPriority(a.Params().getDouble(\"priority\"));\n"        \
     "   }\n"                                                            \
     "}\n";
