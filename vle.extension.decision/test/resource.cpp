@@ -129,11 +129,50 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
             A.addResources(extendResources("Bob|Bill"));
             B.addResources(extendResources("Bob|Bill"));
-            C.addResources(extendResources("Bob|Bill|Tim"));
+            C.addResources(extendResources("Tim|Bob|Bill"));
 
         }
 
         virtual ~Resourcetest_3() {}
+    };
+
+    class Resourcetest_4: public vmd::KnowledgeBase
+    {
+    public:
+        Resourcetest_4()
+        {
+            addRes("resFunc_1",  boost::bind(&Resourcetest_4::resFunc_1, this, _1, _2));
+            addRes("resFunc_2", boost::bind(&Resourcetest_4::resFunc_2, this, _1, _2));
+
+            vmd::Activity& A = addActivity("A", 1.0, 10.0);
+            vmd::Activity& B = addActivity("B", 1.0, 10.0);
+            vmd::Activity& C = addActivity("C", 1.0, 10.0);
+
+            addResources("Farmer", "Bob");
+            addResources("Farmer", "Bill");
+            addResources("Worker", "Tim");
+
+            A.addResources(extendResources(applyRes("resFunc_1","A",A)));
+            B.addResources(extendResources(applyRes("resFunc_1","B",B)));
+            C.addResources(extendResources(applyRes("resFunc_2","C",C)));
+
+        }
+
+        virtual ~Resourcetest_4() {}
+
+        std::string resFunc_1(const std::string& /*name*/,
+                              const Activity& /*activity*/) const
+        {
+            return "Bob|Bill";
+        }
+
+
+        std::string resFunc_2(const std::string& /*name*/,
+                              const Activity& /*activity*/) const
+        {
+            return "Tim|Bob|Bill";
+        }
+
     };
 
 }}}} // namespace vle extension decision ex
@@ -245,6 +284,50 @@ BOOST_AUTO_TEST_CASE(resource_2)
 BOOST_AUTO_TEST_CASE(resource_3)
 {
     vmd::ex::Resourcetest_3 base;
+    vmd::Activities::result_t lst;
+
+    base.processChanges(0.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        const vmd::Activity& C =  base.activities().get("C")->second;
+        BOOST_REQUIRE(A.isInWaitState());
+        BOOST_REQUIRE(B.isInWaitState());
+        BOOST_REQUIRE(C.isInWaitState());
+    }
+
+    base.processChanges(1.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        const vmd::Activity& C =  base.activities().get("C")->second;
+        BOOST_REQUIRE(A.isInStartedState());
+        {
+            vmd::ActivitiesResourcesConstIteratorPair pit;
+            pit = base.activities().resources("A");
+            BOOST_REQUIRE_EQUAL(std::distance(pit.first, pit.second), 1);
+            BOOST_REQUIRE_EQUAL((*(pit.first)).second, "Bob");
+        }
+        BOOST_REQUIRE(B.isInStartedState());
+        {
+            vmd::ActivitiesResourcesConstIteratorPair pit;
+            pit = base.activities().resources("B");
+            BOOST_REQUIRE_EQUAL(std::distance(pit.first, pit.second), 1);
+            BOOST_REQUIRE_EQUAL((*(pit.first)).second, "Bill");
+        }
+        BOOST_REQUIRE(C.isInStartedState());
+        {
+            vmd::ActivitiesResourcesConstIteratorPair pit;
+            pit = base.activities().resources("C");
+            BOOST_REQUIRE_EQUAL(std::distance(pit.first, pit.second), 1);
+            BOOST_REQUIRE_EQUAL((*(pit.first)).second, "Tim");
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(resource_4)
+{
+    vmd::ex::Resourcetest_4 base;
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);

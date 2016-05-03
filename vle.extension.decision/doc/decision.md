@@ -90,6 +90,45 @@ Example of settings direct by ids:
 	}
 ...
 ```
+
+## Resource Function
+
+Another way to define resource constraint is to provide to the agent a
+resource function. The function does get the name and a reference to
+the activity an returns a string.
+
+Example of resource func definition:
+```
+std::string resFunc(const std::string& name,
+     	            const Activity& /*activity*/) const
+{
+	std::string parcel = getParcel(name);
+	double surface = getSurface(parcel);
+	double farmerActivitySpeed = 1;
+	int farmerAmount = ceil(surface/activitySpeed);
+        return "Farmer." + lexical_cast<std::string>(farmerAmount);
+	// or whatever you can compute by using
+	// either the activity or the activity name
+}
+...
+```
+Example of resource func declaration:
+```
+addRess(this) += R("computeResource", &KnowledgeBase::resFunc);
+```
+
+And then to use the plan file and the activity parameter "resourceFunc".
+
+Example of settings by using a resource func:
+```
+        ...
+	parameter {
+           resourceFunc = "computeResource";
+           ...
+	}
+...
+```
+
 ## Observing the the resource assigment during the simulation.
 
 An observable port can be used to observe the resource used by a
