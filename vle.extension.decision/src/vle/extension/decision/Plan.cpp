@@ -433,6 +433,20 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
             if (not resources.empty()) {
                 act.addResources(mKb.extendResources(resources));
             }
+            resources.clear();
+            std::string resourceFunc;
+            try {
+                resourceFunc = act.params().getString("resourceFunc");
+            } catch(const std::exception& e) {
+            }
+            if (not resourceFunc.empty()) {
+                resources = mKb.applyRes(resourceFunc,
+                                         id.first->second + suffixe, act);
+            }
+            if (not resources.empty()) {
+                act.addResources(mKb.extendResources(resources));
+            }
+
             try {
                 double loadedPriority = act.params().getDouble("priority");
                 act.getParams().resetDouble("priority", loadedPriority + addPriority);

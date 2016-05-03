@@ -32,6 +32,7 @@
 #include <vle/utils/Context.hpp>
 #include <vle/extension/decision/Resources.hpp>
 #include <vle/extension/decision/Activities.hpp>
+#include <vle/extension/decision/Ress.hpp>
 #include <vle/extension/decision/Facts.hpp>
 #include <vle/extension/decision/Library.hpp>
 #include <vle/extension/decision/Rules.hpp>
@@ -42,12 +43,22 @@
 
 namespace vle { namespace extension { namespace decision {
 
+typedef Table < ResFct > RessTable;
 typedef Table < Fact > FactsTable;
 typedef Table < PortFact > PortFactsTable;
 typedef Table < PredicateFunction > PredicatesTable;
 typedef Table < Activity::AckFct > AcknowledgeFunctions;
 typedef Table < Activity::OutFct > OutputFunctions;
 typedef Table < Activity::UpdateFct > UpdateFunctions;
+
+inline std::ostream& operator<<(std::ostream& o, const RessTable& kb)
+{
+    o << "Ress: ";
+    for (RessTable::const_iterator it = kb.begin(); it != kb.end(); ++it) {
+        o << " (" << it->first << ")";
+    }
+    return o;
+}
 
 inline std::ostream& operator<<(std::ostream& o, const FactsTable& kb)
 {
@@ -66,6 +77,17 @@ inline std::ostream& operator<<(std::ostream& o, const PortFactsTable& kb)
     }
     return o;
 }
+
+template < typename F >
+struct r
+{
+    r(const std::string& name, F func)
+        : name(name), func(func)
+    {}
+
+    std::string name;
+    F func;
+};
 
 template < typename F >
 struct f
@@ -131,6 +153,14 @@ struct u
 
     std::string name;
     F func;
+};
+
+template < typename X >
+struct AddRess
+{
+    AddRess(X kb) : kb(kb) {}
+
+    X kb;
 };
 
 template < typename X >
@@ -367,6 +397,9 @@ public:
      */
     ResourcesExtended extendResources(const std::string& resources) const;
 
+    void addRes(const std::string& name, const ResFct& res)
+    { ress().add(name, res); }
+
     /**
      * @brief Add a fac into the facts tables.
      * @param name
@@ -378,6 +411,17 @@ public:
     void addPortFact(const std::string& name, const PortFact& fact)
     { portfacts().add(name, fact); }
 
+    std::string applyRes(const std::string& funcname,
+                         const std::string& activityname,
+                         const Activity& activity)
+    {
+        if  (ress().find(funcname) != ress().end()) {
+            return ress()[funcname](activityname, activity);
+        } else {
+            return "";
+        }
+    }
+
     void applyFact(const std::string& name, const value::Value& value)
     {
         if  (facts().find(name) == facts().end()) {
@@ -386,7 +430,6 @@ public:
             facts()[name](value);
         }
     }
-
 
     Rule& addRule(const std::string& name)
     { return mPlan.rules().add(name); }
@@ -574,6 +617,9 @@ public:
     void clearLatestActivitiesLists()
     { mPlan.activities().clearLatestActivitiesLists(); }
 
+    const RessTable& ress() const
+    { return mRessTable; }
+
     /**
      * @brief Get the table of available facts.
      * @return Table of available facts.
@@ -612,6 +658,9 @@ public:
     const OutputFunctions& outputFunctions() const
     { return mOutFunctions; }
 
+    RessTable& ress()
+    { return mRessTable; }
+
     /**
      * @brief Get the table of available facts.
      * @return Table of available facts.
@@ -649,6 +698,18 @@ public:
      */
     UpdateFunctions& updateFunctions()
     { return mUpdateFunctions; }
+
+    template < typename X >
+        AddRess < X > addRess(X obj)
+        {
+            return AddRess < X >(obj);
+        }
+
+    template < typename X >
+        r < X > R(const std::string& name, X func)
+        {
+            return r < X >(name, func);
+        }
 
     template < typename X >
         AddFacts < X > addFacts(X obj)
@@ -765,6 +826,7 @@ private:
                         this decision knowledge base. */
 
     Resources mResources;
+    RessTable mRessTable;
     FactsTable mFactsTable;
     PortFactsTable mPortFactsTable;
     PredicatesTable mPredicatesTable;
@@ -775,6 +837,13 @@ private:
     static void unionLists(Activities::result_t& last,
                            Activities::result_t& recent);
 };
+
+template < typename X, typename F >
+AddRess < X > operator+=(AddRess < X > add, r < F > pred)
+{
+    add.kb->ress().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
+    return add;
+}
 
 template < typename X, typename F >
 AddFacts < X > operator+=(AddFacts < X > add, f < F > pred)
@@ -789,6 +858,13 @@ AddPortFacts < X > operator+=(AddPortFacts < X > add, f < PF > pred)
 {
     add.kb->portfacts().add(pred.name, std::bind(pred.func, add.kb,
                         std::placeholders::_1, std::placeholders::_2));
+    return add;
+}
+
+template < typename X, typename F >
+AddRess < X > operator,(AddRess < X > add, f < F > pred)
+{
+    add.kb->ress().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
     return add;
 }
 

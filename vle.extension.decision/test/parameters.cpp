@@ -48,10 +48,16 @@ public:
     KnowledgeBase(vle::utils::ContextPtr ctxp)
         : vmd::KnowledgeBase(ctxp), today(0), yesterday(0)
     {
+        addRess(this) +=
+            R("computeResource", &KnowledgeBase::resFunc);
+
         addPortFact("today", boost::bind(&vmd::ex::KnowledgeBase::date, this, _1, _2));
 
         addPredicates(this) +=
             P("predUsingPlanTimeStamp", &KnowledgeBase::predUsingPlanTimeStamp);
+
+        addResources("Farmer", "Bob");
+        addResources("Farmer", "Bill");
     }
 
     virtual ~KnowledgeBase() {}
@@ -73,6 +79,12 @@ public:
             } else {
                 return false;
             }
+    }
+
+    std::string resFunc(const std::string& /*name*/,
+                        const Activity& /*activity*/) const
+    {
+        return "Farmer";
     }
 
     double today, yesterday;
@@ -182,6 +194,58 @@ const char* Plan2 = \
 "\n"
 "}\n";
 
+const char* Plan3 = \
+"# This file is a part of the VLE environment # http://www.vle-project.org\n"
+"# Copyright (C) 2016 INRA http://www.inra.fr\n"
+"#\n"
+"# This program is free software: you can redistribute it and/or modify\n"
+"# it under the terms of the GNU General Public License as published by\n"
+"# the Free Software Foundation, either version 3 of the License, or\n"
+"# (at your option) any later version.\n"
+"#\n"
+"# This program is distributed in the hope that it will be useful,\n"
+"# but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"# GNU General Public License for more details.\n"
+"#\n"
+"# You should have received a copy of the GNU General Public License\n"
+"# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+"\n"
+"\n"
+"predicates { #Predicates list. \n"
+"	predicate {\n"
+"		id = \"p_P\";\n"
+"		type = \"predUsingPlanTimeStamp\";\n"
+"		parameter {\n"
+"			dayThreshold = 3.0;\n"
+"			planTimeStamp = 0.0;\n"
+"		}\n"
+"	}\n"
+"}\n"
+"\n"
+"rules { # listes des règles.\n"
+"    rule { # définition de la rèle `rule 1'.\n"
+"        id = \"rule 1\";\n"
+"        predicates = \"p_P\"; # sa liste de prédicats.\n"
+"    }\n"
+"}\n"
+"\n"
+"activities {\n"
+"    activity {\n"
+"        id = \"activity1\";\n"
+"        rules = \"rule 1\";\n"
+"        temporal {\n"
+"            start = 0;\n"
+"            finish = 101;\n"
+"        }\n"
+"        parameter {\n"
+"            resourceFunc = \"computeResource\";\n"
+"        }\n"
+"    }\n"
+"}\n"
+"\n"
+"}\n";
+
 }}}} // namespace vle ext decision ex
 
 void test_planTimeStamp()
@@ -245,10 +309,35 @@ void test_neverFail()
     }
 }
 
+void test_resourceFunc()
+{
+    vle::Init app;
+    {
+        vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+        vmd::ex::KnowledgeBase b(ctxp);
+        b.plan().fill(std::string(vmd::ex::Plan3), 7);
+
+        const vmd::Activity& act1 = b.activities().get("activity1")->second;
+        b.applyFact("today", vle::value::Double(7));
+        b.processChanges(0.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+        b.applyFact("today", vle::value::Double(8));
+        b.processChanges(1.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+        b.applyFact("today", vle::value::Double(9));
+        b.processChanges(2.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+        b.applyFact("today", vle::value::Double(10));
+        b.processChanges(3.0);
+        EnsuresEqual(act1.isInStartedState(), true);
+    }
+}
+
 int main()
 {
     test_planTimeStamp();
     test_neverFail();
+    test_resourceFunc();
 
     return unit_test::report_errors();
 }
