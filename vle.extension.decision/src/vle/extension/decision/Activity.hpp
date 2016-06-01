@@ -117,7 +117,7 @@ private:
     container_type m_lst;
 };
 
-typedef std::list < std::string > ResourceSolution;
+typedef std::vector < std::string > ResourceSolution;
 typedef std::list < ResourceSolution > ResourcesExtended;
 
 class Activity
@@ -275,6 +275,10 @@ public:
 
     void takeRessources()
     { m_hasRessources = true; }
+
+    void freeRessources()
+    { m_hasRessources = false; }
+
     //
     //
     //

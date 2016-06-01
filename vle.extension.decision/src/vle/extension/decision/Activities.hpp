@@ -37,6 +37,8 @@
 
 namespace vle { namespace extension { namespace decision {
 
+class KnowledgeBase;
+
 class Activities
 {
 public:
@@ -55,8 +57,8 @@ public:
      */
     typedef std::pair < bool, devs::Time > Result;
 
-    Activities()
-        : mPriorityIncrement(0.)
+    Activities(KnowledgeBase& kb)
+        : mKb(kb), mPriorityIncrement(0.)
     {}
 
     /**
@@ -279,6 +281,10 @@ public:
     }
 
     /**
+     */
+    ResourceSolution firstResources(const std::string& resources) const;
+
+    /**
      * @brief try to assign resources for a list of activities
      * @param activities the list of activities
      */
@@ -345,6 +351,7 @@ public:
     }
 
 private:
+    KnowledgeBase& mKb;
     double mPriorityIncrement;
 
     activities_t     m_lst;

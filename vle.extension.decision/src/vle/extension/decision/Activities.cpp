@@ -27,12 +27,16 @@
 
 
 #include <vle/extension/decision/Activities.hpp>
+#include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/i18n.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <numeric>
 #include <iostream>
 #include <algorithm>
 
+using boost::lexical_cast;
 
 namespace vle { namespace extension { namespace decision {
 
@@ -412,6 +416,133 @@ struct compareByPriority {
                 j->second.getPriority());}
 } byPriority;
 
+ResourceSolution Activities::firstResources(const std::string& resources) const
+{
+    ResourceSolution solution;
+
+    std::vector<std::string> resourcesAlt;
+
+    boost::split(resourcesAlt, resources, boost::is_any_of("|"));
+
+    for (unsigned i=0; i < resourcesAlt.size(); i++) {
+
+        boost::trim(resourcesAlt[i]);
+
+        std::vector<std::string> strs;
+
+        boost::split(strs, resourcesAlt[i], boost::is_any_of("+"));
+
+        for (uint j = 0; j < strs.size(); j++) {
+            boost::trim(strs[j]);
+            std::string toEx = strs[j];
+            size_t n = std::count(toEx.begin(), toEx.end(), '.');
+            if ( n !=0 ) {
+                if ( n > 1 ) {
+                    throw utils::ArgError(fmt(
+   _("Decision: resource syntax error, only single dot allowed: ")) % strs[j]);
+                } else {
+                    std::size_t pos = toEx.find(".");
+                    std::string resQ = toEx.substr(0, pos);
+                    boost::trim(resQ);
+                    std::string resI = toEx.substr(pos + 1);
+                    boost::trim(resI);
+                    int iterResQ = lexical_cast<int>(resI);
+                    if (iterResQ < 2) {
+                        throw utils::ArgError(fmt(
+   _("Decision: resource syntax error, resource quantity < 2:  '%1%'")) %  toEx);
+                    }
+                    strs.at(j) = resQ;
+                    for (int k = 1; k < iterResQ; k++) {
+                        strs.insert(strs.begin() + j, resQ);
+                    }
+                }
+            }
+        }
+
+        std::vector<std::string> strsUniq = strs;
+        std::vector<std::string>::iterator it,jt;
+        std::sort(strsUniq.begin(), strsUniq.end());
+        it = std::unique (strsUniq.begin(), strsUniq.end());
+        strsUniq.resize(std::distance(strsUniq.begin(),it));
+        for (jt = strsUniq.begin(); jt != strsUniq.end(); jt++) {
+            if (count(strs.begin(), strs.end(), *jt) > mKb.getResourceQuantity(*jt)){
+                throw utils::ArgError(fmt(
+   _("Decision: resource syntax error, more ressources wanted than available: '%1%'")) % *jt);
+            }
+        }
+
+        std::vector< std::vector< std::string > > resourceSet;
+        std::vector< std::vector< std::string >::const_iterator > resourceSetIter;
+
+        for (uint j=0; j < strs.size(); j++) {
+            boost::trim(strs[j]);
+            resourceSet.push_back(mKb.getResources(strs[j]));
+        }
+
+        for (uint j=0; j < strs.size(); j++) {
+            resourceSetIter.push_back(resourceSet[j].begin());
+        }
+
+        bool explorationEnd = true;
+        for (uint j = 0; j < strs.size(); j++) {
+            if (not (resourceSetIter[j] ==  resourceSet[j].end())) {
+                explorationEnd = false;
+                break;
+            }
+        }
+
+        while (not explorationEnd) {
+            ResourceAvailability localA = mResourceAvailability;
+
+            for (uint j=0; j < strs.size(); j++) {
+
+                while (not (resourceSetIter[j] == resourceSet[j].end()) and
+                       not localA.at(*resourceSetIter[j]))
+                {
+                    localA[*resourceSetIter[j]] = false;
+                    resourceSetIter[j]++;
+                }
+
+                if (not (resourceSetIter[j] == resourceSet[j].end())) {
+                    localA[*resourceSetIter[j]] = false;
+                }
+
+                if (resourceSetIter[j] == resourceSet[j].end()){
+                    break;
+                }
+            }
+
+            bool solutionFound = true;
+            for (uint j = 0; j < strs.size(); j++) {
+                if (not (resourceSetIter[j] == resourceSet[j].end()) and
+                    solutionFound == true) {
+                    solutionFound = true;
+                } else {
+                    solutionFound = false;
+                    break;
+                }
+            }
+
+            if (solutionFound) {
+                for (uint j = 0; j < strs.size(); j++) {
+                    solution.push_back(*resourceSetIter[j]);
+                }
+                return solution;
+            }
+
+            explorationEnd = true;
+
+            for (uint j = 0; j < strs.size(); j++) {
+                if (not (resourceSetIter[j] == resourceSet[j].end())) {
+                    explorationEnd = false;
+                    break;
+                }
+            }
+        }
+    }
+    return solution;
+}
+
 void Activities::assignResources(result_t& activities)
 {
     std::random_shuffle(activities.begin(), activities.end());
@@ -420,15 +551,19 @@ void Activities::assignResources(result_t& activities)
 
     for (result_t::iterator activity = activities.begin();
          activity != activities.end(); ++activity) {
-        ResourcesExtended resources = (*activity)->second.getResources();
-        for (ResourcesExtended::const_iterator it = resources.begin();
-             it != resources.end(); it++) {
-            if (areRessourcesAvailable(*it)) {
-                getRessources((*activity)->first, *it);
-                (*activity)->second.takeRessources();
-                break;
-            }
+
+        ResourceSolution solution;
+        std::string resC;
+        if ((*activity)->second.params().exist("resources")) {
+            resC = (*activity)->second.params().getString("resources");
+            solution = firstResources(resC);
         }
+
+        if (not solution.empty()) {
+            getRessources((*activity)->first, solution);
+            (*activity)->second.takeRessources();
+        }
+
         if (not (*activity)->second.hasRessources()) {
             if ((*activity)->second.params().exist("priority")) {
                 double priority = (*activity)->second.getPriority() +

@@ -48,7 +48,7 @@ typedef utils::Block::Reals UBR;
 using boost::lexical_cast;
 
 Plan::Plan(KnowledgeBase& kb, const std::string& buffer)
-    : mKb(kb)
+    : mKb(kb), mActivities(kb)
 {
     try {
         std::istringstream in(buffer);
@@ -60,7 +60,7 @@ Plan::Plan(KnowledgeBase& kb, const std::string& buffer)
 }
 
 Plan::Plan(KnowledgeBase& kb, std::istream& stream)
-    : mKb(kb)
+    : mKb(kb), mActivities(kb)
 {
     try {
         utils::Parser parser(stream);
@@ -413,14 +413,6 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                 TraceModel(vle::fmt("    - %1%") % it->first);
 
             std::string resources;
-            try {
-                resources = act.params().getString("resources");
-            } catch(const std::exception& e) {
-            }
-            if (not resources.empty()) {
-                act.addResources(mKb.extendResources(resources));
-            }
-            resources.clear();
             std::string resourceFunc;
             try {
                 resourceFunc = act.params().getString("resourceFunc");
@@ -431,7 +423,8 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                                          id.first->second + suffixe, act);
             }
             if (not resources.empty()) {
-                act.addResources(mKb.extendResources(resources));
+                act.getParams().addString("resources", resources);
+                act.freeRessources();
             }
 
             try {
@@ -448,12 +441,6 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
 
             } catch(const std::exception& e) {
             }
-            // try {
-            //     if (act.params().exist("planTimeStamp")) {
-            //         act.getParams().resetDouble("priority", loadTime);
-            //     }
-            // } catch(const std::exception& e) {
-            // }
         }
     }
 }

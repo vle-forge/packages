@@ -53,7 +53,7 @@ class Plan
 
 public:
     Plan(KnowledgeBase& kb)
-        : mKb(kb)
+        : mKb(kb), mActivities(kb)
     {}
     /**
      * @brief Plan constructor

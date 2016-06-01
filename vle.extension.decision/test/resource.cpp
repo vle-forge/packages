@@ -69,8 +69,11 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
             addResources("Farmer", "Bob");
 
-            A.addResources(extendResources("Farmer"));
-            B.addResources(extendResources("Farmer"));
+            A.getParams().addString("resources", "Farmer");
+            B.getParams().addString("resources", "Farmer");
+
+            A.freeRessources();
+            B.freeRessources();
 
         }
 
@@ -87,8 +90,11 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
             addResources("Farmer", "Bob");
 
-            A.addResources(extendResources("Farmer"));
-            B.addResources(extendResources("Farmer"));
+            A.getParams().addString("resources", "Farmer");
+            B.getParams().addString("resources", "Farmer");
+
+            A.freeRessources();
+            B.freeRessources();
 
             B.setPriority(1.);
         }
@@ -106,9 +112,11 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
             addResources("Farmer", "Bob");
 
-            A.addResources(extendResources("Bob"));
-            B.addResources(extendResources("Bob"));
+            A.getParams().addString("resources", "Farmer");
+            B.getParams().addString("resources", "Farmer");
 
+            A.freeRessources();
+            B.freeRessources();
         }
 
         virtual ~Resourcetest_2() {}
@@ -127,10 +135,13 @@ namespace vle { namespace extension { namespace decision { namespace ex {
             addResources("Farmer", "Bill");
             addResources("Worker", "Tim");
 
-            A.addResources(extendResources("Bob|Bill"));
-            B.addResources(extendResources("Bob|Bill"));
-            C.addResources(extendResources("Tim|Bob|Bill"));
+            A.getParams().addString("resources", "Bob|Bill");
+            B.getParams().addString("resources", "Bob|Bill");
+            C.getParams().addString("resources", "Tim|Bob|Bill");
 
+            A.freeRessources();
+            B.freeRessources();
+            C.freeRessources();
         }
 
         virtual ~Resourcetest_3() {}
@@ -152,10 +163,13 @@ namespace vle { namespace extension { namespace decision { namespace ex {
             addResources("Farmer", "Bill");
             addResources("Worker", "Tim");
 
-            A.addResources(extendResources(applyRes("resFunc_1","A",A)));
-            B.addResources(extendResources(applyRes("resFunc_1","B",B)));
-            C.addResources(extendResources(applyRes("resFunc_2","C",C)));
+            A.getParams().addString("resources", applyRes("resFunc_1","A",A));
+            B.getParams().addString("resources", applyRes("resFunc_1","B",B));
+            C.getParams().addString("resources", applyRes("resFunc_2","C",C));
 
+            A.freeRessources();
+            B.freeRessources();
+            C.freeRessources();
         }
 
         virtual ~Resourcetest_4() {}
