@@ -48,7 +48,7 @@ typedef utils::Block::Reals UBR;
 using boost::lexical_cast;
 
 Plan::Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, const std::string& buffer)
-    : ctx(ctxp), mKb(kb)
+    : ctx(ctxp), mKb(kb), mActivities(kb)
 {
     try {
         std::istringstream in(buffer);
@@ -61,7 +61,7 @@ Plan::Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, const std::string& buffer)
 }
 
 Plan::Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, std::istream& stream)
-    : ctx(ctxp), mKb(kb)
+    : ctx(ctxp), mKb(kb), mActivities(kb)
 {
     try {
         utils::Parser parser(stream);
@@ -426,14 +426,6 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                 Trace(ctx, 6, "    - %s", (it->first).c_str());
 
             std::string resources;
-            try {
-                resources = act.params().getString("resources");
-            } catch(const std::exception& e) {
-            }
-            if (not resources.empty()) {
-                act.addResources(mKb.extendResources(resources));
-            }
-            resources.clear();
             std::string resourceFunc;
             try {
                 resourceFunc = act.params().getString("resourceFunc");
@@ -444,7 +436,8 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                                          id.first->second + suffixe, act);
             }
             if (not resources.empty()) {
-                act.addResources(mKb.extendResources(resources));
+                act.getParams().addString("resources", resources);
+                act.freeRessources();
             }
 
             try {
@@ -461,12 +454,6 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
 
             } catch(const std::exception& e) {
             }
-            // try {
-            //     if (act.params().exist("planTimeStamp")) {
-            //         act.getParams().resetDouble("priority", loadTime);
-            //     }
-            // } catch(const std::exception& e) {
-            // }
         }
     }
 }

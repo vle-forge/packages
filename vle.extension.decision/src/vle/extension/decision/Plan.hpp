@@ -53,8 +53,9 @@ class Plan
     typedef std::pair<bool, devs::Time> DateResult;
 
 public:
+
     Plan(utils::ContextPtr ctxp, KnowledgeBase& kb)
-        :  ctx(ctxp), mKb(kb)
+        : ctx(ctxp), mKb(kb), mActivities(kb)
     {}
     /**
      * @brief Plan constructor

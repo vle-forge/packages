@@ -256,7 +256,7 @@ public:
     void addResources(const std::string& name)
     {
         if (not resourceTypeExist(name)) {
-            mResources.insert(Resource(name, name));
+            mResources[name].insert(name);
             mPlan.activities().setResourceAvailable(name);
         } else {
             throw utils::ModellingError(
@@ -275,13 +275,13 @@ public:
     void addResources(const std::string& type, const std::string& name)
     {
         if (not resourceTypeExist(name)) {
-            mResources.insert(Resource(name, name));
+            mResources[name].insert(name);
             mPlan.activities().setResourceAvailable(name);
         }
 
         std::string resource = type + "&" + name;
         if (not resourceTypeExist(resource)) {
-            mResources.insert(Resource(type, name));
+            mResources[type].insert(name);
             mPlan.activities().setResourceAvailable(name);
         } else {
             throw utils::ModellingError(
@@ -303,28 +303,28 @@ public:
         } else {
             std::vector<std::string> strs;
             boost::split(strs, type , boost::is_any_of("&"));
-            std::vector<std::string> allResources;
-            ResourceSolution Resources;
-            for (unsigned i = 0; i < strs.size(); i++) {
-                ResourcesConstIteratorPair pit;
-                pit = mResources.equal_range(strs[i]);
-                for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
-                {
-                    allResources.push_back((*it).second);
-                }
+
+            Resources::const_iterator its = mResources.find(strs[0]);
+
+            if ( its == mResources.end() ) {
+                return false;
             }
-            std::vector<std::string> resourceUniq = allResources;
-            std::vector<std::string>::iterator it,jt;
-            std::sort(resourceUniq.begin(), resourceUniq.end());
-            it = std::unique (resourceUniq.begin(), resourceUniq.end());
-            resourceUniq.resize(std::distance(resourceUniq.begin(),it));
-            for (jt = resourceUniq.begin(); jt != resourceUniq.end(); jt++) {
-                if (count(allResources.begin(), allResources.end(), *jt) ==
-                    (int)strs.size()) {
-                    return true;
+
+            std::vector< std::string > result (its->second.begin(),
+                                               its->second.end());
+            std::vector< std::string > buffer;
+            for (unsigned i = 1; i < strs.size(); i++) {
+                buffer.clear();
+                its = mResources.find(strs[i]);
+                std::set_intersection(result.begin(), result.end(),
+                                      its->second.begin(), its->second.end(),
+                                      std::back_inserter(buffer));
+                if (buffer.empty()) {
+                    return false;
                 }
+                swap(result, buffer);
             }
-            return false;
+            return true;
         }
     }
 
@@ -339,37 +339,32 @@ public:
 
         size_t n = std::count(type.begin(), type.end(), '&');
         if ( n == 0 ) {
-            ResourcesConstIteratorPair pit;
+            Resources::const_iterator pit;
 
-            pit = mResources.equal_range(type);
-            for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
-            {
-                resources.push_back((*it).second);
-            }
+            pit = mResources.find(type);
+
+            resources = std::vector< std::string > (pit->second.begin(),
+                                                    pit->second.end());
+
         } else {
             std::vector<std::string> strs;
-             boost::split(strs, type , boost::is_any_of("&"));
-             std::vector<std::string> allResources;
-
-             for (unsigned i = 0; i < strs.size(); i++) {
-                 ResourcesConstIteratorPair pit;
-                 pit = mResources.equal_range(strs[i]);
-                 for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
-                 {
-                     allResources.push_back((*it).second);
-                 }
-             }
-             std::vector<std::string> resourceUniq = allResources;
-             std::vector<std::string>::iterator it,jt;
-             std::sort(resourceUniq.begin(), resourceUniq.end());
-             it = std::unique(resourceUniq.begin(), resourceUniq.end());
-             resourceUniq.resize(std::distance(resourceUniq.begin(),it));
-             for (jt = resourceUniq.begin(); jt != resourceUniq.end(); jt++) {
-                 if (count(allResources.begin(), allResources.end(), *jt) ==
-                     (int)strs.size()) {
-                     resources.push_back(*jt);
-                 }
-             }
+            boost::split(strs, type , boost::is_any_of("&"));
+            Resources::const_iterator its = mResources.find(strs[0]);
+            std::vector< std::string > result(its->second.begin(),
+                                              its->second.end());
+            std::vector< std::string > buffer;
+            for (unsigned i = 1; i < strs.size(); i++) {
+                buffer.clear();
+                its = mResources.find(strs[i]);
+                std::set_intersection(result.begin(), result.end(),
+                                      its->second.begin(), its->second.end(),
+                                      std::back_inserter(buffer));
+                if (buffer.empty()) {
+                    return resources;
+                }
+                swap(result, buffer);
+            }
+            resources = result;
         }
         return resources;
     }
@@ -384,18 +379,6 @@ public:
     {
         return getResources(type).size();
     }
-
-    /**
-     * @brief from the string describing the alternatives of needed
-     * ressources, to the list of all the solutions.
-     * @param the string conatining the query, for example:
-     * "farmWorker&skilledWorker +  newTractor | farmWorker.2 +
-     * oldTractor.2"
-     * returns a list of list of resources, example:
-     * { {"Bob", "Bill", "tractorBlue"}, {"Phil", "Pat",
-     * "tractorBlue"}, { "Bob", "Bill", "tractorRed", "tractorGreen"}
-     */
-    ResourcesExtended extendResources(const std::string& resources) const;
 
     void addRes(const std::string& name, const ResFct& res)
     { ress().add(name, res); }
