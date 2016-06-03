@@ -427,9 +427,8 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
 
             std::string resources;
             std::string resourceFunc;
-            try {
+            if (act.params().exist("resourceFunc")) {
                 resourceFunc = act.params().getString("resourceFunc");
-            } catch(const std::exception& e) {
             }
             if (not resourceFunc.empty()) {
                 resources = mKb.applyRes(resourceFunc,
@@ -437,22 +436,19 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
             }
             if (not resources.empty()) {
                 act.getParams().addString("resources", resources);
+                act.getParams().sort();
                 act.freeRessources();
             }
-
-            try {
+            if (act.params().exist("priority")) {
                 double loadedPriority = act.params().getDouble("priority");
                 act.getParams().resetDouble("priority", loadedPriority + addPriority);
                 act.setPriority(loadedPriority + addPriority);
-            } catch(const std::exception& e) {
             }
-            try {
+            if (act.params().exist("neverfail")) {
                 double neverfail = act.params().getDouble("neverfail");
                 if (neverfail == 1) {
                     act.neverFail();
                 }
-
-            } catch(const std::exception& e) {
             }
         }
     }
