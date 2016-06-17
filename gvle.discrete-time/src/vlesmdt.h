@@ -40,6 +40,8 @@
 #include <vle/value/Map.hpp>
 #include <vle/gvle/vleDomDiffStack.h>
 
+namespace vv = vle::value;
+
 namespace vle {
 namespace gvle {
 
@@ -73,21 +75,181 @@ public:
     void xCreateDom();
     void xReadDom();
     QString getSrcPlugin();
+     /**
+     * @brief add a simple variable without history to the model
+     * @param variableName is the name of the variable
+     * @note if the variable already exist, nothing is done
+     * By default all the ports are provided to the conditions
+     * And by default the is initial value is 0.0 and is not hardcode
+     */
     void addVariableToDoc(const QString& variableName);
+     /**
+     * @brief set the initial value in the definition element
+     * @param variableName is the name of the variable
+     * @param val the value can be a double or a tuple
+     * @param snap to manage if a snapshot is expected ore not
+     */
+    void setInitialDefValue(const QString& variableName,
+			    const vv::Value& val,
+			    const bool snap = true);
+    /**
+     * @brief set the initial value in the configuration element
+     * @param variableName is the name of the variable
+     * @param val the value can be a double or a tuple
+     * @param snap to manage if a snapshot is expected ore not
+     */
+    void setInitialCondValue(const QString& variableName,
+			     const vv::Value& val,
+			     const bool snap = true);
+    /**
+     * @brief set the initial value
+     * @param variableName is the name of the variable
+     * @param val the value can be a double or a tuple
+     * @param snap to manage if a snapshot is expected ore not
+     * @nore check whether it should be in the definition or
+     * in the configuration
+     */
     void setInitialValue(const QString& variableName,
-            const vle::value::Value& val);
-    void setPortCondValue(const QString& variableName,
-            const vle::value::Value& val);
-    vle::value::Value* getInitialValue(const QString& variableName);
-    void rmInitialValue(const QString& variableName);
+			 const vv::Value& val,
+			 const bool snap = true);
+     /**
+     * @brief set the time step condition in the configuration element
+     * @param val the value of the time step
+     */
+    void setTimeStep(vv::Double& val);
+     /**
+     * @brief remove the time step condition
+     */
+    void UnSetTimeStep();
+     /**
+     * @brief return the time step set in the condition
+     * @return the time step
+     */
+    double getTimeStep();
+     /**
+     * @brief check if a time step is available as condition
+     * @return true if a time step is set
+     */
+    bool hasTimeStep();
+     /**
+     * @brief set the history size of a variable in the definition element
+     * @param variableName is the name of the variable
+     * @param val the value of the history size
+     * @param snap to manage if a snapshot is expected ore not
+     */
+    void setHistorySize(const QString& variableName,
+			const vv::Value& val,
+			const bool snap = true);
+     /**
+     * @brief set the history size and update the initial value
+     * @param variableName is the name of the variable
+     * @param histval the value of the history size
+     * @param snap to manage if a snapshot is expected ore not
+     * @note the structure depending of the context can change from double to
+     * tuple and when resizing already existing values are keeped
+     */
+    void setHistorySizeAndValue(const QString& variableName,
+				const vv::Value& histValue,
+				const bool snap = true);
+
+    /**
+     * @brief set the dimension of a variable in the definition element
+     * @param variableName is the name of the variable
+     * @param val the value of the dimension
+     * @param snap to manage if a snapshot is expected ore not
+     */
+    void setDim(const QString& variableName,
+		const vv::Value& val,
+		const bool snap = true);
+    /**
+     * @brief set the dimension  and update the initial value
+     * @param variableName is the name of the variable
+     * @param dimvalue the value of the dimension
+     * @param snap to manage if a snapshot is expected ore not
+     * @note the structure depending of the context can change from double to
+     * tuple and when resizing already existing values are keeped
+     */
+    void setDimAndValue(const QString& variableName,
+			const vv::Value& dimValue,
+			const bool snap = true);
+     /**
+     * @brief move the initial value from the definition element
+     * to the configuration or reverse
+     * @param variableName is the name of the variable
+     * @param parametrable if true the init is parametrable,
+     * if not it is harcoded
+     * @param snap to manage if a snapshot is expected ore not
+     */
+    void Parametrable(const QString& variableName,
+		      const bool parametrable,
+		      const bool snap = true);
+     /**
+     * @brief set the sync condition to the configuration
+     * @param variableName is the name of the variable
+     * @param val the value of the sync cond
+     */
+    void setSync(const QString& variableName,
+		 const vv::Value& val);
+
+    void setPortCondDoubleValue(const QString& variableName,
+				const vv::Value& val);
+    void setPortCondIntegerValue(const QString& variableName,
+				 const vv::Value& val);
+    void setPortCondBoolValue(const QString& variableName,
+			      const vv::Value& val);
+    void setPortCondTupleValue(const QString& portName,
+                               const vv::Value& val);
+    vv::Value* getInitialValue(const QString& variableName);
+    vv::Value* getHistorySize(const QString& variableName);
+    vv::Value* getDim(const QString& variableName);
+    vv::Value* getSync(const QString& variableName);
+     /**
+     * @brief rename everywhere the name of a avariable
+     * @param oldVariableName the previous name
+     * @param newVariableName the new one
+     */
     void renameVariableToDoc(const QString& oldVariableName,
-            const QString& newVariableName);
+			     const QString& newVariableName);
+     /**
+     * @brief provide a unique new variable name
+     * @note the new name
+     */
     QString newVarNameToDoc();
+    /**
+     * @brief check if a variable name is already used
+     * @param variableName the name of
+     * @return true if a variable already exist
+     */
     bool existVarToDoc(QString varName);
+    /**
+     * @brief remove a variable and all the related items
+     * @param variableName the name of
+     */
     void rmVariableToDoc(const QString& variableName);
+    void addInToDoc(const QString& variableName);
+    void rmInToDoc(const QString& variableName);
+    bool hasInFromDoc(const QString& variableName);
+    void addOutToDoc(const QString& variableName);
+    void rmOutToDoc(const QString& variableName);
+    bool hasOutFromDoc(const QString& variableName);
+    void addObsToDoc(const QString& variableName);
+    void rmObsToDoc(const QString& variableName);
+    bool hasObsFromDoc(const QString& variableName);
+    /**
+     * @brief check if a variable is parametrable
+     * @param variableName the name of
+     * @note so far only simple double variable can be hardcoded
+     */
+    bool isParametrable(const QString& variableName);
 
     void setComputeToDoc(const QString& computeBody);
     QString getComputeBody();
+    void setConstructorToDoc(const QString& computeBody);
+    QString getConstructorBody();
+    void setIncludesToDoc(const QString& computeBody);
+    QString getIncludesBody();
+    void setUserSectionToDoc(const QString& computeBody);
+    QString getUserSectionBody();
     void setClassNameToDoc(const QString& className);
     QString getClassName();
     void setNamespaceToDoc(const QString& nm);
@@ -97,6 +259,7 @@ public:
 
     void setCurrentTab(QString tabName);
 
+    void provideCpp();
     void save();
 
     void undo();
@@ -109,18 +272,6 @@ public:
 
     QDomDocument& getDomDoc()
     { return *mDocSm; }
-
-    /**
-     * @brief create a <dynamic> tag
-     * whith dyn, attribute 'name'  set to dyn
-     */
-    QDomElement createDynamic();
-    QDomElement createObservable();
-    QDomElement createCondition();
-    QDomElement createIn();
-    QDomElement createOut();
-
-
 
 private:
     QDomNode nodeVariable(const QString& varName);

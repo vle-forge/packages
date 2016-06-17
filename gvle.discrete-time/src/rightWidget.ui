@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>448</width>
-    <height>593</height>
+    <width>474</width>
+    <height>506</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,14 +16,7 @@
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Variables configuration</string>
-     </property>
-    </widget>
-   </item>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
@@ -33,60 +26,102 @@
       <property name="contextMenuPolicy">
        <enum>Qt::CustomContextMenu</enum>
       </property>
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="toolTipDuration">
+       <number>-1</number>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+       <bool>true</bool>
+      </attribute>
       <column>
        <property name="text">
-        <string>Name</string>
+        <string comment="The variable name" extracomment="The variable name">Name</string>
+       </property>
+       <property name="toolTip">
+        <string>name of the variable</string>
+       </property>
+       <property name="whatsThis">
+        <string/>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Type</string>
+        <string>Dim</string>
+       </property>
+       <property name="toolTip">
+        <string>dimension of the variable</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Size</string>
+       </property>
+       <property name="toolTip">
+        <string>size of the history</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Sync</string>
+       </property>
+       <property name="toolTip">
+        <string>manage synchronization</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>In</string>
+       </property>
+       <property name="toolTip">
+        <string>input port</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Out</string>
+       </property>
+       <property name="toolTip">
+        <string>output port</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Obs</string>
+       </property>
+       <property name="toolTip">
+        <string>observable port</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Param</string>
+       </property>
+       <property name="toolTip">
+        <string>configurable initialization value</string>
        </property>
       </column>
      </widget>
-     <widget class="QStackedWidget" name="stackConfig">
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <widget class="QWidget" name="PageNull"/>
-      <widget class="QWidget" name="configVars">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QLabel" name="varLabel">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="params">
-          <item>
-           <widget class="QCheckBox" name="allowInitialValue">
-            <property name="text">
-             <string>initial value</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="initialValue">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="minimum">
-             <double>-10000.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>100000.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="varLabel">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="vlInitialValue"/>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

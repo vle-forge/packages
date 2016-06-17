@@ -30,7 +30,17 @@
 
 #include <vle/utils/Template.hpp>
 #include <vle/value/Double.hpp>
+#include <vle/value/Boolean.hpp>
+#include <vle/value/Integer.hpp>
+#include <vle/value/String.hpp>
+#include <vle/value/Tuple.hpp>
+#include <vle/value/Map.hpp>
+#include <vle/value/Matrix.hpp>
+#include <vle/gvle/vlevpz.h>
+
 #include "vlesmdt.h"
+
+namespace vv = vle::value;
 
 namespace vle {
 namespace gvle {
@@ -50,7 +60,12 @@ QString
 vleDomSmDT::getXQuery(QDomNode node)
 {
     QString name = node.nodeName();
-    if ((name == "compute") or
+    if ((name == "definition") or
+        (name == "configuration") or
+        (name == "compute") or
+        (name == "constructor") or
+        (name == "usersection") or
+        (name == "includes") or
         (name == "variables") or
         (name == "srcPlugin") or
         (name == "dynamic") or
@@ -107,8 +122,13 @@ vleDomSmDT::getNodeFromXQuery(const QString& query,
     }
 
     //handle recursion with uniq node
-    if ((curr == "variables") or
+    if ((curr == "definition") or
+        (curr == "configuration") or
+        (curr == "variables") or
         (curr == "compute") or
+        (curr == "constructor") or
+        (curr == "usersection") or
+        (curr == "includes") or
         (curr == "srcPlugin") or
         (curr == "dynamic") or
         (curr == "observable") or
@@ -184,28 +204,40 @@ vleSmDT::xCreateDom()
         mDocSm->appendChild(pi);
 
         QDomElement vpmRoot = mDocSm->createElement("vle_project_metadata");
-        // Save VPZ file revision
         vpmRoot.setAttribute("version", "1.x");
-        // Save the author name (if known)
         vpmRoot.setAttribute("author", "meto");
-        QDomElement xCondPlug = mDocSm->createElement("variables");
-        vpmRoot.appendChild(xCondPlug);
-        xCondPlug = mDocSm->createElement("compute");
-        vpmRoot.appendChild(xCondPlug);
-        xCondPlug = mDocSm->createElement("srcPlugin");
-        xCondPlug.setAttribute("name", mpluginName);
-        vpmRoot.appendChild(xCondPlug);
 
-        QDomElement elem =  createDynamic();
-        vpmRoot.appendChild(elem);
-        elem = createObservable();
-        vpmRoot.appendChild(elem);
-        elem = createCondition();
-        vpmRoot.appendChild(elem);
-        elem = createIn();
-        vpmRoot.appendChild(elem);
-        elem = createOut();
-        vpmRoot.appendChild(elem);
+        QDomElement xPlug = mDocSm->createElement("srcPlugin");
+        xPlug.setAttribute("name", mpluginName);
+        vpmRoot.appendChild(xPlug);
+
+        QDomElement xElem;
+
+        QDomElement xDefModel = mDocSm->createElement("definition");
+        xElem = mDocSm->createElement("variables");
+        xDefModel.appendChild(xElem);
+        xElem = mDocSm->createElement("compute");
+        xDefModel.appendChild(xElem);
+        xElem = mDocSm->createElement("constructor");
+        xDefModel.appendChild(xElem);
+        xElem = mDocSm->createElement("usersection");
+        xDefModel.appendChild(xElem);
+        xElem = mDocSm->createElement("includes");
+        xDefModel.appendChild(xElem);
+        vpmRoot.appendChild(xDefModel);
+
+        QDomElement xConfModel = mDocSm->createElement("configuration");
+        xElem = getDomDoc().createElement("dynamic");
+        xConfModel.appendChild(xElem);
+        xElem = getDomDoc().createElement("observable");
+        xConfModel.appendChild(xElem);
+        xElem = getDomDoc().createElement("condition");
+        xConfModel.appendChild(xElem);
+        xElem = getDomDoc().createElement("in");
+        xConfModel.appendChild(xElem);
+        xElem = getDomDoc().createElement("out");
+        xConfModel.appendChild(xElem);
+        vpmRoot.appendChild(xConfModel);
 
         mDocSm->appendChild(vpmRoot);
     }
@@ -237,6 +269,9 @@ vleSmDT::addVariableToDoc(const QString& varName)
     el.setAttribute("name", varName);
     variablesNode.appendChild(el);
 
+    setHistorySize(varName, vv::Integer(0), false);
+    setDim(varName, vv::Integer(1), false);
+
     QDomNode obsNode =
         mDocSm->elementsByTagName("observable").item(0);
     el = mDocSm->createElement("port");
@@ -248,8 +283,12 @@ vleSmDT::addVariableToDoc(const QString& varName)
     el = mDocSm->createElement("port");
     el.setAttribute("name", "init_value_" + varName);
     condNode.appendChild(el);
+    el = mDocSm->createElement("port");
+    el.setAttribute("name", "sync_" + varName);
+    condNode.appendChild(el);
 
-    setPortCondValue("init_value_" + varName, vle::value::Double(0.0));
+    setPortCondDoubleValue("init_value_" + varName, vv::Double(0.0));
+    setPortCondIntegerValue("sync_" + varName, vv::Integer(0.0));
 
     QDomNode inNode =
         mDocSm->elementsByTagName("in").item(0);
@@ -263,90 +302,798 @@ vleSmDT::addVariableToDoc(const QString& varName)
     el.setAttribute("name", varName);
     outNode.appendChild(el);
 
+    emit modified();
 }
 
 void
-vleSmDT::setInitialValue(const QString& varName,
-        const vle::value::Value& val)
+vleSmDT::setInitialDefValue(const QString& varName,
+                            const vv::Value& val,
+                            const bool snap)
 {
     QDomNode var = nodeVariable(varName);
     if (var.isNull()) {
         return;
     }
-    undoStackSm->snapshot(var);
+
+    if (snap) {
+        undoStackSm->snapshot(var);
+    }
+
+
+    QDomNode nodeValue = mDocSm->createElement("initial_value");
+    QString tagName = "";
+    switch (val.getType()) {
+    case vv::Value::DOUBLE:
+        tagName = "double";
+        break;
+    case vv::Value::TUPLE:
+        tagName = "tuple";
+        break;
+    case vv::Value::MATRIX:
+        tagName = "matrix";
+        break;
+    case vv::Value::BOOLEAN:
+    case vv::Value::INTEGER:
+    case vv::Value::STRING:
+    case vv::Value::SET:
+    case vv::Value::MAP:
+    case vv::Value::TABLE:
+    case vv::Value::XMLTYPE:
+    case vv::Value::NIL:
+    case vv::Value::USER:
+        break;
+    }
+
     QDomNodeList initList = var.toElement().elementsByTagName("initial_value");
     if (initList.length() == 0) {
-        //TODO see vpz management of vle values
-        QDomElement dble = mDocSm->createElement("double");
-        dble.appendChild(mDocSm->createTextNode(
-                val.writeToString().c_str()));
-        QDomElement el = mDocSm->createElement("initial_value");
-        el.appendChild(dble);
-        var.appendChild(el);
+        QDomNode child = mDocSm->createElement(tagName);
+        vleVpz::fillWithValue(*mDocSm, mVdoSm, child, val);
+        nodeValue.appendChild(child);
+        var.appendChild(nodeValue);
     } else {
         QDomNode init_value = initList.at(0);
-        init_value = var.toElement().elementsByTagName("double").at(0);
-        if (init_value.nodeName() == "double") {
-            QDomText dbleval = init_value.childNodes().item(0).toText();
-            dbleval.setData(val.writeToString().c_str());
-        }
+        vleVpz::removeAllChilds(init_value);
+        QDomNode child = mDocSm->createElement(tagName);
+        vleVpz::fillWithValue(*mDocSm, mVdoSm, child, val);
+        init_value.appendChild(child);
+    }
+
+    if (snap) {
+        emit modified();
     }
 }
 
 void
-vleSmDT::setPortCondValue(const QString& portName,
-                          const vle::value::Value& val)
+vleSmDT::setInitialCondValue(const QString& varName,
+                             const vv::Value& val,
+                             const bool snap)
+{
+
+    QDomNode condNode = mDocSm->elementsByTagName("condition").item(0);
+
+    if (snap) {
+        undoStackSm->snapshot(condNode);
+    }
+
+    QDomNode var = nodeVariable(varName);
+    if (var.isNull()) {
+        return;
+    }
+
+    QDomNode nodeValue = mDocSm->createElement("initial_value");
+    QString tagName = "";
+    switch (val.getType()) {
+    case vv::Value::DOUBLE:
+        tagName = "double";
+        break;
+    case vv::Value::TUPLE:
+        tagName = "tuple";
+        break;
+    case vv::Value::MATRIX:
+        tagName = "matrix";
+        break;
+    case vv::Value::BOOLEAN:
+    case vv::Value::INTEGER:
+    case vv::Value::STRING:
+    case vv::Value::SET:
+    case vv::Value::MAP:
+    case vv::Value::TABLE:
+    case vv::Value::XMLTYPE:
+    case vv::Value::NIL:
+    case vv::Value::USER:
+        break;
+    }
+
+    QDomNode port = nodeCondPort("init_value_" + varName);
+    if (port.isNull()) {
+        QDomElement el = mDocSm->createElement("port");
+        el.setAttribute("name", "init_value_" + varName);
+        condNode.appendChild(el);
+        port = nodeCondPort("init_value_" + varName);
+    }
+
+    vleVpz::removeAllChilds(port);
+    QDomElement vale = mDocSm->createElement(tagName);
+    vleVpz::fillWithValue(*mDocSm, mVdoSm, vale, val);
+    port.appendChild(vale);
+
+     if (snap) {
+         emit modified();
+     }
+}
+
+void
+vleSmDT::setInitialValue(const QString& varName,
+                         const vv::Value& val,
+                         const bool snap)
+{
+    if (isParametrable(varName)) {
+        setInitialCondValue(varName, val, snap);
+    } else {
+        setInitialDefValue(varName, val, snap);
+    }
+}
+
+void
+vleSmDT::setTimeStep(vv::Double& val)
+{
+    QDomNode condNode =
+        mDocSm->elementsByTagName("condition").item(0);
+
+    undoStackSm->snapshot(condNode);
+
+    QDomNode port = nodeCondPort("time_step");
+    if (port.isNull()) {
+        QDomElement el = mDocSm->createElement("port");
+        el.setAttribute("name", "time_step");
+        condNode.appendChild(el);
+        port = nodeCondPort("time_step");
+    }
+
+    vleVpz::removeAllChilds(port);
+    QDomElement vale = mDocSm->createElement("double");
+    vleVpz::fillWithValue(*mDocSm, mVdoSm, vale, val);
+    port.appendChild(vale);
+
+    emit modified();
+}
+
+bool
+vleSmDT::hasTimeStep()
+{
+    return not nodeCondPort("time_step").isNull();
+}
+
+double
+vleSmDT::getTimeStep()
+{
+    QDomNode port = nodeCondPort("time_step");
+    if (port.isNull()) {
+        return 0;
+    }
+    QDomNode init_value = port.firstChildElement();
+    return vleVpz::buildValue(mVdoSm, init_value, false)->toDouble().value();
+}
+
+void
+vleSmDT::UnSetTimeStep()
+{
+    QDomNode condNode =
+        mDocSm->elementsByTagName("condition").item(0);
+
+    undoStackSm->snapshot(condNode);
+
+    QDomNode port = nodeCondPort("time_step");
+    if (port.isNull()) {
+        return;
+    }
+
+    condNode.removeChild(port);
+
+    emit modified();
+}
+
+void
+vleSmDT::setHistorySize(const QString& varName,
+                        const vv::Value& val,
+                        const bool snap)
+{
+    QDomNode var = nodeVariable(varName);
+    if (var.isNull()) {
+        return;
+    }
+
+    if (snap) {
+        undoStackSm->snapshot(var);
+    }
+
+    QDomNodeList initList = var.toElement().elementsByTagName("history_size");
+    if (initList.length() == 0) {
+        //TODO see vpz management of vle values
+        QDomElement dble = mDocSm->createElement("integer");
+        dble.appendChild(mDocSm->createTextNode(
+                val.writeToString().c_str()));
+        QDomElement el = mDocSm->createElement("history_size");
+        el.appendChild(dble);
+        var.appendChild(el);
+    } else {
+        QDomNode histNode = initList.at(0);
+        QDomNode histValue = histNode.toElement().elementsByTagName("integer").at(0);
+        if (histValue.nodeName() == "integer") {
+            QDomText dbleval = histValue.childNodes().item(0).toText();
+            dbleval.setData(val.writeToString().c_str());
+        }
+    }
+
+    if (snap) {
+        emit modified();
+    }
+}
+
+void
+vleSmDT::setHistorySizeAndValue(const QString& varName,
+                                const vv::Value& histValue,
+                                const bool snap)
+{
+    if (not isParametrable(varName)) {
+        QDomNode rootNode = mDocSm->documentElement();
+        if (snap) {
+            undoStackSm->snapshot(rootNode);
+        }
+        Parametrable(varName, true, false);
+    } else {
+        QDomNode condNode = mDocSm->elementsByTagName("condition").item(0);
+        if (snap) {
+            undoStackSm->snapshot(condNode);
+        }
+    }
+
+    setHistorySize(varName, histValue, false);
+    vv::Value* val = getInitialValue(varName);
+
+    int historySize =  getHistorySize(varName)->toInteger().value();
+    int dim =  getDim(varName)->toInteger().value();
+
+    if (dim == 1) { // history is not managed by conds for vectors
+        if (val) {
+            int lastFeed = 0;
+            if (historySize > 0) {
+                std::unique_ptr<vv::Value> history = vv::Tuple::create();
+                if (val->isDouble()) {
+                    history->toTuple().add(val->toDouble().value());
+                    lastFeed = 1;
+                } else {
+                    uint j = 0;
+                    while (lastFeed <= historySize &&
+                           j < val->toTuple().size()) {
+                        history->toTuple().add(val->toTuple()[j]);
+                        lastFeed++;
+                        j++;
+                    }
+                }
+                while (lastFeed <= historySize) {
+                    history->toTuple().add(0.0);
+                    lastFeed++;
+                }
+                setInitialValue(varName, *history, false);
+            } else {
+                if (val->isTuple()) {
+                    setInitialValue(varName,
+                                    vv::Double(val->toTuple()[0]),
+                                    false);
+                }
+            }
+        }
+    }
+    if (snap) {
+        emit modified();
+    }
+}
+
+void
+vleSmDT::setDim(const QString& varName,
+                const vv::Value& val,
+                const bool snap)
+{
+    QDomNode var = nodeVariable(varName);
+    if (var.isNull()) {
+        return;
+    }
+
+    if (snap) {
+        undoStackSm->snapshot(var);
+    }
+
+    QDomNodeList initList = var.toElement().elementsByTagName("dim");
+    if (initList.length() == 0) {
+        QDomElement dble = mDocSm->createElement("integer");
+        dble.appendChild(mDocSm->createTextNode(
+                val.writeToString().c_str()));
+        QDomElement el = mDocSm->createElement("dim");
+        el.appendChild(dble);
+        var.appendChild(el);
+    } else {
+        QDomNode dimNode = initList.at(0);
+        QDomNode dimValue= dimNode.toElement().elementsByTagName("integer").at(0);
+        if (dimValue.nodeName() == "integer") {
+            QDomText dbleval = dimValue.childNodes().item(0).toText();
+            dbleval.setData(val.writeToString().c_str());
+        }
+    }
+
+    if (snap) {
+        emit modified();
+    }
+}
+
+void
+vleSmDT::setDimAndValue(const QString& varName,
+                        const vv::Value& dimValue,
+                        const bool snap)
+{
+    if (not isParametrable(varName)) {
+        QDomNode rootNode = mDocSm->documentElement();
+        if (snap) {
+            undoStackSm->snapshot(rootNode);
+        }
+        Parametrable(varName, true, false);
+    } else {
+        QDomNode condNode = mDocSm->elementsByTagName("condition").item(0);
+        if (snap) {
+            undoStackSm->snapshot(condNode);
+        }
+    }
+
+    setDim(varName, dimValue, false);
+    vv::Value* val = getInitialValue(varName);
+
+    int historySize =  getHistorySize(varName)->toInteger().value();
+    int dim =  getDim(varName)->toInteger().value();
+    if (dim == 1) {
+        if (val) {
+            int lastFeed = 0;
+            if (historySize > 0) {
+                std::unique_ptr<vv::Value> init = vv::Tuple::create();
+                init->toTuple().add(val->toTuple()[0]);
+                lastFeed = 1;
+                while (lastFeed <= historySize) {
+                    init->toTuple().add(0.0);
+                    lastFeed++;
+                }
+                setInitialValue(varName, *init, false);
+            } else {
+                if (val->isTuple()) {
+                    setInitialValue(varName,
+                                    vv::Double(val->toTuple()[0]),
+                                    false);
+                }
+            }
+        }
+    } else {
+        if (val) {
+            int lastFeed = 0;
+            std::unique_ptr<vv::Value> init = vv::Tuple::create();
+            if (val->isDouble()) {
+                init->toTuple().add(val->toDouble().value());
+                lastFeed = 1;
+            } else {
+                uint j = 0;
+                while (lastFeed < dim &&
+                       j < val->toTuple().size()) {
+                    init->toTuple().add(val->toTuple()[j]);
+                    lastFeed++;
+                    j++;
+                }
+            }
+            while (lastFeed < dim) {
+                init->toTuple().add(0.0);
+                lastFeed++;
+            }
+            setInitialValue(varName, *init, false);
+        }
+    }
+
+    if (snap) {
+        emit modified();
+    }
+}
+
+void
+vleSmDT::Parametrable(const QString& variableName,
+                      const bool parametrable,
+		      const bool snap)
+{
+    vv::Value* val = vleSmDT::getInitialValue(variableName);
+
+    if ((getDim(variableName))->toInteger().value() > 1 or
+        (getHistorySize(variableName))->toInteger().value() > 1) {
+        return;
+    }
+
+    QDomNode rootNode = mDocSm->documentElement();
+    if (snap) {
+        undoStackSm->snapshot(rootNode);
+    }
+
+    if (parametrable) {
+        QDomNode var = nodeVariable(variableName);
+        QDomNodeList initList = var.toElement().elementsByTagName("initial_value");
+        if (not initList.length() == 0) {
+            QDomNode init_value = initList.at(0);
+            vleVpz::removeAllChilds(init_value);
+        }
+        setInitialCondValue(variableName, *val, false);
+    } else {
+        QDomNode condNode = mDocSm->elementsByTagName("condition").item(0);
+        QDomNode port = nodeCondPort("init_value_" + variableName);
+
+        condNode.removeChild(port);
+
+        setInitialDefValue(variableName, *val, false);
+    }
+
+    if (snap) {
+        emit modified();
+    }
+}
+
+void
+vleSmDT::setSync(const QString& variableName,
+		 const vv::Value& val)
+{
+    QDomNode port = nodeCondPort("sync_" + variableName);
+
+    undoStackSm->snapshot(port);
+
+    setPortCondIntegerValue("sync_" + variableName, val);
+}
+
+void
+vleSmDT::setPortCondTupleValue(const QString& portName,
+                               const vv::Value& val)
 {
     QDomNode port = nodeCondPort(portName);
     if (port.isNull()) {
         return;
     }
 
+    vleVpz::removeAllChilds(port);
+
+    QDomElement tple = mDocSm->createElement("tuple");
+    vleVpz::fillWithValue(*mDocSm, mVdoSm, tple, val);
+
+    port.appendChild(tple);
+
+    emit modified();
+}
+
+void
+vleSmDT::setPortCondDoubleValue(const QString& portName,
+                                const vv::Value& val)
+{
+    QDomNode port = nodeCondPort(portName);
+    if (port.isNull()) {
+        return;
+    }
+
+    vleVpz::removeAllChilds(port);
+
     QDomElement dble = mDocSm->createElement("double");
     dble.appendChild(mDocSm->createTextNode(
                          val.writeToString().c_str()));
     port.appendChild(dble);
+
+    emit modified();
 }
 
-vle::value::Value*
+void
+vleSmDT::setPortCondIntegerValue(const QString& portName,
+                                 const vv::Value& val)
+{
+    QDomNode port = nodeCondPort(portName);
+    if (port.isNull()) {
+        return;
+    }
+
+    vleVpz::removeAllChilds(port);
+
+    QDomElement dble = mDocSm->createElement("integer");
+    dble.appendChild(mDocSm->createTextNode(
+                         val.writeToString().c_str()));
+    port.appendChild(dble);
+
+    emit modified();
+}
+
+void
+vleSmDT::setPortCondBoolValue(const QString& portName,
+                              const vv::Value& val)
+{
+    QDomNode port = nodeCondPort(portName);
+    if (port.isNull()) {
+        return;
+    }
+
+    QDomElement dble = mDocSm->createElement("boolean");
+    dble.appendChild(mDocSm->createTextNode(
+                         val.writeToString().c_str()));
+    port.appendChild(dble);
+
+    emit modified();
+}
+
+vv::Value*
 vleSmDT::getInitialValue(const QString& varName)
 {
-    QStringList res;
+    if (isParametrable(varName)){
+        QDomNode port = nodeCondPort("init_value_" + varName);
+        if (port.isNull()) {
+            return 0;
+        }
+        QDomNode init_value = port.firstChildElement();
+        return vleVpz::buildValue(mVdoSm, init_value, false);
+    } else {
+        QDomNode var = nodeVariable(varName);
+        if (var.isNull()) {
+            return 0;
+        }
+        QDomNodeList initList = var.toElement().elementsByTagName("initial_value");
+        if (initList.length() == 0) {
+            return 0;
+        }
+        QDomNode init_value = initList.at(0).firstChildElement();
+        return vleVpz::buildValue(mVdoSm, init_value, false);
+    }
+}
+
+vv::Value*
+vleSmDT::getHistorySize(const QString& varName)
+{
     QDomNode var = nodeVariable(varName);
     if (var.isNull()) {
         return 0;
     }
-    QDomNodeList initList = var.toElement().elementsByTagName("initial_value");
+    QDomNodeList initList = var.toElement().elementsByTagName("history_size");
     if (initList.length() == 0) {
         return 0;
     }
 
-    QDomNode init_value = initList.at(0);
-    init_value = var.toElement().elementsByTagName("double").at(0);
-    if (init_value.nodeName() == "double") {
-        QVariant qv = init_value.childNodes().item(0).toText().nodeValue();;
-        return new vle::value::Double(qv.toDouble());
+    QDomNode histNode = initList.at(0);
+    QDomNode histValue = histNode.toElement().elementsByTagName("integer").at(0);
+    if (histValue.nodeName() == "integer") {
+        QVariant qv = histValue.childNodes().item(0).toText().nodeValue();;
+        return new vv::Integer(qv.toInt());
+    }
+    return 0;
+}
+
+vv::Value*
+vleSmDT::getDim(const QString& varName)
+{
+    QDomNode var = nodeVariable(varName);
+    if (var.isNull()) {
+        return 0;
+    }
+    QDomNodeList initList = var.toElement().elementsByTagName("dim");
+    if (initList.length() == 0) {
+        return 0;
+    }
+    QDomNode dimNode = initList.at(0);
+    QDomNode dimValue= dimNode.toElement().elementsByTagName("integer").at(0);
+    if (dimValue.nodeName() == "integer") {
+        QVariant qv = dimValue.childNodes().item(0).toText().nodeValue();;
+        return new vv::Integer(qv.toInt());
+    }
+    return 0;
+}
+
+vv::Value*
+vleSmDT::getSync(const QString& varName)
+{
+    QDomNode port = nodeCondPort("sync_" + varName);
+    if (port.isNull()) {
+        return 0;
+    }
+
+    QDomNode syncValue= port.toElement().elementsByTagName("integer").at(0);
+    if (syncValue.nodeName() == "integer") {
+        QVariant qv = syncValue.childNodes().item(0).toText().nodeValue();;
+        return new vv::Integer(qv.toInt());
     }
     return 0;
 }
 
 void
-vleSmDT::rmInitialValue(const QString& varName)
+vleSmDT::addInToDoc(const QString& varName)
 {
-    QDomNode var = nodeVariable(varName);
-    if (var.isNull()) {
-        return;
-    }
-    QDomNodeList initList = var.toElement().elementsByTagName("initial_value");
-    if (initList.length() == 0) {
-        return;
-    }
-    undoStackSm->snapshot(var);
-    var.removeChild(initList.at(0));
-    return ;
+    QDomNode inNode =
+        mDocSm->elementsByTagName("in").item(0);
+
+    undoStackSm->snapshot(inNode);
+
+     QDomElement el = mDocSm->createElement("port");
+    el.setAttribute("name", varName);
+    inNode.appendChild(el);
+
+    emit modified();
 }
 
 
+void
+vleSmDT::rmInToDoc(const QString& variableName)
+{
+    QDomNode inNode =
+        mDocSm->elementsByTagName("in").item(0);
+
+    undoStackSm->snapshot(inNode);
+
+    QDomNodeList inPortList =
+        inNode.toElement().elementsByTagName("port");
+
+    for (int i = 0; i< inPortList.length(); i++) {
+        QDomNode inPort = inPortList.at(i);
+        for (int j = 0; j < inPort.attributes().size(); j++) {
+            if ((inPort.attributes().item(j).nodeName() == "name") and
+                (inPort.attributes().item(j).nodeValue() == variableName))  {
+
+                inNode.removeChild(inPort);
+            }
+        }
+    }
+    emit  modified();
+}
+
+bool
+vleSmDT::hasInFromDoc(const QString& variableName)
+{
+    QDomNode inNode =
+        mDocSm->elementsByTagName("in").item(0);
+    QDomNodeList inPortList =
+        inNode.toElement().elementsByTagName("port");
+
+    for (int i = 0; i< inPortList.length(); i++) {
+        QDomNode inPort = inPortList.at(i);
+        for (int j = 0; j < inPort.attributes().size(); j++) {
+            if ((inPort.attributes().item(j).nodeName() == "name") and
+                (inPort.attributes().item(j).nodeValue() == variableName))  {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void
+vleSmDT::addOutToDoc(const QString& varName)
+{
+    QDomNode inNode =
+        mDocSm->elementsByTagName("out").item(0);
+
+    undoStackSm->snapshot(inNode);
+
+     QDomElement el = mDocSm->createElement("port");
+    el.setAttribute("name", varName);
+    inNode.appendChild(el);
+
+    emit modified();
+}
+
+
+void
+vleSmDT::rmOutToDoc(const QString& variableName)
+{
+    QDomNode inNode =
+        mDocSm->elementsByTagName("out").item(0);
+
+    undoStackSm->snapshot(inNode);
+
+    QDomNodeList inPortList =
+        inNode.toElement().elementsByTagName("port");
+
+    for (int i = 0; i< inPortList.length(); i++) {
+        QDomNode inPort = inPortList.at(i);
+        for (int j = 0; j < inPort.attributes().size(); j++) {
+            if ((inPort.attributes().item(j).nodeName() == "name") and
+                (inPort.attributes().item(j).nodeValue() == variableName))  {
+
+                inNode.removeChild(inPort);
+            }
+        }
+    }
+    emit  modified();
+}
+
+bool
+vleSmDT::hasOutFromDoc(const QString& variableName)
+{
+    QDomNode inNode =
+        mDocSm->elementsByTagName("out").item(0);
+    QDomNodeList inPortList =
+        inNode.toElement().elementsByTagName("port");
+
+    for (int i = 0; i< inPortList.length(); i++) {
+        QDomNode inPort = inPortList.at(i);
+        for (int j = 0; j < inPort.attributes().size(); j++) {
+            if ((inPort.attributes().item(j).nodeName() == "name") and
+                (inPort.attributes().item(j).nodeValue() == variableName))  {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void
+vleSmDT::addObsToDoc(const QString& varName)
+{
+    QDomNode inNode =
+        mDocSm->elementsByTagName("observable").item(0);
+
+    undoStackSm->snapshot(inNode);
+
+     QDomElement el = mDocSm->createElement("port");
+    el.setAttribute("name", varName);
+    inNode.appendChild(el);
+
+    emit modified();
+}
+
+
+void
+vleSmDT::rmObsToDoc(const QString& variableName)
+{
+    QDomNode inNode =
+        mDocSm->elementsByTagName("observable").item(0);
+
+    undoStackSm->snapshot(inNode);
+
+    QDomNodeList inPortList =
+        inNode.toElement().elementsByTagName("port");
+
+    for (int i = 0; i< inPortList.length(); i++) {
+        QDomNode inPort = inPortList.at(i);
+        for (int j = 0; j < inPort.attributes().size(); j++) {
+            if ((inPort.attributes().item(j).nodeName() == "name") and
+                (inPort.attributes().item(j).nodeValue() == variableName))  {
+
+                inNode.removeChild(inPort);
+            }
+        }
+    }
+    emit  modified();
+}
+
+bool
+vleSmDT::hasObsFromDoc(const QString& variableName)
+{
+    QDomNode inNode =
+        mDocSm->elementsByTagName("observable").item(0);
+    QDomNodeList inPortList =
+        inNode.toElement().elementsByTagName("port");
+
+    for (int i = 0; i< inPortList.length(); i++) {
+        QDomNode inPort = inPortList.at(i);
+        for (int j = 0; j < inPort.attributes().size(); j++) {
+            if ((inPort.attributes().item(j).nodeName() == "name") and
+                (inPort.attributes().item(j).nodeValue() == variableName))  {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool
+vleSmDT::isParametrable(const QString& variableName)
+{
+    if ((getDim(variableName))->toInteger().value() > 1 or
+        (getHistorySize(variableName))->toInteger().value() > 1) {
+        return true;
+    } else {
+        QDomNode port = nodeCondPort("init_value_" + variableName);
+        return not port.isNull();
+    }
+}
 
 void
 vleSmDT::rmVariableToDoc(const QString& variableName)
@@ -399,8 +1146,23 @@ vleSmDT::rmVariableToDoc(const QString& variableName)
         QDomNode condPort = condPortList.at(i);
         for (int j = 0; j < condPort.attributes().size(); j++) {
             if ((condPort.attributes().item(j).nodeName() == "name") and
-                    (condPort.attributes().item(j).nodeValue() ==
-                     "init_value_" + variableName))  {
+                (condPort.attributes().item(j).nodeValue() ==
+                 "init_value_" + variableName))  {
+
+                condNode.removeChild(condPort);
+            }
+        }
+    }
+
+    condPortList =
+        condNode.toElement().elementsByTagName("port");
+
+    for (int i = 0; i< condPortList.length(); i++) {
+        QDomNode condPort = condPortList.at(i);
+        for (int j = 0; j < condPort.attributes().size(); j++) {
+            if ((condPort.attributes().item(j).nodeName() == "name") and
+                 (condPort.attributes().item(j).nodeValue() ==
+                  "sync_" + variableName))  {
 
                 condNode.removeChild(condPort);
             }
@@ -452,6 +1214,11 @@ vleSmDT::renameVariableToDoc(const QString& oldVariableName,
     QDomNode variablesNode =
             mDocSm->elementsByTagName("variables").item(0);
 
+    QDomNode newvar = nodeVariable(newVariableName);
+    if (not newvar.isNull()) {
+        return ;
+    }
+
     QDomNode var = nodeVariable(oldVariableName);
     if (var.isNull()) {
         return ;
@@ -465,10 +1232,23 @@ vleSmDT::renameVariableToDoc(const QString& oldVariableName,
         }
     }
 
-    QDomNode cond = nodeCondPort("init_value_" + oldVariableName);
-    for (int j=0; j< cond.attributes().size(); j++) {
-        if (cond.attributes().item(j).nodeName() == "name")  {
-            cond.attributes().item(j).setNodeValue("init_value_" + newVariableName);
+    {
+        QDomNode cond = nodeCondPort("init_value_" + oldVariableName);
+        for (int j=0; j< cond.attributes().size(); j++) {
+            if (cond.attributes().item(j).nodeName() == "name")  {
+                cond.attributes().item(j).setNodeValue("init_value_" +
+                                                       newVariableName);
+            }
+        }
+    }
+
+    {
+        QDomNode cond = nodeCondPort("sync_" + oldVariableName);
+        for (int j=0; j< cond.attributes().size(); j++) {
+            if (cond.attributes().item(j).nodeName() == "name")  {
+                cond.attributes().item(j).setNodeValue("sync_" +
+                                                       newVariableName);
+            }
         }
     }
 
@@ -493,7 +1273,7 @@ vleSmDT::renameVariableToDoc(const QString& oldVariableName,
         }
     }
 
-
+    emit modified();
 }
 
 QString
@@ -522,8 +1302,6 @@ vleSmDT::existVarToDoc(QString varName)
     return not var.isNull();
 }
 
-
-
 void
 vleSmDT::setComputeToDoc(const QString& computeBody)
 {
@@ -542,6 +1320,7 @@ vleSmDT::setComputeToDoc(const QString& computeBody)
         QDomCDATASection cdataCompute = childs.at(0).toCDATASection();
         cdataCompute.setData(computeBody);
     }
+
     emit modified();
 }
 
@@ -560,7 +1339,123 @@ vleSmDT::getComputeBody()
         QDomCDATASection cdataCompute = childs.at(0).toCDATASection();
         return cdataCompute.data();
     }
+}
 
+void
+vleSmDT::setConstructorToDoc(const QString& constructorBody)
+{
+    QDomElement docElem = mDocSm->documentElement();
+
+    QDomNode constructorNode =
+            mDocSm->elementsByTagName("constructor").item(0);
+
+    undoStackSm->snapshot(constructorNode);
+
+    QDomNodeList childs = constructorNode.childNodes();
+    if (childs.length() == 0) {
+        QDomCDATASection cdataConstructor = mDocSm->createCDATASection(constructorBody);
+        constructorNode.appendChild(cdataConstructor);
+    } else {
+        QDomCDATASection cdataConstructor = childs.at(0).toCDATASection();
+        cdataConstructor.setData(constructorBody);
+    }
+
+    emit modified();
+}
+
+QString
+vleSmDT::getConstructorBody()
+{
+    QDomElement docElem = mDocSm->documentElement();
+
+    QDomNode constructorNode =
+        mDocSm->elementsByTagName("constructor").item(0);
+
+    QDomNodeList childs = constructorNode.childNodes();
+    if (childs.length() == 0) {
+        return "";
+    } else {
+        QDomCDATASection cdataConstructor = childs.at(0).toCDATASection();
+        return cdataConstructor.data();
+    }
+}
+
+void
+vleSmDT::setUserSectionToDoc(const QString& usersectionBody)
+{
+    QDomElement docElem = mDocSm->documentElement();
+
+    QDomNode usersectionNode =
+            mDocSm->elementsByTagName("usersection").item(0);
+
+    undoStackSm->snapshot(usersectionNode);
+
+    QDomNodeList childs = usersectionNode.childNodes();
+    if (childs.length() == 0) {
+        QDomCDATASection cdataUserSection = mDocSm->createCDATASection(usersectionBody);
+        usersectionNode.appendChild(cdataUserSection);
+    } else {
+        QDomCDATASection cdataUserSection = childs.at(0).toCDATASection();
+        cdataUserSection.setData(usersectionBody);
+    }
+
+    emit modified();
+}
+
+QString
+vleSmDT::getUserSectionBody()
+{
+    QDomElement docElem = mDocSm->documentElement();
+
+    QDomNode usersectionNode =
+        mDocSm->elementsByTagName("usersection").item(0);
+
+    QDomNodeList childs = usersectionNode.childNodes();
+    if (childs.length() == 0) {
+        return "";
+    } else {
+        QDomCDATASection cdataUserSection = childs.at(0).toCDATASection();
+        return cdataUserSection.data();
+    }
+}
+
+void
+vleSmDT::setIncludesToDoc(const QString& includesBody)
+{
+    QDomElement docElem = mDocSm->documentElement();
+
+    QDomNode includesNode =
+            mDocSm->elementsByTagName("includes").item(0);
+
+    undoStackSm->snapshot(includesNode);
+
+    QDomNodeList childs = includesNode.childNodes();
+    if (childs.length() == 0) {
+        QDomCDATASection cdataIncludes = mDocSm->createCDATASection(includesBody);
+        includesNode.appendChild(cdataIncludes);
+    } else {
+        QDomCDATASection cdataIncludes = childs.at(0).toCDATASection();
+        cdataIncludes.setData(includesBody);
+    }
+
+    emit modified();
+}
+
+QString
+vleSmDT::getIncludesBody()
+{
+    QDomElement docElem = mDocSm->documentElement();
+
+    QDomNode includesNode =
+        mDocSm->elementsByTagName("includes").item(0);
+
+    QDomNodeList childs = includesNode.childNodes();
+    if (childs.length() == 0) {
+        return "";
+    } else {
+        QDomCDATASection cdataIncludes = childs.at(0).toCDATASection();
+        return cdataIncludes.data();
+    }
 }
 
 QString
@@ -675,6 +1570,14 @@ vleSmDT::save()
     file.write(xml);
     file.close();
 
+    provideCpp();
+
+    undoStackSm->clear();
+}
+
+void
+vleSmDT::provideCpp()
+{
     if (mFileNameSrc != "") {
         QFile fileCpp(mFileNameSrc);
         if (fileCpp.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
@@ -683,7 +1586,6 @@ vleSmDT::save()
             fileCpp.close();
         }
     }
-    undoStackSm->clear();
 }
 
 void
@@ -692,7 +1594,6 @@ vleSmDT::undo()
     waitUndoRedoSm = true;
     undoStackSm->undo();
     emit modified();
-
 }
 
 void
@@ -733,10 +1634,13 @@ vleSmDT::getData()
         "{{for i in var}}"                                              \
         "    {{var^i}}.init(this, \"{{var^i}}\", evts);\n"              \
         "{{end for}}"                                                   \
-        "{{for i in init_value_var}}"                                   \
+        "{{for i in init_value_val}}"                                   \
         "    {{init_value_var^i}}.init_value({{init_value_val^i}});\n"  \
         "{{end for}}"                                                   \
-        "{{construct}}"                                                 \
+        "{{for i in vect}}"                                             \
+        "    {{vect^i}}.init(this, \"{{vect^i}}\", evts);\n"            \
+        "{{end for}}"                                                   \
+        "{{construct}}\n"                                               \
         "\n"                                                            \
         "}\n"                                                           \
         "\n"                                                            \
@@ -745,13 +1649,16 @@ vleSmDT::getData()
         "\n"                                                            \
         "void compute(const vle::devs::Time& t)\n"                      \
         "{\n"                                                           \
-        "{{compute}}"                                                   \
+        "{{compute}}\n"                                                 \
         "}\n"                                                           \
         "\n"                                                            \
         "{{for i in var}}"                                              \
         "    Var {{var^i}};\n"                                          \
         "{{end for}}"                                                   \
-        "{{userSection}}"                                               \
+        "{{for i in vect}}"                                             \
+        "    Vect {{vect^i}};\n"                                        \
+        "{{end for}}"                                                   \
+        "{{userSection}}\n"                                             \
         "};\n\n"                                                        \
         "} // namespace {{namespace}}\n"                                \
         "} // namespace discrete_time\n"                                \
@@ -759,12 +1666,12 @@ vleSmDT::getData()
         "DECLARE_DYNAMICS("                                             \
         "vle::discrete_time::{{namespace}}::{{classname}})\n\n";
 
-
     vle::utils::Template vleTpl(tpl.toStdString());
     vleTpl.stringSymbol().append("classname", getClassName().toStdString());
     vleTpl.stringSymbol().append("namespace", getNamespace().toStdString());
 
     vleTpl.listSymbol().append("var");
+    vleTpl.listSymbol().append("vect");
     vleTpl.listSymbol().append("init_value_var");
     vleTpl.listSymbol().append("init_value_val");
 
@@ -773,22 +1680,26 @@ vleSmDT::getData()
     for (int i = 0; i < variablesXml.length(); i++) {
         QDomNode variable = variablesXml.item(i);
         QString varName = variable.attributes().namedItem("name").nodeValue();
-        vle::value::Value* val = getInitialValue(varName);
+        vv::Value* val = getInitialValue(varName);
         if (val) {
-            vleTpl.listSymbol().append("init_value_var", varName.toStdString());
-            vleTpl.listSymbol().append("init_value_val", val->writeToString());
+            if (not isParametrable(varName)) {
+                vleTpl.listSymbol().append("init_value_var", varName.toStdString());
+                vleTpl.listSymbol().append("init_value_val", val->writeToString());
+            }
             delete val;
         }
 
-        vleTpl.listSymbol().append("var", varName.toStdString());
-
-
+        if ((getDim(varName))->toInteger().value() == 1) {
+            vleTpl.listSymbol().append("var", varName.toStdString());
+        } else {
+            vleTpl.listSymbol().append("vect", varName.toStdString());
+        }
     }
 
-    vleTpl.stringSymbol().append("includes", "");
+    vleTpl.stringSymbol().append("includes", getIncludesBody().toStdString());
     vleTpl.stringSymbol().append("compute", getComputeBody().toStdString());
-    vleTpl.stringSymbol().append("construct","");
-    vleTpl.stringSymbol().append("userSection","");
+    vleTpl.stringSymbol().append("construct", getConstructorBody().toStdString());
+    vleTpl.stringSymbol().append("userSection", getUserSectionBody().toStdString());
 
     std::ostringstream out;
     vleTpl.process(out);
@@ -907,38 +1818,5 @@ vleSmDT::onUndoAvailable(bool b)
     emit undoAvailable(b);
 }
 
-QDomElement
-vleSmDT::createDynamic()
-{
-    QDomElement elem = getDomDoc().createElement("dynamic");
-    return elem;
 }
-
-QDomElement
-vleSmDT::createObservable()
-{
-    QDomElement elem = getDomDoc().createElement("observable");
-    return elem;
 }
-
-QDomElement
-vleSmDT::createCondition()
-{
-    QDomElement elem = getDomDoc().createElement("condition");
-    return elem;
-}
-
-QDomElement
-vleSmDT::createIn()
-{
-    QDomElement elem = getDomDoc().createElement("in");
-    return elem;
-}
-
-QDomElement
-vleSmDT::createOut()
-{
-    QDomElement elem = getDomDoc().createElement("out");
-    return elem;
-}
-}}//namespaces

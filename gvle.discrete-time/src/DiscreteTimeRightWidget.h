@@ -38,7 +38,6 @@ namespace Ui {
 namespace vle {
 namespace gvle {
 
-
 class DiscreteTimeRightWidget : public QWidget
 {
     Q_OBJECT
