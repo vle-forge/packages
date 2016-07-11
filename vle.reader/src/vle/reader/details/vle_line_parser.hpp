@@ -112,7 +112,9 @@ struct vle_line_parser
             if (str.empty() or str == "NA") {
                 val = NAN;
             } else {
-                val = std::stod(str);
+                std::istringstream iss (str);
+                iss.imbue (std::locale("C"));
+                iss >> val;
             }
             return std::unique_ptr<value::Value>(new vv::Double(val));
             break;
