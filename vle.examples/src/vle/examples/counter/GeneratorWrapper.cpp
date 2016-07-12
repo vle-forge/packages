@@ -31,7 +31,7 @@
 #include <vle/examples/counter/NormalGenerator.hpp>
 #include <vle/examples/counter/RegularGenerator.hpp>
 #include <vle/examples/counter/UniformGenerator.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/utils/Rand.hpp>
 
 
@@ -72,8 +72,8 @@ devs::Time GeneratorWrapper::init(vle::devs::Time /* time */)
             value::toDouble(m_events.get("average")),
             value::toDouble(m_events.get("stdvariation")));
     } else {
-        throw utils::InternalError((boost::format("Unknow generator %1%") %
-              formalism).str());
+        throw utils::InternalError(vle::utils::format("Unknow generator %s",
+              formalism.c_str()));
     }
 
     m_generator->init();

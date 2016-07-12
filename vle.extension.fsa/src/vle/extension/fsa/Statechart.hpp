@@ -585,11 +585,11 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
                                      Guard_t<X> guard)
 {
     if (transition.obj->existGuard(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already a guard")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have already a "
+                "guard",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
 
     transition.obj->guards()[transition.id] =
@@ -602,25 +602,25 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
                                      Event_t event)
 {
     if (transition.obj->existEvent(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already an event")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                    "[%s] FSA::Statechart: transition %i -> %i have " \
+                     "already an event",
+                     transition.obj->getModelName().c_str(), transition.state,
+                     transition.nextState));
     }
     if (transition.obj->existAfter(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "an after clause but it is incompatible with event")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                    "[%s] FSA::Statechart: transition %i -> %i have " \
+                       "an after clause but it is incompatible with event",
+                       transition.obj->getModelName().c_str(), transition.state,
+                       transition.nextState));
     }
     if (transition.obj->existWhen(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "an when clause but it is incompatible with event")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "an when clause but it is incompatible with event",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
 
     transition.obj->events()[transition.id] = event.event;
@@ -632,18 +632,18 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
                                      After_t < double > after)
 {
     if (transition.obj->existAfter(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already an after")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "already an after",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
     if (transition.obj->existEvent(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "an event but it is incompatible with after")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "an event but it is incompatible with after",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
 
     transition.obj->afters()[transition.id] = after.duration;
@@ -655,18 +655,18 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
                                      After_t<X> after)
 {
     if (transition.obj->existAfter(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already an after")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "already an after",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
     if (transition.obj->existEvent(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "an event but it is incompatible with after")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "an event but it is incompatible with after",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
 
     transition.obj->afterFuncs()[transition.id] =
@@ -679,18 +679,18 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
                                      When_t < double > when)
 {
      if (transition.obj->existWhen(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already a when")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "already a when",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
     if (transition.obj->existEvent(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "an event but it is incompatible with when")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "an event but it is incompatible with when",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
 
    transition.obj->whens()[transition.id] = when.date;
@@ -702,18 +702,18 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
                                      When_t<X> when)
 {
      if (transition.obj->existWhen(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already a when")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "already a when",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
     if (transition.obj->existEvent(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "an event but it is incompatible with when")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "an event but it is incompatible with when",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
 
     transition.obj->whenFuncs()[transition.id] =
@@ -727,10 +727,11 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
 {
      if (transition.obj->existOuput(transition.id)) {
         throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already a send action")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+            vle::utils::format(
+                    "[%s] FSA::Statechart: transition %i -> %i have " \
+                    "already a send action",
+                    transition.obj->getModelName().c_str(), transition.state,
+                    transition.nextState));
     }
 
     transition.obj->outputs()[transition.id] = output.output;
@@ -742,11 +743,11 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
                                      Output_t<X> func)
 {
      if (transition.obj->existOuput(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already a send action")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "already a send action",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
 
     transition.obj->outputFuncs()[transition.id] =
@@ -760,18 +761,18 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
                                      EventAction_t<X> action)
 {
      if (transition.obj->existAction(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already an action")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "already an action",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
      if (not transition.obj->existEvent(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "not an event but an event action is defined")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "not an event but an event action is defined",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
 
      transition.obj->eventTransitionActions()[transition.id] =
@@ -785,11 +786,11 @@ StatechartTransition_t<I> operator<<(StatechartTransition_t<I> transition,
                                      GuardAction_t<X> action)
 {
     if (transition.obj->existAction(transition.id)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: transition %2% -> %3% have " \
-                       "already an action")
-            % transition.obj->getModelName() % transition.state
-            % transition.nextState).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: transition %i -> %i have " \
+                "already an action",
+                transition.obj->getModelName().c_str(), transition.state,
+                transition.nextState));
     }
 
     transition.obj->guardTransitionActions()[transition.id] =
@@ -803,10 +804,10 @@ template < typename I, typename X >
 EventInState_t<I,X> operator>>(EventInState_t<I,X> event, int state)
 {
     if (event.obj->existEventInState(state, event.event)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: state %2% have " \
-                       "already an event action in state")
-            % event.obj->getModelName() % state).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: state %i have " \
+                "already an event action in state",
+                event.obj->getModelName().c_str(), state));
     }
 
     event.obj->eventInStateActions(state)[event.event] =
@@ -820,10 +821,10 @@ StatechartInAction_t<X,I> operator>>(StatechartInAction_t<X,I> action,
                                      int state)
 {
     if (action.obj->existInAction(state)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: state %2% have " \
-                       "already an in action")
-            % action.obj->getModelName() % state).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: state %i have " \
+                "already an in action",
+                action.obj->getModelName().c_str(), state));
     }
 
     action.obj->inActions()[state] = std::bind(action.func, action.obj,
@@ -835,10 +836,10 @@ template < typename X, typename I >
 OutAction_t<X,I> operator>>(OutAction_t<X,I> action, int state)
 {
     if (action.obj->existOutAction(state)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: state %2% have " \
-                       "already an out action")
-            % action.obj->getModelName() % state).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: state %i have " \
+                "already an out action",
+                action.obj->getModelName().c_str(), state));
     }
 
     action.obj->outActions()[state] = std::bind(action.func, action.obj,
@@ -850,10 +851,10 @@ template < typename X, typename I >
 Activity_t<X,I> operator>>(Activity_t<X,I> activity, int state)
 {
     if (activity.obj->existActivity(state)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: state %2% have " \
-                       "already an activity")
-            % activity.obj->getModelName() % state).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: state %i have "
+                "already an activity",
+                activity.obj->getModelName().c_str(), state));
     }
 
     activity.obj->activities()[state] =
@@ -867,10 +868,10 @@ template < typename I, typename X >
 State2_t<I> operator<<(State2_t<I> state, EventInState2_t<X> event)
 {
     if (state.obj->existEventInState(state.state, event.event)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: state %2% have " \
-                       "already an event action in state")
-            % state.obj->getModelName() % state.state).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: state %i have " \
+                "already an event action in state",
+                state.obj->getModelName().c_str(), state.state));
     }
 
     state.obj->eventInStateActions(state.state)[event.event] =
@@ -883,10 +884,10 @@ template < typename I, typename X >
 State2_t<I> operator<<(State2_t<I> state, StatechartInAction2_t<X> action)
 {
     if (state.obj->existInAction(state.state)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: state %2% have " \
-                       "already an in action")
-            % state.obj->getModelName() % state.state).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: state %i have " \
+                "already an in action",
+                state.obj->getModelName().c_str(), state.state));
     }
 
     state.obj->inActions()[state.state] =
@@ -898,10 +899,10 @@ template < typename I, typename X >
 State2_t<I> operator<<(State2_t<I> state, OutAction2_t<X> action)
 {
     if (state.obj->existOutAction(state.state)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: state %2% have " \
-                       "already an out action")
-            % state.obj->getModelName() % state.state).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: state %i have " \
+                "already an out action",
+                state.obj->getModelName().c_str(), state.state));
     }
 
     state.obj->outActions()[state.state] =
@@ -913,10 +914,10 @@ template < typename I, typename X >
 State2_t<I> operator<<(State2_t<I> state, Activity2_t<X> activity)
 {
     if (state.obj->existActivity(state.state)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Statechart: state %2% have " \
-                       "already an activity")
-            % state.obj->getModelName() % state.state).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Statechart: state %i have " \
+                "already an activity",
+                state.obj->getModelName().c_str(), state.state));
     }
 
     state.obj->activities()[state.state] =

@@ -50,8 +50,8 @@ Simple::Simple(const DynamicsInit& model,
 
             if (getModel().getOutputPortNumber() > 1) {
                 throw utils::ModellingError(
-                    (boost::format("[%1%] DifferenceEquation::Simple: invalid "  \
-                          "number of output port") % getModelName()).str());
+                    vle::utils::format("[%s] DifferenceEquation::Simple: invalid "  \
+                          "number of output port", getModelName().c_str()));
             }
 
             mVariableName = getModel().getOutputPortList().begin()->first;
@@ -113,9 +113,9 @@ void Simple::updateValues(const Time& time)
 void Simple::size(int size)
 {
     if (size == 0) {
-        throw utils::ModellingError((boost::format(
-                    "[%1%] DifferenceEquation::size - not null size") %
-            getModelName()).str());
+        throw utils::ModellingError(vle::utils::format(
+                    "[%s] DifferenceEquation::size - not null size",
+            getModelName().c_str()));
     }
 
     mSize = size;
@@ -124,10 +124,11 @@ void Simple::size(int size)
 double Simple::val() const
 {
     if (not mSetValue) {
-        throw utils::InternalError(
-            (boost::format("[%1%] DifferenceEquation::getValue - forbidden to use " \
-                  "%2%() before computing of %2%")
-            % getModelName() % mVariableName).str());
+        throw utils::InternalError(vle::utils::format(
+                "[%s] DifferenceEquation::getValue - forbidden to use " \
+                "%s() before computing of %s",
+                getModelName().c_str(), mVariableName.c_str(),
+                mVariableName.c_str()));
     }
 
     return mValues.front();
@@ -136,16 +137,17 @@ double Simple::val() const
 double Simple::val(int shift) const
 {
     if (shift > 0) {
-        throw utils::ModellingError((boost::format(
-                    "[%1%] DifferenceEquation::getValue - positive shift on %2%") %
-            getModelName() % mVariableName).str());
+        throw utils::ModellingError(vle::utils::format(
+                    "[%s] DifferenceEquation::getValue - positive shift on %s",
+                    getModelName().c_str(), mVariableName.c_str()));
     }
 
     if (shift == 0 and not mSetValue) {
-        throw utils::InternalError(
-            (boost::format("[%1%] DifferenceEquation::getValue - forbidden to use " \
-                  "%2%() before computing of %2%")
-            % getModelName() % mVariableName).str());
+        throw utils::InternalError(vle::utils::format(
+                "[%s] DifferenceEquation::getValue - forbidden to use " \
+                  "%s() before computing of %s",
+                  getModelName().c_str(), mVariableName.c_str(),
+                  mVariableName.c_str()));
     }
 
     ++shift;
@@ -153,9 +155,9 @@ double Simple::val(int shift) const
         return mValues.front();
     } else {
         if ((int)(mValues.size() - 1) < -shift) {
-            throw utils::InternalError((boost::format(
-                        "[%1%] - %2%[%3%] - shift too large") %
-                getModelName() % mVariableName % shift).str());
+            throw utils::InternalError(vle::utils::format(
+                        "[%s] - %s[%i] - shift too large",
+                getModelName().c_str(), mVariableName.c_str(), shift));
         }
 
         return mValues[-shift];
@@ -192,15 +194,16 @@ Simple::observation(const ObservationEvent& event) const
 {
     if (mState == INIT) {
         throw utils::InternalError(
-            (boost::format("[%1%] DifferenceEquation::Simple: model not initialized" \
-                  " (perhaps, a cycle of synchronous variables)") %
-            getModelName()).str());
+            vle::utils::format("[%s] DifferenceEquation::Simple: model not initialized" \
+                  " (perhaps, a cycle of synchronous variables)",
+            getModelName().c_str()));
     }
 
     if (event.getPortName() != mVariableName) {
-        throw utils::InternalError((boost::format(
-                    "[%1%] DifferenceEquation::observation: invalid variable" \
-                    " name: %2%") % getModelName() % event.getPortName()).str());
+        throw utils::InternalError(vle::utils::format(
+                    "[%s] DifferenceEquation::observation: invalid variable"
+                    " name: %s",
+                    getModelName().c_str(), event.getPortName().c_str()));
     }
     return Double::create(val());
 }

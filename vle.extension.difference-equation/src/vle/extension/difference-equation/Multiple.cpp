@@ -29,6 +29,7 @@
 #include <vle/extension/difference-equation/Multiple.hpp>
 #include <vle/value/Tuple.hpp>
 #include <vle/value/Set.hpp>
+#include <algorithm>
 
 namespace vle { namespace extension { namespace DifferenceEquation {
 
@@ -246,17 +247,17 @@ double Multiple::val(const std::string& name,
 {
     if (shift > 0) {
         throw utils::ModellingError(
-            (boost::format("[%1%] DifferenceEquation::getValue - " \
-                  "positive shift on %2%") %
-            getModelName() % name).str());
+            vle::utils::format("[%s] DifferenceEquation::getValue - " \
+                  "positive shift on %s",
+            getModelName().c_str(),  name.c_str()));
     }
 
     if (shift == 0) {
 
         if (not *iterators.mSetValues) {
             throw utils::InternalError(
-                (boost::format("[%1%] - forbidden to use %2%() before computing of %2%")
-                % getModelName() % name).str());
+                vle::utils::format("[%s] - forbidden to use %s() before computing of %s",
+                getModelName().c_str(),  name.c_str(),  name.c_str()));
         }
 
         return iterators.mMultipleValues->front();
@@ -267,8 +268,8 @@ double Multiple::val(const std::string& name,
 
         if ((int)(iterators.mMultipleValues->size() - 1) < -shift) {
             throw utils::InternalError(
-                (boost::format("[%1%] - %2%[%3%] - shift too large") % getModelName() %
-                name % shift).str());
+                vle::utils::format("[%s] - %s[%i] - shift too large",
+                        getModelName().c_str(), name.c_str(), shift));
         }
 
         return (*iterators.mMultipleValues)[-shift];
@@ -281,9 +282,9 @@ double Multiple::val(const std::string& name) const
         mValues.find(name);
 
     if (it == mValues.end()) {
-        throw utils::InternalError((boost::format(
-                    "[%1%] DifferenceEquation::getValue: invalid variable" \
-                    " name: %2%") % getModelName() % name).str());
+        throw utils::InternalError(vle::utils::format(
+                    "[%s] DifferenceEquation::getValue: invalid variable" \
+                    " name: %s", getModelName().c_str(),  name.c_str()));
     }
     return it->second.front();
 }
@@ -306,8 +307,8 @@ Time Multiple::init(Time time)
         }
         if (not ok) {
             throw utils::InternalError(
-                (boost::format("[%1%] DifferenceEquation::Multiple: undeclared " \
-                      "variable: %2%") % getModelName() % it->first).str());
+                vle::utils::format("[%s] DifferenceEquation::Multiple: undeclared " \
+                      "variable: %s", getModelName().c_str(), it->first.c_str()));
         }
     }
 
@@ -370,9 +371,9 @@ std::unique_ptr<vle::value::Value> Multiple::observation(
 {
     if (mState == INIT) {
         throw utils::InternalError(
-            (boost::format("[%1%] DifferenceEquation::Multiple: model not initialized" \
-                  " (perhaps, a cycle of synchronous variables)") %
-            getModelName()).str());
+            vle::utils::format("[%s] DifferenceEquation::Multiple: model not initialized" \
+                  " (perhaps, a cycle of synchronous variables)",
+            getModelName().c_str()));
     }
 
     if (event.getPortName() != "all") {

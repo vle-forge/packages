@@ -48,7 +48,7 @@
  * @@tagdynamic@@
  */
 
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/devs/Dynamics.hpp>
 
 
@@ -79,10 +79,10 @@ public:
             for (vle::vpz::ConnectionList::const_iterator it =
                      in_list.begin(); it != in_list.end(); ++it) {
                 if (not getModel().existOutputPort(it->first)) {
-                    throw utils::InternalError((
-                        boost::format("[%1%] DifferenceEquation adaptor - "   \
-                                "%2% output port is missing") %
-                        getModelName() % it->first).str());
+                    throw utils::InternalError(
+                        vle::utils::format("[%s] DifferenceEquation adaptor - "   \
+                                "%s output port is missing",
+                        getModelName().c_str(), it->first.c_str()));
                 }
                 mValues[it->first] = 0.;
             }
@@ -95,11 +95,12 @@ public:
             for (vle::vpz::ConnectionList::const_iterator it =
                      out_list.begin(); it != out_list.end(); ++it) {
                 if (not getModel().existInputPort(it->first))
-                    throw utils::InternalError((
-                        boost::format("[%1%] DifferenceEquation adaptor - "   \
-                                "%2% input port is missing or "         \
-                                "%2% output port is unused") %
-                        getModelName() % it->first).str());
+                    throw utils::InternalError(
+                        vle::utils::format("[%s] DifferenceEquation adaptor - "   \
+                                "%s input port is missing or "         \
+                                "%s output port is unused",
+                        getModelName().c_str(), it->first.c_str(),
+                        it->first.c_str()));
             }
         }
 
@@ -156,11 +157,11 @@ public:
                 if (itv != mValues.end() and attrs.getString("name") == name) {
                     itv->second = attrs.getDouble("value");
                 } else {
-                    throw utils::InternalError((
-                        boost::format("[%1%] DifferenceEquation adaptor - "     \
-                                "wrong variable name on %2% port: %3%") %
-                        getModelName() % name %
-                        attrs.getString("name")).str());
+                    throw utils::InternalError(
+                        vle::utils::format("[%s] DifferenceEquation adaptor - "     \
+                                "wrong variable name on %s port: %s",
+                        getModelName().c_str(), name.c_str(),
+                        attrs.getString("name").c_str()));
                 }
 
                 if (mPhase == INIT) {

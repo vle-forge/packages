@@ -28,7 +28,7 @@
 
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -37,8 +37,8 @@ Rule& Rules::add(const std::string& name, const Rule& rule)
     const_iterator it(m_lst.find(name));
 
     if (it != m_lst.end()) {
-        throw utils::ArgError((boost::format(
-                "Decision: rule '%1%' already exists") % name).str());
+        throw utils::ArgError(vle::utils::format(
+                "Decision: rule '%s' already exists", name.c_str()));
     }
 
     return (*m_lst.insert(value_type(name, rule)).first).second;
@@ -77,8 +77,8 @@ const Rule& Rules::get(const std::string& name) const
     const_iterator it = m_lst.find(name);
 
     if (it == m_lst.end()) {
-        throw utils::ArgError((boost::format(
-                "Decision: rule '%1%' does not exist") % name).str());
+        throw utils::ArgError(vle::utils::format(
+                "Decision: rule '%s' does not exist", name.c_str()));
     }
 
     return it->second;

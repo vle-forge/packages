@@ -29,7 +29,7 @@
 #include <vle/extension/decision/Plan.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/Parser.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/utils/DateTime.hpp>
 #include <string>
 #include <sstream>
@@ -49,8 +49,8 @@ Plan::Plan(KnowledgeBase& kb, const std::string& buffer)
         utils::Parser parser(in);
         fill(parser.root(), 0);
     } catch (const std::exception& e) {
-        throw utils::ArgError((boost::format("Decision plan error in %1%")
-                % e.what()).str());
+        throw utils::ArgError(vle::utils::format("Decision plan error in %s",
+                e.what()));
     }
 }
 
@@ -61,8 +61,8 @@ Plan::Plan(KnowledgeBase& kb, std::istream& stream)
         utils::Parser parser(stream);
         fill(parser.root(), 0);
     } catch (const std::exception& e) {
-        throw utils::ArgError((boost::format("Decision plan error: %1%")
-                % e.what()).str());
+        throw utils::ArgError(vle::utils::format("Decision plan error: %s",
+                e.what()));
     }
 }
 
@@ -73,8 +73,8 @@ void Plan::fill(const std::string& buffer, const devs::Time& loadTime)
         utils::Parser parser(in);
         fill(parser.root(), loadTime);
     } catch (const std::exception& e) {
-        throw utils::ArgError((boost::format("Decision plan error in %1%")
-                % e.what()).str());
+        throw utils::ArgError(vle::utils::format("Decision plan error in %s",
+                e.what()));
     }
 }
 
@@ -84,8 +84,8 @@ void Plan::fill(std::istream& stream, const devs::Time& loadTime)
         utils::Parser parser(stream);
         fill(parser.root(), loadTime);
     } catch (const std::exception& e) {
-        throw utils::ArgError((boost::format("Decision plan error: %1%")
-                % e.what()).str());
+        throw utils::ArgError(vle::utils::format("Decision plan error: %s",
+                e.what()));
     }
 }
 
@@ -96,8 +96,8 @@ void Plan::fill(const std::string& buffer)
         utils::Parser parser(in);
         fill(parser.root(), 0);
     } catch (const std::exception& e) {
-        throw utils::ArgError((boost::format("Decision plan error in %1%")
-                % e.what()).str());
+        throw utils::ArgError(vle::utils::format("Decision plan error in %s",
+                e.what()));
     }
 }
 
@@ -107,8 +107,8 @@ void Plan::fill(std::istream& stream)
         utils::Parser parser(stream);
         fill(parser.root(), 0);
     } catch (const std::exception& e) {
-        throw utils::ArgError((boost::format("Decision plan error: %1%")
-                % e.what()).str());
+        throw utils::ArgError(vle::utils::format("Decision plan error: %s",
+                e.what()));
     }
 }
 
@@ -326,9 +326,9 @@ void Plan::fillPrecedences(const utils::Block::BlocksResult& preds,
                                                         valuesecond,
                                                         valuemintl, valuemaxtl);
             } else {
-                throw utils::ArgError((
-                        boost::format("Decision: precendence type `%1%' unknown") %
-                    type.first->second).str());
+                throw utils::ArgError(
+                        vle::utils::format("Decision: precendence type `%s' unknown",
+                    type.first->second.c_str()));
             }
         } else {
             throw utils::ArgError("Decision: precedences type unknown");
@@ -350,8 +350,8 @@ Plan::DateResult Plan::getDate(const std::string& dateName,
     if((hasRealDate && hasStringDate) ||
             (hasRealDate && hasRelativeDate) ||
             (hasStringDate && hasRelativeDate)) {
-        throw utils::ArgError((boost::format(
-         "Decision: date '%1%' should not be given twice ") % dateName).str());
+        throw utils::ArgError(vle::utils::format(
+         "Decision: date '%s' should not be given twice ", dateName.c_str()));
     }
     if (hasRealDate){
         return DateResult(true,devs::Time((double) dateReal.first->second));

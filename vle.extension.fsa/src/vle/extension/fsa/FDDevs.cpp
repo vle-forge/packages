@@ -40,9 +40,9 @@ void FDDevs::process(const std::string& portname,
                               [portname]);
 
         if (mDurations.find(currentState()) == mDurations.end()) {
-            throw utils::InternalError(
-                (boost::format("FSA::FDDevs model, unknow duration of state %1%") %
-                currentState()).str());
+            throw utils::InternalError(vle::utils::format(
+                    "FSA::FDDevs model, unknow duration of state %i",
+                    currentState()));
         }
 
         mSigma = mDurations[currentState()];
@@ -78,9 +78,9 @@ devs::Time FDDevs::init(devs::Time /* time */)
     currentState(initialState());
 
     if (mDurations.find(currentState()) == mDurations.end()) {
-        throw utils::InternalError((boost::format(
-                "FSA::FDDevs model, unknow duration of state %1%") %
-        currentState()).str());
+        throw utils::InternalError(vle::utils::format(
+                "FSA::FDDevs model, unknow duration of state %i",
+                currentState()));
     }
 
     mSigma = mDurations[currentState()];
@@ -107,17 +107,17 @@ void FDDevs::externalTransition(const devs::ExternalEventList& events,
 void FDDevs::internalTransition(devs::Time time)
 {
     if (mInternals.find(currentState()) == mInternals.end()) {
-        throw utils::InternalError((boost::format(
-                "FSA::FDDevs model, unknow internal transition on state %1%")
-                % currentState()).str());
+        throw utils::InternalError(vle::utils::format(
+                "FSA::FDDevs model, unknow internal transition on state %i",
+                currentState()));
     }
 
     currentState(mInternals[currentState()]);
 
     if (mDurations.find(currentState()) == mDurations.end()) {
-        throw utils::InternalError((boost::format(
-                "FSA::FDDevs model, unknow duration of state %1%") %
-            currentState()).str());
+        throw utils::InternalError(vle::utils::format(
+                "FSA::FDDevs model, unknow duration of state %i",
+                currentState()));
     }
 
     mSigma = mDurations[currentState()];

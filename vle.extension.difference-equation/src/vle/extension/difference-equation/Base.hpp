@@ -31,7 +31,7 @@
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/DateTime.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <deque>
 
 namespace vle { namespace extension { namespace DifferenceEquation {

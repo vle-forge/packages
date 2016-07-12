@@ -27,7 +27,7 @@
 
 
 #include <vle/extension/petrinet/PetriNet.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <algorithm>
 
 namespace vle { namespace extension {
@@ -382,8 +382,8 @@ void PetriNet::addArc(const std::string& src,
 {
     if (existPlace(src)) {
         if (not existTransition(dst)) {
-            throw utils::ModellingError(
-                (boost::format("Petri Net: Unknow transition: %1%") % dst).str());
+            throw utils::ModellingError(vle::utils::format(
+                    "Petri Net: Unknow transition: %s", dst.c_str()));
         }
 
         Input* input = new Input(mPlaces[src],
@@ -395,8 +395,8 @@ void PetriNet::addArc(const std::string& src,
         mInputs.push_back(input);
     } else if (existPlace(dst)) {
         if (not existTransition(src)) {
-            throw utils::ModellingError(
-                (boost::format("Petri Net: Unknow transition: %1%") % src).str());
+            throw utils::ModellingError(vle::utils::format(
+                    "Petri Net: Unknow transition: %s",src.c_str()));
         }
 
         Output* output = new Output(mTransitions[src],
@@ -407,8 +407,9 @@ void PetriNet::addArc(const std::string& src,
         mPlaces[dst]->addOutput(output);
         mOutputs.push_back(output);
     } else {
-        throw utils::ModellingError((boost::format(
-                "Petri Net: unknow place: %1% or %2%") % src % dst).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: unknow place: %s or %s",
+                src.c_str(), dst.c_str()));
     }
 }
 
@@ -416,8 +417,8 @@ void PetriNet::addInitialMarking(const std::string& placeName,
                                  unsigned int tokenNumber)
 {
     if (not existPlace(placeName)) {
-        throw utils::ModellingError(
-            (boost::format("Petri Net: Unknow place: %1%") % placeName).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: Unknow place: %s", placeName.c_str()));
     }
 
     if (tokenNumber > 0)
@@ -429,15 +430,15 @@ void PetriNet::addInputTransition(const std::string& transitionName,
                                   double delay)
 {
     if (existTransition(transitionName)) {
-        throw utils::ModellingError((boost::format(
-                "Petri Net: transition '%1%' already exists") %
-            transitionName).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: transition '%s' already exists",
+                transitionName.c_str()));
     }
 
     if (delay < 0.0) {
-        throw utils::ModellingError((boost::format(
-                "Petri Net: delay on transition %1% is negative") %
-            transitionName).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: delay on transition %s is negative",
+                transitionName.c_str()));
     }
 
     mTransitions[transitionName] = new Transition(transitionName, delay);
@@ -448,8 +449,8 @@ void PetriNet::addOutputPlace(const std::string& placeName,
                               const std::string& portName)
 {
     if (existPlace(placeName)) {
-        throw utils::ModellingError((boost::format(
-                "Petri Net: place '%1%' already exists") % placeName).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: place '%s' already exists", placeName.c_str()));
     }
 
     mPlaces[placeName] = new Place(placeName, 0.0);
@@ -461,9 +462,9 @@ void PetriNet::addOutputTransition(const std::string& transitionName,
                                    unsigned int priority)
 {
     if (existTransition(transitionName)) {
-        throw utils::ModellingError((boost::format(
-                "Petri Net: transition '%1%' already exists") %
-            transitionName).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: transition '%s' already exists",
+            transitionName.c_str()));
     }
 
     mTransitions[transitionName] = new Transition(transitionName, 0.0,
@@ -476,14 +477,14 @@ void PetriNet::addPlace(const std::string& placeName,
                         double delay)
 {
     if (existPlace(placeName)) {
-        throw utils::ModellingError((boost::format(
-                "Petri Net: place '%1%' already exists") % placeName).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: place '%s' already exists", placeName.c_str()));
     }
 
     if (delay < 0.0) {
-        throw utils::ModellingError((boost::format(
-                "Petri Net: delay on place %1% is negative")
-                  % placeName).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: delay on place %s is negative",
+                 placeName.c_str()));
     }
 
     mPlaces[placeName] = new Place(placeName, delay);
@@ -494,15 +495,15 @@ void PetriNet::addTransition(const std::string& transitionName,
                              unsigned int priority)
 {
     if (existTransition(transitionName)) {
-        throw utils::ModellingError((boost::format(
-                "Petri Net: transition '%1%' already exists") %
-            transitionName).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: transition '%s' already exists",
+            transitionName.c_str()));
     }
 
     if (delay < 0.0) {
-        throw utils::ModellingError((boost::format(
-                "Petri Net: delay on transition %1% is negative") %
-            transitionName).str());
+        throw utils::ModellingError(vle::utils::format(
+                "Petri Net: delay on transition %s is negative",
+            transitionName.c_str()));
     }
 
     mTransitions[transitionName] = new Transition(transitionName, delay,

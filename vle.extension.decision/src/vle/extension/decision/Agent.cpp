@@ -138,8 +138,8 @@ void Agent::externalTransition(
                 setActivityFailed(activity, time);
             } else {
                 throw utils::ModellingError(
-                    (boost::format("Decision: unknown order `%1%'")
-                    % order).str());
+                    vle::utils::format("Decision: unknown order `%s'",
+                            order.c_str()));
             }
         } else {
             value::Map::const_iterator jt = atts.value().find("value");
@@ -149,8 +149,7 @@ void Agent::externalTransition(
 
             if (jt == atts.end() or not jt->second) {
                 throw utils::ModellingError(
-                    (boost::format("Decision: no value in this message: `%1%'")
-                    % atts).str());
+                    "Decision: no value in this message");
             }
 
             if (mPortMode) {

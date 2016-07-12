@@ -233,9 +233,9 @@ public:
                 options.output_period = (double) v.toInteger().value();
             }
             if (options.output_period < 1) {
-                throw utils::ModellingError(
-                        (boost::format("[%1%] Parameter 'output_period' should "
-                                "be an Integer > 0")).str());
+                throw utils::ModellingError(vle::utils::format(
+                        "[%s] Parameter 'output_period' should be an int > 0",
+                        getModelName().c_str()));
             }
         }
     }
@@ -498,9 +498,9 @@ private:
                 extUps.registerExtUp(itf, varValue, t);
 
             } else {
-                throw utils::InternalError(
-                        (boost::format("[%1%] Unrecognised port '%2%' on mode PORT")
-                                % getModelName() % portName).str());
+                throw utils::InternalError(vle::utils::format(
+                        "[%s] Unrecognised port '%s' on mode PORT",
+                        getModelName().c_str(), portName.c_str()));
             }
         }
     }

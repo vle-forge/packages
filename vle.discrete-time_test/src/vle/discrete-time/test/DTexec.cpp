@@ -27,7 +27,7 @@
  */
 
 #include <vle/discrete-time/DiscreteTimeExec.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 namespace vle {
 namespace discrete_time {
@@ -52,8 +52,10 @@ public:
     void compute(const vle::devs::Time& /*t*/) override
     {
         num_model = num_model(-1) + 1;
-        std::string current((boost::format("A_%1%") % (num_model())).str());
-        std::string inPort((boost::format("a_%1%") % (num_model())).str());
+        std::string current(
+                vle::utils::format("A_%u", (unsigned int)num_model()));
+        std::string inPort(
+                vle::utils::format("a_%u", (unsigned int)num_model()));
         createModelFromClass("AClass", current);
         addInputPort("GenericSum", inPort);
         addConnection(current, "a", "GenericSum", inPort);

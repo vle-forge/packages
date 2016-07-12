@@ -38,7 +38,7 @@
 #include <iterator>
 #include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 
 struct F

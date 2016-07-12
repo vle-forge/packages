@@ -39,11 +39,11 @@
 #include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/devs/Time.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/extension/Decision.hpp>
 
 namespace vmd = vle::extension::decision;
 namespace vd = vle::devs;
-using boost::format;
 
 namespace vle { namespace extension { namespace decision { namespace ex {
 
@@ -303,10 +303,6 @@ BOOST_AUTO_TEST_CASE(parser)
 
     vmd::ex::KnowledgeBase b;
     b.plan().fill(std::string(vmd::ex::Plan1));
-
-    std::cout << boost::format("parser: %1%\n") % b;
-    std::cout << boost::format("graph: %1%\n") %
-            b.activities().precedencesGraph();
 
     BOOST_REQUIRE_EQUAL(b.activities().size(), (vmd::Activities::size_type)8);
     BOOST_REQUIRE_EQUAL(

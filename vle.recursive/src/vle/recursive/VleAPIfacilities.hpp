@@ -22,6 +22,7 @@
 
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Exception.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/manager/Manager.hpp>
 #include <vle/value/Double.hpp>
 
@@ -78,9 +79,9 @@ public:
                 for (vv::MapValue::const_iterator itv = vl.begin();
                         itv != vl.end(); ++itv) {
                     if (initValues->exist(itv->first)) {
-                        throw vu::InternalError((boost::format(
+                        throw vu::InternalError(vle::utils::format(
                                 "Multiples condition with the same init port "
-                                "name '%1%'") % itv->first).str());
+                                "name '%s'", itv->first.c_str()));
                     }
                     initValues->add(itv->first,itv->second->clone());
                 }
@@ -292,8 +293,8 @@ public:
     {
         vv::Map::const_iterator it = result.find(view);
         if (it == result.end()) {
-            throw vu::ArgError((boost::format("view '%1%' not found)")
-                                % view).str());
+            throw vu::ArgError(vle::utils::format(
+                    "view '%s' not found", view.c_str()));
         }
         const vv::Matrix& outMat = vv::toMatrixValue(*it->second);
         std::string absoluteModPath(model_path);
@@ -306,8 +307,8 @@ public:
             }
         }
         if (colIndex == 999) {
-            throw vu::ArgError((boost::format("view.port '%1%' not found)")
-                 % absoluteModPath).str());
+            throw vu::ArgError(vle::utils::format(
+                    "view.port '%s' not found", absoluteModPath.c_str()));
         }
         return outMat.get(colIndex, outMat.rows()-1);
     }
@@ -327,27 +328,27 @@ public:
     {
         vv::Map::const_iterator it = result.find(view);
         if (it == result.end()) {
-            throw vu::ArgError((boost::format(
-                "view '%1%' not found)") % view).str());
+            throw vu::ArgError(vle::utils::format(
+                "view '%s' not found)", view.c_str()));
         }
         const vv::Matrix& outMat = vv::toMatrixValue(*it->second);
         bool found = false;
         for (unsigned int i=0; i < outMat.columns(); i++) {
             if (VleAPIfacilities::ends_with(outMat.getString(i,0), port)) {
                 if(found){
-                    throw vu::ArgError((boost::format(
-                            "[VleAPIFacilities]  Ambiguous port '%1%' "
-                            " in view '%2%' (found more than once)")
-                            % port % view).str());
+                    throw vu::ArgError(vle::utils::format(
+                            "[VleAPIFacilities]  Ambiguous port '%s' "
+                            " in view '%s' (found more than once)",
+                            port.c_str(), view.c_str()));
                 }
                 found = true;
                 return outMat.get(i, outMat.rows()-1);
             }
         }
         if(not found){
-            throw vu::ArgError((boost::format(
-               "[VleAPIFacilities] port '%1%' not found in view '%2%' ")
-            % port % view).str());
+            throw vu::ArgError(vle::utils::format(
+               "[VleAPIFacilities] port '%s' not found in view '%s' ",
+               port.c_str(), view.c_str()));
         }
         return std::move(std::unique_ptr<vv::Value>(nullptr));
     }

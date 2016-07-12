@@ -33,7 +33,7 @@
 #include <vle/extension/decision/PrecedenceConstraint.hpp>
 #include <vle/extension/decision/PrecedencesGraph.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -183,9 +183,8 @@ public:
     {
         const_iterator it = m_lst.find(name);
         if (it == m_lst.end()) {
-            throw utils::ArgError(
-                (boost::format("Decision: unknown activity '%1%'")
-                 % name).str());
+            throw utils::ArgError(vle::utils::format(
+                    "Decision: unknown activity '%s'", name.c_str()));
         }
         return it;
     }
@@ -194,9 +193,8 @@ public:
     {
         iterator it = m_lst.find(name);
         if (it == m_lst.end()) {
-            throw utils::ArgError(
-                (boost::format("Decision: unknown activity '%1%'")
-                 % name).str());
+            throw utils::ArgError(vle::utils::format(
+                    "Decision: unknown activity '%s'", name.c_str()));
         }
         return it;
     }

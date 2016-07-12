@@ -26,7 +26,7 @@
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Value.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 
 #include <iostream>
@@ -160,9 +160,9 @@ namespace differential_equation { namespace test { namespace dynamics  {
         void externalTransition(const vd::ExternalEventList& /*event*/,
                                 vd::Time /* time */) override
         {
-            throw vu::ArgError((boost::format(
-                        "[%1%] Model that does not handle external events ")
-                % getModelName()).str());
+            throw vu::ArgError(vle::utils::format(
+                        "[%s] Model that does not handle external events ",
+                         getModelName().c_str()));
         }
         /**
          * @brief Implementation of Dynamics::observation

@@ -28,7 +28,7 @@
 
 #include <vle/extension/decision/PrecedencesGraph.hpp>
 #include <vle/utils/Algo.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <iterator>
 
 namespace vle { namespace extension { namespace decision {

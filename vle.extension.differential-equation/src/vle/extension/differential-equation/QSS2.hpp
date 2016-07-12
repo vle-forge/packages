@@ -637,9 +637,9 @@ public:
                     eq), extUps(), discontinuities(eq.getModelName()), guards(), options()
     {
         if (!params.exist("DeltaQ") || !params.get("DeltaQ")->isMap()) {
-            throw vu::ModellingError(
-                    (boost::format("[%1%] QSS2 expects a Map for 'DeltaQ' "
-                            "parameters") % getModelName()).str());
+            throw vu::ModellingError(vle::utils::format(
+                    "[%s] QSS2 expects a Map for 'DeltaQ' parameters",
+                    getModelName().c_str()));
         }
         const vv::Map& deltaQs = params.getMap("DeltaQ");
         //initialisation of variable indexes and real values
@@ -682,8 +682,6 @@ private:
      */
     void processIn(const vd::Time& t, TransitionType trans)
     {
-//        DTraceExtension(boost::format("[%1%] QSS2 ::processIn (in) state = '%2%',"
-//                " trans= '%3%'" ) % getModelName() % state % trans)
         switch (state) {
         case INIT_SEND:
         case INIT_BAG_EATER:
@@ -750,8 +748,6 @@ private:
      */
     void processOut(const vd::Time& t, TransitionType trans)
     {
-//        DTraceExtension(boost::format("[%1%] QSS2 ::processOut (out) state = '%2%',"
-//                " trans= '%3%'" ) % getModelName() % state % trans)
         switch (state) {
         case INIT_SEND:
         case INIT_BAG_EATER:
@@ -936,10 +932,6 @@ private:
             const std::string& portName = itb->getPortName();
             const vv::Map& attrs= itb->attributes()->toMap();
 
-//            DTraceExtension(boost::format("[%1%] QSS2::handleExtEvt "
-//              "state = '%2%', port= '%3%', attributes='%4%'" )
-//              % getModelName() % state % portName % (*itb)->attributes())
-
             //update targeted variable
             if (portName == "perturb") {
                 discontinuities.registerPerturb(t, attrs);
@@ -951,10 +943,10 @@ private:
                     varGrad = attrs.getDouble("gradient");
                 } else {
                     if (options.expectGradients) {
-                        throw vu::ModellingError((boost::format(
-                          "[%1%] External variable update of '%2%' is expected "
-                                                "to carry gradient")
-                                        % getModelName() % portName).str());
+                        throw vu::ModellingError(vle::utils::format(
+                          "[%s] External variable update of '%s' is expected "
+                          "to carry gradient",
+                          getModelName().c_str(), portName.c_str()));
                     }
                 }
                 ExternVariables::iterator itf = extVars().find(portName);
@@ -964,9 +956,9 @@ private:
                 }
                 extUps.registerExtUp(itf, varValue, varGrad, t);
             } else {
-                throw vu::ModellingError(
-                        (boost::format("[%1%] Unrecognised port '%2%'")
-                                % getModelName() % portName).str());
+                throw vu::ModellingError(vle::utils::format(
+                        "[%s] Unrecognised port '%s'",
+                        getModelName().c_str(), portName.c_str()));
             }
         }
     }

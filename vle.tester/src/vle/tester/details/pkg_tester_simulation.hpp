@@ -36,7 +36,7 @@
 #include <vle/utils/Context.hpp>
 #include <vle/utils/Package.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/utils/Package.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/manager/Manager.hpp>
@@ -138,8 +138,9 @@ public:
     va::Matrix& getView(va::Map& sim_outputs, const std::string& viewname)
     {
         if (! sim_outputs.exist(viewname)) {
-            throw vu::ArgError((boost::format(" View not found : %1%")
-            % viewname).str());
+            throw vu::ArgError(vle::utils::format(
+                    " View not found : %s",
+                    viewname.c_str()));
         }
         return sim_outputs.getMatrix(viewname);
     }
@@ -151,7 +152,8 @@ public:
     {
         va::Matrix& view = getView(sim_outputs, viewname);
         if (view.rows() <= i) {
-            throw vu::ArgError((boost::format(" index to big : %1%") % i).str());
+            throw vu::ArgError(vle::utils::format(
+                    " index to big : %u",  i));
         }
 
         for(unsigned int j=1; j < view.columns(); j++){

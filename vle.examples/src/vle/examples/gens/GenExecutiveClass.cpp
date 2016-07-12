@@ -27,7 +27,7 @@
 
 
 #include <vle/devs/Executive.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <stack>
 #include <sstream>
 
@@ -117,7 +117,8 @@ public:
 private:
     void add_new_model()
     {
-        std::string name((boost::format("beep-%1%") % m_stacknames.size()).str());
+        std::string name(vle::utils::format("beep-%i",
+                (int) m_stacknames.size()));
         if (m_buildbeepbeep) {
             createModelFromClass("beepbeep", name);
         } else {
@@ -132,9 +133,9 @@ private:
     void del_first_model()
     {
         if (m_stacknames.empty()) {
-            throw utils::InternalError(boost::format(
+            throw utils::InternalError(
                     "Cannot delete any model, the executive have no "
-                    "element.").str());
+                    "element.");
         }
 
         delModel(m_stacknames.top());

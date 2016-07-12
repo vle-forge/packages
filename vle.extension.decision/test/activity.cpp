@@ -36,12 +36,12 @@
 #include <iostream>
 #include <iterator>
 #include <vle/value/Double.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/vle.hpp>
 
 namespace vmd = vle::extension::decision;
 namespace vd = vle::devs;
-using boost::format;
 
 namespace vle { namespace extension { namespace decision { namespace ex {
 
@@ -239,8 +239,8 @@ public:
 
     void update(const std::string& name, const Activity& act)
     {
-        std::cout << boost::format("new state of %1% is %2%\n")
-                     % name % act.state();
+        std::cout << vle::utils::format("new state of %s is %i\n",
+                name.c_str(), (int)act.state());
         mNbUpdate++;
     }
 
@@ -527,6 +527,6 @@ BOOST_AUTO_TEST_CASE(Activities_test_slot_function)
 
     // All activity switch from wait to start and from start to end.
     BOOST_REQUIRE_EQUAL(base.getNumberOfUpdate(), 12);
-    std::cout << boost::format("%1% %2%\n") % base.getNumberOfOut() %
-        base.getNumberOfUpdate();
+    std::cout << vle::utils::format("%i %i\n", base.getNumberOfOut(),
+        base.getNumberOfUpdate());
 }

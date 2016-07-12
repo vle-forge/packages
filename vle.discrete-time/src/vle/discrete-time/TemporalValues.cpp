@@ -28,13 +28,15 @@
 #include <vle/value/Boolean.hpp>
 #include <vle/value/Integer.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <iostream>
 #include <iomanip>      // std::setprecision
 #include <sstream>
 
 namespace vle {
 namespace discrete_time {
+
+namespace vu = vle::utils;
 
 VarUpdate::VarUpdate(const vle::devs::Time& t, double val):
                         timeOfUpdate(t), value(val)
@@ -159,9 +161,9 @@ VarInterface::initHistoryVar(const std::string& varName,
                 if (itVar->history_size_given and
                         (tuple.size() != itVar->history_size)) {
                     throw vle::utils::ModellingError(
-                            (boost::format("[%1%] Error initialization of variable"
-                                    " '%2%' (history size not eq tuple size)\n")
-                    % tvp->get_model_name() % varName).str());
+                            vle::utils::format("[%s] Error initialization of variable"
+                                " '%s' (history size not eq tuple size)\n",
+                                tvp->get_model_name().c_str(), varName.c_str()));
                 }
                 for (unsigned int h = 0; h < tuple.size() ; h++) {
                     itVar->history.push_front(
@@ -176,9 +178,9 @@ VarInterface::initHistoryVar(const std::string& varName,
                 }
             } else {
                 throw vle::utils::ModellingError(
-                        (boost::format("[%1%] Error initialisation of variable '%2%'"
-                                " (expect Tuple or Double)\n")
-                % tvp->get_model_name() % varName).str());
+                        vu::format("[%s] Error initialisation of variable '%s'"
+                                " (expect Tuple or Double)\n",
+                                tvp->get_model_name().c_str(), varName.c_str()));
             }
         } else {
             for (unsigned int h = 0; h < itVar->history_size ; h++) {
@@ -195,9 +197,9 @@ VarInterface::initHistoryVar(const std::string& varName,
                 itVar->history.push_back(new VectUpdate(t, tuple));
             } else {
                 throw vle::utils::ModellingError(
-                        (boost::format("[%1%] Error initialisation of variable '%2%'"
-                                " (expect Tuple)\n")
-                % tvp->get_model_name() % varName).str());
+                        vu::format("[%s] Error initialisation of variable '%s'"
+                                " (expect Tuple)\n",
+                                tvp->get_model_name().c_str(), varName.c_str()));
             }
         } else {
             itVar->history.push_back(new VectUpdate(t, itVar->dim));
@@ -258,9 +260,9 @@ VarMono::getVal(const vle::devs::Time& t, double delay) const
         }
     }
     throw vle::utils::InternalError(
-        (boost::format("[%1%] getVal not found, called "
-                " with t='%2%', delay='%3%' and history ='%4%' \n")
-       % tvp->get_model_name() % t % delay % history).str());
+        vu::format("[%s] getVal not found, called "
+                " with t='%f', delay='%f' \n",
+                tvp->get_model_name().c_str(), t, delay ));
 }
 
 VAR_TYPE
@@ -314,8 +316,8 @@ VarMono::lastVal(const vle::devs::Time& beg, const vle::devs::Time& end)
         }
     }
     throw vle::utils::ModellingError(
-            (boost::format("[%1%] lastVal wrong interval [%2%;%3%[ \n")
-            % tvp->get_model_name() % beg % end).str());
+            vu::format("[%s] lastVal wrong interval [%f;%f[ \n",
+            tvp->get_model_name().c_str(), beg, end));
 }
 
 
@@ -383,9 +385,9 @@ VarMulti::getVal(unsigned int i, const vle::devs::Time& t,
         double delay) const
 {
     if (i >= dim) {
-        throw vle::utils::ModellingError((boost::format("[%1%] tried to access "
-                "to index `%2%` of a Vect of size `%4%`.")
-        % tvp->get_model_name() % i % dim).str());
+        throw vle::utils::ModellingError(vu::format("[%s] tried to access "
+                "to index `%u` of a Vect of size `%u`.",
+                tvp->get_model_name().c_str(), i, dim));
     }
     const std::vector<double>& value = getVal(t,delay);
     return value[i];
@@ -403,9 +405,9 @@ VarMulti::getVal(const vle::devs::Time& t, double delay) const
         }
     }
     throw vle::utils::InternalError(
-            (boost::format("[%1%] getVal not found, called with t='%2%', "
-                    "delay='%3%' and history ='%4%' \n")
-                % tvp->get_model_name() % t % delay % history).str());
+            vu::format("[%s] getVal not found, called with t='%f', "
+                    "delay='%f'\n",
+                tvp->get_model_name().c_str(), t, delay));
 }
 
 void
@@ -540,9 +542,9 @@ VarValue::getVal(const vle::devs::Time& t, double delay) const
         }
     }
     throw vle::utils::InternalError(
-            (boost::format("[%1%] getVal not found, called "
-                    " with t='%2%', delay='%3%' and history ='%4%' \n")
-    % tvp->get_model_name() % t % delay % history).str());
+            vu::format("[%s] getVal not found, called "
+                    " with t='%f', delay='%f' \n",
+                      tvp->get_model_name().c_str(), t, delay));
 }
 
 void
@@ -581,8 +583,8 @@ VarValue::lastVal(const vle::devs::Time& beg, const vle::devs::Time& end)
         }
     }
     throw vle::utils::ModellingError(
-            (boost::format("[%1%] lastVal wrong interval [%2%;%3%[ \n")
-    % tvp->get_model_name() % beg % end).str());
+            vu::format("[%s] lastVal wrong interval [%f;%f[ \n",
+            tvp->get_model_name().c_str(), beg, end));
 }
 
 void
@@ -666,8 +668,9 @@ Var::init(TemporalValuesProvider* tvpin, const std::string& varName,
             tvpin->getVariables().insert(
                     std::make_pair(name, new VarMono(tvpin)));
     if (not resInsert.second) {
-        throw vle::utils::ModellingError((boost::format("[%1%] Var '%2%' "
-                "already declared \n") % tvpin->get_model_name() % name).str());
+        throw vle::utils::ModellingError(vu::format("[%s] Var '%s' "
+                "already declared \n",
+                tvpin->get_model_name().c_str(),  name.c_str()));
     }
     itVar = dynamic_cast<VarMono*>(resInsert.first->second);
 
@@ -712,9 +715,8 @@ void
 Var::init_value(double v)
 {
     if (!itVar) {
-        throw vle::utils::ModellingError(
-                (boost::format("init_value for Var can be called only after "
-                        " init function \n")).str());
+        throw vle::utils::ModellingError("init_value for Var can be called "
+                " only after init function \n");
     }
     itVar->init_value.reset();
     itVar->init_value = std::unique_ptr<vle::value::Value>(
@@ -725,9 +727,8 @@ void
 Var::init_history(const vle::devs::Time& t)
 {
     if (!itVar) {
-        throw vle::utils::ModellingError(
-                (boost::format("init_history for Var can be called only after "
-                        " init function \n")).str());
+        throw vle::utils::ModellingError("init_history for Var "
+                "can be called only after init function \n");
     }
     itVar->initHistoryVar(name,t);
 }
@@ -743,9 +744,9 @@ Var::operator()(double delay) const
 {
     if (itVar->history.size() == 0) {
         throw vle::utils::ModellingError(
-                (boost::format("[%1%] operator(delay) for variable '%2%' cannot be"
-                        " used because history is empty \n")
-        % itVar->tvp->get_model_name() % name).str());
+                vu::format("[%s] operator(delay) for variable '%s' cannot be"
+                        " used because history is empty \n",
+                        itVar->tvp->get_model_name().c_str(), name.c_str()));
     }
     return itVar->getVal(itVar->tvp->getCurrentTime(),
                          delay * itVar->tvp->getDelta());
@@ -777,8 +778,8 @@ void
 Var::operator=(double v)
 {
     if (!itVar) {
-        throw vle::utils::ModellingError(
-                (boost::format("Operator= cannot be used before init \n")).str());
+        throw vle::utils::ModellingError("Operator= cannot be used before "
+                " init \n");
     }
     if (itVar->history.size() == 0) {
         itVar->init_value.reset();
@@ -874,8 +875,9 @@ Vect::init(TemporalValuesProvider* tvpin, const std::string& varName,
             tvpin->getVariables().insert(std::make_pair(name,
                     new VarMulti(tvpin, dim)));
     if (not resInsert.second) {
-        throw vle::utils::ModellingError((boost::format("[%1%] Vect '%2%' "
-                "already declared \n") % tvpin->get_model_name() % name).str());
+        throw vle::utils::ModellingError(vu::format("[%s] Vect '%s' "
+                "already declared \n", tvpin->get_model_name().c_str(),
+                name.c_str()));
     }
     itVar = dynamic_cast<VarMulti*>(resInsert.first->second);
     itVar->dim = dim;
@@ -927,9 +929,9 @@ Vect_i
 Vect::operator[](unsigned int i)
 {
     if (i >= dim()) {
-        throw vle::utils::ModellingError((boost::format("[%1%] error access to index"
-                " `%2%` of Vect `%3%` which has size `%4%`.") %
-                itVar->tvp->get_model_name() % i % name % dim()).str());
+        throw vle::utils::ModellingError(vu::format("[%s] error access to index"
+                " `%u` of Vect `%s` which has size `%u`.",
+                itVar->tvp->get_model_name().c_str(), i, name.c_str(), dim()));
     }
     return Vect_i(itVar,i);
 }
@@ -964,8 +966,9 @@ ValueVle::init(TemporalValuesProvider* tvpin, const std::string& varName,
             tvpin->getVariables().insert(std::make_pair(name,
                     new VarValue(tvpin)));
     if (not resInsert.second) {
-        throw vle::utils::ModellingError((boost::format("[%1%] ValueVle '%2%' "
-                "already declared \n") % tvpin->get_model_name() % name).str());
+        throw vle::utils::ModellingError(vu::format("[%s] ValueVle '%s' "
+                "already declared \n", tvpin->get_model_name().c_str(),
+                name.c_str()));
     }
     itVar = dynamic_cast<VarValue*>(resInsert.first->second);
 
@@ -1085,9 +1088,9 @@ TemporalValuesProvider::snapshot(SNAPSHOT_ID idSnap)
             VarMono* itv = dynamic_cast<VarMono*>(itb->second);
             if (itv->history.size() == 0){
                 throw vle::utils::ModellingError(
-                        (boost::format("[%1%] Error snapshot of variable '%2%'"
-                                " (maybe you forgot to call initHistory)\n")
-                % get_model_name() % itb->first).str());
+                        vu::format("[%s] Error snapshot of variable '%s'"
+                                " (maybe you forgot to call initHistory)\n",
+                                get_model_name().c_str(), itb->first.c_str()));
             }
             itv->addSnapshot(idSnap, itv->history.back()->value);
             break;
@@ -1095,9 +1098,9 @@ TemporalValuesProvider::snapshot(SNAPSHOT_ID idSnap)
             VarMulti* itv = dynamic_cast<VarMulti*>(itb->second);
             if (itv->history.size() == 0){
                 throw vle::utils::ModellingError(
-                        (boost::format("[%1%] Error snapshot of variable '%2%'"
-                                " (maybe you forgot to call initHistory)\n")
-                % get_model_name() % itb->first).str());
+                        vu::format("[%s] Error snapshot of variable '%s'"
+                                " (maybe you forgot to call initHistory)\n",
+                                get_model_name().c_str(), itb->first.c_str()));
             }
             itv->addSnapshot(idSnap, itv->history.back()->value);
             break;

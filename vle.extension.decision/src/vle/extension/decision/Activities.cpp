@@ -28,8 +28,9 @@
 
 #include <vle/extension/decision/Activities.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <numeric>
+#include <algorithm>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -40,8 +41,8 @@ Activity& Activities::add(const std::string& name, const Activity& act,
     iterator it(m_lst.find(name));
 
     if (it != m_lst.end()) {
-        throw utils::ArgError((boost::format(
-                "Decision: activity '%1%' already exist") % name).str());
+        throw utils::ArgError(vle::utils::format(
+                "Decision: activity '%s' already exist", name.c_str()));
     }
 
     Activity& a((*m_lst.insert(value_type(name, act)).first).second);
@@ -63,8 +64,8 @@ Activity& Activities::add(const std::string& name,
     iterator it(m_lst.find(name));
 
     if (it != m_lst.end()) {
-        throw utils::ArgError((boost::format(
-                "Decision: activity '%1%' already exist") % name).str());
+        throw utils::ArgError(vle::utils::format(
+                "Decision: activity '%s' already exist", name.c_str()));
     }
 
     Activity& a((*m_lst.insert(value_type(name, Activity())).first).second);

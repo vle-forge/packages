@@ -76,9 +76,9 @@ void DifferentialEquation::reinit(const vv::Set& evt, bool perturb,
             double varVal = evtMap.getDouble("value");
             Variables::iterator itf = vars().find(varName);
             if (itf == vars().end()) {
-                throw utils::ModellingError((boost::format(
-                        "[%1%] State variable '%2%' not found "
-                        "on perturbation") % getModelName() % varName).str());
+                throw utils::ModellingError(vle::utils::format(
+                        "[%s] State variable '%s' not found on perturbation",
+                        getModelName().c_str(), varName.c_str()));
             }
             itf->second.setVal(varVal);
         }
@@ -125,10 +125,10 @@ vd::Time DifferentialEquation::init(vd::Time time)
     ExternVariables::const_iterator iee = mextVars.end();
     for (; ieb != iee; ieb++) {
         if (!getModel().existInputPort(ieb->first)) {
-            throw vu::ModellingError((boost::format(
-                    "[%1%] Input port corresponding to extern variable"
-                    " '%2%' should be present") % getModelName()
-                            % ieb->first).str());
+            throw vu::ModellingError(vle::utils::format(
+                    "[%s] Input port corresponding to extern variable"
+                    " '%s' should be present",
+                    getModelName().c_str(), ieb->first.c_str()));
         }
     }
 
@@ -141,8 +141,9 @@ vd::Time DifferentialEquation::init(vd::Time time)
     } else if (mmethod == "qss2") {
         meqImpl.reset(new qss2::QSS2(*this, *mmethParams));
     } else {
-        throw vu::InternalError((boost::format("[%1%] numerical integration method"
-                " not recognized '%1%'") % mmethod).str());
+        throw vu::InternalError(vle::utils::format(
+                "[%s] numerical integration method not recognized %s",
+                getModelName().c_str(), mmethod.c_str()));
     }
     return meqImpl->init(time);
 }

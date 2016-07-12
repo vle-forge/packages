@@ -63,10 +63,10 @@ public:
             Variable(name, equation)
         {
             if (name != ((Simple*)equation)->mVariableName) {
-                throw utils::InternalError(
-                    (boost::format("DifferenceEquation::simple - wrong variable" \
-                          " name: %1% in %2%") % name %
-                    ((Simple*)equation)->mVariableName).str());
+                throw utils::InternalError(vle::utils::format(
+                        "DifferenceEquation::simple - wrong variable" \
+                          " name: %s in %s", name.c_str(),
+                    ((Simple*)equation)->mVariableName.c_str()));
             }
         }
 

@@ -31,7 +31,7 @@
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 namespace vle {
 namespace extension {
@@ -227,10 +227,9 @@ public:
         {
             if (not itVar) {
                 if (not equation) {
-                    throw vu::ModellingError(
-                            (boost::format("[%1%] Manipulation  the Var '%2%' "
-                                    "at this stage")
-                                % equation->getModelName() % name ).str());
+                    throw vu::ModellingError(vle::utils::format(
+                            "[%s] Manipulation  the Var '%s' at this stage",
+                            equation->getModelName().c_str(), name.c_str()));
 
                 }
                 itVar = &(equation->vars().find(name)->second);
@@ -264,9 +263,9 @@ public:
         inline double operator()() const
         {
             if (not itVar or not equation) {
-                throw vu::ModellingError(
-                     (boost::format("[%1%] Error when const accessing value of '%2%'")
-                        % equation->getModelName() % name ).str());
+                throw vu::ModellingError(vle::utils::format(
+                        "[%s] Error when const accessing value of '%s'",
+                        equation->getModelName().c_str(), name.c_str()));
             }
             return itVar->getVal();
         }

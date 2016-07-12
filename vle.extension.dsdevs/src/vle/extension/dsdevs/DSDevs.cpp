@@ -34,7 +34,7 @@
 #include <vle/extension/dsdevs/DSDevs.hpp>
 #include <vle/vpz/AtomicModel.hpp>
 #include <vle/vpz/Model.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/devs/ObservationEvent.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/value/Set.hpp>
@@ -521,8 +521,9 @@ bool DSDevs::processSwitch(const std::string& action, const value::Map& val)
     } else if (action == "bag") {
         return processBag(val);
     } else {
-        throw utils::InternalError((boost::format(
-                    "DSDevs ext.: unknow action '%1%'") % action).str());
+        throw utils::InternalError(vle::utils::format(
+                    "DSDevs ext.: unknow action '%s'",
+                    action.c_str()));
     }
 }
 
@@ -672,8 +673,6 @@ bool DSDevs::addConnectionT(const std::string& srcModelName,
                                  dstPortName);
         return true;
     } catch (const std::exception& e) {
-//        TraceExtension((boost::format("DSDevs add connection error: %1%")
-//                % e.what()).str());
         return false;
     }
 }
@@ -692,8 +691,6 @@ bool DSDevs::changeConnectionT(const std::string& srcModelName,
                                  newDstPortName);
         return true;
     } catch (const std::exception& e) {
-//        TraceExtension(boost::format("DSDevs change connection error: %1%") %
-//                       e.what());
         return false;
     }
 }
@@ -708,7 +705,6 @@ bool DSDevs::removeConnectionT(const std::string& srcModelName,
                                     dstPortName);
         return true;
     } catch (const std::exception& e) {
-//        TraceExtension(boost::format("DSDevs remove connection: %1%") % e.what());
         return false;
     }
 }
@@ -756,7 +752,6 @@ bool DSDevs::addInputPortT(const std::string& modelName,
         Executive::addInputPort(modelName, portName);
         return true;
     } catch (const std::exception& e) {
-//        TraceExtension(boost::format("DSDevs add input port error: %1%") % e.what());
         return false;
     }
 }
@@ -768,7 +763,6 @@ bool DSDevs::addOutputPortT(const std::string& modelName,
         Executive::addOutputPort(modelName, portName);
         return true;
     } catch (const std::exception& e) {
-//        TraceExtension(boost::format("DSDevs add output port error: %1%") % e.what());
         return false;
     }
 }
@@ -780,8 +774,6 @@ bool DSDevs::removeInputPortT(const std::string& modelName,
         Executive::removeInputPort(modelName, portName);
         return true;
     } catch (const std::exception& e) {
-//        TraceExtension(boost::format("DSDevs remove input port error: %1%") %
-//                       e.what());
         return false;
     }
 }
@@ -793,8 +785,6 @@ bool DSDevs::removeOutputPortT(const std::string& modelName,
         Executive::removeOutputPort(modelName, portName);
         return true;
     } catch (const std::exception& e) {
-//        TraceExtension(boost::format("DSDevs remove output port error: %1%") %
-//                       e.what());
         return false;
     }
 }

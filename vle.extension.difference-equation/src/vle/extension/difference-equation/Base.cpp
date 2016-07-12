@@ -64,18 +64,18 @@ Base::Base(const DynamicsInit& model,
                 mTimeStepUnit = vle::utils::DateTime::convertUnit(
                     toString(timeStep.get("unit")));
             } else {
-                throw utils::InternalError((boost::format(
-                            "[%1%] DifferenceEquation - bad type "\
-                            "for value of time-step port")
-                    % getModelName()).str());
+                throw utils::InternalError(vle::utils::format(
+                            "[%s] DifferenceEquation - bad type "\
+                            "for value of time-step port",
+                    getModelName().c_str()));
             }
 
         } else {
             if (not events.exist("time-step")) {
-                throw utils::InternalError((boost::format(
-                            "[%1%] DifferenceEquation - "\
-                            "time-step port not exists")
-                    % getModelName()).str());
+                throw utils::InternalError(vle::utils::format(
+                            "[%s] DifferenceEquation - "\
+                            "time-step port not exists",
+                    getModelName().c_str()));
             }
         }
 
@@ -88,10 +88,10 @@ Base::Base(const DynamicsInit& model,
                 mMode = MAPPING;
 
                 if (not events.exist("mapping")) {
-                    throw utils::InternalError((boost::format(
-                                "[%1%] DifferenceEquation - "\
-                                "mapping port not exists")
-                        % getModelName()).str());
+                    throw utils::InternalError(vle::utils::format(
+                                "[%s] DifferenceEquation - "\
+                                "mapping port not exists",
+                        getModelName().c_str()));
                 }
 
                 const value::Map& mapping = events.getMap("mapping");
@@ -114,8 +114,9 @@ void Base::addExternalValue(double value,
 {
     if (mExternalValues.find(name) == mExternalValues.end()) {
         throw utils::ModellingError(
-            (boost::format("[%1%] DifferenceEquation::add - "\
-                  "invalid variable name: %2%") % getModelName() % name).str());
+            vle::utils::format("[%s] DifferenceEquation::add - "\
+                  "invalid variable name: %s", getModelName().c_str(),
+                  name.c_str()));
     }
 
     mExternalValues[name].push_front(value);
@@ -215,9 +216,9 @@ void Base::initExternalVariable(const std::string& name)
 {
     if (not ((mControl and mDepends.find(name) != mDepends.end()) or
              not mControl)) {
-        throw utils::ModellingError((boost::format(
-                    "[%1%] DifferenceEquation::init - invalid variable name: "\
-                    "%2%") % getModelName() % name).str());
+        throw utils::ModellingError(vle::utils::format(
+                    "[%s] DifferenceEquation::init - invalid variable name: "\
+                    "%s", getModelName().c_str(), name.c_str()));
     }
 
     if (mSynchros.find(name) == mSynchros.end()) {
@@ -257,8 +258,8 @@ double Base::val(const std::string& name,
 {
     if (shift > 0) {
         throw utils::ModellingError(
-            (boost::format("[%1%] DifferenceEquation::getValue - " \
-                  "positive shift on %2%") % getModelName() % name).str());
+            vle::utils::format("[%s] DifferenceEquation::getValue - " \
+                  "positive shift on %s", getModelName().c_str(), name.c_str()));
     }
 
     if (mState == INIT) {
@@ -269,17 +270,17 @@ double Base::val(const std::string& name,
 
         if (shift == 0) {
             if (it->empty()) {
-                throw utils::ModellingError((boost::format(
-                            "[%1%] - %2%[0] - shift too large") %
-                    getModelName() % name).str());
+                throw utils::ModellingError(vle::utils::format(
+                            "[%s] - %s[0] - shift too large",
+                    getModelName().c_str(),  name.c_str()));
             }
 
             return it->front();
         } else {
             if ((int)(it->size() - 1) < -shift) {
-                throw utils::ModellingError((boost::format(
-                            "[%1%] - %2%[%3%] - shift too large") %
-                    getModelName() % name % shift).str());
+                throw utils::ModellingError(vle::utils::format(
+                            "[%s] - %s[%i] - shift too large",
+                    getModelName().c_str(), name.c_str(), shift));
             }
 
             return (*it)[-shift];
@@ -292,24 +293,24 @@ double Base::val(const std::string& name,
 
         if (shift > 0) {
             throw utils::InternalError(
-                (boost::format("[%1%] DifferenceEquation::getValue - " \
-                      "wrong shift on %2%") %
-                getModelName() % name).str());
+                vle::utils::format("[%s] DifferenceEquation::getValue - " \
+                      "wrong shift on %s",
+                getModelName().c_str(),  name.c_str()));
         }
 
         if (shift == 0) {
             if (it->empty()) {
-                throw utils::ModellingError((boost::format(
-                            "[%1%] - %2%[0] - shift too large") %
-                    getModelName() % name).str());
+                throw utils::ModellingError(vle::utils::format(
+                            "[%s] - %s[0] - shift too large",
+                    getModelName().c_str(),  name.c_str()));
             }
 
             return it->front();
         } else {
             if ((int)(it->size() - 1) < -shift) {
-                throw utils::InternalError((boost::format(
-                            "[%1%] - %2%[%3%] - shift too large") %
-                    getModelName() % name % shift).str());
+                throw utils::InternalError(vle::utils::format(
+                            "[%s] - %s[%i] - shift too large",
+                    getModelName().c_str(), name.c_str(), shift));
             }
             return (*it)[-shift];
         }
@@ -329,10 +330,9 @@ void Base::processUpdate(const std::string& name,
 
         if (mControl and not (mControl and
                               mDepends.find(name) != mDepends.end())) {
-            throw utils::ModellingError(
-                (boost::format("[%1%] DifferenceEquation::init "                 \
-                      "- invalid variable name: %2%") % getModelName() %
-                name).str());
+            throw utils::ModellingError(vle::utils::format(
+                    "[%s] DifferenceEquation::init - invalid variable name: %s",
+                    getModelName().c_str(), name.c_str()));
         }
 
         if (event.attributes()->toMap().exist("init")) {
@@ -431,9 +431,9 @@ void Base::size(const std::string& name,
                 int s)
 {
     if (mSize.find(name) != mSize.end()) {
-        throw utils::InternalError((boost::format(
-                    "[%1%] DifferenceEquation::size - %2% already exists") %
-            getModelName() % name).str());
+        throw utils::InternalError(vle::utils::format(
+                    "[%s] DifferenceEquation::size - %s already exists",
+            getModelName().c_str(),  name.c_str()));
     }
 
     mSize[name] = s;
@@ -474,10 +474,10 @@ Time Base::init(devs::Time time)
         }
 
         if (mDepends.size() != n) {
-            throw utils::InternalError((boost::format(
-                        "[%1%] DifferenceEquation::size - " \
-                        "%2% connection(s) on update port missing") %
-                getModelName() % (mDepends.size() - n)).str());
+            throw utils::InternalError(vle::utils::format(
+                        "[%s] DifferenceEquation::size - "
+                        "%i connection(s) on update port missing",
+                getModelName().c_str(), (int) (mDepends.size() - n)));
         }
 
     } else {
@@ -710,9 +710,9 @@ void Base::externalTransition(const ExternalEventList& event,
                    not it->onPort("remove")) {
 
             if (mMode != PORT and mMode != MAPPING) {
-                throw utils::InternalError((boost::format(
-                            "[%1%] - DifferenceEquation: invalid mode") %
-                    getModelName()).str());
+                throw utils::InternalError(vle::utils::format(
+                            "[%s] - DifferenceEquation: invalid mode",
+                    getModelName().c_str()));
             }
 
             std::string portName = it->getPortName();

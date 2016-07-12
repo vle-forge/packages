@@ -28,7 +28,7 @@
 
 #include <vle/extension/decision/PrecedenceConstraint.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -304,9 +304,8 @@ PrecedenceConstraint::isValid(const devs::Time& time) const
         break;
     }
 
-    throw utils::InternalError((boost::format(
-            "Decision: unknown precedence constraint %1%")
-            % (int)m_type).str());
+    throw utils::InternalError(vle::utils::format(
+            "Decision: unknown precedence constraint %i", (int)m_type));
 }
 
 }}} // namespace vle model decision

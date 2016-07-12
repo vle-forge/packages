@@ -20,7 +20,7 @@
 #define VLE_RECURSIVE_MODELS_METAMANAGERDYN_HPP_
 
 #include <string>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Value.hpp>
@@ -104,8 +104,9 @@ public:
             mstate = IDLE;
             break;
         } case IDLE: {
-            throw vu::InternalError((boost::format("[%1%] Internal error in "
-                    "dynamic (1)") % getModelName()).str());
+            throw vu::InternalError(vle::utils::format(
+                    "[%s] Internal error in dynamic (1)",
+                    getModelName().c_str()));
             break;
         }}
     }
@@ -134,8 +135,9 @@ public:
     {
         switch(mstate){
         case EXPE_LAUNCH: {
-            throw vu::ModellingError((boost::format("[%1%] A simulation of an "
-                    "experiment plan is already ongoing") % getModelName()).str());
+            throw vu::ModellingError(vle::utils::format(
+                    "[%s] A simulation of an experiment plan is already "
+                    "ongoing",  getModelName().c_str()));
             break;
         } case IDLE: {
             vd::ExternalEventList::const_iterator itb = event.begin();

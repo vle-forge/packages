@@ -104,10 +104,9 @@ public:
         virtual void operator=(double value)
         {
             if (not mEquation) {
-                throw utils::InternalError(
-                    (boost::format("DifferenceEquation::multiple - " \
-                          "variable %1% not build")
-                    % name()).str());
+                throw utils::InternalError(vle::utils::format(
+                        "DifferenceEquation::multiple - variable %s not build",
+                        name().c_str()));
             }
 
             if (not *mIterators.mSetValues) {

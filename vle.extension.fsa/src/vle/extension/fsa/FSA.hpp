@@ -29,8 +29,9 @@
 #ifndef VLE_EXTENSION_FSA_FSA_HPP
 #define VLE_EXTENSION_FSA_FSA_HPP 1
 
+#include <algorithm>
 #include <vle/devs/Dynamics.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 namespace vle { namespace extension { namespace fsa {
 
@@ -175,9 +176,9 @@ template < typename I >
 State_t<I> operator<<(State_t<I> state, int name)
 {
     if (state.obj->existState(name)) {
-        throw vle::utils::ModellingError(
-            (boost::format("[%1%] FSA::Base: state %2% is already defined")
-            % state.obj->getModelName() % name).str());
+        throw vle::utils::ModellingError(vle::utils::format(
+                "[%s] FSA::Base: state %i is already defined",
+                state.obj->getModelName().c_str(), name));
     }
 
     state.obj->states().push_back(name);

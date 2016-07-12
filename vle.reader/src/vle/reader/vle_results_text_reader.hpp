@@ -29,7 +29,7 @@
 #include <ostream>
 #include <fstream>
 #include <vle/utils/Exception.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/value/Matrix.hpp>
 #include <vle/value/Set.hpp>
 #include <vle/value/Map.hpp>
@@ -60,8 +60,9 @@ public:
         clearFileStream();
         filestream = new std::ifstream(file_path.c_str());
         if (not filestream->good() or not filestream->is_open()) {
-            throw vu::ArgError((boost::format("vle.reader: fails to open %1% ") %
-                    file_path).str());
+            throw vu::ArgError(vle::utils::format(
+                    "vle.reader: fails to open %s ",
+                    file_path.c_str()));
         }
         matrixToFill.clear();
 

@@ -24,6 +24,7 @@
 
 #include <vle/discrete-time/decision/AgentDT.hpp>
 #include <vle/value/String.hpp>
+#include <vle/utils/Tools.hpp>
 #include <cassert>
 #include <sstream>
 #include <iomanip>
@@ -157,8 +158,8 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
                 KnowledgeBase::setActivityFailed(activity, t);
             } else {
                 throw utils::ModellingError(
-                    (boost::format("Decision: unknown order `%1%'")
-                     % order).str());
+                    vle::utils::format("Decision: unknown order `%s'",
+                     order.c_str()));
             }
         } else {
             DiscreteTimeDyn::handleExtVar(t, port, atts);

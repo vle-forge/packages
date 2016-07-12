@@ -27,7 +27,7 @@
 
 
 #include <vle/devs/Executive.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <stack>
 #include <sstream>
 
@@ -117,7 +117,8 @@ public:
             set->add(value::Integer::create(1));
             if(get_nb_model() > 0 and ev.getTime() < 50.0){
                 set->add(value::String::create("add"));
-                std::string name = (boost::format("beep_%1%") % m_stacknames.size()).str();
+                std::string name = vle::utils::format("beep_%i",
+                        (int) m_stacknames.size());
                 set->add(value::String::create(name));
                 set->add(value::String::create("2"));
                 std::string edge =  name + std::string(" counter ");
@@ -125,8 +126,8 @@ public:
             }
             else if(get_nb_model() > 0){
                 set->add(value::String::create("delete"));
-                std::string name = (boost::format(
-                        "beep_%1%") % (get_nb_model())).str();
+                std::string name = vle::utils::format(
+                        "beep_%u", get_nb_model());
                 set->add(value::String::create(name));
             }
 
@@ -143,7 +144,8 @@ public:
 
     void add_new_model()
     {
-        std::string name((boost::format("beep_%1%") % m_stacknames.size()).str());
+        std::string name(vle::utils::format("beep_%i",
+                (int) m_stacknames.size()));
 
         std::vector < std::string > outputs;
         outputs.push_back("out");
@@ -157,9 +159,9 @@ public:
     void del_first_model()
     {
         if (m_stacknames.empty()) {
-            throw utils::InternalError(boost::format(
+            throw utils::InternalError(
                     "Cannot delete any model, the executive have no "
-                    "element.").str());
+                    "element.");
         }
 
         delModel(m_stacknames.top());

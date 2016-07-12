@@ -36,7 +36,7 @@
 #include <iostream>
 #include <iterator>
 #include <vle/value/Double.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/vle.hpp>
 

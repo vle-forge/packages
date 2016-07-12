@@ -30,9 +30,10 @@
  */
 
 #include <string>
+#include <algorithm>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/Rand.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 
 namespace vle { namespace examples { namespace fsa {
@@ -98,7 +99,7 @@ public:
             std::min_element(mSigmas.begin(), mSigmas.end());
         int index = ((int) std::distance(mSigmas.begin(), it)) + 1;
 
-        outputs.emplace_back((boost::format("out%1%") % index).str());
+        outputs.emplace_back(vle::utils::format("out%i", index));
     }
 
     virtual void internalTransition(vd::Time time) override

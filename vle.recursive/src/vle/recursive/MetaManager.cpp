@@ -54,8 +54,9 @@ VleInput::VleInput(const std::string& _cond, const std::string& _port,
                 cond(_cond), port(_port), type(MONO), nbValues(0)
 {
     if (cond.empty() or port.empty()) {
-        throw vle::utils::ArgError((boost::format("[MetaManager] : the input"
-                " has wrong form:  '%1%.%2%'") % cond % port).str());
+        throw vle::utils::ArgError(vle::utils::format(
+                "[MetaManager] : the input has wrong form: '%s.%s'",
+                cond.c_str(),  port.c_str()));
     }
     switch (val.getType()) {
         case vle::value::Value::TUPLE:
@@ -117,10 +118,10 @@ VleOutput::VleOutput(const std::string& _id,
     std::string tmp;
     if (val.isString()) {
         if (not parsePath(val.toString().value())) {
-            throw vle::utils::ArgError((boost::format("[MetaManager] : error in "
-                           "configuration of the output 'output_%1%' with "
-                           "a string; got: '%2%'") % id
-                            % val.toString().value()).str());
+            throw vle::utils::ArgError(vle::utils::format(
+                    "[MetaManager] : error in configuration of the output "
+                    "'output_%s' with a string; got: '%s'",
+                    id.c_str(),  val.toString().value().c_str()));
         }
     } else if (val.isMap()) {
         const vle::value::Map& m = val.toMap();
@@ -165,10 +166,10 @@ VleOutput::VleOutput(const std::string& _id,
             }
         }
         if (error) {
-            throw vle::utils::ArgError((boost::format("[MetaManager] : error in"
-                    " configuration of the output '%1%%2%' with "
-                    "a map; got: '%3%'") % "id_output_" % id
-                    % val).str());
+            throw vle::utils::ArgError(vle::utils::format(
+                    "[MetaManager] : error in configuration of the output "
+                    " '%s%s' with a map",
+                    "id_output_",  id.c_str()));
         }
     }
     initAggregateResult();
@@ -224,8 +225,9 @@ VleOutput::insertReplicate(const vle::value::Map& result)
 {
     vle::value::Map::const_iterator it = result.find(view);
     if (it == result.end()) {
-        throw vu::ArgError((boost::format("[MetaManager] view '%1%' not found)")
-          % view).str());
+        throw vu::ArgError(vle::utils::format(
+                "[MetaManager] view '%s' not found)",
+                view.c_str()));
     }
     const value::Matrix& outMat = value::toMatrixValue(*it->second);
     insertReplicate(outMat);
@@ -241,8 +243,9 @@ VleOutput::insertReplicate(const vle::value::Matrix& outMat)
         }
     }
     if (colIndex == 9999) {
-        throw vu::ArgError((boost::format("[MetaManager] view.port '%1%' not found)")
-        % absolutePort).str());
+        throw vu::ArgError(vle::utils::format(
+                "[MetaManager] view.port '%s' not found)",
+                absolutePort.c_str()));
     }
     switch(integrationType) {
     case MAX: {
@@ -385,9 +388,9 @@ MetaManager::run(const vle::value::Map& init)
         }  else if (tmp == "single") {
             mConfigParallelType = SINGLE;
         } else {
-            throw vle::utils::ArgError((boost::format("[MetaManager] error for "
-                    "configuration type of parallel process, got '%1%'")
-            % (*init.get("config_parallel_type"))).str());
+            throw vle::utils::ArgError("[MetaManager] error for "
+                    "configuration type of parallel process");
+
         }
     }
     if (init.exist("config_parallel_nb_slots")) {
@@ -396,9 +399,8 @@ MetaManager::run(const vle::value::Map& init)
         if (tmp > 0) {
             mConfigParallelNbSlots = tmp;
         } else {
-            throw vle::utils::ArgError((boost::format("[MetaManager] error for "
-                 "configuration type of parallel nb slots, got '%1%'")
-            % (*init.get("config_parallel_nb_slots"))).str());
+            throw vle::utils::ArgError("[MetaManager] error for "
+                 "configuration type of parallel nb slots)");
         }
     }
     if (init.exist("config_parallel_max_expes")) {
@@ -406,16 +408,16 @@ MetaManager::run(const vle::value::Map& init)
         tmp = init.getInt("config_parallel_max_expes");
         if (tmp > 0) {
             if ((unsigned int) tmp < mConfigParallelNbSlots) {
-                throw vle::utils::ArgError((boost::format("[MetaManager] error for "
-                        "configuration type of parallel max expes, got '%1%'"
-                        "which is less than nb slots: '%2%'")
-                % tmp % mConfigParallelNbSlots).str());
+                throw vle::utils::ArgError(vle::utils::format(
+                        "[MetaManager] error for configuration type of parallel"
+                        " max expes, got '%i'which is less than nb slots:'%i'",
+                        tmp,  mConfigParallelNbSlots));
             }
             mConfigParallelMaxExpes = tmp;
         } else {
-            throw vle::utils::ArgError((boost::format("[MetaManager] error for "
-                 "configuration type of parallel max expes, got '%1%'")
-            % (*init.get("config_parallel_max_expes"))).str());
+            throw vle::utils::ArgError(vle::utils::format(
+                    "[MetaManager] error for configuration type of parallel "
+                    "max expes, got '%i'", tmp));
         }
     }
     if (init.exist("config_parallel_rm_files")) {
@@ -444,9 +446,9 @@ MetaManager::run(const vle::value::Map& init)
                     in_cond, in_port, *itb->second));
         } else if (MetaManager::parseInput(conf, in_cond, in_port, "replicate_")){
             if (not mReplicate == 0) {
-                throw vle::utils::ArgError((boost::format("[MetaManager] : the"
-                        " replica is already defined with '%1%'")
-                % mReplicate->getName()).str());
+                throw vle::utils::ArgError(vle::utils::format(
+                        "[MetaManager] : the replica is already defined with "
+                        " '%s'", mReplicate->getName().c_str()));
             }
             mReplicate.reset(new VleInput(in_cond, in_port, *itb->second));
         } else if (MetaManager::parseOutput(conf, out_id)){
@@ -465,10 +467,11 @@ MetaManager::run(const vle::value::Map& init)
                 initSize = vleIn.nbValues;
             } else {
                 if (initSize != vleIn.nbValues) {
-                    throw vle::utils::ArgError((boost::format("[MetaManager]: error "
-                            "in input values: wrong number of values 1st "
-                            " input has %1% values, %2%th input has %3% values")
-                            % initSize % i % vleIn.nbValues).str());
+                    throw vle::utils::ArgError(vle::utils::format(
+                            "[MetaManager]: error in input values: wrong number"
+                            " of values 1st input has %u values, %u -th input "
+                            "has %u values",
+                            initSize, i, vleIn.nbValues));
                 }
             }
         }
@@ -568,9 +571,9 @@ MetaManager::runIntern(const vle::value::Map& init)
         std::unique_ptr<vle::value::Matrix> output_mat =  planSimulator.run(
                 std::move(model), mConfigParallelNbSlots, 0, 1, &manerror);
         if (manerror.code != 0) {
-            throw vle::utils::InternalError(
-                    (boost::format("Error in MetaManager '%1%'")
-            % manerror.message).str());
+            throw vle::utils::InternalError(vle::utils::format(
+                    "Error in MetaManager '%s'",
+                    manerror.message.c_str()));
         }
 
         for (unsigned int out =0; out < outputSize; out++) {
@@ -609,8 +612,8 @@ MetaManager::runIntern(const vle::value::Map& init)
 
         bool started = mspawn.start(exe, mWorkingDir, argv);
         if (not started) {
-            throw vu::ArgError((boost::format("Failed to start `%1%'")
-                                % exe).str());
+            throw vu::ArgError(vle::utils::format(
+                    "Failed to start `%s'", exe.c_str()));
         }
         std::string message;
         bool is_success = true;
@@ -618,8 +621,9 @@ MetaManager::runIntern(const vle::value::Map& init)
         mspawn.status(&message, &is_success);
 
         if (! is_success) {
-            throw vu::ArgError((boost::format("Error launching `%1%' : %2% ")
-            % exe % message).str());
+            throw vu::ArgError(vle::utils::format(
+                    "Error launching `%s' : %s ",
+                    exe.c_str(), message.c_str()));
         }
 
         for (unsigned int out =0; out < outputSize; out++) {

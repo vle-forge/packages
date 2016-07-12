@@ -31,7 +31,7 @@
 
 #include <functional>
 #include <vle/extension/fsa/FSA.hpp>
-#include <boost/format.hpp>
+#include <vle/utils/Tools.hpp>
 
 namespace vle { namespace extension { namespace fsa {
 
