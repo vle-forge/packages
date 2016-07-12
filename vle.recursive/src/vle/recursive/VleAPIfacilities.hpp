@@ -25,6 +25,8 @@
 #include <vle/utils/Tools.hpp>
 #include <vle/manager/Manager.hpp>
 #include <vle/value/Double.hpp>
+#include <vle/value/Tuple.hpp>
+#include <vle/value/Map.hpp>
 
 #include <vle/oov/Plugin.hpp>
 #include <vle/devs/Dynamics.hpp>
