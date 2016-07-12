@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<vle_project date="ven., 30 nov. 2012" version="1.0.0" author="Sylvain Jasson">
+ <structures>
+<model type="coupled" name="Top model" width="842" height="493" x="0" y="0">
+<submodels>
+<model type="atomic" dynamics="integrator" conditions="test" name="Integrator_A" width="100" height="60" observables="scan" x="358" y="112">
+<in>
+ <port name="Quanta"/>
+ <port name="X_dot"/>
+</in>
+<out>
+ <port name="I_out"/>
+</out>
+</model>
+<model type="atomic" dynamics="integrator" conditions="test2" name="Integrator_B" width="100" height="60" x="370" y="368">
+<in>
+ <port name="Quanta"/>
+ <port name="X_dot"/>
+</in>
+<out>
+ <port name="I_out"/>
+</out>
+</model>
+<model type="atomic" dynamics="quantifier" conditions="test" name="Quant_A" width="100" height="45" observables="scan" x="379" y="24">
+<in>
+ <port name="Q_in"/>
+</in>
+<out>
+ <port name="Q_out"/>
+</out>
+</model>
+<model type="atomic" dynamics="quantifier" conditions="test" name="Quant_B" width="100" height="45" x="391" y="263">
+<in>
+ <port name="Q_in"/>
+</in>
+<out>
+ <port name="Q_out"/>
+</out>
+</model>
+<model type="atomic" dynamics="adder" conditions="test" name="Sum" width="100" height="45" x="109" y="279">
+<in>
+ <port name="In_1"/>
+</in>
+<out>
+ <port name="Out"/>
+</out>
+</model>
+<model type="atomic" dynamics="adder" conditions="energy" name="energy" width="100" height="60" observables="scan" x="563" y="236">
+<in>
+ <port name="Ec"/>
+ <port name="Ep"/>
+</in>
+<out>
+ <port name="E"/>
+</out>
+</model>
+<model type="atomic" dynamics="mult" conditions="energy" name="x_sqare" width="100" height="45" observables="scan" x="536" y="134">
+<in>
+ <port name="x_in"/>
+</in>
+<out>
+ <port name="out"/>
+</out>
+</model>
+<model type="atomic" dynamics="mult" conditions="energy" name="y_square" width="100" height="45" observables="scan" x="529" y="391">
+<in>
+ <port name="y_in"/>
+</in>
+<out>
+ <port name="out"/>
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="Integrator_A" port="I_out"/>
+ <destination model="Quant_A" port="Q_in"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_A" port="I_out"/>
+ <destination model="x_sqare" port="x_in"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_A" port="I_out"/>
+ <destination model="Sum" port="In_1"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_B" port="I_out"/>
+ <destination model="y_square" port="y_in"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_B" port="I_out"/>
+ <destination model="Quant_B" port="Q_in"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_B" port="I_out"/>
+ <destination model="Integrator_A" port="X_dot"/>
+</connection>
+<connection type="internal">
+ <origin model="Quant_A" port="Q_out"/>
+ <destination model="Integrator_A" port="Quanta"/>
+</connection>
+<connection type="internal">
+ <origin model="Quant_B" port="Q_out"/>
+ <destination model="Integrator_B" port="Quanta"/>
+</connection>
+<connection type="internal">
+ <origin model="Sum" port="Out"/>
+ <destination model="Integrator_B" port="X_dot"/>
+</connection>
+<connection type="internal">
+ <origin model="x_sqare" port="out"/>
+ <destination model="energy" port="Ec"/>
+</connection>
+<connection type="internal">
+ <origin model="y_square" port="out"/>
+ <destination model="energy" port="Ep"/>
+</connection>
+</connections>
+</model>
+</structures>
+ <dynamics>
+<dynamic library="Adder" name="adder" package="vle.adaptative-qss"/>
+<dynamic library="Generetor" name="generator" package="vle.adaptative-qss"/>
+<dynamic library="Integrator" name="integrator" package="vle.adaptative-qss"/>
+<dynamic library="Mult" name="mult" package="vle.adaptative-qss"/>
+<dynamic library="AdaptativeQuantifier" name="quantifier" package="vle.adaptative-qss"/>
+</dynamics>
+ <experiment seed="1" duration="3.200000000000000" name="exp" combination="linear" begin="0.000000000000000">
+<conditions>
+    <condition name="simulation_engine">
+ <port name="duration">
+<double>3.2</double>
+</port>
+ <port name="begin">
+<double>0.0</double>
+</port>
+</condition>
+<condition name="energy">
+ <port name="powers">
+<map>
+      <key name="x_in">
+       <double>2.000000000000000</double>
+      </key>
+      <key name="y_in">
+       <double>2.000000000000000</double>
+      </key>
+     </map>
+</port>
+ <port name="weights">
+<map>
+      <key name="Ec">
+       <double>1.000000000000000</double>
+      </key>
+      <key name="Ep">
+       <double>1.000000000000000</double>
+      </key>
+     </map>
+</port>
+</condition>
+<condition name="test">
+ <port name="X_0">
+<double>1.000000000000000</double>
+</port>
+ <port name="allow_offsets">
+<boolean>false</boolean>
+</port>
+ <port name="quantum">
+<double>0.010000000000000</double>
+</port>
+ <port name="weights">
+<map>
+      <key name="In_1">
+       <double>-1.000000000000000</double>
+      </key>
+      <key name="In_2">
+       <double>-1.000000000000000</double>
+      </key>
+      <key name="In_3">
+       <double>2.000000000000000</double>
+      </key>
+     </map>
+</port>
+</condition>
+<condition name="test2">
+ <port name="X_0">
+<double>0.000000000000000</double>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output location="" format="local" package="vle.output"  plugin="file" name="oscillation"/>
+
+</outputs>
+<observables>
+<observable name="scan">
+<port name="E"/>
+
+<port name="I_out">
+ <attachedview name="oscillation"/>
+</port>
+
+</observable>
+
+</observables>
+<view type="event" name="oscillation" output="oscillation"/>
+
+</views>
+</experiment>
+</vle_project>

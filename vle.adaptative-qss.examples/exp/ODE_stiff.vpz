@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.0.0.dtd">
+<vle_project version="1.0.0" date="ven., 30 nov. 2012" author="Sylvain Jasson">
+<structures>
+<model name="Top model" type="coupled" x="0" y="0" width="1015" height="639"  >
+<submodels>
+<model name="Integrator_A" type="atomic" conditions="test" dynamics="integrator" observables="scan" x="350" y="107" width="100" height="60" >
+<in>
+ <port name="Quanta" />
+ <port name="X_dot" />
+</in>
+<out>
+ <port name="I_out" />
+</out>
+</model>
+<model name="Integrator_B" type="atomic" conditions="test" dynamics="integrator" observables="scan" x="210" y="382" width="100" height="60" >
+<in>
+ <port name="Quanta" />
+ <port name="X_dot" />
+</in>
+<out>
+ <port name="I_out" />
+</out>
+</model>
+<model name="Quant_A" type="atomic" conditions="Quant_A" dynamics="quantifier" x="379" y="24" width="100" height="45" >
+<in>
+ <port name="Q_in" />
+</in>
+<out>
+ <port name="Q_out" />
+</out>
+</model>
+<model name="Quant_B" type="atomic" conditions="Quant_B" dynamics="quantifier" observables="scan" x="238" y="246" width="100" height="45" >
+<in>
+ <port name="Q_in" />
+</in>
+<out>
+ <port name="Q_out" />
+</out>
+</model>
+<model name="Source" type="atomic" conditions="test" dynamics="generator" x="46" y="21" width="100" height="45" >
+<out>
+ <port name="Out" />
+</out>
+</model>
+<model name="Sum_A" type="atomic" conditions="test" dynamics="adder" x="198" y="70" width="100" height="45" >
+<in>
+ <port name="In_4" />
+</in>
+<out>
+ <port name="Out" />
+</out>
+</model>
+<model name="Sum_B" type="atomic" conditions="test" dynamics="adder" x="52" y="244" width="100" height="75" >
+<in>
+ <port name="In_1" />
+ <port name="In_2" />
+ <port name="In_3" />
+</in>
+<out>
+ <port name="Out" />
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="Integrator_A" port="I_out" />
+ <destination model="Quant_A" port="Q_in" />
+</connection>
+<connection type="internal">
+ <origin model="Integrator_A" port="I_out" />
+ <destination model="Sum_B" port="In_1" />
+</connection>
+<connection type="internal">
+ <origin model="Integrator_B" port="I_out" />
+ <destination model="Sum_A" port="In_4" />
+</connection>
+<connection type="internal">
+ <origin model="Integrator_B" port="I_out" />
+ <destination model="Quant_B" port="Q_in" />
+</connection>
+<connection type="internal">
+ <origin model="Integrator_B" port="I_out" />
+ <destination model="Sum_B" port="In_2" />
+</connection>
+<connection type="internal">
+ <origin model="Quant_A" port="Q_out" />
+ <destination model="Integrator_A" port="Quanta" />
+</connection>
+<connection type="internal">
+ <origin model="Quant_B" port="Q_out" />
+ <destination model="Integrator_B" port="Quanta" />
+</connection>
+<connection type="internal">
+ <origin model="Source" port="Out" />
+ <destination model="Sum_B" port="In_3" />
+</connection>
+<connection type="internal">
+ <origin model="Sum_A" port="Out" />
+ <destination model="Integrator_A" port="X_dot" />
+</connection>
+<connection type="internal">
+ <origin model="Sum_B" port="Out" />
+ <destination model="Integrator_B" port="X_dot" />
+</connection>
+</connections>
+</model>
+</structures>
+<dynamics>
+<dynamic library="Adder" name="adder" package="vle.adaptative-qss"/>
+<dynamic library="Generetor" name="generator" package="vle.adaptative-qss"/>
+<dynamic library="Integrator" name="integrator" package="vle.adaptative-qss"/>
+<dynamic library="Mult" name="mult" package="vle.adaptative-qss"/>
+<dynamic library="AdaptativeQuantifier" name="quantifier" package="vle.adaptative-qss"/>
+</dynamics>
+<experiment name="exp" duration="15.000000000000000" begin="0.000000000000000" combination="linear" seed="1" >
+<conditions>
+<condition name="simulation_engine">
+ <port name="duration">
+<double>15.0</double>
+</port>
+ <port name="begin">
+<double>0.0</double>
+</port>
+</condition><condition name="Quant_A" >
+ <port name="allow_offsets" >
+<boolean>true</boolean>
+</port>
+ <port name="quantum" >
+<double>0.010000000000000</double>
+</port>
+</condition>
+<condition name="Quant_B" >
+ <port name="allow_offsets" >
+<boolean>true</boolean>
+</port>
+ <port name="quantum" >
+<double>0.000100000000000</double>
+</port>
+</condition>
+<condition name="test" >
+ <port name="X_0" >
+<double>0.000000000000000</double>
+</port>
+ <port name="weights" >
+<map><key name="In_1"><double>-100.000000000000000</double></key><key name="In_2"><double>-10001.000000000000000</double></key><key name="In_3"><double>99.500000000000000</double></key><key name="In_4"><double>100.000000000000000</double></key></map>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output name="stiff" location="" package="vle.output"  format="local" plugin="file" />
+
+</outputs>
+<observables>
+<observable name="scan" >
+<port name="I_out" >
+ <attachedview name="stiff" />
+</port>
+
+</observable>
+
+</observables>
+<view name="stiff" output="stiff" type="event" />
+
+</views>
+</experiment>
+</vle_project>

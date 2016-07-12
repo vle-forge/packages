@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<vle_project date="ven., 30 nov. 2012" version="1.0.0" author="Sylvain Jasson">
+ <structures>
+<model type="coupled" name="Top model" width="991" height="585" x="0" y="0">
+<submodels>
+<model type="atomic" dynamics="integrator" conditions="Quant_A" name="Integrator_A" width="100" height="60" observables="scan" x="330" y="98">
+<in>
+ <port name="Quanta"/>
+ <port name="X_dot"/>
+</in>
+<out>
+ <port name="I_out"/>
+</out>
+</model>
+<model type="atomic" dynamics="integrator" conditions="Quant_B" name="Integrator_B" width="100" height="60" observables="scan" x="336" y="340">
+<in>
+ <port name="Quanta"/>
+ <port name="X_dot"/>
+</in>
+<out>
+ <port name="I_out"/>
+</out>
+</model>
+<model type="atomic" dynamics="quantifier" conditions="Quant_A" name="Quant_A" width="100" height="45" x="557" y="109">
+<in>
+ <port name="Q_in"/>
+</in>
+<out>
+ <port name="Q_out"/>
+</out>
+</model>
+<model type="atomic" dynamics="quantifier" conditions="Quant_B" name="Quant_B" width="100" height="45" x="634" y="348">
+<in>
+ <port name="Q_in"/>
+</in>
+<out>
+ <port name="Q_out"/>
+</out>
+</model>
+<model type="atomic" dynamics="adder" conditions="test" name="Sum_A" width="100" height="60" x="70" y="30">
+<in>
+ <port name="In_3"/>
+ <port name="In_4"/>
+</in>
+<out>
+ <port name="Out"/>
+</out>
+</model>
+<model type="atomic" dynamics="adder" conditions="test" name="Sum_B" width="100" height="60" x="60" y="358">
+<in>
+ <port name="In_1"/>
+ <port name="In_2"/>
+</in>
+<out>
+ <port name="Out"/>
+</out>
+</model>
+<model type="atomic" dynamics="mult" conditions="test" name="product" width="100" height="60" x="680" y="213">
+<in>
+ <port name="In_5"/>
+ <port name="In_6"/>
+</in>
+<out>
+ <port name="Out"/>
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin model="Integrator_A" port="I_out"/>
+ <destination model="Quant_A" port="Q_in"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_A" port="I_out"/>
+ <destination model="Sum_A" port="In_3"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_A" port="I_out"/>
+ <destination model="product" port="In_5"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_B" port="I_out"/>
+ <destination model="Quant_B" port="Q_in"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_B" port="I_out"/>
+ <destination model="Sum_B" port="In_1"/>
+</connection>
+<connection type="internal">
+ <origin model="Integrator_B" port="I_out"/>
+ <destination model="product" port="In_6"/>
+</connection>
+<connection type="internal">
+ <origin model="Quant_A" port="Q_out"/>
+ <destination model="Integrator_A" port="Quanta"/>
+</connection>
+<connection type="internal">
+ <origin model="Quant_B" port="Q_out"/>
+ <destination model="Integrator_B" port="Quanta"/>
+</connection>
+<connection type="internal">
+ <origin model="Sum_A" port="Out"/>
+ <destination model="Integrator_A" port="X_dot"/>
+</connection>
+<connection type="internal">
+ <origin model="Sum_B" port="Out"/>
+ <destination model="Integrator_B" port="X_dot"/>
+</connection>
+<connection type="internal">
+ <origin model="product" port="Out"/>
+ <destination model="Sum_A" port="In_4"/>
+</connection>
+<connection type="internal">
+ <origin model="product" port="Out"/>
+ <destination model="Sum_B" port="In_2"/>
+</connection>
+</connections>
+</model>
+</structures>
+ <dynamics>
+<dynamic library="Adder" name="adder" package="vle.adaptative-qss"/>
+<dynamic library="Generetor" name="generator" package="vle.adaptative-qss"/>
+<dynamic library="Integrator" name="integrator" package="vle.adaptative-qss"/>
+<dynamic library="Mult" name="mult" package="vle.adaptative-qss"/>
+<dynamic library="AdaptativeQuantifier" name="quantifier" package="vle.adaptative-qss"/>
+</dynamics>
+ <experiment seed="1" duration="15.000000000000000" name="exp" combination="linear" begin="0.000000000000000">
+<conditions>
+<condition name="simulation_engine">
+ <port name="duration">
+<double>15.0</double>
+</port>
+ <port name="begin">
+<double>0.0</double>
+</port>
+</condition>
+<condition name="Quant_A">
+ <port name="X_0">
+<double>18.000000000000000</double>
+</port>
+ <port name="allow_offsets">
+<boolean>true</boolean>
+</port>
+ <port name="quantum">
+<double>0.000100000000000</double>
+</port>
+</condition>
+<condition name="Quant_B">
+ <port name="X_0">
+<double>7.000000000000000</double>
+</port>
+ <port name="allow_offsets">
+<boolean>true</boolean>
+</port>
+ <port name="quantum">
+<double>0.000100000000000</double>
+</port>
+</condition>
+<condition name="test">
+ <port name="powers">
+<map>
+      <key name="In_5">
+       <double>1.000000000000000</double>
+      </key>
+      <key name="In_6">
+       <double>1.000000000000000</double>
+      </key>
+     </map>
+</port>
+ <port name="weights">
+<map>
+      <key name="In_1">
+       <double>-1.000000000000000</double>
+      </key>
+      <key name="In_2">
+       <double>0.100000000000000</double>
+      </key>
+      <key name="In_3">
+       <double>2.000000000000000</double>
+      </key>
+      <key name="In_4">
+       <double>-0.400000000000000</double>
+      </key>
+      <key name="In_5">
+       <double>1.000000000000000</double>
+      </key>
+      <key name="In_6">
+       <double>1.000000000000000</double>
+      </key>
+     </map>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+<output location="" format="local" plugin="file"  package="vle.output" name="LV">
+     <map>
+      <key name="header">
+       <string>none</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
+
+</outputs>
+<observables>
+<observable name="scan">
+<port name="I_out">
+ <attachedview name="LV"/>
+</port>
+
+</observable>
+
+</observables>
+<view timestep="0.01" type="timed" name="LV" output="LV"/>
+
+</views>
+</experiment>
+</vle_project>
