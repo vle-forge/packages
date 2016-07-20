@@ -67,10 +67,10 @@ public:
      * the map
      * @return the map built object
      */
-    static vv::Map* buildInitEventList(const vz::Vpz& vpz,
+    static std::unique_ptr<vv::Map> buildInitEventList(const vz::Vpz& vpz,
         const std::vector<std::string>& conditions)
     {
-        vv::Map* initValues = new vv::Map();
+        std::unique_ptr<vv::Map> initValues (new vv::Map());
         if (not conditions.empty()) {
             for (std::vector<std::string>::const_iterator it =
                     conditions.begin(); it != conditions.end(); ++it) {
@@ -220,6 +220,7 @@ public:
      */
     static bool equal(const vv::Value& a, const vv::Value& b)
     {
+
         if(a.getType() != b.getType()) return false;
         switch(a.getType()){
         case vv::Value::BOOLEAN :{
@@ -255,13 +256,17 @@ public:
             if(as.value().size() != bs.value().size()) return false;
             vv::Map::const_iterator itab = as.begin();
             vv::Map::const_iterator itae = as.end();
-            vv::Map::const_iterator itbb = bs.begin();
+            vv::Map::const_iterator itbf = bs.end();
+            vv::Map::const_iterator itbe = bs.end();
             for(;itab!=itae;){
-                if(!(itab->first == itbb->first)) return false;
-                if(!VleAPIfacilities::equal(*(itab->second), *(itbb->second)))
+                itbf = bs.value().find(itab->first);
+                if (itbf == itbe) {
                     return false;
+                }
+                if(!VleAPIfacilities::equal(*(itab->second), *(itbf->second))) {
+                    return false;
+                }
                 itab++;
-                itbb++;
             }
             return true;
             break;
