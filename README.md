@@ -1,4 +1,4 @@
-Virtual Laboratory Environment 1.3
+Virtual Laboratory Environment 2.0
 ==================================
 
 A lot of packages for the VFL.
@@ -12,11 +12,10 @@ A new extension for discrete time models is also proposed.
 
 #### Requirements
 
-* vle (>= 1.3)
-* boost (>= 1.41)
-* cmake (>= 2.8.0)
-* make (>= 1.8)
-* c++ compiler (gcc >= 4.4, clang >= 3.1, intel icc >= 11.0)
+* vle (>= 2.0)
+* boost (>= 1.47)
+* cmake (>= 3.0)
+* c++ compiler (gcc >= 4.9, clang >= 3.1, intel icc >= 11.0)
 
 ### Getting the code
 
@@ -35,28 +34,27 @@ Once you have met requirements, compiling and installing is simple:
 Or:
 
     cd packages
-    vle --package=vle.output clean rclean configure build test
-    vle --package=vle.extension.celldevs clean rclean configure build test
-    vle --package=vle.discrete-time clean rclean configure build test
-    vle --package=vle.discrete-time.generic clean rclean configure build test
-    vle --package=vle.extension.cellqss clean rclean configure build test
-    vle --package=vle.extension.decision clean rclean configure build test
-    vle --package=vle.discrete-time.decision clean rclean configure build test
-    vle --package=vle.reader clean rclean configure build test
-    vle --package=vle.tester clean rclean configure build test
-    vle --package=vle.recursive clean rclean configure build test
-    vle --package=vle.extension.difference-equation clean rclean configure build test
-    vle --package=vle.extension.differential-equation clean rclean configure build test
-    vle --package=vle.extension.differential-equation_test clean rclean configure build test
-    vle --package=vle.extension.dsdevs clean rclean configure build test
-    vle --package=vle.extension.fsa clean rclean configure build test
-    vle --package=vle.extension.petrinet clean rclean configure build test
-    vle --package=vle.examples clean rclean configure build test
-    vle --package=ext.muparser clean rclean configure build test
-    vle --package=vle.forrester clean rclean configure build test
-    vle --package=vle.reader_test clean rclean configure build test
-    vle --package=vle.recursive_test clean rclean configure build test
-    vle --package=vle.discrete-time_test clean rclean configure build test
+    vle --package vle.extension.celldevs clean rclean configure build test
+    vle --package vle.discrete-time clean rclean configure build test
+    vle --package vle.discrete-time.generic clean rclean configure build test
+    vle --package vle.extension.cellqss clean rclean configure build test
+    vle --package vle.extension.decision clean rclean configure build test
+    vle --package vle.discrete-time.decision clean rclean configure build test
+    vle --package vle.reader clean rclean configure build test
+    vle --package vle.tester clean rclean configure build test
+    vle --package vle.recursive clean rclean configure build test
+    vle --package vle.extension.difference-equation clean rclean configure build test
+    vle --package vle.extension.differential-equation clean rclean configure build test
+    vle --package vle.extension.differential-equation_test clean rclean configure build test
+    vle --package vle.extension.dsdevs clean rclean configure build test
+    vle --package vle.extension.fsa clean rclean configure build test
+    vle --package vle.extension.petrinet clean rclean configure build test
+    vle --package vle.examples clean rclean configure build test
+    vle --package ext.muparser clean rclean configure build test
+    vle --package vle.forrester clean rclean configure build test
+    vle --package vle.reader_test clean rclean configure build test
+    vle --package vle.recursive_test clean rclean configure build test
+    vle --package vle.discrete-time_test clean rclean configure build test
 
 ### Documentation
 
