@@ -50,15 +50,17 @@ class DiscreteTimePanel : public PluginMainPanel
 public:
     DiscreteTimePanel();
     virtual ~DiscreteTimePanel();
-    QString  getname();
-    QWidget* leftWidget();
-    QWidget* rightWidget();
-    void undo();
-    void redo();
-    void init(QString& file, utils::Package* pkg, Logger* ,gvle_plugins*);
-    QString canBeClosed();
-    void save();
-    PluginMainPanel* newInstance();
+
+    QString  getname() override;
+    QWidget* leftWidget() override;
+    QWidget* rightWidget() override;
+    void undo() override;
+    void redo() override;
+    void init(QString& file, utils::Package* pkg, Logger* ,gvle_plugins*,
+             const utils::ContextPtr&) override;
+    QString canBeClosed() override;
+    void save() override;
+    PluginMainPanel* newInstance() override;
 
     VleTextEdit* getComputeWidget();
     void reload();

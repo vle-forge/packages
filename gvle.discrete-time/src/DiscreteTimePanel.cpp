@@ -24,6 +24,7 @@
 
 #include <QMenu>
 #include <vle/gvle/gvle_widgets.h>
+#include <vle/value/Double.hpp>
 
 #include "DiscreteTimePanel.h"
 #include "ui_leftWidget.h"
@@ -93,7 +94,7 @@ DiscreteTimePanel::redo()
 
 void
 DiscreteTimePanel::init(QString& relPath, utils::Package* pkg, Logger* ,
-        gvle_plugins*)
+        gvle_plugins*, const utils::ContextPtr&)
 {
 
     QString className = relPath;
@@ -209,7 +210,7 @@ DiscreteTimePanel::onUndoAvailable(bool b)
 
 
 void
-DiscreteTimePanel::onComputeChanged(const QString& id, const QString& old,
+DiscreteTimePanel::onComputeChanged(const QString& /*id*/, const QString& old,
         const QString& newVal)
 {
     if (old != newVal) {
@@ -266,7 +267,7 @@ void DiscreteTimePanel::onSetCompute()
 
 
 void
-DiscreteTimePanel::onTextUpdated(const QString& id, const QString& oldVal,
+DiscreteTimePanel::onTextUpdated(const QString& /*id*/, const QString& oldVal,
         const QString& newVal)
 {
     cppMetadata->renameVariableToDoc(oldVal, newVal);

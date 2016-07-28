@@ -22,13 +22,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#include <sstream>
 
 #include <QFileInfo>
 #include <QDir>
 #include <QtXml/QDomNode>
 
 #include <vle/utils/Template.hpp>
+#include <vle/value/Double.hpp>
 #include "vlesmdt.h"
 
 namespace vle {

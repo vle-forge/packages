@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(MyProject CXX C)
+PROJECT(gvle.discrete-time CXX C)
 set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 ENABLE_TESTING()
 
@@ -45,10 +45,23 @@ endif ()
 ## Modules
 ##
 
-INCLUDE(CheckIncludeFileCXX)
-INCLUDE(CheckIncludeFile)
-INCLUDE(CheckLibraryExists)
-INCLUDE(CMakeDetermineCCompiler)
+include(CheckIncludeFileCXX)
+include(CheckIncludeFile)
+include(CheckLibraryExists)
+include(CMakeDetermineCCompiler)
+include(CheckCXXCompilerFlag)
+
+CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX1Y)
+
+if (COMPILER_SUPPORTS_CXX14)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+elseif(COMPILER_SUPPORTS_CXX1Y)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+else()
+  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++14/1y support.
+                 Please use a different C++ compiler.")
+endif()
 
 ##
 ## cmake policy
