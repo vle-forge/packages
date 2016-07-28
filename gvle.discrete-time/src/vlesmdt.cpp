@@ -715,8 +715,7 @@ vleSmDT::getData()
         " * @@tagdynamic@@\n"                                           \
         " * @@tagdepends: vle.discrete-time @@endtagdepends\n"          \
         "*/\n\n"                                                        \
-        "#include <vle/DiscreteTimeDbg.hpp>\n"                          \
-        "#include <vle/devs/DynamicsDbg.hpp>\n\n"                       \
+        "#include <vle/DiscreteTime.hpp>\n"                             \
         "{{includes}}"                                                  \
         "namespace vd = vle::devs;\n\n"                                 \
         "namespace vv = vle::value;\n\n"                                \
