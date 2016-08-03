@@ -140,6 +140,7 @@ private:
     bool mRemoveSimulationFiles;
     unsigned int mConfigParallelNbSlots;
     unsigned int mConfigParallelMaxExpes;
+    bool mexpe_debug;
     std::vector<std::unique_ptr<VleInput>> mInputs;
     std::unique_ptr<VleInput> mReplicate;
     std::vector<VleOutput> mOutputs;//view * port

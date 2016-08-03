@@ -357,8 +357,8 @@ MetaManager::replicasSize() const
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
         mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
-        mInputs(), mReplicate(nullptr), mOutputs(), mWorkingDir(""),
-        mCtx(utils::make_context())
+        mexpe_debug(true), mInputs(), mReplicate(nullptr), mOutputs(),
+        mWorkingDir(""), mCtx(utils::make_context())
 {
 
 }
@@ -419,6 +419,9 @@ MetaManager::run(const vle::value::Map& init)
                     "[MetaManager] error for configuration type of parallel "
                     "max expes, got '%i'", tmp));
         }
+    }
+    if (init.exist("expe_debug")) {
+        mexpe_debug = init.getBoolean("expe_debug");
     }
     if (init.exist("config_parallel_rm_files")) {
         mRemoveSimulationFiles = init.getBoolean("config_parallel_rm_files");
@@ -520,7 +523,10 @@ MetaManager::parseOutput(const std::string& conf, std::string& idout)
 std::unique_ptr<vle::value::Matrix>
 MetaManager::runIntern(const vle::value::Map& init)
 {
-
+    if (mexpe_debug){
+        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                "[vle.recursive] run intern entrance \n");
+    }
     vle::utils::Package pkg(mCtx, mIdPackage);
     std::string vpzFile = pkg.getExpFile(mIdVpz, vle::utils::PKG_BINARY);
     std::unique_ptr<vpz::Vpz> model(new vpz::Vpz(vpzFile));
@@ -560,6 +566,7 @@ MetaManager::runIntern(const vle::value::Map& init)
     switch(mConfigParallelType) {
     case SINGLE:
     case THREADS: {
+
         std::ofstream outstream(mCtx->getHomeFile("metamanager.log").string());
         vle::manager::Manager planSimulator(
                 mCtx,
@@ -568,8 +575,18 @@ MetaManager::runIntern(const vle::value::Map& init)
                 &outstream);
         vle::manager::Error manerror;
 
+        if (mexpe_debug){
+            mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                    "[vle.recursive] simulation single/threads %d \n",
+                    mConfigParallelNbSlots);
+        }
+
         std::unique_ptr<vle::value::Matrix> output_mat =  planSimulator.run(
                 std::move(model), mConfigParallelNbSlots, 0, 1, &manerror);
+        if (mexpe_debug){
+            mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                    "[vle.recursive] end simulation single/threads\n");
+        }
         if (manerror.code != 0) {
             throw vle::utils::InternalError(vle::utils::format(
                     "Error in MetaManager '%s'",
@@ -586,6 +603,10 @@ MetaManager::runIntern(const vle::value::Map& init)
                 results->set(out, 1+(i % inputSize),
                         outId.buildAggregateResult());
             }
+        }
+        if (mexpe_debug){
+            mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                    "[vle.recursive] aggregation finished\n");
         }
         return results;
         break;
@@ -610,6 +631,11 @@ MetaManager::runIntern(const vle::value::Map& init)
         argv.push_back("vle.recursive");
         argv.push_back("temp_gen_MPI.vpz");
 
+        if (mexpe_debug){
+            mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                    "[vle.recursive] simulation mvle %d \n",
+                    mConfigParallelNbSlots);
+        }
         bool started = mspawn.start(exe, mWorkingDir, argv);
         if (not started) {
             throw vu::ArgError(vle::utils::format(
@@ -650,6 +676,10 @@ MetaManager::runIntern(const vle::value::Map& init)
                 results->set(out, 1+(i % inputSize),
                         outId.buildAggregateResult());
             }
+        }
+        if (mexpe_debug){
+            mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                    "[vle.recursive] aggregation finished \n");
         }
         return results;
         break;
