@@ -93,21 +93,13 @@ DiscreteTimePanel::redo()
 }
 
 void
-DiscreteTimePanel::init(QString& relPath, utils::Package* pkg, Logger* ,
+DiscreteTimePanel::init(const gvle_file& gf, utils::Package* pkg, Logger* ,
         gvle_plugins*, const utils::ContextPtr&)
 {
 
-    QString className = relPath;
-    className.replace("src/","");
-    className.replace(".cpp","");
-    QString basepath = pkg->getDir(vle::utils::PKG_SOURCE).c_str();
-    QString scrpath = basepath + "/" +relPath;
-    QString smpath = basepath + "/metadata/" +relPath;
-    smpath.replace(".cpp",".sm");
-
-    cppMetadata = new vleSmDT(scrpath, smpath, getname());
+    cppMetadata = new vleSmDT(gf.source_file, gf.metadata_file, getname());
     cppMetadata->setNamespaceToDoc(pkg->name().c_str());
-    cppMetadata->setClassNameToDoc(className);
+    cppMetadata->setClassNameToDoc(gf.baseName());
     cppMetadata->save();
 
     getComputeWidget()->setText(cppMetadata->getComputeBody());

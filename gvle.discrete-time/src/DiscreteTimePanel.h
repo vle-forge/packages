@@ -31,7 +31,8 @@
 #include <QGroupBox>
 #include <vle/gvle/vlevpm.h>
 #include <vle/gvle/plugin_mainpanel.h>
-#include "vle/gvle/gvle_widgets.h"
+#include <vle/gvle/gvle_widgets.h>
+#include <vle/gvle/gvle_file.h>
 
 #include "DiscreteTimeLeftWidget.h"
 #include "DiscreteTimeRightWidget.h"
@@ -59,8 +60,8 @@ public:
     QWidget* rightWidget() override;
     void undo() override;
     void redo() override;
-    void init(QString& file, utils::Package* pkg, Logger* ,gvle_plugins*,
-             const utils::ContextPtr&) override;
+    void init(const gvle_file& file, utils::Package* pkg, Logger* ,
+            gvle_plugins*, const utils::ContextPtr&) override;
     QString canBeClosed() override;
     void save() override;
     void discard() override;
