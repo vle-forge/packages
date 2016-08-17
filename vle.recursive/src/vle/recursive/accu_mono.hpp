@@ -42,10 +42,67 @@ enum AccuType
     ORDERED   //keep order: can acces to specific value
 };
 
+/**
+ * @brief Different types of statistics
+ */
+enum AccuStat
+{
+    S_mean,
+    S_moment2,
+    S_deviationSquareSum,
+    S_stdDeviation,
+    S_variance,
+    S_squareSum,
+    S_count,
+    S_sum,
+    S_min,
+    S_max,
+    S_at,
+    S_quantile
+};
+
 class AccuMono
 {
 
 public:
+    /**
+     * @brief gives the optimal storage for a wanted statistics
+     */
+    static AccuType storageTypeForStat(AccuStat s)
+    {
+        switch(s){
+        case S_mean:
+            return MEAN;
+            break;
+        case S_moment2:
+        case S_deviationSquareSum:
+        case S_stdDeviation:
+        case S_variance:
+        case S_squareSum:
+            return STANDARD;
+            break;
+        case S_count:
+        case S_sum:
+            return MEAN;
+            break;
+        case S_min:
+        case S_max:
+            return STANDARD;
+            break;
+        case S_at:
+            return ORDERED;
+            break;
+        case S_quantile:
+            return QUANTILE;
+            break;
+        }
+        return STANDARD;
+    }
+
+
+    /**
+     * @brief AccuMono dfault constructor
+     */
     AccuMono() :
         accu(STANDARD),  msum(0), mcount(0), msquareSum(0),
         mmin(std::numeric_limits<double>::max()),
@@ -54,29 +111,48 @@ public:
     {
     }
 
+    /**
+     * @brief constructor with the specified storage strategy
+     * @param type, the AccuType
+     */
     AccuMono(AccuType type) :
         accu(type), msum(0), mcount(0), msquareSum(0),
         mmin(std::numeric_limits<double>::max()),
         mmax(std::numeric_limits<double>::min()),
         msorted(false), mvalues(0)
     {
-        switch (accu) {
-        case STANDARD:
-        case MEAN: {
-            break;
-        } case QUANTILE: {
+        if (accu == ORDERED or accu == QUANTILE) {
             mvalues = new std::vector<double>();
+        }
+        if (accu == QUANTILE) {
             msorted = true;
-            break;
-        } case ORDERED: {
-            mvalues = new std::vector<double>();
-            break;
-        } default:
-            throw vle::utils::ArgError(" [accu_mono] not yet implemented (1)");
-            break;
         }
     }
 
+    /**
+     * @brief constructor with the wanted statistic
+     * The storage is optimized according the wanted statistic
+     * @param s, the AccuStat
+     */
+    AccuMono(AccuStat s) :
+        accu(), msum(0), mcount(0), msquareSum(0),
+        mmin(std::numeric_limits<double>::max()),
+        mmax(std::numeric_limits<double>::min()),
+        msorted(false), mvalues(0)
+    {
+        accu = AccuMono::storageTypeForStat(s);
+        if (accu == ORDERED or accu == QUANTILE) {
+            mvalues = new std::vector<double>();
+        }
+        if (accu == QUANTILE) {
+            msorted = true;
+        }
+    }
+
+    /**
+     * @brief copy constructor
+     * @param acc, the accu to copy
+     */
     AccuMono(const AccuMono& acc):
         accu(acc.accu), msum(acc.msum), mcount(acc.mcount),
         msquareSum(acc.msquareSum), mmin(acc.mmin),  mmax(acc.mmax),
@@ -103,9 +179,8 @@ public:
             msum += v;
             mcount++;
             msquareSum += pow(v,2);
-            if (v < mmin) {
-                mmin = v;
-            }
+            mmin = std::min(v, mmin);
+            mmax = std::max(v, mmax);
             break;
         } case MEAN: {
             msum += v;
@@ -320,6 +395,23 @@ public:
     }
 
     /**
+     * @brief Maximal value extractor
+     * @return the maximal value
+     */
+    inline double max() const
+    {
+        switch (accu) {
+        case STANDARD:
+            return mmax;
+            break;
+        default:
+            throw vle::utils::ArgError(" [accu_mono] not available");
+            return 0;
+            break;
+        }
+    }
+
+    /**
      * @brief acces to a specific value
      * @param i, the index of value
      * @return the minimal value
@@ -365,6 +457,52 @@ public:
             break;
         }}
         return 0;
+    }
+
+    /**
+     * @brief generic function to get a specified stat
+     */
+    inline double getStat(AccuStat s) const
+    {
+        switch(s){
+        case S_mean:
+            return mean();
+            break;
+        case S_moment2:
+            return moment2();
+            break;
+        case S_deviationSquareSum:
+            return deviationSquareSum();
+            break;
+        case S_stdDeviation:
+            return stdDeviation();
+            break;
+        case S_variance:
+            return variance();
+            break;
+        case S_squareSum:
+            return squareSum();
+            break;
+        case S_count:
+            throw vle::utils::ArgError(" [accu_mono] not available ");
+            break;
+        case S_sum:
+            return sum();
+            break;
+        case S_min:
+            return min();
+            break;
+        case S_max:
+            return max();
+            break;
+        case S_at:
+            throw vle::utils::ArgError(" [accu_mono] not available ");
+            break;
+        case S_quantile:
+            throw vle::utils::ArgError(" [accu_mono] not available ");
+            break;
+        }
+        return std::numeric_limits<double>::min();
     }
 
 

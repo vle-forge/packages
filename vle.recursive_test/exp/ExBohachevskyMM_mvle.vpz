@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<vle_project version="1.3.0" author="Ronan Trépos" date="2015-Jun-15 16:13:07">
+<vle_project author="Ronan Trépos" date="2015-Jun-15 16:13:07" version="1.3.0">
  <structures>
-<model width="482" height="376" y="0" type="coupled" x="0" name="ExBohachevskyMM_mvle">
+<model width="482" y="0" name="ExBohachevskyMM_mvle" x="0" type="coupled" height="376">
 <submodels>
-<model width="100" height="30" observables="obs" y="33" type="atomic" x="42" conditions="cond,simulation_engine" dynamics="metaManagerDyn" name="ExBohachevskyMM">
+<model width="100" observables="obs" y="33" name="ExBohachevskyMM" conditions="cond,simulation_engine" x="42" type="atomic" dynamics="metaManagerDyn" height="30">
 </model>
 </submodels>
 <connections>
@@ -11,9 +11,9 @@
 </model>
 </structures>
  <dynamics>
-<dynamic package="vle.recursive" library="MetaManagerDyn" name="metaManagerDyn"/>
+<dynamic package="vle.recursive" name="metaManagerDyn" library="MetaManagerDyn"/>
 </dynamics>
- <experiment combination="linear" name="ExBohachevskyMM_mvle">
+ <experiment name="ExBohachevskyMM_mvle" combination="linear">
 <conditions>
 <condition name="cond">
  <port name="config_parallel_type">
@@ -81,11 +81,19 @@
 </conditions>
 <views>
 <outputs>
-<output package="vle.output" plugin="file" format="local" location="" name="view"/>
+<output format="local" package="vle.output" name="view" location="" plugin="file"/>
 
 </outputs>
 <observables>
 <observable name="obs">
+<port name="output_y_0">
+ <attachedview name="view"/>
+</port>
+
+<port name="output_ynoise_0">
+ <attachedview name="view"/>
+</port>
+
 <port name="output_y_1">
  <attachedview name="view"/>
 </port>
@@ -94,20 +102,12 @@
  <attachedview name="view"/>
 </port>
 
-<port name="output_y_2">
- <attachedview name="view"/>
-</port>
-
-<port name="output_ynoise_2">
- <attachedview name="view"/>
-</port>
-
 
 
 </observable>
 
 </observables>
-<view timestep="1.000000000000000" output="view" type="timed" name="view"/>
+<view output="view" name="view" timestep="1.000000000000000" type="timed"/>
 
 </views>
 </experiment>

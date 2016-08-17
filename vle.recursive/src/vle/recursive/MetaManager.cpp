@@ -29,6 +29,8 @@
 #include <vle/manager/Simulation.hpp>
 #include <vle/manager/Manager.hpp>
 #include <vle/value/Double.hpp>
+#include <vle/value/Null.hpp>
+#include <vle/value/Table.hpp>
 
 #include <vle/reader/vle_results_text_reader.hpp>
 
@@ -40,7 +42,8 @@
 namespace vle {
 namespace recursive {
 
-void MetaManager::split(std::vector<std::string>& elems, const std::string &s, char delim)
+void MetaManager::split(std::vector<std::string>& elems, const std::string &s,
+        char delim)
 {
     std::stringstream ss(s);
     std::string item;
@@ -49,50 +52,32 @@ void MetaManager::split(std::vector<std::string>& elems, const std::string &s, c
     }
 }
 
-VleInput::VleInput(const std::string& _cond, const std::string& _port,
-        const vle::value::Value& val):
-                cond(_cond), port(_port), type(MONO), nbValues(0)
+/***********VlePropagate*************/
+
+VlePropagate::VlePropagate(const std::string& _cond, const std::string& _port):
+                cond(_cond), port(_port)
 {
     if (cond.empty() or port.empty()) {
-        throw vle::utils::ArgError(vle::utils::format(
-                "[MetaManager] : the input has wrong form: '%s.%s'",
+        throw utils::ArgError(utils::format(
+                "[MetaManager] : the propagate input has wrong form: '%s.%s'",
                 cond.c_str(),  port.c_str()));
     }
-    switch (val.getType()) {
-        case vle::value::Value::TUPLE:
-            nbValues = val.toTuple().size();
-            type = MULTI;
-            break;
-        case vle::value::Value::SET:
-            nbValues = val.toSet().size();
-            type = MULTI;
-            break;
-        default:
-            nbValues = 1;
-            type = MONO;
-            break;
-        }
 }
 
-VleInput::~VleInput()
+VlePropagate::~VlePropagate()
 {
 }
 
-const vle::value::Value&
-VleInput::values(const vle::value::Map& init, bool replicate)
+const value::Value&
+VlePropagate::value(const value::Map& init)
 {
-    std::string key("");
-    if (replicate) {
-        key.append("replicate_");
-    } else {
-        key.append("input_");
-    }
+    std::string key("propagate_");
     key.append(getName());
     return *init.get(key);
 }
 
 std::string
-VleInput::getName()
+VlePropagate::getName() const
 {
     std::string ret = cond;
     ret.append(".");
@@ -100,39 +85,152 @@ VleInput::getName()
     return ret;
 }
 
-/************************/
+/***********VleInput*************/
+
+VleInput::VleInput(const std::string& _cond, const std::string& _port,
+        const value::Value& val):
+                cond(_cond), port(_port), nbValues(0)
+{
+    if (cond.empty() or port.empty()) {
+        throw utils::ArgError(utils::format(
+                "[MetaManager] : the input has wrong form: '%s.%s'",
+                cond.c_str(),  port.c_str()));
+    }
+    switch (val.getType()) {
+    case value::Value::TUPLE:
+        nbValues = val.toTuple().size();
+        break;
+    case value::Value::SET:
+        nbValues = val.toSet().size();
+        break;
+    default:
+        nbValues = 1;
+        break;
+    }
+}
+
+VleInput::~VleInput()
+{
+}
+
+const value::Value&
+VleInput::values(const value::Map& init)
+{
+    std::string key("input_");
+    key.append(getName());
+    return *init.get(key);
+}
+
+std::string
+VleInput::getName() const
+{
+    std::string ret = cond;
+    ret.append(".");
+    ret.append(port);
+    return ret;
+}
+
+/***********VleReplicate*************/
+
+VleReplicate::VleReplicate(const std::string& _cond, const std::string& _port,
+        const value::Value& val):
+                cond(_cond), port(_port), nbValues(0)
+{
+    if (cond.empty() or port.empty()) {
+        throw utils::ArgError(utils::format(
+                "[MetaManager] : the replicate has wrong form: '%s.%s'",
+                cond.c_str(),  port.c_str()));
+    }
+    switch (val.getType()) {
+    case value::Value::TUPLE:
+        nbValues = val.toTuple().size();
+        break;
+    case value::Value::SET:
+        nbValues = val.toSet().size();
+        break;
+    default:
+        throw utils::ArgError(utils::format(
+                "[MetaManager] : error in configuration of "
+                "'replicate_%s.%s', expect a value::Set or Tuple",
+                cond.c_str(),  port.c_str()));
+        break;
+    }
+}
+
+VleReplicate::~VleReplicate()
+{
+}
+
+const value::Value&
+VleReplicate::values(const value::Map& init)
+{
+    std::string key("replicate_");
+    key.append(getName());
+    return *init.get(key);
+}
+
+std::string
+VleReplicate::getName()
+{
+    std::string ret = cond;
+    ret.append(".");
+    ret.append(port);
+    return ret;
+}
+
+/***********VleOutput*************/
 
 VleOutput::VleOutput() :
-   id(), view(), absolutePort(), integrationType(LAST), aggregationType(MEAN),
-   mse_times(nullptr), mse_observations(nullptr), maccuMono(nullptr),
-   maccuMulti(nullptr), res_value(nullptr)
+   id(), view(), absolutePort(), integrationType(LAST),
+   replicateAggregationType(S_mean), inputAggregationType(S_at),
+   mse_times(nullptr), mse_observations(nullptr), mreplicateAccuMono(nullptr),
+   mreplicateAccuMulti(nullptr), minputAccuMono(nullptr),
+   minputAccuMulti(nullptr), mreplicateInserter(nullptr),
+   minputInserter(nullptr), manageDoubleValue(true)
 {
 }
 
 VleOutput::VleOutput(const std::string& _id,
-        const vle::value::Value& val) :
+        const value::Value& val) :
    id(_id), view(), absolutePort(), integrationType(LAST),
-   aggregationType(MEAN), mse_times(nullptr), mse_observations(nullptr),
-   maccuMono(nullptr), maccuMulti(nullptr), res_value(nullptr)
+   replicateAggregationType(S_mean), inputAggregationType(S_at),
+   mse_times(nullptr), mse_observations(nullptr), mreplicateAccuMono(nullptr),
+   mreplicateAccuMulti(nullptr), minputAccuMono(nullptr),
+   minputAccuMulti(nullptr), mreplicateInserter(nullptr),
+   minputInserter(nullptr), manageDoubleValue(true)
 {
     std::string tmp;
     if (val.isString()) {
         if (not parsePath(val.toString().value())) {
-            throw vle::utils::ArgError(vle::utils::format(
+            throw utils::ArgError(utils::format(
                     "[MetaManager] : error in configuration of the output "
                     "'output_%s' with a string; got: '%s'",
                     id.c_str(),  val.toString().value().c_str()));
         }
     } else if (val.isMap()) {
-        const vle::value::Map& m = val.toMap();
+        const value::Map& m = val.toMap();
         bool error = false;
         if (m.exist("path")) {
             error = not parsePath(m.getString("path"));
         }
-        if (m.exist("aggregation")) {
-            tmp = m.getString("aggregation");
+        if (m.exist("aggregation_replicate")) {
+            tmp = m.getString("aggregation_replicate");
             if (tmp == "mean") {
-                aggregationType = MEAN;
+                replicateAggregationType = S_mean;
+            } else {
+                error = true;
+            }
+        }
+        if (m.exist("aggregation_input")) {
+            tmp = m.getString("aggregation_input");
+            if (tmp == "mean") {
+                inputAggregationType = S_mean;
+            } else if (tmp == "quantile"){
+                inputAggregationType = S_quantile;
+            } else if (tmp == "max"){
+                inputAggregationType = S_max;
+            } else if (tmp == "all"){
+                inputAggregationType = S_at;
             } else {
                 error = true;
             }
@@ -159,45 +257,18 @@ VleOutput::VleOutput(const std::string& _id,
             if (not m.exist("mse_times") or not m.exist("mse_observations")) {
                 error = true;
             } else {
-                mse_times.reset(new vle::value::Tuple(m.getTuple("mse_times")));
-                mse_observations.reset(new vle::value::Tuple(
+                mse_times.reset(new value::Tuple(m.getTuple("mse_times")));
+                mse_observations.reset(new value::Tuple(
                         m.getTuple("mse_observations")));
                 error = mse_times->size() != mse_observations->size();
             }
         }
         if (error) {
-            throw vle::utils::ArgError(vle::utils::format(
+            throw utils::ArgError(utils::format(
                     "[MetaManager] : error in configuration of the output "
                     " '%s%s' with a map",
                     "id_output_",  id.c_str()));
         }
-    }
-    initAggregateResult();
-}
-
-VleOutput::VleOutput(const VleOutput& vleOutput):
-      id(vleOutput.id), view(vleOutput.view),
-      absolutePort(vleOutput.absolutePort),
-      integrationType(vleOutput.integrationType),
-      aggregationType(vleOutput.aggregationType), mse_times(nullptr),
-      mse_observations(nullptr), maccuMono(nullptr), maccuMulti(nullptr),
-      res_value(nullptr)
-{
-    if (vleOutput.mse_times) {
-        mse_times.reset(new value::Tuple(vleOutput.mse_times->toTuple()));
-    }
-    if (vleOutput.mse_observations) {
-        mse_observations.reset(new value::Tuple(
-                vleOutput.mse_observations->toTuple()));
-    }
-    if (vleOutput.maccuMono) {
-        maccuMono.reset(new AccuMono(*vleOutput.maccuMono));
-    }
-    if (vleOutput.maccuMulti) {
-        maccuMulti.reset(new AccuMulti(*vleOutput.maccuMulti));
-    }
-    if (vleOutput.res_value) {
-        res_value = vleOutput.res_value->clone();
     }
 }
 
@@ -219,23 +290,33 @@ VleOutput::parsePath(const std::string& path)
     }
 }
 
-
 void
-VleOutput::insertReplicate(const vle::value::Map& result)
+VleOutput::insertReplicate(value::Map& result,
+        bool initReplicateAccu, bool initInputAccu, unsigned int nbInputs,
+        unsigned int nbReplicates)
 {
-    vle::value::Map::const_iterator it = result.find(view);
+    value::Map::iterator it = result.find(view);
     if (it == result.end()) {
-        throw vu::ArgError(vle::utils::format(
+        throw vu::ArgError(utils::format(
                 "[MetaManager] view '%s' not found)",
                 view.c_str()));
     }
-    const value::Matrix& outMat = value::toMatrixValue(*it->second);
-    insertReplicate(outMat);
+    value::Matrix& outMat = value::toMatrixValue(*it->second);
+    insertReplicate(outMat, initReplicateAccu, initInputAccu, nbInputs,
+            nbReplicates);
 }
 
 void
-VleOutput::insertReplicate(const vle::value::Matrix& outMat)
+VleOutput::insertReplicate(value::Matrix& outMat,
+        bool initReplicateAccu, bool initInputAccu, unsigned int nbInputs,
+        unsigned int nbReplicates)
 {
+
+    //performs some checks on output matrix
+    if (outMat.rows() < 2){
+        throw vu::ArgError("[MetaManager] expect at least 2 rows");
+    }
+    //get col index
     unsigned int colIndex = 9999;
     for (unsigned int i=0; i < outMat.columns(); i++) {
         if (outMat.getString(i,0) == absolutePort) {
@@ -243,10 +324,90 @@ VleOutput::insertReplicate(const vle::value::Matrix& outMat)
         }
     }
     if (colIndex == 9999) {
-        throw vu::ArgError(vle::utils::format(
+        throw vu::ArgError(utils::format(
                 "[MetaManager] view.port '%s' not found)",
                 absolutePort.c_str()));
     }
+
+    //performs some check on initialization
+    if (initInputAccu and not outMat.get(colIndex,1)->isDouble()) {
+        //replica size has to be 1
+        if (nbReplicates != 1){
+            throw vu::ArgError(utils::format(
+                    "[MetaManager] since data is not double no replicate "
+                    "aggregation is possible for output '%s'",
+                    id.c_str()));
+        }
+        //integration should be ALL or LAST
+        if (integrationType != ALL and integrationType != LAST) {
+            throw vu::ArgError(utils::format(
+                    "[MetaManager] integration for output '%s' should be all"
+                    "or last in order to manage not double values ",
+                    id.c_str()));
+        }
+        //aggregation should be S_at
+        if (inputAggregationType != S_at) {
+            throw vu::ArgError(utils::format(
+                    "[MetaManager] aggregation_input for output '%s' "
+                    "should be all in order to manage not double values ",
+                    id.c_str()));
+        }
+        manageDoubleValue = false;
+    }
+
+    //Initialization of replicate accu
+    if (initReplicateAccu) {
+        mreplicateAccuMono.reset(nullptr);
+        mreplicateAccuMulti.reset(nullptr);
+        mreplicateInserter.reset(nullptr);
+        if (manageDoubleValue) {
+            if(integrationType != ALL) {
+                mreplicateAccuMono.reset(
+                        new AccuMono(replicateAggregationType));
+            } else {
+                mreplicateAccuMulti.reset(
+                        new AccuMulti(replicateAggregationType));
+            }
+        } //else integration and aggregation is performed directly in the
+          //input accu initialization
+
+    }
+    //Initialization of initInput accu
+    if (initInputAccu) {
+        minputAccuMono.reset(nullptr);
+        minputAccuMulti.reset(nullptr);
+        minputInserter.reset(nullptr);
+        if (not manageDoubleValue) {
+            if(integrationType == ALL) {
+                minputInserter.reset(new value::Set(outMat.rows()-1));
+                for (unsigned int i=1; i < outMat.rows(); i++) {
+                    minputInserter->toSet().set(i-1,
+                            std::move(outMat.give(colIndex, i)));
+                }
+            } else {//integration is LAST
+                minputInserter = std::move(
+                        outMat.give(colIndex, outMat.rows()-1));
+            }
+            return ;//management of non double values is performed
+        } else if (integrationType != ALL) {
+            if (inputAggregationType != S_at) {
+                minputAccuMono.reset(new AccuMono(inputAggregationType));
+            } else {
+                minputInserter.reset(new value::Table(nbInputs, 1));
+            }
+        } else {
+            if (inputAggregationType != S_at) {
+                minputAccuMulti.reset(new AccuMulti(inputAggregationType));
+                minputInserter.reset(
+                        new value::Table(1, outMat.rows()-1));
+            } else {
+                minputInserter.reset(
+                        new value::Table(nbInputs, outMat.rows()-1));
+            }
+        }
+    }
+
+    //start insertion for double management only
     switch(integrationType) {
     case MAX: {
         double max = -9999;
@@ -256,16 +417,12 @@ VleOutput::insertReplicate(const vle::value::Matrix& outMat)
                 max = v;
             }
         }
-        maccuMono->insert(max);
+        mreplicateAccuMono->insert(max);
         break;
     } case LAST: {
-        const std::unique_ptr<vle::value::Value>& res =
+        const std::unique_ptr<value::Value>& res =
                 outMat.get(colIndex, outMat.rows() - 1);
-        if (res->isDouble()) {
-            maccuMono->insert(res->toDouble().value());
-        } else {
-            res_value = std::move(res->clone());
-        }
+        mreplicateAccuMono->insert(res->toDouble().value());
         break;
     } case MSE: {
         double sum_square_error = 0;
@@ -278,66 +435,77 @@ VleOutput::insertReplicate(const vle::value::Matrix& outMat)
                 nbVal++;
             }
         }
-        maccuMono->insert(sum_square_error/nbVal);
+        mreplicateAccuMono->insert(sum_square_error/nbVal);
         break;
     } case ALL:{
-        maccuMulti->insertColumn(outMat, colIndex);
+        mreplicateAccuMulti->insertColumn(outMat, colIndex);
         break;
     }}
 }
+
 
 void
-VleOutput::initAggregateResult()
+VleOutput::insertInput(unsigned int currentInput)
 {
-    switch(integrationType) {
-    case LAST:
-    case MAX:
-    case MSE: {
-        maccuMono.reset(new AccuMono(aggregationType));
-        break;
-    } case ALL: {
-        maccuMulti.reset(new AccuMulti(aggregationType));
-    }}
+    if (not manageDoubleValue) {
+        return;
+    }
+    if (integrationType != ALL) {
+        if (inputAggregationType != S_at) {
+            minputAccuMono->insert(
+                    mreplicateAccuMono->getStat(replicateAggregationType));
+        } else {
+            minputInserter->toTable()(currentInput, 0) =
+                    mreplicateAccuMono->getStat(replicateAggregationType);
+        }
+    } else {
+        if (inputAggregationType != S_at) {
+            minputAccuMulti->insertAccuStat(*mreplicateAccuMulti,
+                                            replicateAggregationType);
+        } else {
+            mreplicateAccuMulti->fillStat(minputInserter->toTable(),
+                    currentInput, replicateAggregationType);
+        }
+    }
+    mreplicateAccuMono.reset(nullptr);
+    mreplicateAccuMulti.reset(nullptr);
+    mreplicateInserter.reset(nullptr);
 }
 
-std::unique_ptr<vle::value::Value>
+
+std::unique_ptr<value::Value>
 VleOutput::buildAggregateResult()
 {
-    switch (aggregationType) {
-    case MEAN: {
-        switch (integrationType) {
-        case LAST:
-        case MAX:
-        case MSE: {
-            if (res_value) {
-                return res_value->clone();
-            } else {
-                return vle::value::Double::create(maccuMono->mean());
-            }
-            break;
-        } case ALL: {
-            std::unique_ptr<vle::value::Tuple> res(
-                    new value::Tuple(maccuMulti->size()));
-            maccuMulti->mean(*res);
-            return res;
-        }}
-        break;
-    } default: {
-        throw "error";
-        break;
-    }}
-    return nullptr;
+    if (not manageDoubleValue) {
+        return std::move(minputInserter);
+    }
+    std::unique_ptr<value::Value> res;
+    if (integrationType != ALL) {
+        if (inputAggregationType != S_at) {
+            res.reset(new value::Double(
+                    minputAccuMono->getStat(inputAggregationType)));
+        } else {
+            res = std::move(minputInserter);
+        }
+    } else {
+        if (inputAggregationType != S_at) {
+            minputAccuMulti->fillStat(minputInserter->toTable(),
+                    0, inputAggregationType);
+        }
+        res = std::move(minputInserter);
+    }
+    minputAccuMono.reset(nullptr);
+    minputAccuMulti.reset(nullptr);
+    minputInserter.reset(nullptr);
+    return std::move(res);
 }
-
-/************************/
+/***********MetaManager*************/
 
 unsigned int
 MetaManager::inputsSize() const
 {
-    for (unsigned int i=0; i < mInputs.size(); i++) {
-        if (mInputs[i]->type == MULTI) {
-            return mInputs[i]->nbValues;
-        }
+    if (mInputs.size() > 0) {
+        return mInputs[0]->nbValues;
     }
     return 1;
 }
@@ -357,8 +525,8 @@ MetaManager::replicasSize() const
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
         mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
-        mexpe_debug(true), mInputs(), mReplicate(nullptr), mOutputs(),
-        mWorkingDir(""), mCtx(utils::make_context())
+        mexpe_debug(true), mPropagate(), mInputs(), mReplicate(nullptr),
+        mOutputs(), mWorkingDir(""), mCtx(utils::make_context())
 {
 
 }
@@ -368,8 +536,8 @@ MetaManager::~MetaManager()
     clear();
 }
 
-std::unique_ptr<vle::value::Matrix>
-MetaManager::run(const vle::value::Map& init)
+std::unique_ptr<value::Map>
+MetaManager::run(const value::Map& init)
 {
     clear();
 
@@ -381,14 +549,14 @@ MetaManager::run(const vle::value::Map& init)
         } else if (tmp == "mvle") {
             mConfigParallelType = MVLE;
             if (! init.exist("working_dir")) {
-                throw vle::utils::ArgError("[MetaManager] error for "
+                throw utils::ArgError("[MetaManager] error for "
                         "mvle config, missing 'working_dir' parameter");
             }
             mWorkingDir.assign(init.getString("working_dir"));
         }  else if (tmp == "single") {
             mConfigParallelType = SINGLE;
         } else {
-            throw vle::utils::ArgError("[MetaManager] error for "
+            throw utils::ArgError("[MetaManager] error for "
                     "configuration type of parallel process");
 
         }
@@ -399,7 +567,7 @@ MetaManager::run(const vle::value::Map& init)
         if (tmp > 0) {
             mConfigParallelNbSlots = tmp;
         } else {
-            throw vle::utils::ArgError("[MetaManager] error for "
+            throw utils::ArgError("[MetaManager] error for "
                  "configuration type of parallel nb slots)");
         }
     }
@@ -408,14 +576,14 @@ MetaManager::run(const vle::value::Map& init)
         tmp = init.getInt("config_parallel_max_expes");
         if (tmp > 0) {
             if ((unsigned int) tmp < mConfigParallelNbSlots) {
-                throw vle::utils::ArgError(vle::utils::format(
+                throw utils::ArgError(utils::format(
                         "[MetaManager] error for configuration type of parallel"
                         " max expes, got '%i'which is less than nb slots:'%i'",
                         tmp,  mConfigParallelNbSlots));
             }
             mConfigParallelMaxExpes = tmp;
         } else {
-            throw vle::utils::ArgError(vle::utils::format(
+            throw utils::ArgError(utils::format(
                     "[MetaManager] error for configuration type of parallel "
                     "max expes, got '%i'", tmp));
         }
@@ -429,53 +597,67 @@ MetaManager::run(const vle::value::Map& init)
     if (init.exist("package")) {
         mIdPackage = init.getString("package");
     } else {
-        throw vle::utils::ArgError("[MetaManager] missing 'package'");
+        throw utils::ArgError("[MetaManager] missing 'package'");
     }
     if (init.exist("vpz")) {
         mIdVpz = init.getString("vpz");
     } else {
-        throw vle::utils::ArgError("[MetaManager] missing 'vpz'");
+        throw utils::ArgError("[MetaManager] missing 'vpz'");
     }
 
     std::string in_cond;
     std::string in_port;
     std::string out_id;
-    vle::value::Map::const_iterator itb = init.begin();
-    vle::value::Map::const_iterator ite = init.end();
+    value::Map::const_iterator itb = init.begin();
+    value::Map::const_iterator ite = init.end();
     for (; itb != ite; itb++) {
         const std::string& conf = itb->first;
-        if (MetaManager::parseInput(conf, in_cond, in_port)) {
+        if (MetaManager::parseInput(conf, in_cond, in_port, "propagate_")) {
+            mPropagate.emplace_back(new VlePropagate(in_cond, in_port));
+        } else if (MetaManager::parseInput(conf, in_cond, in_port)) {
             mInputs.emplace_back(new VleInput(
                     in_cond, in_port, *itb->second));
-        } else if (MetaManager::parseInput(conf, in_cond, in_port, "replicate_")){
+        } else if (MetaManager::parseInput(conf, in_cond, in_port,
+                                           "replicate_")){
             if (not mReplicate == 0) {
-                throw vle::utils::ArgError(vle::utils::format(
+                throw utils::ArgError(utils::format(
                         "[MetaManager] : the replica is already defined with "
                         " '%s'", mReplicate->getName().c_str()));
             }
-            mReplicate.reset(new VleInput(in_cond, in_port, *itb->second));
+            mReplicate.reset(new VleReplicate(in_cond, in_port, *itb->second));
         } else if (MetaManager::parseOutput(conf, out_id)){
-            mOutputs.push_back(VleOutput(out_id, *itb->second));
+            mOutputs.emplace_back(new VleOutput(out_id, *itb->second));
         }
     }
     //check
-    if (mInputs.size() == 0) {
-        throw vle::utils::ArgError("[MetaManager] : error no inputs");
-    }
     unsigned int initSize = 0;;
     for (unsigned int i = 0; i< mInputs.size(); i++) {
-        const VleInput& vleIn = *mInputs[0];
-        if (vleIn.type == MULTI ) {
-            if (initSize == 0) {
-                initSize = vleIn.nbValues;
-            } else {
-                if (initSize != vleIn.nbValues) {
-                    throw vle::utils::ArgError(vle::utils::format(
-                            "[MetaManager]: error in input values: wrong number"
-                            " of values 1st input has %u values, %u -th input "
-                            "has %u values",
-                            initSize, i, vleIn.nbValues));
-                }
+        const VleInput& vleIn = *mInputs[i];
+        //check size which has to be consistent
+        if (initSize == 0 and vleIn.nbValues > 1) {
+            initSize = vleIn.nbValues;
+        } else {
+            if (vleIn.nbValues > 1 and initSize > 0
+                    and initSize != vleIn.nbValues) {
+                throw utils::ArgError(utils::format(
+                        "[MetaManager]: error in input values: wrong number"
+                        " of values 1st input has %u values, %u -th input "
+                        "has %u values",
+                        initSize, i, vleIn.nbValues));
+            }
+        }
+        //check if already exist in replicate or propagate
+        if (mReplicate and (mReplicate->getName() == vleIn.getName())) {
+            throw utils::ArgError(utils::format(
+                    "[MetaManager]: error input '%s' is also the replicate",
+                     vleIn.getName().c_str()));
+        }
+        for (unsigned int j=0; j<mPropagate.size(); j++) {
+            const VlePropagate& vleProp = *mPropagate[j];
+            if (vleProp.getName() == vleIn.getName()) {
+                throw utils::ArgError(utils::format(
+                    "[MetaManager]: error input '%s' is also a propagate",
+                    vleIn.getName().c_str()));
             }
         }
     }
@@ -520,29 +702,31 @@ MetaManager::parseOutput(const std::string& conf, std::string& idout)
     return not idout.empty();
 }
 
-std::unique_ptr<vle::value::Matrix>
-MetaManager::runIntern(const vle::value::Map& init)
+std::unique_ptr<value::Map>
+MetaManager::runIntern(const value::Map& init)
 {
     if (mexpe_debug){
         mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
                 "[vle.recursive] run intern entrance \n");
     }
-    vle::utils::Package pkg(mCtx, mIdPackage);
-    std::string vpzFile = pkg.getExpFile(mIdVpz, vle::utils::PKG_BINARY);
+    utils::Package pkg(mCtx, mIdPackage);
+    std::string vpzFile = pkg.getExpFile(mIdVpz, utils::PKG_BINARY);
     std::unique_ptr<vpz::Vpz> model(new vpz::Vpz(vpzFile));
     model->project().experiment().setCombination("linear");
 
     VleAPIfacilities::changeAllPlugin(*model, "dummy");
-    std::vector<VleOutput>::const_iterator itb= mOutputs.begin();
-    std::vector<VleOutput>::const_iterator ite= mOutputs.end();
+    std::vector<std::unique_ptr<VleOutput>>::const_iterator itb =
+            mOutputs.begin();
+    std::vector<std::unique_ptr<VleOutput>>::const_iterator ite =
+            mOutputs.end();
     for (; itb != ite; itb++) {
         switch(mConfigParallelType) {
             case SINGLE:
             case THREADS: {
-                VleAPIfacilities::changePlugin(*model, itb->view, "storage");
+                VleAPIfacilities::changePlugin(*model, (*itb)->view, "storage");
                 break;
             } case MVLE: {
-                VleAPIfacilities::changePlugin(*model, itb->view, "file");
+                VleAPIfacilities::changePlugin(*model, (*itb)->view, "file");
                 break;
             }
         }
@@ -555,11 +739,9 @@ MetaManager::runIntern(const vle::value::Map& init)
 
 
     //build output matrix with header
-    std::unique_ptr<vle::value::Matrix> results(
-            new vle::value::Matrix(outputSize, inputSize+1, 1, 1));
+    std::unique_ptr<value::Map> results(new value::Map());
     for (unsigned int j=0; j<outputSize;j++) {
-        results->set(j,0, std::unique_ptr<value::String>(
-                new vle::value::String(mOutputs[j].id)));
+        results->add(mOutputs[j]->id, value::Null::create());
     }
 
 
@@ -568,41 +750,47 @@ MetaManager::runIntern(const vle::value::Map& init)
     case THREADS: {
 
         std::ofstream outstream(mCtx->getHomeFile("metamanager.log").string());
-        vle::manager::Manager planSimulator(
+        manager::Manager planSimulator(
                 mCtx,
-                vle::manager::LOG_NONE,
-                vle::manager::SIMULATION_NONE,
+                manager::LOG_NONE,
+                manager::SIMULATION_NONE,
                 &outstream);
-        vle::manager::Error manerror;
+        manager::Error manerror;
 
         if (mexpe_debug){
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
-                    "[vle.recursive] simulation single/threads %d \n",
-                    mConfigParallelNbSlots);
+                    "[vle.recursive] simulation single/threads(%d slots) "
+                    "nb simus: %u \n", mConfigParallelNbSlots,
+                    (repSize*inputSize));
         }
 
-        std::unique_ptr<vle::value::Matrix> output_mat =  planSimulator.run(
+//        //for dbg
+//        std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
+//        tempvpzPath.append("/temp_saved.vpz");
+//        model->write(tempvpzPath);
+//        //
+        std::unique_ptr<value::Matrix> output_mat =  planSimulator.run(
                 std::move(model), mConfigParallelNbSlots, 0, 1, &manerror);
         if (mexpe_debug){
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
                     "[vle.recursive] end simulation single/threads\n");
         }
         if (manerror.code != 0) {
-            throw vle::utils::InternalError(vle::utils::format(
+            throw utils::InternalError(utils::format(
                     "Error in MetaManager '%s'",
                     manerror.message.c_str()));
         }
 
         for (unsigned int out =0; out < outputSize; out++) {
-            VleOutput& outId = mOutputs[out];
+            VleOutput& outId = *mOutputs[out];
             for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
-                outId.initAggregateResult();
                 for (unsigned int j = 0; j < repSize; j++) {
-                    outId.insertReplicate(output_mat->get(i+j,0)->toMap());
+                    outId.insertReplicate(output_mat->get(i+j,0)->toMap(),
+                            j==0, i==0, inputSize, repSize);
                 }
-                results->set(out, 1+(i % inputSize),
-                        outId.buildAggregateResult());
+                outId.insertInput(i % inputSize);
             }
+            results->set(outId.id, std::move(outId.buildAggregateResult()));
         }
         if (mexpe_debug){
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
@@ -638,7 +826,7 @@ MetaManager::runIntern(const vle::value::Map& init)
         }
         bool started = mspawn.start(exe, mWorkingDir, argv);
         if (not started) {
-            throw vu::ArgError(vle::utils::format(
+            throw vu::ArgError(utils::format(
                     "Failed to start `%s'", exe.c_str()));
         }
         std::string message;
@@ -647,15 +835,14 @@ MetaManager::runIntern(const vle::value::Map& init)
         mspawn.status(&message, &is_success);
 
         if (! is_success) {
-            throw vu::ArgError(vle::utils::format(
+            throw vu::ArgError(utils::format(
                     "Error launching `%s' : %s ",
                     exe.c_str(), message.c_str()));
         }
 
         for (unsigned int out =0; out < outputSize; out++) {
-            VleOutput& outId = mOutputs[out];
+            VleOutput& outId = *mOutputs[out];
             for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
-                outId.initAggregateResult();
                 for (unsigned int j = 0; j < repSize; j++) {
                     std::string vleResultFilePath = mWorkingDir;
                     vleResultFilePath.append(model->project().experiment().name());
@@ -664,18 +851,18 @@ MetaManager::runIntern(const vle::value::Map& init)
                     vleResultFilePath.append("_");
                     vleResultFilePath.append(outId.view);
                     vleResultFilePath.append(".dat");
-                    vle::reader::VleResultsTextReader tfr(vleResultFilePath);
-                    vle::value::Matrix mat;
+                    reader::VleResultsTextReader tfr(vleResultFilePath);
+                    value::Matrix mat;
                     tfr.readFile(mat);
-                    outId.insertReplicate(mat);
+                    outId.insertReplicate(mat, j==0, i==0, inputSize, repSize);
                     if (mRemoveSimulationFiles and out == (outputSize-1)) {
                         utils::Path torm(vleResultFilePath.c_str());
                         torm.remove();
                     }
                 }
-                results->set(out, 1+(i % inputSize),
-                        outId.buildAggregateResult());
+                outId.insertInput(i % inputSize);
             }
+            results->set(outId.id, std::move(outId.buildAggregateResult()));
         }
         if (mexpe_debug){
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
@@ -689,25 +876,34 @@ MetaManager::runIntern(const vle::value::Map& init)
 
 
 void
-MetaManager::postInputsIntern(vle::vpz::Vpz& model,
-        const vle::value::Map& init)
+MetaManager::postInputsIntern(vpz::Vpz& model,
+        const value::Map& init)
 {
-    vle::vpz::Conditions& conds = model.project().experiment().conditions();
+    vpz::Conditions& conds = model.project().experiment().conditions();
+
+    //post propagate
+    for (unsigned int i=0; i < mPropagate.size(); i++) {
+        VlePropagate& tmp_propagate = *mPropagate[i];
+        vpz::Condition& cond = conds.get(tmp_propagate.cond);
+        cond.clearValueOfPort(tmp_propagate.port);
+        const value::Value& exp = tmp_propagate.value(init);
+        cond.addValueToPort(tmp_propagate.port, exp.clone());
+    }
     //post replicas
     if (mReplicate) {
-        vle::vpz::Condition& condRep = conds.get(mReplicate->cond);
+        vpz::Condition& condRep = conds.get(mReplicate->cond);
         condRep.clearValueOfPort(mReplicate->port);
         for (unsigned int i=0; i < inputsSize(); i++) {
             for (unsigned int k=0; k < replicasSize(); k++) {
-                const vle::value::Value& exp = mReplicate->values(init, true);
+                const value::Value& exp = mReplicate->values(init);
                 switch(exp.getType()) {
-                case vle::value::Value::SET:
+                case value::Value::SET:
                     condRep.addValueToPort(mReplicate->port,
                             exp.toSet().get(k)->clone());
                     break;
-                case vle::value::Value::TUPLE:
+                case value::Value::TUPLE:
                     condRep.addValueToPort(mReplicate->port,
-                            vle::value::Double::create(exp.toTuple().at(k)));
+                            value::Double::create(exp.toTuple().at(k)));
                     break;
                 default:
                     //error already detected
@@ -719,54 +915,44 @@ MetaManager::postInputsIntern(vle::vpz::Vpz& model,
     //post inputs
     for (unsigned int i=0; i < mInputs.size(); i++) {
         VleInput& tmp_input = *mInputs[i];
-        vle::vpz::Condition& cond = conds.get(tmp_input.cond);
+        vpz::Condition& cond = conds.get(tmp_input.cond);
         cond.clearValueOfPort(tmp_input.port);
-        const vle::value::Value& exp = tmp_input.values(init, false);
-        if (tmp_input.type == MONO) {
-            if (not mReplicate) {
-                cond.addValueToPort(tmp_input.port, exp.clone());
-            } else {
-                for (unsigned int k=0; k < replicasSize(); k++) {
-                    cond.addValueToPort(tmp_input.port,exp.clone());
-                }
-            }
-        } else {
-            switch (exp.getType()) {
-            case vle::value::Value::TUPLE: {
-                const vle::value::Tuple& tmp_val_tuple = exp.toTuple();
-                for (unsigned j=0; j < tmp_val_tuple.size(); j++) {//TODO maxExpe
-                    double tmp_j = tmp_val_tuple[j];
-                    if (not mReplicate) {
+        const value::Value& exp = tmp_input.values(init);
+
+        switch (exp.getType()) {
+        case value::Value::TUPLE: {
+            const value::Tuple& tmp_val_tuple = exp.toTuple();
+            for (unsigned j=0; j < tmp_val_tuple.size(); j++) {//TODO maxExpe
+                double tmp_j = tmp_val_tuple[j];
+                if (not mReplicate) {
+                    cond.addValueToPort(tmp_input.port,
+                            value::Double::create(tmp_j));
+                } else {
+                    for (unsigned int k=0; k < replicasSize(); k++) {
                         cond.addValueToPort(tmp_input.port,
-                                vle::value::Double::create(tmp_j));
-                    } else {
-                        for (unsigned int k=0; k < replicasSize(); k++) {
-                            cond.addValueToPort(tmp_input.port,
-                                    vle::value::Double::create(tmp_j));
-                        }
+                                value::Double::create(tmp_j));
                     }
                 }
-                break;
-            } case vle::value::Value::SET: {
-                const vle::value::Set& tmp_val_set =exp.toSet();
-                for (unsigned j=0; j < tmp_val_set.size(); j++) {//TODO maxExpe
-                    const vle::value::Value& tmp_j = *tmp_val_set.get(j);
-                    if (not mReplicate) {
-                        cond.addValueToPort(tmp_input.port,tmp_j.clone());
-                    } else {
-                        for (unsigned int k=0; k < replicasSize(); k++) {
-                            cond.addValueToPort(tmp_input.port,
-                                    tmp_j.clone());
-                        }
+            }
+            break;
+        } case value::Value::SET: {
+            const value::Set& tmp_val_set =exp.toSet();
+            for (unsigned j=0; j < tmp_val_set.size(); j++) {//TODO maxExpe
+                const value::Value& tmp_j = *tmp_val_set.get(j);
+                if (not mReplicate) {
+                    cond.addValueToPort(tmp_input.port,tmp_j.clone());
+                } else {
+                    for (unsigned int k=0; k < replicasSize(); k++) {
+                        cond.addValueToPort(tmp_input.port,
+                                tmp_j.clone());
                     }
                 }
-                break;
             }
-            default:
-                throw vle::utils::ArgError("[MetaManager] : Internal Error (1)");
-                break;
-            }
-        }
+            break;
+        } default: {
+            cond.addValueToPort(tmp_input.port,exp.clone());
+            break;
+        }}
     }
 }
 void

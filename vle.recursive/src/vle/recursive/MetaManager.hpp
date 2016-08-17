@@ -28,9 +28,31 @@
 namespace vle {
 namespace recursive {
 
-enum INPUT_TYPE {MONO, MULTI};
 enum CONFIG_PARALLEL_TYPE {THREADS, MVLE, SINGLE};
-enum OUTPUT_INTEGRATION_TYPE {LAST, MAX, MSE, ALL};
+enum INTEGRATION_TYPE {LAST, MAX, MSE, ALL};
+
+struct VlePropagate
+{
+    /*
+     * @brief VlePropagate specifies the value to set for all simulations
+     *        to a port condition of the embedded simulator
+     * @param cond, id of the cond
+     * @param port, id of the port
+     */
+    VlePropagate(const std::string& cond, const std::string& port);
+    virtual ~VlePropagate();
+
+    /**
+     * @brief Gets the value for this propagation input
+     * @param init, the initialization map
+     */
+    const vle::value::Value& value(const vle::value::Map& init);
+    std::string getName() const;
+
+    std::string cond;
+    std::string port;
+
+};
 
 struct VleInput
 {
@@ -39,8 +61,7 @@ struct VleInput
      * @param cond, id of the cond
      * @param port, id of the port
      * @param val, the value given on port conf_name, is either
-     *  * a value::Set or value::Tuple that identifies an experiment plan
-     *  * any other value type that identifies a single value
+     *  a value::Set or value::Tuple that identifies an experiment plan
      */
     VleInput(const std::string& cond, const std::string& port,
             const vle::value::Value& val);
@@ -49,19 +70,39 @@ struct VleInput
     /**
      * @brief Gets the experiment plan from initialization map
      * @param init, the initialization map
-     * @param replicate, true if this is the replicate and not an input
-     * @return a reference to the set of values
      */
-    const vle::value::Value& values(const vle::value::Map& init,
-            bool replicate=false);
-    std::string getName();
-
+    const vle::value::Value& values(const vle::value::Map& init);
+    std::string getName() const;
 
     std::string cond;
     std::string port;
-    INPUT_TYPE type;
     unsigned int nbValues;
 
+};
+
+struct VleReplicate
+{
+    /*
+     * @brief VleReplicate identifies the replicate input
+     * @param cond, id of the cond
+     * @param port, id of the port
+     * @param val, the value given on port conf_name, is either
+     *  a value::Set or value::Tuple that identifies an experiment plan
+     */
+    VleReplicate(const std::string& cond, const std::string& port,
+            const vle::value::Value& val);
+    virtual ~VleReplicate();
+
+    /**
+     * @brief Gets the experiment plan from initialization map
+     * @param init, the initialization map
+     */
+    const vle::value::Value& values(const vle::value::Map& init);
+    std::string getName();
+
+    std::string cond;
+    std::string port;
+    unsigned int nbValues;
 };
 
 struct VleOutput
@@ -85,43 +126,70 @@ public:
      *  - aggregation = mean
      */
     VleOutput(const std::string& id, const vle::value::Value& config);
-    VleOutput(const VleOutput& vleOutput);
     ~VleOutput();
 
     bool parsePath(const std::string& path);
 
+
     /**
-     * @brief insert output value from a view map
+     * @brief insert a replicate from a map of views
+     * @param result, one simulation result (map of views)
+     * @param initReplicateAccu, if true accumulators are initialized
+     * @param initInputAccu, if true accumulators are initialized
+     * @param nbInputs, nb inputs of the experiment plan (for allocation)
+     * @param nbReplicates, nb replicates of the experiment plan (for check)
      */
-    void insertReplicate(const vle::value::Map& result);
-
+    void insertReplicate(vle::value::Map& result,
+            bool initReplicateAccu, bool initInputAccu, unsigned int nbInputs,
+            unsigned int nbReplicates);
     /**
-     * @brief insert output value from a view
+     * @brief insert a replicate from a view
+     * @param result, one view (matrix) from one simulation result
+     * @param initReplicateAccu, if true accumulators are initialized
+     * @param initInputAccu, if true accumulators are initialized
+     * @param nbInputs, nb inputs of the experiment plan (for allocation)
+     * @param nbReplicates, nb replicates of the experiment plan (for check)
      */
-    void insertReplicate(const vle::value::Matrix& outMat);
-
-    void initAggregateResult();
+    void insertReplicate(vle::value::Matrix& outMat,
+            bool initReplicateAccu, bool initInputAccu, unsigned int nbInputs,
+            unsigned int nbReplicates);
 
     /**
-     * @brief build a vle value (Tuple or Double) from aggregation
+     * @brief insert result of an input combination
+     * @note rely on replicate accumulators previously filled
+     */
+    void insertInput(unsigned int currentInput);
+
+    /**
+     * @brief build a vle value from input aggregation
      */
     std::unique_ptr<vle::value::Value> buildAggregateResult();
 
     std::string id;
     std::string view;
     std::string absolutePort;
-    OUTPUT_INTEGRATION_TYPE integrationType;
-    AccuType aggregationType;
+    INTEGRATION_TYPE integrationType;
+    AccuStat replicateAggregationType;
+    AccuStat inputAggregationType;
     std::unique_ptr<vle::value::Tuple> mse_times;
     std::unique_ptr<vle::value::Tuple> mse_observations;
 
-    //for mean aggregation
-    std::unique_ptr<AccuMono> maccuMono; //for integration with one dimension
-    std::unique_ptr<AccuMulti> maccuMulti; //for integration with multiple dims
+    //for replicate aggregation (one dimension or more)
+    std::unique_ptr<AccuMono> mreplicateAccuMono;
+    std::unique_ptr<AccuMulti> mreplicateAccuMulti;
 
-    //In case one has to handle not double values,
-    //note that agregation is just replacement
-    std::unique_ptr<vle::value::Value> res_value;
+    //for input aggregation (one dimension or more)
+    std::unique_ptr<AccuMono> minputAccuMono;
+    std::unique_ptr<AccuMulti> minputAccuMulti;
+
+    //for replicate aggregation in the case values are not double
+    std::unique_ptr<vle::value::Value> mreplicateInserter;
+    //for aggregation in the case integration or inputAgreggation is ALL
+    std::unique_ptr<vle::value::Value> minputInserter;
+
+    //true if one manage double values
+    bool manageDoubleValue;
+
 };
 
 /**
@@ -130,9 +198,6 @@ public:
  */
 class MetaManager
 {
-
-
-
 private:
     std::string mIdVpz;
     std::string mIdPackage;
@@ -141,9 +206,10 @@ private:
     unsigned int mConfigParallelNbSlots;
     unsigned int mConfigParallelMaxExpes;
     bool mexpe_debug;
+    std::vector<std::unique_ptr<VlePropagate>> mPropagate;
     std::vector<std::unique_ptr<VleInput>> mInputs;
-    std::unique_ptr<VleInput> mReplicate;
-    std::vector<VleOutput> mOutputs;//view * port
+    std::unique_ptr<VleReplicate> mReplicate;
+    std::vector<std::unique_ptr<VleOutput>> mOutputs;//view * port
     std::vector<std::unique_ptr<value::Value>>
       mOutputValues;//values are Tuple or Set
     std::string mWorkingDir; //only for mvle
@@ -165,9 +231,9 @@ public:
     /**
      * @brief Simulates the experiment plan
      * @param init, the initialization map
-     * @return the values
+     * @return a map where each key is an output
      */
-    std::unique_ptr<vle::value::Matrix> run(const vle::value::Map& init);
+    std::unique_ptr<vle::value::Map> run(const vle::value::Map& init);
     /**
      * @brief Parse a string of the type that should identify an input, eg. :
      *   input_cond.port
@@ -175,7 +241,6 @@ public:
      *   cond.port
      *
      * @param[in]  conf, the string to parse
-     * @param[in]  with_prefix, tells if one expects 'input_' prefix on conf
      * @param[out] cond, the condition of the input or empty if not parsed
      * @param[out] port, the port of the input or empty if not parsed
      * @param[in] tells the prefix to parse.
@@ -200,7 +265,7 @@ private:
 
     unsigned int inputsSize() const;
     unsigned int replicasSize() const;
-    std::unique_ptr<vle::value::Matrix> runIntern(
+    std::unique_ptr<vle::value::Map> runIntern(
             const vle::value::Map& init);
     void postInputsIntern(vle::vpz::Vpz& model, const vle::value::Map& init);
     void clear();

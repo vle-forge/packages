@@ -24,9 +24,9 @@
 
 #include <vle/devs/Dynamics.hpp>
 #include <vle/value/Value.hpp>
+#include <vle/value/Table.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/recursive/MetaManager.hpp>
-#include <iostream>
 
 namespace vle {
 namespace recursive {
@@ -119,7 +119,7 @@ public:
         case EXPE_LAUNCH: {
             if (mresults and getModel().existOutputPort("outputs")) {
                 output.emplace_back("outputs");
-                output.back().attributes().reset(new value::Matrix(*mresults));
+                output.back().attributes().reset(new value::Map(*mresults));
             }
             break;
         } case IDLE: {
@@ -160,12 +160,14 @@ public:
      * @brief Observation function
      * @note event port names:
      * - outputs
+     * - output_Y: where Y is the id of an output
      * - output_Y_i: where Y is the id of an output and i is the index of
      * simulation input
      */
     virtual std::unique_ptr<vle::value::Value> observation(
     const vle::devs::ObservationEvent& event) const override
     {
+
         if (mresults) {
             std::string portName = event.getPortName();
             if (portName == "outputs") {
@@ -179,24 +181,37 @@ public:
                         portName.size()));
                 std::vector<std::string>  spl;
                 MetaManager::split(spl, indexes, '_');
-                if (spl.size() != 2){
-                    return 0;
+                if (spl.size() == 0){
+                    return nullptr;
                 }
-                std::string colname = spl[0];
-                int col = -1;
-                for (unsigned int c = 0; c < mresults->columns(); c++) {
-                    if (mresults->get(c,0)->toString().value() == colname) {
-                        col = c;
+
+                std::string outputName(spl[0]);
+                if (not mresults->exist(outputName)) {
+                    return nullptr;
+                }
+                const vle::value::Value& r = *mresults->get(outputName);
+                if (spl.size() == 1) {
+                    //look for output_Y
+                    return r.clone();
+                } else if (spl.size() == 2) {
+                    //look for output_Y_i
+                    unsigned int col = std::stoi(spl[1]);
+                    if (r.isTable()) {
+                        const vle::value::Table& rt = r.toTable();
+                        if (rt.width() <= col) {
+                            return nullptr;
+                        }
+                        if (rt.height() == 1) {
+                            return value::Double::create(rt.get(col, 0));
+                        }
+                        std::unique_ptr<vle::value::Tuple> res(
+                                new vle::value::Tuple(rt.height()));
+                        for (unsigned int i=0; i<rt.height(); i++) {
+                            res->value()[i] = rt.get(col, i);
+                        }
+                        return std::move(res);
                     }
                 }
-                if (col == -1) {
-                    return 0;
-                }
-                int row = std::stoi(spl[1]);
-                if (not mresults->get(col,row)) {
-                    return 0;
-                }
-                return mresults->get(col,row)->clone();
             }
         }
         return nullptr;
@@ -219,7 +234,7 @@ public:
     /**
      * @brief Results of simulations
      */
-    std::unique_ptr<vle::value::Matrix> mresults;
+    std::unique_ptr<vle::value::Map> mresults;
 
 };
 

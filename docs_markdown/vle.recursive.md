@@ -19,32 +19,7 @@ allocation (see tests at the end).
 
 ### Multi simulation and aggregation of results
 
-Formally a model identified by a *vpz* file allows to define multiple functions
-(say *F1*, *F2*, ...) from inputs (say *X1*, *X2*, *X3*, ...) identified by
-condition port into the *vpz* file. Let us consider, but it is only an option, 
-that there is an input (say *Xs*) that represents a random value (eg. the value
-of a random generator seed). The functions evaluation returns temporal column of 
-outputs. For example *F1* returns a vector *{Y11, Y12,...,Y1n}* where *Y1i* is 
-the value of *F1* at time index *i*. 
-
-The MetaManager configuration consists in giving the different values 
-*{Xj(1), ..., Xj(p)}* to input *Xj*. The experiment plan size *p* must be the 
-same for all *j*. One can also gives the different values of Xs of size *q*.
-The MetaManager will perform (using parallel tools) the simulation of the p*q
-simulations. The output is a matrix where a line corresponds to an input value
-and a column corresponds to a function:
-
-*stat1_k (int1(F1(X1(1), X2(1), X3(1), Xs(k))), stat2_k (int2(F2(X1(1), X2(1), X3(1), Xs(k)))*
-
-...
-
-*stat1_k (int1(F1(X1(p), X2(p), X3(p), Xs(k))), stat2_k (int2(F2(X1(p), X2(p), X3(p), Xs(k)))*
-
-Where *int1* and *int2* gives the function used to integrate 
-the temporal vector of outputs of *F1* and *F2* respectively 
-(eg. *first*, *last*, ...).
-And *stat1_k* and *stat2_k* gives the function for aggregating the *q* 
-replicates (eg. *mean*, *max*, ...) of *F1* and *F2* respectively. 
+TODO tutorial
 
 ### The MetaManager API.
 
@@ -56,28 +31,33 @@ It can contains:
 * **package** (string) : it gives the name of the *package* where is located
  the nested model. It allows to identify together with *vpz*
  the nested model.
-* **input_X** (vle::value::Value) : where X is of the form *condname/portname*,
- it gives for one input the set of value to simulate.
- If a *vle::value::Set* or *vle:value::Tuple* is given, it is understood as
- multiple simulation inputs.
+* **propagate_X** (*value::Value*, optional) : where X is of the 
+ form *condname.portname*, it specifies the value to set for all simulations
+ to a port condition of the embedded simulator. 
+* **input_X** (*value::Value*): where X is of the form *condname.portname*,
+  it gives for one input the values to simulate. *value::Tuple* 
+  and *value::Set* are interpreted as multiple inputs.
+* **replicate_X** (*vle::value::Set* or *vle:value::Tuple*, optional) where X
+ is of the form *condname.portname*, it gives the values to simulate for the
+ replicates (eg. seeds).
 * **output_Y** (vle::value::Map) : where Y is an id for the output. 
  The map should/could provide:
     * **path** (string): is of the form *viewname/pathOfTheAtomicModel.ObsPort*.
   It identifies the column of outputs *ObsPort* computed by the atomic
   model *pathOfTheAtomicModel* and saved into the view *viewname*. 
-    * **integration** (string amongst "last", "max", "mse" or "all", default "last"):
+    * **integration** (amongst "last", "max", "mse" or "all", default "all"):
   the type of temporal integration to perform.
   the output with id *X*. The string has the following form:
-    * **mse_observations** (vle::value::Tuple): required only if integration="mse".
-  It gives the series of observations for computing the MSE
-    * **mse_times** (vle::value::Tuple): required only if integration="mse". It
-  gives times at which the mse_observations are given (mse_observatiosn and
+    * **mse_observations** (*vle::value::Tuple*): required only if
+  integration="mse". It gives the series of observations for computing the MSE
+    * **mse_times** (*vle::value::Tuple*): required only if integration="mse".
+  It gives times at which the mse_observations are given (mse_observatiosn and
   mse_times must have the same length.
-    * **aggregation** (string amongst "mean", "quantile" default "mean"): It gives
-  the type of aggregation to perform on the simulations replicates.
-* **replicate_X** (vle::value::Value, optional) where X is of the 
- form *condname/portname*, it gives the values for the replicates (eg. seeds).
- It has to be a *vle::value::Set* or *vle:value::Tuple*.
+    * **aggregation_replicate** (amongst "mean", default "mean"):
+  It gives the type of aggregation to perform on the simulations replicates.
+    * **aggregation_input** (amongst "mean", "quantile", "max", "all"
+  default "all"): It gives the type of aggregation to perform on the
+  simulations inputs (once replicates have been aggregated).
 * **config_parallel_type** (string amongst *threads*, *mvle* and *single*;
  default *single*). It sets the type of parallelization to perform.
 * **config_parallel_rm_files** (bool; default *true*). Used only 

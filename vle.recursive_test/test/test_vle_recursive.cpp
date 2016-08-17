@@ -36,7 +36,6 @@
 #include <vle/utils/Package.hpp>
 #include <vle/recursive/MetaManager.hpp>
 
-
 BOOST_AUTO_TEST_CASE(test_api)
 {
     namespace vr = vle::recursive;
@@ -68,10 +67,14 @@ BOOST_AUTO_TEST_CASE(test_api)
             "view/ExBohachevsky:ExBohachevsky.y_noise");
     init.add("replicate_cond.seed",r.clone());
     vr::MetaManager meta;
-    std::unique_ptr<vv::Matrix> res = meta.run(init);
+    std::unique_ptr<vv::Map> res = meta.run(init);
 
-    BOOST_REQUIRE_CLOSE(res->getDouble(0/*col*/,1),209.60005,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getDouble(1,1),209.6,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getDouble(0,2),5.43077761310471e-05,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getDouble(1,2),0.0,10e-3);
+    BOOST_REQUIRE(res->getTable("ynoise").width() ==  2);//2 inputs
+    BOOST_REQUIRE(res->getTable("ynoise").height() ==  1);//not all time
+    BOOST_REQUIRE(res->getTable("y").width() ==  2);
+    BOOST_REQUIRE(res->getTable("y").height() ==  1);
+    BOOST_REQUIRE_CLOSE(res->getTable("ynoise")(0/*col*/,0), 209.60005,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getTable("y")(0,0),209.6,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getTable("ynoise")(1,0),5.43077761310471e-05,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getTable("y")(1,0),0.0,10e-4);
 }

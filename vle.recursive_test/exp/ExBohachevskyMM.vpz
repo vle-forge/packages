@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<vle_project version="1.3.0" author="Ronan Trépos" date="2015-Jun-15 16:13:07">
+<vle_project author="Ronan Trépos" date="2015-Jun-15 16:13:07" version="1.3.0">
  <structures>
-<model width="482" x="0" y="0" height="376" type="coupled" name="ExBohachevskyMM">
+<model width="482" y="0" name="ExBohachevskyMM" x="0" type="coupled" height="376">
 <submodels>
-<model width="100" x="42" y="33" dynamics="metaManagerDyn" conditions="cond,simulation_engine" height="30" observables="obs" type="atomic" name="ExBohachevskyMM">
+<model width="100" observables="obs" y="33" conditions="cond,simulation_engine" name="ExBohachevskyMM" x="42" dynamics="metaManagerDyn" type="atomic" height="30">
 </model>
 </submodels>
 <connections>
@@ -75,7 +75,7 @@
 </conditions>
 <views>
 <outputs>
-<output package="vle.output" plugin="file" format="local" location="" name="view"/>
+<output format="local" package="vle.output" name="view" location="" plugin="file"/>
 
 </outputs>
 <observables>
@@ -90,22 +90,22 @@
 
 
 
-<port name="output_y_1">
+<port name="output_y_0">
+      <attachedview name="view"/>
+     </port>
+     <port name="output_ynoise_0">
+      <attachedview name="view"/>
+     </port>
+     <port name="output_y_1">
       <attachedview name="view"/>
      </port>
      <port name="output_ynoise_1">
       <attachedview name="view"/>
      </port>
-     <port name="output_y_2">
-      <attachedview name="view"/>
-     </port>
-     <port name="output_ynoise_2">
-      <attachedview name="view"/>
-     </port>
     </observable>
 
 </observables>
-<view output="view" type="timed" timestep="1.000000000000000" name="view"/>
+<view output="view" timestep="1.000000000000000" name="view" type="timed"/>
 
 </views>
 </experiment>

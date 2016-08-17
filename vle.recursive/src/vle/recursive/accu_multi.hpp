@@ -28,6 +28,7 @@
 #include <vle/utils/Exception.hpp>
 #include <vle/value/Matrix.hpp>
 #include <vle/value/Tuple.hpp>
+#include <vle/value/Table.hpp>
 #include <vle/recursive/accu_mono.hpp>
 
 namespace vu = vle::utils;
@@ -48,6 +49,11 @@ public:
     AccuMulti(AccuType type) : accu(type),
         init_size(false), mstats()
     {
+    }
+    AccuMulti(AccuStat s) : accu(),
+        init_size(false), mstats()
+    {
+        accu = AccuMono::storageTypeForStat(s);
     }
 
     AccuMulti(const AccuMulti& acc) : accu(acc.accu),
@@ -71,9 +77,19 @@ public:
         }
     }
 
-    inline unsigned int size()
+    inline unsigned int size() const
     {
         return mstats.size();
+    }
+
+    void insertAccuStat(const AccuMulti& a, AccuStat s)
+    {
+        if (a.size() != size()) {
+            throw vle::utils::ArgError(" [accu_multi] error size ");
+        }
+        for (unsigned int i=0; i < a.size() ; i++) {
+            mstats[i].insert(a.mstats[i].getStat(s));
+        }
     }
 
     void insertColumn(const vle::value::Matrix& m,
@@ -101,10 +117,48 @@ public:
     }
 
     /**
+     * @brief generic get Stat
+     * @param res[out], tuple filled with stat of all Accu
+     * @param s, the stat to use
+     */
+    void fillStat(vle::value::Tuple& res, AccuStat s) const
+    {
+        res.value().resize(mstats.size());
+        for (unsigned int i = 0; i < res.size(); i++) {
+            res[i] = mstats[i].getStat(s);
+        }
+    }
+
+    /**
+     * @brief generic get Stat
+     * @param res[out], tuple filled with stat of all Accu
+     * @param col[in], index of the colume of res to fill
+     * @param s[in], the stat to use
+     */
+    void fillStat(vle::value::Table& res, unsigned int col, AccuStat s) const
+    {
+        for (unsigned int i = 0; i < mstats.size(); i++) {
+            res(col, i) = mstats[i].getStat(s);
+        }
+    }
+
+    /**
+     * @brief Mean extractor
+     * @param s, index of the accumulator
+     * @param the mean value of accu s
+     */
+    inline double mean(unsigned int s) const
+    {
+        return mstats[s].mean();
+    }
+
+
+
+    /**
      * @brief Mean vector extractor
      * @param the mean values
      */
-    void mean(vle::value::Tuple& res)
+    void mean(vle::value::Tuple& res) const
     {
         res.value().resize(mstats.size());
         for (unsigned int i = 0; i < res.size(); i++) {
