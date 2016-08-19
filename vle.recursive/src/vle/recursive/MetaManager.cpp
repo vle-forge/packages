@@ -641,9 +641,9 @@ MetaManager::run(const value::Map& init)
                     and initSize != vleIn.nbValues) {
                 throw utils::ArgError(utils::format(
                         "[MetaManager]: error in input values: wrong number"
-                        " of values 1st input has %u values, %u -th input "
-                        "has %u values",
-                        initSize, i, vleIn.nbValues));
+                        " of values 1st input has %u values,  input %s has %u "
+                        "values", initSize, vleIn.getName().c_str(),
+                        vleIn.nbValues));
             }
         }
         //check if already exist in replicate or propagate
