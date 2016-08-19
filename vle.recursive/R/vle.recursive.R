@@ -73,7 +73,7 @@ vle.recursive.configPropagate = function(propagate=NULL, value=NULL)
   }
   #avoid MULTIPLE values
   classVal = class(value);
-  if (is.null(classVal) || !startsWith(classVal, "Vle")) {
+  if (is.null(classVal) || !grepl("^Vle", classVal)) {
     if (is.numeric(value) && (length(value)>1)) {
       class(value) <- "VleTUPLE";
     } else if (!is.null(length(value)) &&  (length(value)>1)) {
@@ -136,7 +136,7 @@ vle.recursive.configInput = function(input=NULL, values=NULL)
   }
   #avoid MULTIPLE values
   classVal = class(values);
-  if (is.null(classVal) || !startsWith(classVal, "Vle")) {
+  if (is.null(classVal) || !grepl("^Vle", classVal)) {
     if (is.numeric(values) && (length(values)>1)) {
       class(values) <- "VleTUPLE";
     } else if (!is.null(length(values)) &&  (length(values)>1)) {
@@ -197,7 +197,7 @@ vle.recursive.configReplicate = function(replicate=NULL, values=NULL)
   }
   #avoid MULTIPLE values
   classVal = class(values);
-  if (is.null(classVal) || !startsWith(classVal, "Vle")) {
+  if (is.null(classVal) || !grepl("^Vle", classVal)) {
     if (is.numeric(values) && (length(values)>1)) {
       class(values) <- "VleTUPLE";
     } else if (!is.null(length(values)) &&  (length(values)>1)) {
