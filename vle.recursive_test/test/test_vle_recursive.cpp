@@ -67,7 +67,9 @@ BOOST_AUTO_TEST_CASE(test_api)
             "view/ExBohachevsky:ExBohachevsky.y_noise");
     init.add("replicate_cond.seed",r.clone());
     vr::MetaManager meta;
-    std::unique_ptr<vv::Map> res = meta.run(init);
+
+    vle::manager::Error err;
+    std::unique_ptr<vv::Map> res = meta.run(init, err);
 
     BOOST_REQUIRE(res->getTable("ynoise").width() ==  2);//2 inputs
     BOOST_REQUIRE(res->getTable("ynoise").height() ==  1);//not all time

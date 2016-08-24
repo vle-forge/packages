@@ -22,6 +22,7 @@
 
 #include <vle/value/Map.hpp>
 #include <vle/vpz/Vpz.hpp>
+#include <vle/manager/Types.hpp>
 #include <vle/utils/Context.hpp>
 #include <vle/recursive/accu_multi.hpp>
 
@@ -230,10 +231,12 @@ public:
     virtual ~MetaManager();
     /**
      * @brief Simulates the experiment plan
-     * @param init, the initialization map
-     * @return a map where each key is an output
+     * @param[in] init, the initialization map
+     * @param[out] init, an error structure
+     * @return the simulated values
      */
-    std::unique_ptr<vle::value::Map> run(const vle::value::Map& init);
+    std::unique_ptr<vle::value::Map> run(const vle::value::Map& init,
+            vle::manager::Error& err);
     /**
      * @brief Parse a string of the type that should identify an input, eg. :
      *   input_cond.port
@@ -265,8 +268,10 @@ private:
 
     unsigned int inputsSize() const;
     unsigned int replicasSize() const;
+
     std::unique_ptr<vle::value::Map> runIntern(
-            const vle::value::Map& init);
+            const vle::value::Map& init,
+            vle::manager::Error& err);
     void postInputsIntern(vle::vpz::Vpz& model, const vle::value::Map& init);
     void clear();
 };

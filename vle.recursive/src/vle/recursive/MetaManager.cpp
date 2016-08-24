@@ -21,6 +21,7 @@
 #include <sstream>
 #include <cmath>
 #include <string>
+#include <thread>
 
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Exception.hpp>
@@ -528,16 +529,18 @@ MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mexpe_debug(true), mPropagate(), mInputs(), mReplicate(nullptr),
         mOutputs(), mWorkingDir(""), mCtx(utils::make_context())
 {
-
+    mCtx->set_log_priority(3);//erros only
 }
 
 MetaManager::~MetaManager()
 {
+    mCtx.reset();
     clear();
 }
 
+
 std::unique_ptr<value::Map>
-MetaManager::run(const value::Map& init)
+MetaManager::run(const value::Map& init, vle::manager::Error& err)
 {
     clear();
 
@@ -549,26 +552,30 @@ MetaManager::run(const value::Map& init)
         } else if (tmp == "mvle") {
             mConfigParallelType = MVLE;
             if (! init.exist("working_dir")) {
-                throw utils::ArgError("[MetaManager] error for "
-                        "mvle config, missing 'working_dir' parameter");
+                err.code = -1;
+                err.message = "[MetaManager] error for "
+                        "mvle config, missing 'working_dir' parameter";
+                return nullptr;
             }
             mWorkingDir.assign(init.getString("working_dir"));
         }  else if (tmp == "single") {
             mConfigParallelType = SINGLE;
         } else {
-            throw utils::ArgError("[MetaManager] error for "
-                    "configuration type of parallel process");
-
+            err.code = -1;
+            err.message = "[MetaManager] error for configuration type of "
+                    "parallel process";
+            return nullptr;
         }
     }
     if (init.exist("config_parallel_nb_slots")) {
-        int tmp;
-        tmp = init.getInt("config_parallel_nb_slots");
+        int tmp = init.getInt("config_parallel_nb_slots");
         if (tmp > 0) {
             mConfigParallelNbSlots = tmp;
         } else {
-            throw utils::ArgError("[MetaManager] error for "
-                 "configuration type of parallel nb slots)");
+            err.code = -1;
+            err.message = "[MetaManager] error for "
+                    "configuration type of parallel nb slots)";
+            return nullptr;
         }
     }
     if (init.exist("config_parallel_max_expes")) {
@@ -576,16 +583,20 @@ MetaManager::run(const value::Map& init)
         tmp = init.getInt("config_parallel_max_expes");
         if (tmp > 0) {
             if ((unsigned int) tmp < mConfigParallelNbSlots) {
-                throw utils::ArgError(utils::format(
+                err.code = -1;
+                err.message = vle::utils::format(
                         "[MetaManager] error for configuration type of parallel"
                         " max expes, got '%i'which is less than nb slots:'%i'",
-                        tmp,  mConfigParallelNbSlots));
+                        tmp,  mConfigParallelNbSlots);
+                return nullptr;
             }
             mConfigParallelMaxExpes = tmp;
         } else {
-            throw utils::ArgError(utils::format(
+            err.code = -1;
+            err.message = vle::utils::format(
                     "[MetaManager] error for configuration type of parallel "
-                    "max expes, got '%i'", tmp));
+                    "max expes, got '%i'", tmp);
+            return nullptr;
         }
     }
     if (init.exist("expe_debug")) {
@@ -597,40 +608,58 @@ MetaManager::run(const value::Map& init)
     if (init.exist("package")) {
         mIdPackage = init.getString("package");
     } else {
-        throw utils::ArgError("[MetaManager] missing 'package'");
+        err.code = -1;
+        err.message = "[MetaManager] missing 'package'";
+        return nullptr;
     }
     if (init.exist("vpz")) {
         mIdVpz = init.getString("vpz");
     } else {
-        throw utils::ArgError("[MetaManager] missing 'vpz'");
+        err.code = -1;
+        err.message = "[MetaManager] missing 'vpz'";
+        return nullptr;
     }
 
     std::string in_cond;
     std::string in_port;
     std::string out_id;
+
     value::Map::const_iterator itb = init.begin();
     value::Map::const_iterator ite = init.end();
-    for (; itb != ite; itb++) {
-        const std::string& conf = itb->first;
-        if (MetaManager::parseInput(conf, in_cond, in_port, "propagate_")) {
-            mPropagate.emplace_back(new VlePropagate(in_cond, in_port));
-        } else if (MetaManager::parseInput(conf, in_cond, in_port)) {
-            mInputs.emplace_back(new VleInput(
-                    in_cond, in_port, *itb->second));
-        } else if (MetaManager::parseInput(conf, in_cond, in_port,
-                                           "replicate_")){
-            if (not mReplicate == 0) {
-                throw utils::ArgError(utils::format(
-                        "[MetaManager] : the replica is already defined with "
-                        " '%s'", mReplicate->getName().c_str()));
+    try {
+        for (; itb != ite; itb++) {
+            const std::string& conf = itb->first;
+            if (MetaManager::parseInput(conf, in_cond, in_port, "propagate_")) {
+                mPropagate.emplace_back(new VlePropagate(in_cond, in_port));
+            } else if (MetaManager::parseInput(conf, in_cond, in_port)) {
+                mInputs.emplace_back(new VleInput(
+                        in_cond, in_port, *itb->second));
+            } else if (MetaManager::parseInput(conf, in_cond, in_port,
+                    "replicate_")){
+                if (not mReplicate == 0) {
+                    err.code = -1;
+                    err.message = vle::utils::format(
+                            "[MetaManager] : the replica is already defined "
+                            "with '%s'", mReplicate->getName().c_str());
+                    clear();
+                    return nullptr;
+                }
+                mReplicate.reset(new VleReplicate(in_cond, in_port,
+                        *itb->second));
+            } else if (MetaManager::parseOutput(conf, out_id)){
+                mOutputs.emplace_back(new VleOutput(out_id, *itb->second));
             }
-            mReplicate.reset(new VleReplicate(in_cond, in_port, *itb->second));
-        } else if (MetaManager::parseOutput(conf, out_id)){
-            mOutputs.emplace_back(new VleOutput(out_id, *itb->second));
         }
+    } catch (const std::exception& e){
+        err.code = -1;
+        err.message = "[MetaManager] ";
+        err.message += e.what();
+        clear();
+        return nullptr;
     }
     //check
-    unsigned int initSize = 0;;
+
+    unsigned int initSize = 0;
     for (unsigned int i = 0; i< mInputs.size(); i++) {
         const VleInput& vleIn = *mInputs[i];
         //check size which has to be consistent
@@ -639,29 +668,38 @@ MetaManager::run(const value::Map& init)
         } else {
             if (vleIn.nbValues > 1 and initSize > 0
                     and initSize != vleIn.nbValues) {
-                throw utils::ArgError(utils::format(
+                err.code = -1;
+                err.message = utils::format(
                         "[MetaManager]: error in input values: wrong number"
                         " of values 1st input has %u values,  input %s has %u "
                         "values", initSize, vleIn.getName().c_str(),
-                        vleIn.nbValues));
+                        vleIn.nbValues);
+                clear();
+                return nullptr;
             }
         }
         //check if already exist in replicate or propagate
         if (mReplicate and (mReplicate->getName() == vleIn.getName())) {
-            throw utils::ArgError(utils::format(
+            err.code = -1;
+            err.message = utils::format(
                     "[MetaManager]: error input '%s' is also the replicate",
-                     vleIn.getName().c_str()));
+                    vleIn.getName().c_str());
+            clear();
+            return nullptr;
         }
         for (unsigned int j=0; j<mPropagate.size(); j++) {
             const VlePropagate& vleProp = *mPropagate[j];
             if (vleProp.getName() == vleIn.getName()) {
-                throw utils::ArgError(utils::format(
-                    "[MetaManager]: error input '%s' is also a propagate",
-                    vleIn.getName().c_str()));
+                err.code = -1;
+                err.message = utils::format(
+                        "[MetaManager]: error input '%s' is also a propagate",
+                        vleIn.getName().c_str());
+                clear();
+                return nullptr;
             }
         }
     }
-    return runIntern(init);
+    return runIntern(init, err);
 }
 
 bool
@@ -702,15 +740,18 @@ MetaManager::parseOutput(const std::string& conf, std::string& idout)
     return not idout.empty();
 }
 
-std::unique_ptr<value::Map>
-MetaManager::runIntern(const value::Map& init)
+std::unique_ptr<vle::value::Map>
+MetaManager::runIntern(const vle::value::Map& init,
+        vle::manager::Error& err)
 {
     if (mexpe_debug){
         mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
                 "[vle.recursive] run intern entrance \n");
     }
-    utils::Package pkg(mCtx, mIdPackage);
-    std::string vpzFile = pkg.getExpFile(mIdVpz, utils::PKG_BINARY);
+
+    vle::utils::Package pkg(mCtx, mIdPackage);
+    std::string vpzFile = pkg.getExpFile(mIdVpz, vle::utils::PKG_BINARY);
+
     std::unique_ptr<vpz::Vpz> model(new vpz::Vpz(vpzFile));
     model->project().experiment().setCombination("linear");
 
@@ -749,14 +790,12 @@ MetaManager::runIntern(const value::Map& init)
     case SINGLE:
     case THREADS: {
 
-        std::ofstream outstream(mCtx->getHomeFile("metamanager.log").string());
-        manager::Manager planSimulator(
+        vle::manager::Manager planSimulator(
                 mCtx,
-                manager::LOG_NONE,
-                manager::SIMULATION_NONE,
-                &outstream);
-        manager::Error manerror;
-
+                vle::manager::LOG_NONE,
+                vle::manager::SIMULATION_NONE,
+                nullptr);
+        vle::manager::Error manerror;
         if (mexpe_debug){
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
                     "[vle.recursive] simulation single/threads(%d slots) "
@@ -776,9 +815,13 @@ MetaManager::runIntern(const value::Map& init)
                     "[vle.recursive] end simulation single/threads\n");
         }
         if (manerror.code != 0) {
-            throw utils::InternalError(utils::format(
-                    "Error in MetaManager '%s'",
-                    manerror.message.c_str()));
+            err.code = -1;
+            err.message = "[MetaManager] ";
+            err.message += manerror.message;
+            model.reset(nullptr);
+            results.reset(nullptr);
+            clear();
+            return nullptr;
         }
 
         for (unsigned int out =0; out < outputSize; out++) {
@@ -826,18 +869,51 @@ MetaManager::runIntern(const value::Map& init)
         }
         bool started = mspawn.start(exe, mWorkingDir, argv);
         if (not started) {
-            throw vu::ArgError(utils::format(
-                    "Failed to start `%s'", exe.c_str()));
+            err.code = -1;
+            err.message = vle::utils::format(
+                    "[MetaManager] Failed to start `%s'", exe.c_str());
+            model.reset(nullptr);
+            results.reset(nullptr);
+            clear();
+            return nullptr;
         }
-        std::string message;
         bool is_success = true;
+        std::string message, output, error;
+        while (not mspawn.isfinish()) {
+            if (mspawn.get(&output, &error)) {
+                if (not error.empty() and message.empty()){
+                    //TODO info such as Context are written into error.
+//                    is_success = false;
+//                    message.assign(error);
+                }
+                output.clear();
+                error.clear();
+                std::this_thread::sleep_for(std::chrono::microseconds(200));
+            } else {
+                break;
+            }
+        }
         mspawn.wait();
+        if (! is_success) {
+            err.code = -1;
+            err.message = "[MetaManager] ";
+            err.message += message;
+            model.reset(nullptr);
+            results.reset(nullptr);
+            clear();
+            return nullptr;
+        }
         mspawn.status(&message, &is_success);
 
         if (! is_success) {
-            throw vu::ArgError(utils::format(
-                    "Error launching `%s' : %s ",
-                    exe.c_str(), message.c_str()));
+            err.code = -1;
+            err.message = "[MetaManager] ";
+            err.message += vle::utils::format("Error launching `%s' : %s ",
+                    exe.c_str(), message.c_str());
+            model.reset(nullptr);
+            results.reset(nullptr);
+            clear();
+            return nullptr;
         }
 
         for (unsigned int out =0; out < outputSize; out++) {
@@ -871,7 +947,7 @@ MetaManager::runIntern(const value::Map& init)
         return results;
         break;
     }}
-    return 0;
+    return nullptr;
 }
 
 
@@ -958,8 +1034,11 @@ MetaManager::postInputsIntern(vpz::Vpz& model,
 void
 MetaManager::clear()
 {
+    mPropagate.clear();
     mInputs.clear();
+    mReplicate.reset(nullptr);
     mOutputs.clear();
+    mOutputValues.clear();
 }
 
 }}//namespaces

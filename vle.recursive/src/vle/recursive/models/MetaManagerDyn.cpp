@@ -60,8 +60,10 @@ public:
         if (events.exist("vpz") and
                 not events.getString("vpz").empty()){
             mstate = EXPE_LAUNCH;
-            mresults = meta.run(events);
-
+            mresults = meta.run(events, merror);
+        }
+        if (merror.code != 0){
+            mresults.reset(nullptr);
         }
     }
 
@@ -147,8 +149,12 @@ public:
                 found =  (itb->getPortName() == "inputs");
             }
             if (found) {
+                merror.code = 0;
+                merror.message.clear();
                 mresults = std::move(meta.run(
-                        itb->attributes()->toMap().getMap("inputs")));
+                        itb->attributes()->toMap().getMap("inputs"),
+                        merror));
+                mresults.reset(nullptr);
                 mstate = EXPE_LAUNCH;
             }
             break;
@@ -213,6 +219,8 @@ public:
                     }
                 }
             }
+        } else if(merror.code != 0){
+            return value::String::create(merror.message);
         }
         return nullptr;
     }
@@ -235,6 +243,10 @@ public:
      * @brief Results of simulations
      */
     std::unique_ptr<vle::value::Map> mresults;
+    /**
+     * @brief Error filled if an error occcured during simulation
+     */
+    vle::manager::Error merror;
 
 };
 
