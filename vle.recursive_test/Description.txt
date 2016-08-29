@@ -4,10 +4,9 @@ Depends: vle.output
 Build-Depends:vle.recursive, vle.tester, vle.discrete-time, vle.reader
 Conflicts:
 Maintainer: Ronan Trépos <ronan.trepos@toulouse.inra.fr>
-Description: Test package for vle API for embedded simulation
+Description: Test package for vle API for embedded simulations
  .
-Tags: record utils simulation
-Url: http://recordb.toulouse.inra.fr/distributions/1.1
+Tags: vle utils simulation
+Url: http://www.vle-project.org/2.0
 Size: 0
 MD5sum: xxxx
-

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<vle_project author="Gauthier Quesnel" date="" version="1.0">
+ <structures>
+   <model width="300" type="coupled" y="0" height="300" x="0" name="top">
+   <in/>
+   <out/>
+  <submodels>
+    <model width="50" type="atomic" dynamics="dynSIRnoise" y="81" observables="obsSIRnoise" conditions="condSIRnoise" height="50" x="58" name="SIRnoise">
+     <in/>
+     <out>
+   <port name="S"/>
+   <port name="I"/>
+   <port name="R"/>
+  </out>
+    </model>
+   </submodels>
+  </model>
+ </structures>
+ <dynamics>
+ <dynamic library="SIRnoise" package="vle.recursive_test" name="dynSIRnoise"/>
+ </dynamics>
+ <experiment seed="123456789" duration="60" name="test">
+   <conditions>
+    <condition name="simulation_engine">
+     <port name="begin">
+      <double>0.0</double>
+     </port>
+     <port name="duration">
+      <double>60</double>
+     </port>"
+    </condition>
+   <condition name="condSIRnoise">
+   <port name="init_value_S">
+    <double>99</double>
+   </port>
+   <port name="sync_S">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_I">
+    <double>1</double>
+   </port>
+   <port name="sync_I">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_R">
+    <double>0</double>
+   </port>
+   <port name="sync_R">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_beta">
+    <double>0.002</double>
+   </port>
+   <port name="sync_beta">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_gamma">
+    <double>0.1</double>
+   </port>
+   <port name="sync_gamma">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_seed">
+    <double>32568</double>
+   </port>
+   <port name="sync_seed">
+    <integer>0</integer>
+   </port>
+  </condition>
+  </conditions>
+  <views>
+   <outputs>
+    <output format="local" plugin="storage" package="vle.output" location="" name="view">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
+   </outputs>
+   <view type="timed" timestep="1" output="view" name="view"/>
+   <observables>
+    <observable name="obsSIRnoise">
+   <port name="S">
+      <attachedview name="view"/>
+     </port>
+   <port name="I">
+      <attachedview name="view"/>
+     </port>
+   <port name="R">
+      <attachedview name="view"/>
+     </port>
+  </observable>
+   </observables>
+  </views>
+ </experiment>
+</vle_project>

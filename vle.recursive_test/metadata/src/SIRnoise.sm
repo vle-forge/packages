@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE vle_project_metadata>
+<vle_project_metadata author="meto" version="1.x">
+ <srcPlugin class="SIRnoise" package="vle.recursive_test" name="discrete-time"/>
+ <definition>
+  <variables>
+   <variable name="S">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+   <variable name="I">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+   <variable name="R">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+   <variable name="beta">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+   <variable name="gamma">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+   <variable name="seed">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+  </variables>
+  <compute><![CDATA[
+double epsilon = std::max(0.1,mrand.normal(1.0,0.3));
+double epsilon2 = std::max(0.1,mrand.normal(1.0,0.3));
+S = S(-1)-beta()*epsilon*S(-1)*I(-1);
+I = I(-1)+beta()*epsilon*S(-1)*I(-1) - gamma()*epsilon2*I(-1);
+R = R(-1)+gamma()*epsilon2*I(-1);]]></compute>
+  <constructor><![CDATA[mrand.seed((int) evts.getDouble("init_value_seed"));]]></constructor>
+  <usersection><![CDATA[vle::utils::Rand mrand;]]></usersection>
+  <includes><![CDATA[#include <vle/utils/Rand.hpp>]]></includes>
+ </definition>
+ <configuration>
+  <dynamic library="SIRnoise" package="vle.recursive_test" name="dynSIRnoise"/>
+  <observable name="obsSIRnoise">
+   <port name="S"/>
+   <port name="I"/>
+   <port name="R"/>
+  </observable>
+  <condition name="condSIRnoise">
+   <port name="init_value_S">
+    <double>99</double>
+   </port>
+   <port name="sync_S">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_I">
+    <double>1</double>
+   </port>
+   <port name="sync_I">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_R">
+    <double>0</double>
+   </port>
+   <port name="sync_R">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_beta">
+    <double>0.002</double>
+   </port>
+   <port name="sync_beta">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_gamma">
+    <double>0.1</double>
+   </port>
+   <port name="sync_gamma">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_seed">
+    <double>32568</double>
+   </port>
+   <port name="sync_seed">
+    <integer>0</integer>
+   </port>
+  </condition>
+  <in/>
+  <out>
+   <port name="S"/>
+   <port name="I"/>
+   <port name="R"/>
+  </out>
+ </configuration>
+</vle_project_metadata>

@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE vle_project_metadata>
+<vle_project_metadata version="1.x" author="meto">
+ <srcPlugin package="vle.recursive_test" name="discrete-time" class="SIR"/>
+ <definition>
+  <variables>
+   <variable name="S">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+   <variable name="I">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+   <variable name="R">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+   <variable name="beta">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+   <variable name="gamma">
+    <history_size>
+     <integer>0</integer>
+    </history_size>
+    <dim>
+     <integer>1</integer>
+    </dim>
+   </variable>
+  </variables>
+  <compute><![CDATA[S = S(-1)-beta()*S(-1)*I(-1);
+I = I(-1)+beta()*S(-1)*I(-1) - gamma()*I(-1);
+R = R(-1)+gamma()*I(-1);]]></compute>
+  <constructor/>
+  <usersection/>
+  <includes/>
+ </definition>
+ <configuration>
+  <dynamic library="SIR" package="vle.recursive_test" name="dynSIR"/>
+  <observable name="obsSIR">
+   <port name="S"/>
+   <port name="I"/>
+   <port name="R"/>
+  </observable>
+  <condition name="condSIR">
+   <port name="init_value_S">
+    <double>99</double>
+   </port>
+   <port name="sync_S">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_I">
+    <double>1</double>
+   </port>
+   <port name="sync_I">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_R">
+    <double>0</double>
+   </port>
+   <port name="sync_R">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_beta">
+    <double>0.002</double>
+   </port>
+   <port name="sync_beta">
+    <integer>0</integer>
+   </port>
+   <port name="init_value_gamma">
+    <double>0.1</double>
+   </port>
+   <port name="sync_gamma">
+    <integer>0</integer>
+   </port>
+  </condition>
+  <in/>
+  <out>
+   <port name="S"/>
+   <port name="I"/>
+   <port name="R"/>
+  </out>
+ </configuration>
+</vle_project_metadata>

@@ -17,9 +17,122 @@ or native threading parallelization.
 * to provide an alternative to multi simulation with R, with less memory
 allocation (see tests at the end).
 
-### Multi simulation and aggregation of results
+### Tutorial on vle.recursive package
 
-TODO tutorial
+Let us consider the SIR model as described on the 
+[Wikipedia page](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology):
+
+```
+dS/dt = - beta * I * S;
+dI/dt = beta * I * S - gamma * I;
+dR/dt = gamma * I;
+```
+One also defines a simple stochastic version (called SIRnoise):
+
+```
+dS/dt = - beta * I * S * espilon1;
+dI/dt = beta * I * S * epislon1  - gamma * I * epsilon2;
+dR/dt = gamma * I * epsilon2;
+epsilon1 ~ N(1, 0.3)
+epsilon2 ~ N(1, 0.3)
+```
+The default parameters of the models are:
+S(0) = 99; I(0)=1; R(0)=0; beta=0.002; gamma=0.1. For the stochastic version,
+we also have a parameter 'seed' that gives the seed of the random number 
+generator. Below, the result of the deterministic version with default
+paramters, for 60 integration time steps, are plotted into gvle.
+
+![MISSING FIG](http://www.vle-project.org/pub/1.3/docs/vle_recursive_SIR.png)
+
+ * Performing multiple simulations: we consider 5 different values of S(0) and
+ for each, we compute the mean value of the finals state of S 
+ for 6 replicates with different 'seed' values.
+
+
+```
+namespace vr = vle::recursive;
+namespace vv = vle::value;
+vv::Map init;
+init.addString("package","vle.recursive_test");
+init.addString("vpz","SIRnoise.vpz");
+
+//config output, 'mean' on replicate, 'all' on inputs
+vv::Map& conf_out = init.addMap("output_Sfinal");
+conf_out.addString("path", "view/top:SIRnoise.S");
+conf_out.addString("integration", "last");
+conf_out.addString("aggregation_replicate", "mean");
+conf_out.addString("aggregation_input", "all");
+
+//set 5 input values for S(0)
+vv::Tuple& Svalues = init.addTuple(
+"input_condSIRnoise.init_value_S", 5, 0.0);
+Svalues[0] = 150;
+Svalues[1] = 120;
+Svalues[2] = 99;
+Svalues[3] = 75;
+Svalues[4] = 50;
+
+//set 6 seeds for initializing the rng.
+vv::Tuple& seeds = init.addTuple(
+"replicate_condSIRnoise.init_value_seed", 6, 0.0);
+seeds[0] = 45694;
+seeds[1] = 55695;
+seeds[2] = 65696;
+seeds[3] = 85698;
+seeds[4] = 95699;
+
+vr::MetaManager meta;
+vle::manager::Error err;
+std::unique_ptr<vv::Map> res = meta.run(init, err);
+
+if (err.code ==-1) {
+    std::cout << " error: " << err.message << "\n";
+}
+std::cout << " Results of final S: " << *res << "\n";
+//(Sfinal, ((11.5526,22.2598,36.1712,51.3126,45.0968)))
+```
+
+* Evaluating the model on observations: let us consider we have at our disposal
+three observations of the number of infectious subjects, at times 20, 30 and 40.
+And we want to compute the mean square error of the models for different values
+of beta.
+
+```
+vv::Map init;
+init.addString("package","vle.recursive_test");
+init.addString("vpz","SIR.vpz");
+
+//config output, mse on S
+vv::Map& conf_out = init.addMap("output_mseS");
+conf_out.addString("path", "view/top:SIR.I");
+conf_out.addString("integration", "mse");
+vv::Tuple& mseTimes = conf_out.addTuple("mse_times", 3,0.0);
+mseTimes[0] = 20;
+mseTimes[1] = 30;
+mseTimes[2] = 40;
+vv::Tuple& mseObs = conf_out.addTuple("mse_observations", 3,0.0);
+mseObs[0] = 6;
+mseObs[1] = 10;
+mseObs[2] = 15;
+conf_out.addString("aggregation_input", "all");
+
+//set 3 input values for beta parameter
+vv::Tuple& Svalues = init.addTuple(
+"input_condSIR.init_value_beta", 3, 0.0);
+Svalues[0] = 0.001;
+Svalues[1] = 0.002;
+Svalues[2] = 0.003;
+
+vr::MetaManager meta;
+vle::manager::Error err;
+std::unique_ptr<vv::Map> res = meta.run(init, err);
+if (err.code ==-1) {
+    std::cout << " error: " << err.message << "\n";
+}
+std::cout << " Mse for beta in (0.001,0.002,0.003): " << *res << "\n";
+```
+
+(code of the tutorial into vle.recursive_test)
 
 ### The MetaManager API.
 
@@ -68,20 +181,7 @@ It can contains:
 * **working_dir** (string). Required only if *config_parallel_type* is set 
  to *mvle*. It gives the working directory where are produced result file of single
  simulations.
- 
 
-To use the MetaManager API:
-
-```
-#include <vle/recursive/MetaManager.hpp>
-...
-vle::value::Map init;
-...   //fill the init map according the documentation above
-vle::recursive::MetaManager meta;
-meta.init(init);
-const vv::Value& res = meta.launchSimulations();
-std::cout << res << std::endl;
-```                          
 
 ### The MetaManager dynamic
 
@@ -105,42 +205,9 @@ Configuring the dynamic consists in giving the elements required for the API
  
 ### Memory allocation performance tests
 
-First results show that we can expect 10 times less allocated memory using
-the MetaManager Dynamic embedded into a vpz. A possible explanation
-is the replication of string allocation with the Rvle API, that is useless
-in multi simulation.
-
-
-
-Script R based on the MetaManager Dynamic:
-
-```
-set.seed(12369)
-n = 500;
-x1 = runif(n,0.0,2.0);
-x2 = runif(n,0.0,2.0);
-
-library(rvle)
-f = new("Rvle", pkg="vle.recursive", file ="vle-recursive.vpz")
-f = setDefault(f,
-  duration = 0,
-  cond.id_package="vle.recursive_test",
-  cond.id_vpz="ExBohachevsky.vpz",
-  cond.id_input_x1="cond/x1",
-  cond.id_input_x2="cond/x2",
-  cond.id_output_y="max[view/ExBohachevsky:ExBohachevsky.y]",#TODO last and not max
-  cond.id_output_y_noise="max[view/ExBohachevsky:ExBohachevsky.y_noise]",
-  cond.id_replica_xs="",
-  cond.output_stat_y="mean",
-  cond.output_stat_y_noise="mean",
-  cond.values_x1.as_single=x1,
-  cond.values_x2.as_single=x2
-)
-system.time(fres <- results(run(f)))
-## user time=0.291, CPU time=0.471, real elapsed time=0.790
-print(object.size(fres))
-## 57336 bytes
-```
+First results show that we can expect 50 times less allocated memory using
+the MetaManager Dynamic embedded into a vpz (depending on the experiment). 
+Much of output simulation data is not converted into R structures.
 
 Script R directly based on the Rvle API for multi simulation:
 
@@ -159,10 +226,37 @@ g = setDefault(g,
  cond.x2 = x2
 )
 system.time(gres <- results(run(g)))
-## user time=0.338, CPU time=0.483, real elapsed time=0.819
+## user time=0.608, CPU time=0.028, real elapsed time=0.635
 print(object.size(gres))
 ## 648200 bytes
 ```
+
+Script R based on the vle.recursive R API:
+
+```
+set.seed(12369)
+n = 500;
+x1 = runif(n,0.0,2.0);
+x2 = runif(n,0.0,2.0);
+
+library(rvle)
+source(paste(Sys.getenv("VLE_HOME"), 
+       "/pkgs-2.0/vle.recursive/R/vle.recursive.R", sep=""))
+vle.recursive.init(pkg="vle.recursive_test", file="ExBohachevsky.vpz");
+vle.recursive.configInput(input="cond.x1", values=x1);
+vle.recursive.configInput(input="cond.x2", values=x2);
+vle.recursive.configOutput(id="y", 
+  path="view/ExBohachevsky:ExBohachevsky.y", integration="last")
+vle.recursive.configOutput(id="ynoise", 
+  path="view/ExBohachevsky:ExBohachevsky.y_noise", integration="last")
+
+system.time(fres <- vle.recursive.simulate())
+## user time=0.596, CPU time=0.008, real elapsed time=0.605
+print(object.size(fres))
+## 8952 bytes
+```
+
+
 
  
  

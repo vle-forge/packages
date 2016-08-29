@@ -36,6 +36,8 @@
 #include <vle/utils/Package.hpp>
 #include <vle/recursive/MetaManager.hpp>
 
+#include <iostream>
+
 BOOST_AUTO_TEST_CASE(test_api)
 {
     namespace vr = vle::recursive;
@@ -66,8 +68,8 @@ BOOST_AUTO_TEST_CASE(test_api)
     init.addString("output_ynoise",
             "view/ExBohachevsky:ExBohachevsky.y_noise");
     init.add("replicate_cond.seed",r.clone());
-    vr::MetaManager meta;
 
+    vr::MetaManager meta;
     vle::manager::Error err;
     std::unique_ptr<vv::Map> res = meta.run(init, err);
 
@@ -79,4 +81,154 @@ BOOST_AUTO_TEST_CASE(test_api)
     BOOST_REQUIRE_CLOSE(res->getTable("y")(0,0),209.6,10e-4);
     BOOST_REQUIRE_CLOSE(res->getTable("ynoise")(1,0),5.43077761310471e-05,10e-4);
     BOOST_REQUIRE_CLOSE(res->getTable("y")(1,0),0.0,10e-4);
+}
+
+BOOST_AUTO_TEST_CASE(test_SIR)
+{
+    //std::string conf_simu = "single"; int nb_slots=1;
+    //std::string conf_simu = "threads"; int nb_slots=2;
+    std::string conf_simu = "mvle"; int nb_slots=3;
+    //std::string conf_simu = "cvle"; int nb_slots=4;
+
+    namespace vr = vle::recursive;
+    namespace vv = vle::value;
+
+    {//multiple simulation on init_value_S
+        vv::Map init;
+        init.addString("config_parallel_type",conf_simu);
+        init.addInt("config_parallel_nbslots",nb_slots);
+        init.addString("working_dir","/tmp/");
+        init.addString("package","vle.recursive_test");
+        init.addString("vpz","SIR.vpz");
+
+        init.addString("output_Sfinal", "view/top:SIR.S");
+        vv::Map& conf_out = init.addMap("output_Sfinal");
+        conf_out.addString("path", "view/top:SIR.S");
+        conf_out.addString("integration", "last");
+
+        vv::Tuple& Svalues = init.addTuple(
+                "input_condSIR.init_value_S", 5, 0.0);
+
+        Svalues[0] = 150;
+        Svalues[1] = 120;
+        Svalues[2] = 99;
+        Svalues[3] = 75;
+        Svalues[4] = 50;
+
+        vr::MetaManager meta;
+        vle::manager::Error err;
+        std::unique_ptr<vv::Map> res = meta.run(init, err);
+
+        if (err.code ==-1) {
+            std::cout << " error: " << err.message << "\n";
+        }
+
+        std::cout << " Results1 : " << *res << "\n";
+
+        BOOST_REQUIRE(res->getTable("Sfinal").width() ==  5);
+        BOOST_REQUIRE(res->getTable("Sfinal").height() ==  1);
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(0,0), 9.2498,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(1,0), 18.4088,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(2,0), 31.4078,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(3,0), 49.1268,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(4,0), 44.8678,10e-4);
+    }
+
+    {//multiple replicate on seed and multiple inputs on init_value_S
+        vv::Map init;
+        init.addString("config_parallel_type",conf_simu);
+        init.addInt("config_parallel_nbslots",nb_slots);
+        init.addString("working_dir","/tmp/");
+        init.addString("package","vle.recursive_test");
+        init.addString("vpz","SIRnoise.vpz");
+
+        //config output, mean on replicate, all on inputs
+        vv::Map& conf_out = init.addMap("output_Sfinal");
+        conf_out.addString("path", "view/top:SIRnoise.S");
+        conf_out.addString("integration", "last");
+        conf_out.addString("aggregation_replicate", "mean");
+        conf_out.addString("aggregation_input", "all");
+
+        //set 5 input values
+        vv::Tuple& Svalues = init.addTuple(
+                "input_condSIRnoise.init_value_S", 5, 0.0);
+        Svalues[0] = 150;
+        Svalues[1] = 120;
+        Svalues[2] = 99;
+        Svalues[3] = 75;
+        Svalues[4] = 50;
+
+        //set 6 seeds
+        vv::Tuple& seeds = init.addTuple(
+                "replicate_condSIRnoise.init_value_seed", 6, 0.0);
+        seeds[0] = 45694;
+        seeds[1] = 55695;
+        seeds[2] = 65696;
+        seeds[3] = 85698;
+        seeds[4] = 95699;
+
+        vr::MetaManager meta;
+        vle::manager::Error err;
+        std::unique_ptr<vv::Map> res = meta.run(init, err);
+
+        if (err.code ==-1) {
+            std::cout << " error: " << err.message << "\n";
+        }
+        std::cout << " Results2 (close to Results1): " << *res << "\n";
+
+        BOOST_REQUIRE(res->getTable("Sfinal").width() ==  5);
+        BOOST_REQUIRE(res->getTable("Sfinal").height() ==  1);
+        //results below should be close to the first test
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(0,0), 11.5526,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(1,0), 22.2598,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(2,0), 36.1712,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(3,0), 51.3126,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(4,0), 45.0968,10e-4);
+    }
+
+    {//compute mse on multiple beta parameters
+        vv::Map init;
+        init.addString("config_parallel_type",conf_simu);
+        init.addInt("config_parallel_nbslots",nb_slots);
+        init.addString("working_dir","/tmp/");
+        init.addString("package","vle.recursive_test");
+        init.addString("vpz","SIR.vpz");
+
+        //config output, mse on S
+        vv::Map& conf_out = init.addMap("output_mseS");
+        conf_out.addString("path", "view/top:SIR.I");
+        conf_out.addString("integration", "mse");
+        vv::Tuple& mseTimes = conf_out.addTuple("mse_times", 3,0.0);
+        mseTimes[0] = 20;
+        mseTimes[1] = 30;
+        mseTimes[2] = 40;
+        vv::Tuple& mseObs = conf_out.addTuple("mse_observations", 3,0.0);
+        mseObs[0] = 6;
+        mseObs[1] = 10;
+        mseObs[2] = 15;
+        conf_out.addString("aggregation_input", "all");
+
+        //set 3 input values for beta parameter
+        vv::Tuple& Svalues = init.addTuple(
+                "input_condSIR.init_value_beta", 3, 0.0);
+        Svalues[0] = 0.001;
+        Svalues[1] = 0.002;
+        Svalues[2] = 0.003;
+
+        vr::MetaManager meta;
+        vle::manager::Error err;
+        std::unique_ptr<vv::Map> res = meta.run(init, err);
+        if (err.code ==-1) {
+            std::cout << " error: " << err.message << "\n";
+        }
+        std::cout << " Mse for beta in (0.001,0.002,0.003): " << *res << "\n";
+
+        BOOST_REQUIRE(res->getTable("mseS").width() ==  3);
+        BOOST_REQUIRE(res->getTable("mseS").height() ==  1);
+        BOOST_REQUIRE_CLOSE(res->getTable("mseS")(0,0), 102.158,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("mseS")(1,0), 0.233604,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("mseS")(2,0), 228.278,10e-4);
+
+    }
+
 }
