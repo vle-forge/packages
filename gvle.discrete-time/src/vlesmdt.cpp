@@ -1506,7 +1506,7 @@ vleSmDT::getClassName()
 }
 
 void
-vleSmDT::setNamespaceToDoc(const QString& nm)
+vleSmDT::setPackageToDoc(const QString& nm)
 {
     QDomNode rootNode = mDocSm->documentElement();
     undoStackSm->snapshot(rootNode);
@@ -1514,7 +1514,7 @@ vleSmDT::setNamespaceToDoc(const QString& nm)
     QDomNode srcPluginNode =
         mDocSm->elementsByTagName("srcPlugin").item(0);
 
-    srcPluginNode.toElement().setAttribute("namespace", nm);
+    srcPluginNode.toElement().setAttribute("package", nm);
 
     QDomNode dynamicNode =
         mDocSm->elementsByTagName("dynamic").item(0);
@@ -1525,13 +1525,13 @@ vleSmDT::setNamespaceToDoc(const QString& nm)
 }
 
 QString
-vleSmDT::getNamespace()
+vleSmDT::getPackage()
 {
     QDomElement docElem = mDocSm->documentElement();
 
     QDomNode srcPluginNode =
         mDocSm->elementsByTagName("srcPlugin").item(0);
-    return srcPluginNode.attributes().namedItem("namespace").nodeValue();
+    return srcPluginNode.attributes().namedItem("package").nodeValue();
 }
 
 QDomNodeList
@@ -1617,7 +1617,7 @@ vleSmDT::getData()
         " * @@tagdepends: vle.discrete-time @@endtagdepends\n"          \
         "*/\n\n"                                                        \
         "#include <vle/DiscreteTime.hpp>\n"                             \
-        "{{includes}}"                                                  \
+        "{{includes}}\n"                                                \
         "namespace vd = vle::devs;\n\n"                                 \
         "namespace vv = vle::value;\n\n"                                \
         "namespace vle {\n"                                             \
@@ -1668,7 +1668,8 @@ vleSmDT::getData()
 
     vle::utils::Template vleTpl(tpl.toStdString());
     vleTpl.stringSymbol().append("classname", getClassName().toStdString());
-    vleTpl.stringSymbol().append("namespace", getNamespace().toStdString());
+    vleTpl.stringSymbol().append("namespace",
+            getPackage().replace('.', '_').toStdString());
 
     vleTpl.listSymbol().append("var");
     vleTpl.listSymbol().append("vect");

@@ -98,7 +98,7 @@ DiscreteTimePanel::init(const gvle_file& gf, utils::Package* pkg, Logger* ,
 {
 
     cppMetadata = new vleSmDT(gf.source_file, gf.metadata_file, getname());
-    cppMetadata->setNamespaceToDoc(pkg->name().c_str());
+    cppMetadata->setPackageToDoc(pkg->name().c_str());
     cppMetadata->setClassNameToDoc(gf.baseName());
     cppMetadata->save();
 

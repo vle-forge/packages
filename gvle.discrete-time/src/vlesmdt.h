@@ -149,8 +149,8 @@ public:
      * tuple and when resizing already existing values are keeped
      */
     void setHistorySizeAndValue(const QString& variableName,
-				const vv::Value& histValue,
-				const bool snap = true);
+            const vv::Value& histValue,
+            const bool snap = true);
 
     /**
      * @brief set the dimension of a variable in the definition element
@@ -159,8 +159,8 @@ public:
      * @param snap to manage if a snapshot is expected ore not
      */
     void setDim(const QString& variableName,
-		const vv::Value& val,
-		const bool snap = true);
+            const vv::Value& val,
+            const bool snap = true);
     /**
      * @brief set the dimension  and update the initial value
      * @param variableName is the name of the variable
@@ -170,9 +170,9 @@ public:
      * tuple and when resizing already existing values are keeped
      */
     void setDimAndValue(const QString& variableName,
-			const vv::Value& dimValue,
-			const bool snap = true);
-     /**
+            const vv::Value& dimValue,
+            const bool snap = true);
+    /**
      * @brief move the initial value from the definition element
      * to the configuration or reverse
      * @param variableName is the name of the variable
@@ -181,8 +181,8 @@ public:
      * @param snap to manage if a snapshot is expected ore not
      */
     void Parametrable(const QString& variableName,
-		      const bool parametrable,
-		      const bool snap = true);
+            const bool parametrable,
+            const bool snap = true);
      /**
      * @brief set the sync condition to the configuration
      * @param variableName is the name of the variable
@@ -252,8 +252,8 @@ public:
     QString getUserSectionBody();
     void setClassNameToDoc(const QString& className);
     QString getClassName();
-    void setNamespaceToDoc(const QString& nm);
-    QString getNamespace();
+    void setPackageToDoc(const QString& nm);
+    QString getPackage();
 
     QDomNodeList variablesFromDoc();
 
