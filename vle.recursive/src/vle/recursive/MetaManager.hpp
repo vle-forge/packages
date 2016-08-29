@@ -24,6 +24,7 @@
 #include <vle/vpz/Vpz.hpp>
 #include <vle/manager/Types.hpp>
 #include <vle/utils/Context.hpp>
+#include <vle/utils/Rand.hpp>
 #include <vle/recursive/accu_multi.hpp>
 
 namespace vle {
@@ -63,9 +64,10 @@ struct VleInput
      * @param port, id of the port
      * @param val, the value given on port conf_name, is either
      *  a value::Set or value::Tuple that identifies an experiment plan
+     * @param rn, a random number generator
      */
     VleInput(const std::string& cond, const std::string& port,
-            const vle::value::Value& val);
+            const vle::value::Value& val, utils::Rand& rn);
     virtual ~VleInput();
 
     /**
@@ -78,6 +80,8 @@ struct VleInput
     std::string cond;
     std::string port;
     unsigned int nbValues;
+    //only for distribution configuration
+    std::unique_ptr<value::Tuple> mvalues;
 
 };
 
@@ -88,10 +92,11 @@ struct VleReplicate
      * @param cond, id of the cond
      * @param port, id of the port
      * @param val, the value given on port conf_name, is either
-     *  a value::Set or value::Tuple that identifies an experiment plan
+     * a value::Set or value::Tuple that identifies an experiment plan
+     * @param rn, a random number generator
      */
     VleReplicate(const std::string& cond, const std::string& port,
-            const vle::value::Value& val);
+            const vle::value::Value& val, utils::Rand& rn);
     virtual ~VleReplicate();
 
     /**
@@ -104,6 +109,8 @@ struct VleReplicate
     std::string cond;
     std::string port;
     unsigned int nbValues;
+    //only for distribution configuration
+    std::unique_ptr<value::Tuple> mvalues;
 };
 
 struct VleOutput
@@ -207,6 +214,7 @@ private:
     unsigned int mConfigParallelNbSlots;
     unsigned int mConfigParallelMaxExpes;
     bool mexpe_debug;
+    utils::Rand mrand;
     std::vector<std::unique_ptr<VlePropagate>> mPropagate;
     std::vector<std::unique_ptr<VleInput>> mInputs;
     std::unique_ptr<VleReplicate> mReplicate;
@@ -217,9 +225,6 @@ private:
     utils::ContextPtr mCtx;
 
 public:
-    //split a string with a char
-    static void split(std::vector<std::string>& elems,
-            const std::string &s, char delim);
 
     /**
      * @brief MetaManager constructor
@@ -229,6 +234,9 @@ public:
      * @brief MetaManager destructor
      */
     virtual ~MetaManager();
+
+    utils::Rand& random_number_generator();
+
     /**
      * @brief Simulates the experiment plan
      * @param[in] init, the initialization map
@@ -237,6 +245,12 @@ public:
      */
     std::unique_ptr<vle::value::Map> run(const vle::value::Map& init,
             vle::manager::Error& err);
+
+
+    //split a string with a char
+    static void split(std::vector<std::string>& elems,
+            const std::string &s, char delim);
+
     /**
      * @brief Parse a string of the type that should identify an input, eg. :
      *   input_cond.port
@@ -253,6 +267,7 @@ public:
     static bool parseInput(const std::string& conf,
             std::string& cond, std::string& port,
             const std::string& prefix ="input_");
+
     /**
      * @brief Parse a string of the type output_idout that should identify
      * an output
@@ -263,6 +278,18 @@ public:
      * @return if parsing was successfull
      */
     static bool parseOutput(const std::string& conf, std::string& idout);
+
+    /**
+     * @brief Build a tuple value from a distribution
+     *
+     * @param[in]     distr, vle::value::Map specifying distribution and params
+     * @param[in/out] rn, the random number generator
+     *
+     * @return the double avalues generated form distribution
+     */
+    static std::unique_ptr<value::Tuple> valuesFromDistrib(
+            const value::Map& distrib, utils::Rand& rn);
+
 
 private:
 

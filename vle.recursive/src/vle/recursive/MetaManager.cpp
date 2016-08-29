@@ -31,6 +31,7 @@
 #include <vle/manager/Manager.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/value/Null.hpp>
+#include <vle/value/Tuple.hpp>
 #include <vle/value/Table.hpp>
 
 #include <vle/reader/vle_results_text_reader.hpp>
@@ -43,15 +44,7 @@
 namespace vle {
 namespace recursive {
 
-void MetaManager::split(std::vector<std::string>& elems, const std::string &s,
-        char delim)
-{
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-}
+
 
 /***********VlePropagate*************/
 
@@ -89,7 +82,7 @@ VlePropagate::getName() const
 /***********VleInput*************/
 
 VleInput::VleInput(const std::string& _cond, const std::string& _port,
-        const value::Value& val):
+        const value::Value& val, utils::Rand& rn):
                 cond(_cond), port(_port), nbValues(0)
 {
     if (cond.empty() or port.empty()) {
@@ -104,7 +97,15 @@ VleInput::VleInput(const std::string& _cond, const std::string& _port,
     case value::Value::SET:
         nbValues = val.toSet().size();
         break;
-    default:
+    case value::Value::MAP: {
+        mvalues = MetaManager::valuesFromDistrib(val.toMap(), rn);
+        if (mvalues) {
+            nbValues = mvalues->size();
+        } else {
+            nbValues = 1;
+        }
+        break;
+    } default:
         nbValues = 1;
         break;
     }
@@ -117,9 +118,13 @@ VleInput::~VleInput()
 const value::Value&
 VleInput::values(const value::Map& init)
 {
-    std::string key("input_");
-    key.append(getName());
-    return *init.get(key);
+    if (mvalues){
+        return *mvalues;
+    } else {
+        std::string key("input_");
+        key.append(getName());
+        return *init.get(key);
+    }
 }
 
 std::string
@@ -134,9 +139,10 @@ VleInput::getName() const
 /***********VleReplicate*************/
 
 VleReplicate::VleReplicate(const std::string& _cond, const std::string& _port,
-        const value::Value& val):
+        const value::Value& val, utils::Rand& rn):
                 cond(_cond), port(_port), nbValues(0)
 {
+    bool err = false;
     if (cond.empty() or port.empty()) {
         throw utils::ArgError(utils::format(
                 "[MetaManager] : the replicate has wrong form: '%s.%s'",
@@ -149,12 +155,23 @@ VleReplicate::VleReplicate(const std::string& _cond, const std::string& _port,
     case value::Value::SET:
         nbValues = val.toSet().size();
         break;
-    default:
+    case value::Value::MAP: {
+        mvalues = MetaManager::valuesFromDistrib(val.toMap(), rn);
+        if (mvalues) {
+            nbValues = mvalues->size();
+        } else {
+            err = true;
+        }
+        break;
+    } default: {
+        err = true;
+        break;
+    }}
+    if (err) {
         throw utils::ArgError(utils::format(
                 "[MetaManager] : error in configuration of "
                 "'replicate_%s.%s', expect a value::Set or Tuple",
                 cond.c_str(),  port.c_str()));
-        break;
     }
 }
 
@@ -165,9 +182,13 @@ VleReplicate::~VleReplicate()
 const value::Value&
 VleReplicate::values(const value::Map& init)
 {
-    std::string key("replicate_");
-    key.append(getName());
-    return *init.get(key);
+    if (mvalues){
+        return *mvalues;
+    } else {
+        std::string key("replicate_");
+        key.append(getName());
+        return *init.get(key);
+    }
 }
 
 std::string
@@ -526,8 +547,9 @@ MetaManager::replicasSize() const
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
         mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
-        mexpe_debug(true), mPropagate(), mInputs(), mReplicate(nullptr),
-        mOutputs(), mWorkingDir(""), mCtx(utils::make_context())
+        mexpe_debug(true), mrand(), mPropagate(), mInputs(),
+        mReplicate(nullptr), mOutputs(), mWorkingDir(""),
+        mCtx(utils::make_context())
 {
     mCtx->set_log_priority(3);//erros only
 }
@@ -536,6 +558,12 @@ MetaManager::~MetaManager()
 {
     mCtx.reset();
     clear();
+}
+
+utils::Rand&
+MetaManager::random_number_generator()
+{
+    return mrand;
 }
 
 
@@ -602,6 +630,9 @@ MetaManager::run(const value::Map& init, vle::manager::Error& err)
     if (init.exist("expe_debug")) {
         mexpe_debug = init.getBoolean("expe_debug");
     }
+    if (init.exist("expe_seed")) {
+        mrand.seed(init.getInt("expe_seed"));
+    }
     if (init.exist("config_parallel_rm_files")) {
         mRemoveSimulationFiles = init.getBoolean("config_parallel_rm_files");
     }
@@ -633,7 +664,7 @@ MetaManager::run(const value::Map& init, vle::manager::Error& err)
                 mPropagate.emplace_back(new VlePropagate(in_cond, in_port));
             } else if (MetaManager::parseInput(conf, in_cond, in_port)) {
                 mInputs.emplace_back(new VleInput(
-                        in_cond, in_port, *itb->second));
+                        in_cond, in_port, *itb->second, mrand));
             } else if (MetaManager::parseInput(conf, in_cond, in_port,
                     "replicate_")){
                 if (not mReplicate == 0) {
@@ -645,7 +676,7 @@ MetaManager::run(const value::Map& init, vle::manager::Error& err)
                     return nullptr;
                 }
                 mReplicate.reset(new VleReplicate(in_cond, in_port,
-                        *itb->second));
+                        *itb->second, mrand));
             } else if (MetaManager::parseOutput(conf, out_id)){
                 mOutputs.emplace_back(new VleOutput(out_id, *itb->second));
             }
@@ -701,6 +732,18 @@ MetaManager::run(const value::Map& init, vle::manager::Error& err)
     }
     return runIntern(init, err);
 }
+/******************* Static public functions ****************************/
+
+void
+MetaManager::split(std::vector<std::string>& elems, const std::string &s,
+        char delim)
+{
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+}
 
 bool
 MetaManager::parseInput(const std::string& conf,
@@ -739,6 +782,36 @@ MetaManager::parseOutput(const std::string& conf, std::string& idout)
     idout.assign(conf.substr(prefix.size(), conf.size()));
     return not idout.empty();
 }
+
+
+std::unique_ptr<value::Tuple>
+MetaManager::valuesFromDistrib(const value::Map& distrib, utils::Rand& rn)
+{
+
+    if (distrib.exist("distribution")
+            and distrib.get("distribution")->isString()) {
+        if (distrib.getString("distribution") == "uniform") {
+            if (distrib.exist("nb") and distrib.exist("min")
+                    and distrib.exist("max")
+                    and distrib.get("nb")->isInteger()
+                    and distrib.get("min")->isDouble()
+                    and distrib.get("max")->isDouble()) {
+                std::unique_ptr<value::Tuple> res(new value::Tuple(
+                        distrib.getInt("nb")));
+                double min = distrib.getDouble("min");
+                double max = distrib.getDouble("max");
+                std::vector<double>::iterator itb = res->value().begin();
+                std::vector<double>::iterator ite = res->value().end();
+                for (; itb != ite; itb++) {
+                    *itb = rn.getDouble(min, max);
+                }
+                return std::move(res);
+            }
+        }
+    }
+    return nullptr;
+}
+
 
 std::unique_ptr<vle::value::Map>
 MetaManager::runIntern(const vle::value::Map& init,
