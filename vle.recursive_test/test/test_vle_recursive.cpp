@@ -58,28 +58,44 @@ BOOST_AUTO_TEST_CASE(test_api)
     r.addInt(9531);
 
     vv::Map init;
-    init.addString("config_parallel_type","threads");
-    init.addInt("config_parallel_nbslots",2);
+    init.addString("config_parallel_type","single");
+    init.addString("working_dir","/tmp/");
+    init.addInt("config_parallel_nb_slots",2);
     init.addString("package","vle.recursive_test");
     init.addString("vpz","ExBohachevsky.vpz");
     init.add("input_cond.x1", x1.clone());
     init.add("input_cond.x2", x2.clone());
     init.addString("output_y", "view/ExBohachevsky:ExBohachevsky.y");
-    init.addString("output_ynoise",
+    init.addString("output_ynoiseFinish",
             "view/ExBohachevsky:ExBohachevsky.y_noise");
+    vv::Map& conf_ynoise = init.addMap("output_ynoise");
+    conf_ynoise.addString("path",
+            "viewNoise/ExBohachevsky:ExBohachevsky.y_noise");
+    conf_ynoise.addString("integration","all");
     init.add("replicate_cond.seed",r.clone());
 
     vr::MetaManager meta;
     vle::manager::Error err;
     std::unique_ptr<vv::Map> res = meta.run(init, err);
 
+    if (err.code ==-1) {
+        std::cout << " error: " << err.message << "\n";
+    }
+
+    std::cout << " res : " << *res << "\n";
+
     BOOST_REQUIRE(res->getTable("ynoise").width() ==  2);//2 inputs
-    BOOST_REQUIRE(res->getTable("ynoise").height() ==  1);//not all time
+    BOOST_REQUIRE(res->getTable("ynoise").height() ==  11);//duration+1
     BOOST_REQUIRE(res->getTable("y").width() ==  2);
+    BOOST_REQUIRE(res->getTable("ynoiseFinish").height() ==  1);
+    BOOST_REQUIRE(res->getTable("ynoiseFinish").width() ==  2);
     BOOST_REQUIRE(res->getTable("y").height() ==  1);
     BOOST_REQUIRE_CLOSE(res->getTable("ynoise")(0/*col*/,0), 209.60005,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getTable("ynoiseFinish")(0,0),209.60005,10e-4);
     BOOST_REQUIRE_CLOSE(res->getTable("y")(0,0),209.6,10e-4);
     BOOST_REQUIRE_CLOSE(res->getTable("ynoise")(1,0),5.43077761310471e-05,10e-4);
+    BOOST_REQUIRE_CLOSE(res->getTable("ynoiseFinish")(1,0),
+            5.43077761310471e-05,10e-4);
     BOOST_REQUIRE_CLOSE(res->getTable("y")(1,0),0.0,10e-4);
 }
 
@@ -87,8 +103,8 @@ BOOST_AUTO_TEST_CASE(test_SIR)
 {
     //std::string conf_simu = "single"; int nb_slots=1;
     //std::string conf_simu = "threads"; int nb_slots=2;
-    std::string conf_simu = "mvle"; int nb_slots=3;
-    //std::string conf_simu = "cvle"; int nb_slots=4;
+    //std::string conf_simu = "mvle"; int nb_slots=3;
+    std::string conf_simu = "cvle"; int nb_slots=4;
 
     namespace vr = vle::recursive;
     namespace vv = vle::value;
@@ -96,7 +112,7 @@ BOOST_AUTO_TEST_CASE(test_SIR)
     {//multiple simulation on init_value_S
         vv::Map init;
         init.addString("config_parallel_type",conf_simu);
-        init.addInt("config_parallel_nbslots",nb_slots);
+        init.addInt("config_parallel_nb_slots",nb_slots);
         init.addString("working_dir","/tmp/");
         init.addString("package","vle.recursive_test");
         init.addString("vpz","SIR.vpz");
@@ -117,7 +133,9 @@ BOOST_AUTO_TEST_CASE(test_SIR)
 
         vr::MetaManager meta;
         vle::manager::Error err;
+
         std::unique_ptr<vv::Map> res = meta.run(init, err);
+
 
         if (err.code ==-1) {
             std::cout << " error: " << err.message << "\n";
@@ -137,7 +155,7 @@ BOOST_AUTO_TEST_CASE(test_SIR)
     {//multiple replicate on seed and multiple inputs on init_value_S
         vv::Map init;
         init.addString("config_parallel_type",conf_simu);
-        init.addInt("config_parallel_nbslots",nb_slots);
+        init.addInt("config_parallel_nb_slots",nb_slots);
         init.addString("working_dir","/tmp/");
         init.addString("package","vle.recursive_test");
         init.addString("vpz","SIRnoise.vpz");
@@ -189,13 +207,13 @@ BOOST_AUTO_TEST_CASE(test_SIR)
     {//compute mse on multiple beta parameters
         vv::Map init;
         init.addString("config_parallel_type",conf_simu);
-        init.addInt("config_parallel_nbslots",nb_slots);
+        init.addInt("config_parallel_nb_slots",nb_slots);
         init.addString("working_dir","/tmp/");
         init.addString("package","vle.recursive_test");
         init.addString("vpz","SIR.vpz");
 
         //config output, mse on S
-        vv::Map& conf_out = init.addMap("output_mseS");
+        vv::Map& conf_out = init.addMap("output_mseI");
         conf_out.addString("path", "view/top:SIR.I");
         conf_out.addString("integration", "mse");
         vv::Tuple& mseTimes = conf_out.addTuple("mse_times", 3,0.0);
@@ -209,11 +227,11 @@ BOOST_AUTO_TEST_CASE(test_SIR)
         conf_out.addString("aggregation_input", "all");
 
         //set 3 input values for beta parameter
-        vv::Tuple& Svalues = init.addTuple(
+        vv::Tuple& beta = init.addTuple(
                 "input_condSIR.init_value_beta", 3, 0.0);
-        Svalues[0] = 0.001;
-        Svalues[1] = 0.002;
-        Svalues[2] = 0.003;
+        beta[0] = 0.001;
+        beta[1] = 0.002;
+        beta[2] = 0.003;
 
         vr::MetaManager meta;
         vle::manager::Error err;
@@ -223,11 +241,11 @@ BOOST_AUTO_TEST_CASE(test_SIR)
         }
         std::cout << " Mse for beta in (0.001,0.002,0.003): " << *res << "\n";
 
-        BOOST_REQUIRE(res->getTable("mseS").width() ==  3);
-        BOOST_REQUIRE(res->getTable("mseS").height() ==  1);
-        BOOST_REQUIRE_CLOSE(res->getTable("mseS")(0,0), 102.158,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("mseS")(1,0), 0.233604,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("mseS")(2,0), 228.278,10e-4);
+        BOOST_REQUIRE(res->getTable("mseI").width() ==  3);
+        BOOST_REQUIRE(res->getTable("mseI").height() ==  1);
+        BOOST_REQUIRE_CLOSE(res->getTable("mseI")(0,0), 102.158,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("mseI")(1,0), 0.233604,10e-4);
+        BOOST_REQUIRE_CLOSE(res->getTable("mseI")(2,0), 228.278,10e-4);
 
     }
 

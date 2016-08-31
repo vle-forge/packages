@@ -23,6 +23,8 @@
 #include <string>
 #include <thread>
 
+#include <boost/algorithm/string.hpp>
+
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/Package.hpp>
@@ -200,26 +202,240 @@ VleReplicate::getName()
     return ret;
 }
 
+/***********DelegateOutput********/
+DelegateOut::DelegateOut(VleOutput& vleout):vleOut(vleout)
+{
+}
+DelegateOut::~DelegateOut()
+{
+}
+
+double
+DelegateOut::integrateReplicate(VleOutput& vleout, vle::value::Matrix& outMat)
+{
+    switch(vleout.integrationType) {
+    case MAX: {
+        double max = -9999;
+        for (unsigned int i=1; i < outMat.rows(); i++) {
+            double v = outMat.getDouble(vleout.colIndex, i);
+            if (v > max) {
+                max = v;
+            }
+        }
+        return max;
+        break;
+    } case LAST: {
+        const std::unique_ptr<value::Value>& res =
+                outMat.get(vleout.colIndex, outMat.rows() - 1);
+        return res->toDouble().value();
+        break;
+    } case MSE: {
+        double sum_square_error = 0;
+        double nbVal = 0;
+        for (unsigned int i=0; i< vleout.mse_times->size(); i++) {
+            int t = std::floor(vleout.mse_times->at(i));
+            if (t > 0 and t< (int) outMat.rows()) {
+                sum_square_error += std::pow(
+                        (outMat.getDouble(vleout.colIndex,t)
+                                - vleout.mse_observations->at(i)), 2);
+                nbVal++;
+            }
+        }
+        return (sum_square_error/nbVal);
+        break;
+    } default:{
+        //not possible
+        break;
+    }}
+    return std::numeric_limits<double>::min();
+}
+
+AccuMulti&
+DelegateOut::getAccu(std::map<int, std::unique_ptr<AccuMulti>>& accus,
+        unsigned int index, AccuStat s)
+{
+    std::map<int, std::unique_ptr<AccuMulti>>::iterator itf =
+            accus.find(index);
+    if (itf != accus.end()) {
+        return *(itf->second);
+    }
+    std::unique_ptr<AccuMulti> ptr(new AccuMulti(s));
+    AccuMulti& ref = *ptr;
+    accus.insert(std::make_pair(index, std::move(ptr)));
+    return ref;
+}
+
+AccuMono&
+DelegateOut::getAccu(std::map<int, std::unique_ptr<AccuMono>>& accus,
+        unsigned int index, AccuStat s)
+{
+    std::map<int, std::unique_ptr<AccuMono>>::iterator itf =
+            accus.find(index);
+    if (itf != accus.end()) {
+        return *(itf->second);
+    }
+    std::unique_ptr<AccuMono> ptr(new AccuMono(s));
+    AccuMono& ref = *ptr;
+    accus.insert(std::make_pair(index, std::move(ptr)));
+    return ref;
+}
+
+
+DelOutStd::DelOutStd(VleOutput& vleout): DelegateOut(vleout)
+{
+    minputAccu.reset(new AccuMono(vleOut.inputAggregationType));
+}
+
+
+
+std::unique_ptr<value::Value>
+DelOutStd::insertReplicate(
+            vle::value::Matrix& outMat, unsigned int currInput)
+{
+    //start insertion for double management only
+    double intVal = integrateReplicate(vleOut, outMat);
+    if (vleOut.nbReplicates == 1) {
+        minputAccu->insert(intVal);
+    } else {
+        AccuMono& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
+                vleOut.replicateAggregationType);
+        accuRepl.insert(intVal);
+        //test if aggregating replicates is finished
+        if (accuRepl.count() == vleOut.nbReplicates) {
+            minputAccu->insert(accuRepl.getStat(
+                    vleOut.replicateAggregationType));
+            mreplicateAccu.erase(currInput);
+
+        }
+    }
+    //test if aggregating inputs is finished
+    if (minputAccu->count() == vleOut.nbInputs) {
+        double res = minputAccu->getStat(vleOut.inputAggregationType);
+        minputAccu.reset(nullptr);
+        return value::Double::create(res);
+    }
+    return nullptr;
+};
+
+
+DelOutIntAggrALL::DelOutIntAggrALL(VleOutput& vleout): DelegateOut(vleout),
+        mreplicateAccu(), minputAccu(nullptr), nbInputsFilled(0)
+{
+
+}
+std::unique_ptr<value::Value>
+DelOutIntAggrALL::insertReplicate(
+            vle::value::Matrix& outMat, unsigned int currInput)
+{
+    if (not minputAccu) {
+        minputAccu.reset(new value::Table(vleOut.nbInputs,
+                outMat.rows()-1));
+    }
+    if (vleOut.nbReplicates == 1){//one can put directly into results
+
+        for (unsigned int i=1; i < outMat.rows(); i++) {
+                minputAccu->get(i-1, currInput) =
+                          outMat.getDouble(vleOut.colIndex, i);
+        }
+        nbInputsFilled++;
+    } else {
+        AccuMulti& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
+                vleOut.replicateAggregationType);
+        accuRepl.insertColumn(outMat, vleOut.colIndex);
+        if (accuRepl.count() == vleOut.nbReplicates) {
+            accuRepl.fillStat(*minputAccu,
+                    currInput, vleOut.replicateAggregationType);
+            mreplicateAccu.erase(currInput);
+            nbInputsFilled++;
+        }
+    }
+    if (nbInputsFilled == vleOut.nbInputs) {
+        return std::move(minputAccu);
+    }
+    return nullptr;
+}
+
+DelOutIntALL::DelOutIntALL(VleOutput& vleout): DelegateOut(vleout),
+        mreplicateAccu(), minputAccu(nullptr)
+{
+
+}
+std::unique_ptr<value::Value>
+DelOutIntALL::insertReplicate(
+            vle::value::Matrix& outMat, unsigned int currInput)
+{
+    if (not minputAccu) {
+        minputAccu.reset(new AccuMulti(vleOut.inputAggregationType));
+    }
+    if (vleOut.nbReplicates == 1){//one can put directly into results
+        minputAccu->insertColumn(outMat, vleOut.colIndex);
+    } else {
+        AccuMulti& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
+                vleOut.replicateAggregationType);
+        accuRepl.insertColumn(outMat, vleOut.colIndex);
+        if (accuRepl.count() == vleOut.nbReplicates) {
+            minputAccu->insertAccuStat(accuRepl,
+                    vleOut.replicateAggregationType);
+            mreplicateAccu.erase(currInput);
+        }
+    }
+    if (minputAccu->count() == vleOut.nbInputs) {
+        std::unique_ptr<value::Table> res(new value::Table(1,
+                minputAccu->size()));
+        minputAccu->fillStat(*res, 0, vleOut.inputAggregationType);
+        return std::move(res);
+    }
+    return nullptr;
+}
+
+DelOutAggrALL::DelOutAggrALL(VleOutput& vleout): DelegateOut(vleout),
+        mreplicateAccu(), minputAccu(nullptr), nbInputsFilled(0)
+{
+    minputAccu.reset(new value::Table(vleOut.nbInputs,1));
+}
+std::unique_ptr<value::Value>
+DelOutAggrALL::insertReplicate(
+            vle::value::Matrix& outMat, unsigned int currInput)
+{
+    double intValue = DelOutStd::integrateReplicate(vleOut, outMat);
+
+    if (vleOut.nbReplicates == 1){//one can put directly into results
+        minputAccu->get(currInput, 0) = intValue;
+        nbInputsFilled++;
+    } else {
+        AccuMono& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
+                vleOut.replicateAggregationType);
+        accuRepl.insert(intValue);
+        if (accuRepl.count() == vleOut.nbReplicates) {
+            minputAccu->get(currInput, 0)=
+                    accuRepl.getStat(vleOut.replicateAggregationType);
+            mreplicateAccu.erase(currInput);
+            nbInputsFilled++;
+        }
+    }
+    if (nbInputsFilled == vleOut.nbInputs) {
+        return std::move(minputAccu);
+    }
+    return nullptr;
+}
+
+
 /***********VleOutput*************/
 
 VleOutput::VleOutput() :
-   id(), view(), absolutePort(), integrationType(LAST),
-   replicateAggregationType(S_mean), inputAggregationType(S_at),
-   mse_times(nullptr), mse_observations(nullptr), mreplicateAccuMono(nullptr),
-   mreplicateAccuMulti(nullptr), minputAccuMono(nullptr),
-   minputAccuMulti(nullptr), mreplicateInserter(nullptr),
-   minputInserter(nullptr), manageDoubleValue(true)
+   id(), view(), absolutePort(), colIndex(-1), shared(false),
+   integrationType(LAST), replicateAggregationType(S_mean),
+   inputAggregationType(S_at), nbInputs(0), nbReplicates(0), delegate(nullptr),
+   mse_times(nullptr), mse_observations(nullptr)
 {
 }
 
 VleOutput::VleOutput(const std::string& _id,
         const value::Value& val) :
-   id(_id), view(), absolutePort(), integrationType(LAST),
-   replicateAggregationType(S_mean), inputAggregationType(S_at),
-   mse_times(nullptr), mse_observations(nullptr), mreplicateAccuMono(nullptr),
-   mreplicateAccuMulti(nullptr), minputAccuMono(nullptr),
-   minputAccuMulti(nullptr), mreplicateInserter(nullptr),
-   minputInserter(nullptr), manageDoubleValue(true)
+   id(_id), view(), absolutePort(),  colIndex(-1), shared(false),
+   integrationType(LAST), replicateAggregationType(S_mean),
+   inputAggregationType(S_at), nbInputs(0), nbReplicates(0), delegate(nullptr),
+   mse_times(nullptr), mse_observations(nullptr)
 {
     std::string tmp;
     if (val.isString()) {
@@ -312,10 +528,9 @@ VleOutput::parsePath(const std::string& path)
     }
 }
 
-void
-VleOutput::insertReplicate(value::Map& result,
-        bool initReplicateAccu, bool initInputAccu, unsigned int nbInputs,
-        unsigned int nbReplicates)
+std::unique_ptr<value::Value>
+VleOutput::insertReplicate(value::Map& result, unsigned int currInput,
+        unsigned int nbInputs, unsigned int nbReplicates)
 {
     value::Map::iterator it = result.find(view);
     if (it == result.end()) {
@@ -324,203 +539,59 @@ VleOutput::insertReplicate(value::Map& result,
                 view.c_str()));
     }
     value::Matrix& outMat = value::toMatrixValue(*it->second);
-    insertReplicate(outMat, initReplicateAccu, initInputAccu, nbInputs,
-            nbReplicates);
+    return insertReplicate(outMat, currInput, nbInputs, nbReplicates);
 }
-
-void
-VleOutput::insertReplicate(value::Matrix& outMat,
-        bool initReplicateAccu, bool initInputAccu, unsigned int nbInputs,
-        unsigned int nbReplicates)
-{
-
-    //performs some checks on output matrix
-    if (outMat.rows() < 2){
-        throw vu::ArgError("[MetaManager] expect at least 2 rows");
-    }
-    //get col index
-    unsigned int colIndex = 9999;
-    for (unsigned int i=0; i < outMat.columns(); i++) {
-        if (outMat.getString(i,0) == absolutePort) {
-            colIndex = i;
-        }
-    }
-    if (colIndex == 9999) {
-        throw vu::ArgError(utils::format(
-                "[MetaManager] view.port '%s' not found)",
-                absolutePort.c_str()));
-    }
-
-    //performs some check on initialization
-    if (initInputAccu and not outMat.get(colIndex,1)->isDouble()) {
-        //replica size has to be 1
-        if (nbReplicates != 1){
-            throw vu::ArgError(utils::format(
-                    "[MetaManager] since data is not double no replicate "
-                    "aggregation is possible for output '%s'",
-                    id.c_str()));
-        }
-        //integration should be ALL or LAST
-        if (integrationType != ALL and integrationType != LAST) {
-            throw vu::ArgError(utils::format(
-                    "[MetaManager] integration for output '%s' should be all"
-                    "or last in order to manage not double values ",
-                    id.c_str()));
-        }
-        //aggregation should be S_at
-        if (inputAggregationType != S_at) {
-            throw vu::ArgError(utils::format(
-                    "[MetaManager] aggregation_input for output '%s' "
-                    "should be all in order to manage not double values ",
-                    id.c_str()));
-        }
-        manageDoubleValue = false;
-    }
-
-    //Initialization of replicate accu
-    if (initReplicateAccu) {
-        mreplicateAccuMono.reset(nullptr);
-        mreplicateAccuMulti.reset(nullptr);
-        mreplicateInserter.reset(nullptr);
-        if (manageDoubleValue) {
-            if(integrationType != ALL) {
-                mreplicateAccuMono.reset(
-                        new AccuMono(replicateAggregationType));
-            } else {
-                mreplicateAccuMulti.reset(
-                        new AccuMulti(replicateAggregationType));
-            }
-        } //else integration and aggregation is performed directly in the
-          //input accu initialization
-
-    }
-    //Initialization of initInput accu
-    if (initInputAccu) {
-        minputAccuMono.reset(nullptr);
-        minputAccuMulti.reset(nullptr);
-        minputInserter.reset(nullptr);
-        if (not manageDoubleValue) {
-            if(integrationType == ALL) {
-                minputInserter.reset(new value::Set(outMat.rows()-1));
-                for (unsigned int i=1; i < outMat.rows(); i++) {
-                    minputInserter->toSet().set(i-1,
-                            std::move(outMat.give(colIndex, i)));
-                }
-            } else {//integration is LAST
-                minputInserter = std::move(
-                        outMat.give(colIndex, outMat.rows()-1));
-            }
-            return ;//management of non double values is performed
-        } else if (integrationType != ALL) {
-            if (inputAggregationType != S_at) {
-                minputAccuMono.reset(new AccuMono(inputAggregationType));
-            } else {
-                minputInserter.reset(new value::Table(nbInputs, 1));
-            }
-        } else {
-            if (inputAggregationType != S_at) {
-                minputAccuMulti.reset(new AccuMulti(inputAggregationType));
-                minputInserter.reset(
-                        new value::Table(1, outMat.rows()-1));
-            } else {
-                minputInserter.reset(
-                        new value::Table(nbInputs, outMat.rows()-1));
-            }
-        }
-    }
-
-    //start insertion for double management only
-    switch(integrationType) {
-    case MAX: {
-        double max = -9999;
-        for (unsigned int i=1; i < outMat.rows(); i++) {
-            double v = outMat.getDouble(colIndex, i);
-            if (v > max) {
-                max = v;
-            }
-        }
-        mreplicateAccuMono->insert(max);
-        break;
-    } case LAST: {
-        const std::unique_ptr<value::Value>& res =
-                outMat.get(colIndex, outMat.rows() - 1);
-        mreplicateAccuMono->insert(res->toDouble().value());
-        break;
-    } case MSE: {
-        double sum_square_error = 0;
-        double nbVal = 0;
-        for (unsigned int i=0; i< mse_times->size(); i++) {
-            int t = std::floor(mse_times->at(i));
-            if (t > 0 and t< (int) outMat.rows()) {
-                sum_square_error += std::pow((outMat.getDouble(colIndex,t)
-                         - mse_observations->at(i)), 2);
-                nbVal++;
-            }
-        }
-        mreplicateAccuMono->insert(sum_square_error/nbVal);
-        break;
-    } case ALL:{
-        mreplicateAccuMulti->insertColumn(outMat, colIndex);
-        break;
-    }}
-}
-
-
-void
-VleOutput::insertInput(unsigned int currentInput)
-{
-    if (not manageDoubleValue) {
-        return;
-    }
-    if (integrationType != ALL) {
-        if (inputAggregationType != S_at) {
-            minputAccuMono->insert(
-                    mreplicateAccuMono->getStat(replicateAggregationType));
-        } else {
-            minputInserter->toTable()(currentInput, 0) =
-                    mreplicateAccuMono->getStat(replicateAggregationType);
-        }
-    } else {
-        if (inputAggregationType != S_at) {
-            minputAccuMulti->insertAccuStat(*mreplicateAccuMulti,
-                                            replicateAggregationType);
-        } else {
-            mreplicateAccuMulti->fillStat(minputInserter->toTable(),
-                    currentInput, replicateAggregationType);
-        }
-    }
-    mreplicateAccuMono.reset(nullptr);
-    mreplicateAccuMulti.reset(nullptr);
-    mreplicateInserter.reset(nullptr);
-}
-
 
 std::unique_ptr<value::Value>
-VleOutput::buildAggregateResult()
+VleOutput::insertReplicate(value::Matrix& outMat, unsigned int currInput,
+        unsigned int nbIn, unsigned int nbRepl)
 {
-    if (not manageDoubleValue) {
-        return std::move(minputInserter);
-    }
-    std::unique_ptr<value::Value> res;
-    if (integrationType != ALL) {
-        if (inputAggregationType != S_at) {
-            res.reset(new value::Double(
-                    minputAccuMono->getStat(inputAggregationType)));
+    if (not delegate){
+        nbReplicates = nbRepl;
+        nbInputs = nbIn;
+        //performs some checks on output matrix
+        if (outMat.rows() < 2){
+            throw vu::ArgError("[MetaManager] expect at least 2 rows");
+        }
+        //get col index
+        colIndex = 9999;
+        for (unsigned int i=0; i < outMat.columns(); i++) {
+            if (outMat.getString(i,0) == absolutePort) {
+                colIndex = i;
+            }
+        }
+        if (colIndex == 9999) {
+            throw vu::ArgError(utils::format(
+                    "[MetaManager] view.port '%s' not found)",
+                    absolutePort.c_str()));
+        }
+
+        if (not outMat.get(colIndex,1)->isDouble()) {
+            if (nbReplicates != 1 or
+                (integrationType != ALL  and integrationType != LAST) ){
+                throw vu::ArgError(utils::format(
+                        "[MetaManager] since data is not double no replicate "
+                        "aggregation is possible for output '%s'",
+                        id.c_str()));
+            }
+        }
+        if (integrationType == ALL) {
+            if (inputAggregationType == S_at) {
+                delegate.reset(new DelOutIntAggrALL(*this));
+            } else {
+                delegate.reset(new DelOutIntALL(*this));
+            }
         } else {
-            res = std::move(minputInserter);
+            if (inputAggregationType == S_at) {
+                delegate.reset(new DelOutAggrALL(*this));
+            } else {
+                delegate.reset(new DelOutStd(*this));
+            }
         }
-    } else {
-        if (inputAggregationType != S_at) {
-            minputAccuMulti->fillStat(minputInserter->toTable(),
-                    0, inputAggregationType);
-        }
-        res = std::move(minputInserter);
     }
-    minputAccuMono.reset(nullptr);
-    minputAccuMulti.reset(nullptr);
-    minputInserter.reset(nullptr);
-    return std::move(res);
+    return delegate->insertReplicate(outMat, currInput);
 }
+
 /***********MetaManager*************/
 
 unsigned int
@@ -586,7 +657,16 @@ MetaManager::run(const value::Map& init, vle::manager::Error& err)
                 return nullptr;
             }
             mWorkingDir.assign(init.getString("working_dir"));
-        }  else if (tmp == "single") {
+        } else if (tmp == "cvle") {
+            mConfigParallelType = CVLE;
+            if (! init.exist("working_dir")) {
+                err.code = -1;
+                err.message = "[MetaManager] error for "
+                        "mvle config, missing 'working_dir' parameter";
+                return nullptr;
+            }
+            mWorkingDir.assign(init.getString("working_dir"));
+        } else if (tmp == "single") {
             mConfigParallelType = SINGLE;
         } else {
             err.code = -1;
@@ -817,6 +897,8 @@ std::unique_ptr<vle::value::Map>
 MetaManager::runIntern(const vle::value::Map& init,
         vle::manager::Error& err)
 {
+    namespace ba = boost::algorithm;
+
     if (mexpe_debug){
         mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
                 "[vle.recursive] run intern entrance \n");
@@ -836,7 +918,8 @@ MetaManager::runIntern(const vle::value::Map& init,
     for (; itb != ite; itb++) {
         switch(mConfigParallelType) {
             case SINGLE:
-            case THREADS: {
+            case THREADS:
+            case CVLE: {
                 VleAPIfacilities::changePlugin(*model, (*itb)->view, "storage");
                 break;
             } case MVLE: {
@@ -849,8 +932,6 @@ MetaManager::runIntern(const vle::value::Map& init,
     unsigned int inputSize = inputsSize();
     unsigned int repSize = replicasSize();
     unsigned int outputSize =  mOutputs.size();
-    postInputsIntern(*model, init);
-
 
     //build output matrix with header
     std::unique_ptr<value::Map> results(new value::Map());
@@ -862,7 +943,7 @@ MetaManager::runIntern(const vle::value::Map& init,
     switch(mConfigParallelType) {
     case SINGLE:
     case THREADS: {
-
+        postInputsIntern(*model, init);
         vle::manager::Manager planSimulator(
                 mCtx,
                 vle::manager::LOG_NONE,
@@ -896,17 +977,17 @@ MetaManager::runIntern(const vle::value::Map& init,
             clear();
             return nullptr;
         }
-
+        std::unique_ptr<value::Value> aggrValue;
         for (unsigned int out =0; out < outputSize; out++) {
             VleOutput& outId = *mOutputs[out];
             for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
                 for (unsigned int j = 0; j < repSize; j++) {
-                    outId.insertReplicate(output_mat->get(i+j,0)->toMap(),
-                            j==0, i==0, inputSize, repSize);
+                    aggrValue = std::move(outId.insertReplicate(
+                            output_mat->get(i+j,0)->toMap(),
+                            i/repSize, inputSize, repSize));
                 }
-                outId.insertInput(i % inputSize);
             }
-            results->set(outId.id, std::move(outId.buildAggregateResult()));
+            results->set(outId.id, std::move(aggrValue));
         }
         if (mexpe_debug){
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
@@ -914,9 +995,10 @@ MetaManager::runIntern(const vle::value::Map& init,
         }
         return results;
         break;
-    } case MVLE: {
 
-        vu::Package pkg(mCtx, "vle.recursive");//TODO should be saved outside the rr package
+    } case MVLE: {
+        postInputsIntern(*model, init);
+        vu::Package pkg(mCtx, "vle.recursive");//TODO should be saved outside
         std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
         tempvpzPath.append("/temp_gen_MPI.vpz");
         model->write(tempvpzPath);
@@ -989,6 +1071,7 @@ MetaManager::runIntern(const vle::value::Map& init,
             return nullptr;
         }
 
+        std::unique_ptr<value::Value> aggrValue;
         for (unsigned int out =0; out < outputSize; out++) {
             VleOutput& outId = *mOutputs[out];
             for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
@@ -1003,19 +1086,274 @@ MetaManager::runIntern(const vle::value::Map& init,
                     reader::VleResultsTextReader tfr(vleResultFilePath);
                     value::Matrix mat;
                     tfr.readFile(mat);
-                    outId.insertReplicate(mat, j==0, i==0, inputSize, repSize);
+                    aggrValue = std::move(outId.insertReplicate(mat, i/repSize,
+                            inputSize, repSize));
                     if (mRemoveSimulationFiles and out == (outputSize-1)) {
                         utils::Path torm(vleResultFilePath.c_str());
                         torm.remove();
                     }
                 }
-                outId.insertInput(i % inputSize);
             }
-            results->set(outId.id, std::move(outId.buildAggregateResult()));
+            results->set(outId.id, std::move(aggrValue));
         }
         if (mexpe_debug){
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
                     "[vle.recursive] aggregation finished \n");
+        }
+        return results;
+        break;
+    } case CVLE: {
+        //post propagate
+        vpz::Conditions& conds = model->project().experiment().conditions();
+        for (unsigned int i=0; i < mPropagate.size(); i++) {
+            VlePropagate& tmp_propagate = *mPropagate[i];
+            vpz::Condition& cond = conds.get(tmp_propagate.cond);
+            cond.clearValueOfPort(tmp_propagate.port);
+            const value::Value& exp = tmp_propagate.value(init);
+            cond.addValueToPort(tmp_propagate.port, exp.clone());
+        }
+        //save vpz
+        vu::Package pkg(mCtx, "vle.recursive");//TODO should be saved outside
+        std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
+        tempvpzPath.append("/temp_gen_CVLE.vpz");
+        model->write(tempvpzPath);
+
+        //build in.csv file
+        utils::Path inPath(mWorkingDir);
+        inPath /= "in.csv";
+        std::ofstream inFile;
+        inFile.open (inPath.string());
+        //write header
+        for (unsigned int in=0; in < mInputs.size(); in++) {
+            VleInput& tmp_input = *mInputs[in];
+            inFile << tmp_input.getName() << ",";
+        }
+        if (mReplicate) {
+            inFile << mReplicate->getName() << ",";
+        }
+        inFile << "id\n";
+        //write content
+        for (unsigned int i = 0; i < inputSize; i++) {
+            for (unsigned int j = 0; j < repSize; j++) {
+                for (unsigned int in=0; in < mInputs.size(); in++) {
+                    VleInput& tmp_input = *mInputs[in];
+                    const value::Value& exp = tmp_input.values(init);
+                    switch(exp.getType()) {
+                    case value::Value::SET:
+                        exp.toSet().get(i)->writeFile(inFile);
+                        inFile << ",";
+                        break;
+                    case value::Value::TUPLE:
+                        inFile << exp.toTuple().at(i) <<",";
+                        break;
+                    default:
+                        //error already detected
+                        break;
+                    }
+                }
+                if (mReplicate) {
+                    const value::Value& exp = mReplicate->values(init);
+                    switch(exp.getType()) {
+                    case value::Value::SET:
+                        exp.toSet().get(j)->writeFile(inFile);
+                        inFile << ",";
+                        break;
+                    case value::Value::TUPLE:
+                        inFile << exp.toTuple().at(j) <<",";
+                        break;
+                    default:
+                        //error already detected
+                        break;
+                    }
+                }
+                inFile << "id_" << i << "_" << j << "\n";
+            }
+        }
+        inFile.close();
+        //launch mpirun
+        vu::Spawn mspawn(mCtx);
+        std::string exe = mCtx->findProgram("mpirun").string();
+
+        std::vector < std::string > argv;
+        argv.push_back("-np");
+        std::stringstream ss;
+        {
+            ss << mConfigParallelNbSlots;
+            argv.push_back(ss.str());
+        }
+        argv.push_back("cvle");
+        argv.push_back("-P");//TODO should be simulated outside the rr package
+        argv.push_back("vle.recursive");
+        argv.push_back("temp_gen_CVLE.vpz");
+        argv.push_back("-i");
+        argv.push_back("in.csv");
+        argv.push_back("-o");
+        argv.push_back("out.csv");
+
+        if (mexpe_debug){
+            mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                    "[vle.recursive] simulation cvle %d \n",
+                    mConfigParallelNbSlots);
+        }
+        bool started = mspawn.start(exe, mWorkingDir, argv);
+        if (not started) {
+            err.code = -1;
+            err.message = vle::utils::format(
+                    "[MetaManager] Failed to start `%s'", exe.c_str());
+            model.reset(nullptr);
+            results.reset(nullptr);
+            clear();
+            return nullptr;
+        }
+        bool is_success = true;
+        std::string message, output, error;
+        while (not mspawn.isfinish()) {
+            if (mspawn.get(&output, &error)) {
+                if (not error.empty() and message.empty()){
+                    //TODO info such as Context are written into error.
+//                    is_success = false;
+//                    message.assign(error);
+                }
+                output.clear();
+                error.clear();
+                std::this_thread::sleep_for(std::chrono::microseconds(200));
+            } else {
+                break;
+            }
+        }
+        mspawn.wait();
+        if (! is_success) {
+            err.code = -1;
+            err.message = "[MetaManager] ";
+            err.message += message;
+            model.reset(nullptr);
+            results.reset(nullptr);
+            clear();
+            return nullptr;
+        }
+        mspawn.status(&message, &is_success);
+
+        if (! is_success) {
+            err.code = -1;
+            err.message = "[MetaManager] ";
+            err.message += vle::utils::format("Error launching `%s' : %s ",
+                    exe.c_str(), message.c_str());
+            model.reset(nullptr);
+            results.reset(nullptr);
+            clear();
+            return nullptr;
+        }
+        //read output file
+        utils::Path outPath(mWorkingDir);
+        outPath /= "out.csv";
+        std::ifstream outFile;
+        outFile.open (outPath.string(), std::ios_base::in);
+        std::string line;
+
+        int inputId = -1;
+        int inputRepl = -1;
+        std::string viewName;
+        std::map<std::string, int> insightsViewRows;
+        std::unique_ptr<value::Matrix> viewMatrix;
+
+        std::vector <std::string> tokens;
+        bool finishMatrixLine = true;
+        bool finishViews = true;
+        bool finishIds = false;
+        while(not finishIds){
+            //read id_1_0
+            if (not finishViews) {
+                finishViews = true;
+                if (not std::getline(outFile,line)) {//read empty line
+                    break;
+                }
+            } else {
+                std::getline(outFile,line);
+            }
+
+            ba::split(tokens, line, ba::is_any_of("_"));
+            if (tokens.size() != 3 or tokens[0] != "id") {
+                finishIds = true;
+                break;
+            }
+            inputId = std::stoi(tokens[1]);
+            inputRepl = std::stoi(tokens[2]);
+            finishViews = false;
+            while(not finishViews){
+                //read view:viewName
+                if (not finishMatrixLine) {
+                    finishMatrixLine = true;
+                } else {
+                    std::getline(outFile,line);
+                }
+
+                ba::split(tokens, line, ba::is_any_of(":"));
+                if (tokens.size() != 2 or tokens[0] != "view") {
+                    break;
+                }
+                viewName.assign(tokens[1]);
+                //read view header and instantiate matrix view
+                std::getline(outFile,line);
+                boost::trim_if(line, boost::is_any_of(" "));
+                ba::split(tokens, line, ba::is_any_of(" "),
+                        boost::token_compress_on);
+                unsigned int nbCols = tokens.size();
+                bool getInsight = (insightsViewRows.find(viewName) !=
+                        insightsViewRows.end());
+                if (not getInsight) {
+                    insightsViewRows.insert(std::make_pair(viewName,100));
+                }
+                int rows = insightsViewRows[viewName];
+                viewMatrix.reset(new value::Matrix(nbCols,1,nbCols, rows));
+                for (unsigned int c=0; c<nbCols; c++){
+                    viewMatrix->set(c,0,value::String::create(tokens[c]));
+                }
+
+                finishMatrixLine = false;
+                while(not finishMatrixLine){
+                    std::getline(outFile,line);
+                    boost::trim_if(line, boost::is_any_of(" "));
+                    ba::split(tokens, line, ba::is_any_of(" "),
+                            boost::token_compress_on);
+                    if (tokens.size() != nbCols) {
+                        break;
+                    }
+                    viewMatrix->addRow();
+                    for (unsigned int c=0; c<nbCols; c++){
+                        if (c == 0 and tokens[c] == "inf") {
+                            viewMatrix->set(c,viewMatrix->rows()-1,
+                                    value::Double::create(
+                                            std::numeric_limits<double>::max()));
+                        } else {
+                            viewMatrix->set(c,viewMatrix->rows()-1,
+                                    value::Double::create(
+                                            std::stod(tokens[c])));
+                        }
+                    }
+                }
+                if (not getInsight) {
+                    insightsViewRows[viewName] = viewMatrix->rows();
+                }
+                //insert replicate for
+                std::unique_ptr<value::Value> aggrValue;
+                for (unsigned int o=0; o< mOutputs.size(); o++) {
+                    VleOutput& outId = *mOutputs[o];
+                    if (outId.view == viewName) {
+                        for (unsigned int p=0; p<viewMatrix->columns(); p++) {
+                            if (viewMatrix->getString(p,0) ==
+                                    outId.absolutePort) {
+                                aggrValue = std::move(outId.insertReplicate(
+                                        *viewMatrix, inputId, inputSize,
+                                        repSize));
+                                if (aggrValue) {
+                                    results->set(outId.id,
+                                            std::move(aggrValue));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         return results;
         break;

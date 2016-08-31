@@ -30,7 +30,7 @@
 namespace vle {
 namespace recursive {
 
-enum CONFIG_PARALLEL_TYPE {THREADS, MVLE, SINGLE};
+enum CONFIG_PARALLEL_TYPE {THREADS, MVLE, CVLE,  SINGLE};
 enum INTEGRATION_TYPE {LAST, MAX, MSE, ALL};
 
 struct VlePropagate
@@ -113,91 +113,166 @@ struct VleReplicate
     std::unique_ptr<value::Tuple> mvalues;
 };
 
-struct VleOutput
+
+class VleOutput;
+/**
+ * Delegate output functionnalities
+ */
+class DelegateOut
+{
+public:
+    DelegateOut(VleOutput& vleout);
+    virtual ~DelegateOut();
+
+    virtual std::unique_ptr<vle::value::Value>
+    insertReplicate(vle::value::Matrix& outMat, unsigned int currInput) = 0;
+
+    /**
+     * Temporal integration, shared with other delegates
+     * @param [in] the vle output
+     * @param [in] the output matrix
+     * @return the temporal integration of the output
+     */
+    static double integrateReplicate(VleOutput& vleout,
+            vle::value::Matrix& outMat);
+
+    static AccuMulti& getAccu(std::map<int, std::unique_ptr<AccuMulti>>& accu,
+            unsigned int index, AccuStat s);
+
+
+    static AccuMono& getAccu(std::map<int, std::unique_ptr<AccuMono>>& accu,
+            unsigned int index, AccuStat s);
+
+
+    VleOutput& vleOut;
+};
+
+/**
+ * Delegate output for standard (no all integration nor all aggregation_input)
+ */
+class DelOutStd : public DelegateOut
+{
+public:
+    DelOutStd(VleOutput& vleout);
+
+    std::unique_ptr<vle::value::Value>
+    insertReplicate(vle::value::Matrix& outMat,
+            unsigned int currInput) override;
+
+
+
+
+    //for replicate aggregation for current input index
+    std::map<int, std::unique_ptr<AccuMono>> mreplicateAccu;
+    std::unique_ptr<AccuMono> minputAccu;
+};
+
+/**
+ * Delegate output for both integration and aggregation_input to 'all'
+ */
+class DelOutIntAggrALL : public DelegateOut
+{
+public:
+    DelOutIntAggrALL(VleOutput& vleout);
+
+    std::unique_ptr<vle::value::Value>
+    insertReplicate(vle::value::Matrix& outMat,
+            unsigned int currInput) override;
+
+    //for replicate aggregation for current input index
+    std::map<int, std::unique_ptr<AccuMulti>> mreplicateAccu;
+    std::unique_ptr<value::Table> minputAccu;
+    unsigned int nbInputsFilled;
+};
+
+/**
+ * Delegate output for both integration set to 'all'
+ */
+class DelOutIntALL : public DelegateOut
+{
+public:
+    DelOutIntALL(VleOutput& vleout);
+
+    std::unique_ptr<vle::value::Value>
+    insertReplicate(vle::value::Matrix& outMat,
+            unsigned int currInput) override;
+
+    //for replicate aggregation for current input index
+    std::map<int, std::unique_ptr<AccuMulti>> mreplicateAccu;
+    std::unique_ptr<AccuMulti> minputAccu;
+};
+
+/**
+ * Delegate output for both integration set to 'all'
+ */
+class DelOutAggrALL : public DelegateOut
+{
+public:
+    DelOutAggrALL(VleOutput& vleout);
+
+    std::unique_ptr<vle::value::Value>
+    insertReplicate(vle::value::Matrix& outMat,
+            unsigned int currInput) override;
+
+    //for replicate aggregation for current input index
+    std::map<int, std::unique_ptr<AccuMono>> mreplicateAccu;
+    std::unique_ptr<value::Table> minputAccu;
+    unsigned int nbInputsFilled;
+};
+
+/**
+ * Default interface for VleOutput
+ */
+class VleOutput
 {
 public:
     VleOutput();
-    /**
-     * @brief VleOutput identifies an output of the experiment plan
-     * @param id,  a string that is an id for the output
-     * @param config is either a map containing:
-     *  - "path": of the form 'view/coupled:atomic.port'
-     *  - "integration" type of integration
-     *  - "mse_times" required if integration=mse
-     *  - "mse_observations" required if integration=mse
-     *  - "aggregation" type of aggregation
-     *  or a string identifying the "path" parameter defined above,
-     *  default values are then:
-     *  - integration ="last"
-     *  - mse_times =NULL
-     *  - mse_observations=NULL
-     *  - aggregation = mean
-     */
+
     VleOutput(const std::string& id, const vle::value::Value& config);
     ~VleOutput();
-
-    bool parsePath(const std::string& path);
-
 
     /**
      * @brief insert a replicate from a map of views
      * @param result, one simulation result (map of views)
-     * @param initReplicateAccu, if true accumulators are initialized
-     * @param initInputAccu, if true accumulators are initialized
+     * @param currInput, current input index
      * @param nbInputs, nb inputs of the experiment plan (for allocation)
-     * @param nbReplicates, nb replicates of the experiment plan (for check)
+     * @param nbReplicates, nb replicates of the experiment plan
+     * @return the input aggregated value if all inputs and all replicates
+     * have aggregated
      */
-    void insertReplicate(vle::value::Map& result,
-            bool initReplicateAccu, bool initInputAccu, unsigned int nbInputs,
-            unsigned int nbReplicates);
+    std::unique_ptr<value::Value>
+    insertReplicate(value::Map& result, unsigned int currInput,
+            unsigned int nbInputs, unsigned int nbReplicates);
     /**
      * @brief insert a replicate from a view
      * @param result, one view (matrix) from one simulation result
-     * @param initReplicateAccu, if true accumulators are initialized
-     * @param initInputAccu, if true accumulators are initialized
+     * @param currInput, current input index
      * @param nbInputs, nb inputs of the experiment plan (for allocation)
-     * @param nbReplicates, nb replicates of the experiment plan (for check)
+     * @param nbReplicates, nb replicates of the experiment plan
+     * @return the input aggregated value if all inputs and all replicates
+     * have aggregated
      */
-    void insertReplicate(vle::value::Matrix& outMat,
-            bool initReplicateAccu, bool initInputAccu, unsigned int nbInputs,
-            unsigned int nbReplicates);
+    std::unique_ptr<value::Value>
+    insertReplicate(vle::value::Matrix& outMat, unsigned int currInput,
+            unsigned int nbInputs, unsigned int nbReplicates);
 
-    /**
-     * @brief insert result of an input combination
-     * @note rely on replicate accumulators previously filled
-     */
-    void insertInput(unsigned int currentInput);
-
-    /**
-     * @brief build a vle value from input aggregation
-     */
-    std::unique_ptr<vle::value::Value> buildAggregateResult();
+public:
+    bool parsePath(const std::string& path);
 
     std::string id;
     std::string view;
     std::string absolutePort;
+    int colIndex;
+    bool shared;
     INTEGRATION_TYPE integrationType;
     AccuStat replicateAggregationType;
     AccuStat inputAggregationType;
+    unsigned int nbInputs;
+    unsigned int nbReplicates;
+    std::unique_ptr<DelegateOut> delegate;
+    //optionnal for integration == MSE only
     std::unique_ptr<vle::value::Tuple> mse_times;
     std::unique_ptr<vle::value::Tuple> mse_observations;
-
-    //for replicate aggregation (one dimension or more)
-    std::unique_ptr<AccuMono> mreplicateAccuMono;
-    std::unique_ptr<AccuMulti> mreplicateAccuMulti;
-
-    //for input aggregation (one dimension or more)
-    std::unique_ptr<AccuMono> minputAccuMono;
-    std::unique_ptr<AccuMulti> minputAccuMulti;
-
-    //for replicate aggregation in the case values are not double
-    std::unique_ptr<vle::value::Value> mreplicateInserter;
-    //for aggregation in the case integration or inputAgreggation is ALL
-    std::unique_ptr<vle::value::Value> minputInserter;
-
-    //true if one manage double values
-    bool manageDoubleValue;
-
 };
 
 /**

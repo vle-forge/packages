@@ -1,61 +1,100 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
-<vle_project version="1.0" date="jeu., 08 oct. 2009" author="Ronan Trépos">
-<structures>
-<model name="ExBohachevsky" type="coupled" x="0" y="0" width="482" height="500"  >
+<vle_project author="Ronan Trépos" date="jeu., 08 oct. 2009" version="1.0">
+ <structures>
+<model type="coupled" name="ExBohachevsky" y="0" height="500" width="482" x="0">
 <submodels>
-<model name="ExBohachevsky" type="atomic" conditions="cond" dynamics="ExBohachevsky" observables="obs" x="36" y="47" width="100" height="30" >
+<model type="atomic" observables="obs" name="ExBohachevsky" dynamics="ExBohachevsky" y="47" height="30" conditions="cond" width="100" x="36">
 </model>
 </submodels>
 <connections>
 </connections>
 </model>
 </structures>
-<dynamics>
-<dynamic name="ExBohachevsky" library="ExBohachevsky" package="vle.recursive_test"  />
+ <dynamics>
+<dynamic name="ExBohachevsky" package="vle.recursive_test" library="ExBohachevsky"/>
 </dynamics>
-<experiment name="Bohachevsky" combination="linear"  >
+ <experiment name="Bohachevsky" combination="linear" duration="10">
 <conditions>
-<condition name="cond" >
- <port name="seed" >
+<condition name="cond">
+ <port name="seed">
 <integer>1236</integer>
 </port>
- <port name="x1" >
+ <port name="x1">
 <double>0.000000000000000</double>
 </port>
- <port name="x2" >
+ <port name="x2">
 <double>0.000000000000000</double>
 </port>
 </condition>
-<condition name="simulation_engine" >
- <port name="begin" >
+<condition name="simulation_engine">
+ <port name="begin">
 <double>0.000000000000000</double>
 </port>
- <port name="duration" >
-<double>100.000000000000000</double>
+ <port name="duration">
+<double>10</double>
 </port>
 </condition>
 </conditions>
 <views>
 <outputs>
-<output name="view" location="" format="local" package="vle.output"  plugin="file" />
+<output format="local" name="view" package="vle.output" plugin="file" location="">
+     <map>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+     </map>
+    </output>
 
-</outputs>
+<output format="local" name="viewNoise" plugin="file" package="vle.output" location="">
+     <map>
+      <key name="type">
+       <string>text</string>
+      </key>
+      <key name="flush-by-bag">
+       <boolean>0</boolean>
+      </key>
+      <key name="locale">
+       <string>C</string>
+      </key>
+      <key name="julian-day">
+       <boolean>0</boolean>
+      </key>
+      <key name="output">
+       <string>file</string>
+      </key>
+     </map>
+    </output>
+   </outputs>
 <observables>
-<observable name="obs" >
-<port name="y" >
- <attachedview name="view" />
+<observable name="obs">
+<port name="y">
+ <attachedview name="view"/>
 </port>
 
-<port name="y_noise" >
- <attachedview name="view" />
-</port>
+<port name="y_noise">
+ 
+<attachedview name="viewNoise"/>
+      <attachedview name="view"/>
+     </port>
 
 </observable>
 
 </observables>
-<view name="view" output="view" type="finish" />
+<view type="finish" name="view" output="view"/>
 
-</views>
+<view type="timed" name="viewNoise" timestep="1" output="viewNoise"/>
+  </views>
 </experiment>
 </vle_project>

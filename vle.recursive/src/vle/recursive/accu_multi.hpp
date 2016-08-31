@@ -71,6 +71,9 @@ public:
 
     inline void setSize(unsigned int s)
     {
+        if (mstats.size() == s) {
+            return;
+        }
         mstats.clear();
         for (unsigned int i=0; i<s; i++){
             mstats.push_back(AccuMono(accu));
@@ -111,7 +114,7 @@ public:
             if (hasName) {
                 mstats[i].insert(m.getDouble(col, i+1));
             } else {
-                mstats[i].insert(m.getDouble(col, 1));
+                mstats[i].insert(m.getDouble(col, i));
             }
         }
     }

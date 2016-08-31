@@ -103,7 +103,7 @@ init.addString("package","vle.recursive_test");
 init.addString("vpz","SIR.vpz");
 
 //config output, mse on S
-vv::Map& conf_out = init.addMap("output_mseS");
+vv::Map& conf_out = init.addMap("output_mseI");
 conf_out.addString("path", "view/top:SIR.I");
 conf_out.addString("integration", "mse");
 vv::Tuple& mseTimes = conf_out.addTuple("mse_times", 3,0.0);
@@ -117,11 +117,10 @@ mseObs[2] = 15;
 conf_out.addString("aggregation_input", "all");
 
 //set 3 input values for beta parameter
-vv::Tuple& Svalues = init.addTuple(
-"input_condSIR.init_value_beta", 3, 0.0);
-Svalues[0] = 0.001;
-Svalues[1] = 0.002;
-Svalues[2] = 0.003;
+vv::Tuple& beta = init.addTuple("input_condSIR.init_value_beta", 3, 0.0);
+beta[0] = 0.001;
+beta[1] = 0.002;
+beta[2] = 0.003;
 
 vr::MetaManager meta;
 vle::manager::Error err;
@@ -129,7 +128,8 @@ std::unique_ptr<vv::Map> res = meta.run(init, err);
 if (err.code ==-1) {
     std::cout << " error: " << err.message << "\n";
 }
-std::cout << " Mse for beta in (0.001,0.002,0.003): " << *res << "\n";
+std::cout << " Mse on I for beta in (0.001,0.002,0.003): " << *res << "\n";
+//(mseI, ((102.158,0.233604,228.278)))
 ```
 
 (code of the tutorial into vle.recursive_test)
