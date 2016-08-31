@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<vle_project author="Ronan Trépos" date="jeu., 08 oct. 2009" version="1.0">
+<vle_project version="1.0" author="Ronan Trépos" date="jeu., 08 oct. 2009">
  <structures>
-<model type="coupled" name="ExBohachevsky" y="0" height="500" width="482" x="0">
+<model width="482" name="ExBohachevsky" y="0" type="coupled" height="500" x="0">
 <submodels>
-<model type="atomic" observables="obs" name="ExBohachevsky" dynamics="ExBohachevsky" y="47" height="30" conditions="cond" width="100" x="36">
+<model width="100" observables="obs" name="ExBohachevsky" y="47" type="atomic" height="30" conditions="cond" dynamics="ExBohachevsky" x="36">
 </model>
 </submodels>
 <connections>
@@ -11,9 +11,9 @@
 </model>
 </structures>
  <dynamics>
-<dynamic name="ExBohachevsky" package="vle.recursive_test" library="ExBohachevsky"/>
+<dynamic name="ExBohachevsky" library="ExBohachevsky" package="vle.recursive_test"/>
 </dynamics>
- <experiment name="Bohachevsky" combination="linear" duration="10">
+ <experiment combination="linear" name="Bohachevsky" duration="10">
 <conditions>
 <condition name="cond">
  <port name="seed">
@@ -37,7 +37,7 @@
 </conditions>
 <views>
 <outputs>
-<output format="local" name="view" package="vle.output" plugin="file" location="">
+<output location="" name="view" format="local" plugin="file" package="vle.output">
      <map>
       <key name="header">
        <string>top</string>
@@ -57,7 +57,26 @@
      </map>
     </output>
 
-<output format="local" name="viewNoise" plugin="file" package="vle.output" location="">
+<output location="" name="allinOne" format="local" plugin="file" package="vle.output">
+     <map>
+      <key name="type">
+       <string>text</string>
+      </key>
+      <key name="flush-by-bag">
+       <boolean>0</boolean>
+      </key>
+      <key name="locale">
+       <string>C</string>
+      </key>
+      <key name="julian-day">
+       <boolean>0</boolean>
+      </key>
+      <key name="output">
+       <string>file</string>
+      </key>
+     </map>
+    </output>
+   <output location="" name="viewNoise" format="local" plugin="file" package="vle.output">
      <map>
       <key name="type">
        <string>text</string>
@@ -85,16 +104,21 @@
 
 <port name="y_noise">
  
-<attachedview name="viewNoise"/>
+
       <attachedview name="view"/>
+     <attachedview name="viewNoise"/>
      </port>
 
-</observable>
+<port name="y_all">
+      <attachedview name="allinOne"/>
+     </port>
+    </observable>
 
 </observables>
-<view type="finish" name="view" output="view"/>
+<view name="view" type="finish" output="view"/>
 
-<view type="timed" name="viewNoise" timestep="1" output="viewNoise"/>
+<view name="allinOne" type="timed" output="allinOne" timestep="1"/>
+  <view name="viewNoise" type="timed" output="viewNoise" timestep="1"/>
   </views>
 </experiment>
 </vle_project>

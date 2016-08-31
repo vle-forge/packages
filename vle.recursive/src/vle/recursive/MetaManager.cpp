@@ -203,14 +203,15 @@ VleReplicate::getName()
 }
 
 /***********DelegateOutput********/
-DelegateOut::DelegateOut(VleOutput& vleout):vleOut(vleout)
+DelegateOut::DelegateOut(VleOutput& vleout, bool managedouble):
+        vleOut(vleout), manageDouble(managedouble)
 {
 }
 DelegateOut::~DelegateOut()
 {
 }
 
-double
+std::unique_ptr<value::Value>
 DelegateOut::integrateReplicate(VleOutput& vleout, vle::value::Matrix& outMat)
 {
     switch(vleout.integrationType) {
@@ -222,12 +223,16 @@ DelegateOut::integrateReplicate(VleOutput& vleout, vle::value::Matrix& outMat)
                 max = v;
             }
         }
-        return max;
+        return value::Double::create(max);
         break;
     } case LAST: {
-        const std::unique_ptr<value::Value>& res =
-                outMat.get(vleout.colIndex, outMat.rows() - 1);
-        return res->toDouble().value();
+        if (vleout.shared) {
+            const std::unique_ptr<value::Value>& res =
+                            outMat.get(vleout.colIndex, outMat.rows() - 1);
+            return res->clone();
+        } else {
+            return std::move(outMat.give(vleout.colIndex, outMat.rows() - 1));
+        }
         break;
     } case MSE: {
         double sum_square_error = 0;
@@ -241,13 +246,13 @@ DelegateOut::integrateReplicate(VleOutput& vleout, vle::value::Matrix& outMat)
                 nbVal++;
             }
         }
-        return (sum_square_error/nbVal);
+        return value::Double::create(sum_square_error/nbVal);
         break;
     } default:{
         //not possible
         break;
     }}
-    return std::numeric_limits<double>::min();
+    return nullptr;
 }
 
 AccuMulti&
@@ -281,25 +286,24 @@ DelegateOut::getAccu(std::map<int, std::unique_ptr<AccuMono>>& accus,
 }
 
 
-DelOutStd::DelOutStd(VleOutput& vleout): DelegateOut(vleout)
+DelOutStd::DelOutStd(VleOutput& vleout): DelegateOut(vleout, true)
 {
     minputAccu.reset(new AccuMono(vleOut.inputAggregationType));
 }
-
-
 
 std::unique_ptr<value::Value>
 DelOutStd::insertReplicate(
             vle::value::Matrix& outMat, unsigned int currInput)
 {
     //start insertion for double management only
-    double intVal = integrateReplicate(vleOut, outMat);
+    std::unique_ptr<value::Value> intVal = std::move(
+            integrateReplicate(vleOut, outMat));
     if (vleOut.nbReplicates == 1) {
-        minputAccu->insert(intVal);
+        minputAccu->insert(intVal->toDouble().value());
     } else {
         AccuMono& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
                 vleOut.replicateAggregationType);
-        accuRepl.insert(intVal);
+        accuRepl.insert(intVal->toDouble().value());
         //test if aggregating replicates is finished
         if (accuRepl.count() == vleOut.nbReplicates) {
             minputAccu->insert(accuRepl.getStat(
@@ -318,8 +322,9 @@ DelOutStd::insertReplicate(
 };
 
 
-DelOutIntAggrALL::DelOutIntAggrALL(VleOutput& vleout): DelegateOut(vleout),
-        mreplicateAccu(), minputAccu(nullptr), nbInputsFilled(0)
+DelOutIntAggrALL::DelOutIntAggrALL(VleOutput& vleout, bool managedouble):
+        DelegateOut(vleout, managedouble), mreplicateAccu(),
+        minputAccu(nullptr), nbInputsFilled(0)
 {
 
 }
@@ -328,14 +333,26 @@ DelOutIntAggrALL::insertReplicate(
             vle::value::Matrix& outMat, unsigned int currInput)
 {
     if (not minputAccu) {
-        minputAccu.reset(new value::Table(vleOut.nbInputs,
-                outMat.rows()-1));
+        if (manageDouble) {
+            minputAccu.reset(new value::Table(vleOut.nbInputs,
+                    outMat.rows()-1));
+        } else {
+            minputAccu.reset(new value::Matrix(vleOut.nbInputs,
+                    outMat.rows()-1, 10, 10));
+        }
     }
     if (vleOut.nbReplicates == 1){//one can put directly into results
-
         for (unsigned int i=1; i < outMat.rows(); i++) {
-                minputAccu->get(i-1, currInput) =
-                          outMat.getDouble(vleOut.colIndex, i);
+            if (manageDouble) {
+                minputAccu->toTable().get(currInput, i-1) =
+                        outMat.getDouble(vleOut.colIndex, i);
+            } else if (vleOut.shared) {
+                minputAccu->toMatrix().set(currInput, i-1,
+                        outMat.get(vleOut.colIndex, i)->clone());
+            } else {
+                minputAccu->toMatrix().set(currInput, i-1,
+                        std::move(outMat.give(vleOut.colIndex, i)));
+            }
         }
         nbInputsFilled++;
     } else {
@@ -343,7 +360,7 @@ DelOutIntAggrALL::insertReplicate(
                 vleOut.replicateAggregationType);
         accuRepl.insertColumn(outMat, vleOut.colIndex);
         if (accuRepl.count() == vleOut.nbReplicates) {
-            accuRepl.fillStat(*minputAccu,
+            accuRepl.fillStat(minputAccu->toTable(),
                     currInput, vleOut.replicateAggregationType);
             mreplicateAccu.erase(currInput);
             nbInputsFilled++;
@@ -355,7 +372,7 @@ DelOutIntAggrALL::insertReplicate(
     return nullptr;
 }
 
-DelOutIntALL::DelOutIntALL(VleOutput& vleout): DelegateOut(vleout),
+DelOutIntALL::DelOutIntALL(VleOutput& vleout): DelegateOut(vleout, true),
         mreplicateAccu(), minputAccu(nullptr)
 {
 
@@ -388,26 +405,39 @@ DelOutIntALL::insertReplicate(
     return nullptr;
 }
 
-DelOutAggrALL::DelOutAggrALL(VleOutput& vleout): DelegateOut(vleout),
-        mreplicateAccu(), minputAccu(nullptr), nbInputsFilled(0)
+DelOutAggrALL::DelOutAggrALL(VleOutput& vleout, bool managedouble):
+        DelegateOut(vleout, managedouble), mreplicateAccu(),
+        minputAccu(nullptr), nbInputsFilled(0)
 {
-    minputAccu.reset(new value::Table(vleOut.nbInputs,1));
+    if (manageDouble) {
+        minputAccu.reset(new value::Table(vleOut.nbInputs,1));
+    } else {
+        minputAccu.reset(new value::Matrix(vleOut.nbInputs,1,10,10));
+    }
 }
 std::unique_ptr<value::Value>
 DelOutAggrALL::insertReplicate(
             vle::value::Matrix& outMat, unsigned int currInput)
 {
-    double intValue = DelOutStd::integrateReplicate(vleOut, outMat);
+    std::unique_ptr<value::Value> intVal = std::move(
+            integrateReplicate(vleOut, outMat));
 
     if (vleOut.nbReplicates == 1){//one can put directly into results
-        minputAccu->get(currInput, 0) = intValue;
+        if (manageDouble) {
+            minputAccu->toTable().get(currInput, 0) =
+                    intVal->toDouble().value();
+        } else {
+            minputAccu->toMatrix().set(currInput, 0, std::move(intVal));
+
+        }
+
         nbInputsFilled++;
     } else {
         AccuMono& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
                 vleOut.replicateAggregationType);
-        accuRepl.insert(intValue);
+        accuRepl.insert(intVal->toDouble().value());
         if (accuRepl.count() == vleOut.nbReplicates) {
-            minputAccu->get(currInput, 0)=
+            minputAccu->toTable().get(currInput, 0)=
                     accuRepl.getStat(vleOut.replicateAggregationType);
             mreplicateAccu.erase(currInput);
             nbInputsFilled++;
@@ -423,7 +453,7 @@ DelOutAggrALL::insertReplicate(
 /***********VleOutput*************/
 
 VleOutput::VleOutput() :
-   id(), view(), absolutePort(), colIndex(-1), shared(false),
+   id(), view(), absolutePort(), colIndex(-1), shared(true),
    integrationType(LAST), replicateAggregationType(S_mean),
    inputAggregationType(S_at), nbInputs(0), nbReplicates(0), delegate(nullptr),
    mse_times(nullptr), mse_observations(nullptr)
@@ -432,7 +462,7 @@ VleOutput::VleOutput() :
 
 VleOutput::VleOutput(const std::string& _id,
         const value::Value& val) :
-   id(_id), view(), absolutePort(),  colIndex(-1), shared(false),
+   id(_id), view(), absolutePort(),  colIndex(-1), shared(true),
    integrationType(LAST), replicateAggregationType(S_mean),
    inputAggregationType(S_at), nbInputs(0), nbReplicates(0), delegate(nullptr),
    mse_times(nullptr), mse_observations(nullptr)
@@ -565,25 +595,27 @@ VleOutput::insertReplicate(value::Matrix& outMat, unsigned int currInput,
                     "[MetaManager] view.port '%s' not found)",
                     absolutePort.c_str()));
         }
-
+        bool manageDouble = true;
         if (not outMat.get(colIndex,1)->isDouble()) {
             if (nbReplicates != 1 or
-                (integrationType != ALL  and integrationType != LAST) ){
+                (integrationType != ALL  and integrationType != LAST) or
+                (inputAggregationType != S_at)){
                 throw vu::ArgError(utils::format(
-                        "[MetaManager] since data is not double no replicate "
+                        "[MetaManager] since data is not double no "
                         "aggregation is possible for output '%s'",
                         id.c_str()));
             }
+            manageDouble = false;
         }
         if (integrationType == ALL) {
             if (inputAggregationType == S_at) {
-                delegate.reset(new DelOutIntAggrALL(*this));
+                delegate.reset(new DelOutIntAggrALL(*this, manageDouble));
             } else {
                 delegate.reset(new DelOutIntALL(*this));
             }
         } else {
             if (inputAggregationType == S_at) {
-                delegate.reset(new DelOutAggrALL(*this));
+                delegate.reset(new DelOutAggrALL(*this, manageDouble));
             } else {
                 delegate.reset(new DelOutStd(*this));
             }

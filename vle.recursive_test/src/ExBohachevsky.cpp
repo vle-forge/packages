@@ -75,6 +75,12 @@ public:
         if (event.onPort("y_noise")) {
             return value::Double::create(my_noise);
         }
+        if (event.onPort("y_all")) {
+            std::unique_ptr<value::Map> res (new value::Map());
+            res->addDouble("without_noise", my);
+            res->addDouble("with_noise", my_noise);
+            return std::move(res);
+        }
         return nullptr;
     }
 private:

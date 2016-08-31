@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE vle_project_metadata>
-<vle_project_metadata author="me" version="1.x">
+<vle_project_metadata version="1.x" author="me">
  <condPlugins/>
  <outputGUIplugins>
-  <outputGUIplugin view="view" GUIplugin="gvle.output/storage"/>
- <outputGUIplugin view="NewView" GUIplugin=""/>
-  <outputGUIplugin view="viewNoise" GUIplugin="gvle.output/file"/>
+  <outputGUIplugin GUIplugin="gvle.output/storage" view="view"/>
+ <outputGUIplugin GUIplugin="" view="NewView"/>
+  <outputGUIplugin GUIplugin="gvle.output/file" view="viewNoise"/>
+ <outputGUIplugin GUIplugin="gvle.output/file" view="allinOne"/>
  </outputGUIplugins>
 </vle_project_metadata>

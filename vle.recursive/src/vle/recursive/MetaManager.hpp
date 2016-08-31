@@ -121,7 +121,7 @@ class VleOutput;
 class DelegateOut
 {
 public:
-    DelegateOut(VleOutput& vleout);
+    DelegateOut(VleOutput& vleout, bool managedouble);
     virtual ~DelegateOut();
 
     virtual std::unique_ptr<vle::value::Value>
@@ -133,7 +133,7 @@ public:
      * @param [in] the output matrix
      * @return the temporal integration of the output
      */
-    static double integrateReplicate(VleOutput& vleout,
+    static std::unique_ptr<value::Value> integrateReplicate(VleOutput& vleout,
             vle::value::Matrix& outMat);
 
     static AccuMulti& getAccu(std::map<int, std::unique_ptr<AccuMulti>>& accu,
@@ -145,6 +145,7 @@ public:
 
 
     VleOutput& vleOut;
+    bool manageDouble;
 };
 
 /**
@@ -173,7 +174,7 @@ public:
 class DelOutIntAggrALL : public DelegateOut
 {
 public:
-    DelOutIntAggrALL(VleOutput& vleout);
+    DelOutIntAggrALL(VleOutput& vleout, bool managedouble);
 
     std::unique_ptr<vle::value::Value>
     insertReplicate(vle::value::Matrix& outMat,
@@ -181,7 +182,7 @@ public:
 
     //for replicate aggregation for current input index
     std::map<int, std::unique_ptr<AccuMulti>> mreplicateAccu;
-    std::unique_ptr<value::Table> minputAccu;
+    std::unique_ptr<value::Value> minputAccu;
     unsigned int nbInputsFilled;
 };
 
@@ -208,7 +209,7 @@ public:
 class DelOutAggrALL : public DelegateOut
 {
 public:
-    DelOutAggrALL(VleOutput& vleout);
+    DelOutAggrALL(VleOutput& vleout, bool managedouble);
 
     std::unique_ptr<vle::value::Value>
     insertReplicate(vle::value::Matrix& outMat,
@@ -216,7 +217,7 @@ public:
 
     //for replicate aggregation for current input index
     std::map<int, std::unique_ptr<AccuMono>> mreplicateAccu;
-    std::unique_ptr<value::Table> minputAccu;
+    std::unique_ptr<value::Value> minputAccu;
     unsigned int nbInputsFilled;
 };
 

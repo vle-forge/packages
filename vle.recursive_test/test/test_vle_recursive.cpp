@@ -72,6 +72,7 @@ BOOST_AUTO_TEST_CASE(test_api)
     conf_ynoise.addString("path",
             "viewNoise/ExBohachevsky:ExBohachevsky.y_noise");
     conf_ynoise.addString("integration","all");
+
     init.add("replicate_cond.seed",r.clone());
 
     vr::MetaManager meta;
@@ -99,12 +100,65 @@ BOOST_AUTO_TEST_CASE(test_api)
     BOOST_REQUIRE_CLOSE(res->getTable("y")(1,0),0.0,10e-4);
 }
 
+BOOST_AUTO_TEST_CASE(test_complex_values)
+{
+    namespace vr = vle::recursive;
+    namespace vv = vle::value;
+
+    //define x1 values
+    vv::Tuple x1(2);
+    x1[0] = 3.0;
+    x1[1] = 0.0;
+    //define x2 values
+    vv::Tuple x2(2);
+    x2[0] = -10.0;
+    x2[1] = 0.0;
+
+
+    vv::Map init;
+    init.addString("config_parallel_type","single");
+    init.addString("working_dir","/tmp/");
+    init.addInt("config_parallel_nb_slots",2);
+    init.addString("package","vle.recursive_test");
+    init.addString("vpz","ExBohachevsky.vpz");
+    init.add("input_cond.x1", x1.clone());
+    init.add("input_cond.x2", x2.clone());
+    vv::Map& conf_yall = init.addMap("output_yall");
+    conf_yall.addString("path",
+            "allinOne/ExBohachevsky:ExBohachevsky.y_all");
+    conf_yall.addString("integration","last");
+    conf_yall.addString("aggregation_input","all");
+
+    init.addInt("propagate_cond.seed",1235);
+
+    vr::MetaManager meta;
+    vle::manager::Error err;
+    std::unique_ptr<vv::Map> res = meta.run(init, err);
+
+    if (err.code ==-1) {
+        std::cout << " error: " << err.message << "\n";
+    }
+
+    std::cout << " res : " << *res << "\n";
+
+    BOOST_REQUIRE(res->getMatrix("yall").rows() ==  1);//integration last
+    BOOST_REQUIRE(res->getMatrix("yall").columns() ==  2);//2 inputs
+    double v = res->getMatrix("yall").getMap(0,0).getDouble("with_noise");
+    BOOST_REQUIRE_CLOSE(v, 209.643,10e-4);
+    v = res->getMatrix("yall").getMap(0,0).getDouble("without_noise");
+    BOOST_REQUIRE_CLOSE(v, 209.6,10e-4);
+    v = res->getMatrix("yall").getMap(1,0).getDouble("with_noise");
+    BOOST_REQUIRE_CLOSE(v, 0.0427962,10e-4);
+    v = res->getMatrix("yall").getMap(1,0).getDouble("without_noise");
+    BOOST_REQUIRE_CLOSE(v, 0.0,10e-4);
+}
+
 BOOST_AUTO_TEST_CASE(test_SIR)
 {
-    //std::string conf_simu = "single"; int nb_slots=1;
+    std::string conf_simu = "single"; int nb_slots=1;
     //std::string conf_simu = "threads"; int nb_slots=2;
     //std::string conf_simu = "mvle"; int nb_slots=3;
-    std::string conf_simu = "cvle"; int nb_slots=4;
+    //std::string conf_simu = "cvle"; int nb_slots=4;
 
     namespace vr = vle::recursive;
     namespace vv = vle::value;

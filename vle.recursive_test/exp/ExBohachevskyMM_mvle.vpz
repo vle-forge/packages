@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<vle_project author="Ronan Trépos" date="2015-Jun-15 16:13:07" version="1.3.0">
+<vle_project version="1.3.0" author="Ronan Trépos" date="2015-Jun-15 16:13:07">
  <structures>
-<model width="482" y="0" name="ExBohachevskyMM_mvle" x="0" type="coupled" height="376">
+<model width="482" name="ExBohachevskyMM_mvle" y="0" type="coupled" height="376" x="0">
 <submodels>
-<model width="100" observables="obs" y="33" name="ExBohachevskyMM" conditions="cond,simulation_engine" x="42" type="atomic" dynamics="metaManagerDyn" height="30">
+<model width="100" observables="obs" name="ExBohachevskyMM" y="33" conditions="cond,simulation_engine" type="atomic" height="30" dynamics="metaManagerDyn" x="42">
 </model>
 </submodels>
 <connections>
@@ -11,9 +11,9 @@
 </model>
 </structures>
  <dynamics>
-<dynamic package="vle.recursive" name="metaManagerDyn" library="MetaManagerDyn"/>
+<dynamic name="metaManagerDyn" library="MetaManagerDyn" package="vle.recursive"/>
 </dynamics>
- <experiment name="ExBohachevskyMM_mvle" combination="linear">
+ <experiment combination="linear" name="ExBohachevskyMM_mvle">
 <conditions>
 <condition name="cond">
  <port name="config_parallel_type">
@@ -81,7 +81,7 @@
 </conditions>
 <views>
 <outputs>
-<output format="local" package="vle.output" name="view" location="" plugin="file"/>
+<output location="" name="view" format="local" plugin="file" package="vle.output"/>
 
 </outputs>
 <observables>
@@ -107,7 +107,7 @@
 </observable>
 
 </observables>
-<view output="view" name="view" timestep="1.000000000000000" type="timed"/>
+<view name="view" type="timed" output="view" timestep="1.000000000000000"/>
 
 </views>
 </experiment>
