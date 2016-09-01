@@ -1,7 +1,0 @@
-Changes from previous versions
-==============================
-
-Initial version 0.1.0
----------------------
-
-- initial packaging.
