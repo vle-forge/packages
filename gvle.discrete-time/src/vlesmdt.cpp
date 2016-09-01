@@ -135,7 +135,7 @@ vleDomSmDT::getNodeFromXQuery(const QString& query,
         (curr == "condition") or
         (curr == "in") or
         (curr == "out")) {
-        return getNodeFromXQuery(rest, obtainChild(d, curr, true));
+        return getNodeFromXQuery(rest, obtainChild(*mDoc, d, curr, true));
     }
     //handle recursion with nodes identified by name
     std::vector<QString> nodeByNames;
@@ -347,14 +347,14 @@ vleSmDT::setInitialDefValue(const QString& varName,
     QDomNodeList initList = var.toElement().elementsByTagName("initial_value");
     if (initList.length() == 0) {
         QDomNode child = mDocSm->createElement(tagName);
-        vleVpz::fillWithValue(*mDocSm, mVdoSm, child, val);
+        vleVpz::fillWithValue(*mDocSm, child, val);
         nodeValue.appendChild(child);
         var.appendChild(nodeValue);
     } else {
         QDomNode init_value = initList.at(0);
-        vleVpz::removeAllChilds(init_value);
+        vleDomObject::removeAllChilds(init_value);
         QDomNode child = mDocSm->createElement(tagName);
-        vleVpz::fillWithValue(*mDocSm, mVdoSm, child, val);
+        vleVpz::fillWithValue(*mDocSm, child, val);
         init_value.appendChild(child);
     }
 
@@ -412,9 +412,9 @@ vleSmDT::setInitialCondValue(const QString& varName,
         port = nodeCondPort("init_value_" + varName);
     }
 
-    vleVpz::removeAllChilds(port);
+    vleDomObject::removeAllChilds(port);
     QDomElement vale = mDocSm->createElement(tagName);
-    vleVpz::fillWithValue(*mDocSm, mVdoSm, vale, val);
+    vleVpz::fillWithValue(*mDocSm, vale, val);
     port.appendChild(vale);
 
      if (snap) {
@@ -450,9 +450,9 @@ vleSmDT::setTimeStep(vv::Double& val)
         port = nodeCondPort("time_step");
     }
 
-    vleVpz::removeAllChilds(port);
+    vleDomObject::removeAllChilds(port);
     QDomElement vale = mDocSm->createElement("double");
-    vleVpz::fillWithValue(*mDocSm, mVdoSm, vale, val);
+    vleVpz::fillWithValue(*mDocSm, vale, val);
     port.appendChild(vale);
 
     emit modified();
@@ -472,7 +472,7 @@ vleSmDT::getTimeStep()
         return 0;
     }
     QDomNode init_value = port.firstChildElement();
-    return vleVpz::buildValue(mVdoSm, init_value, false)->toDouble().value();
+    return vleVpz::buildValue(init_value, false)->toDouble().value();
 }
 
 void
@@ -549,7 +549,7 @@ vleSmDT::setHistorySizeAndValue(const QString& varName,
     }
 
     setHistorySize(varName, histValue, false);
-    vv::Value* val = getInitialValue(varName);
+    std::unique_ptr<vv::Value> val = getInitialValue(varName);
 
     int historySize =  getHistorySize(varName)->toInteger().value();
     int dim =  getDim(varName)->toInteger().value();
@@ -645,7 +645,7 @@ vleSmDT::setDimAndValue(const QString& varName,
     }
 
     setDim(varName, dimValue, false);
-    vv::Value* val = getInitialValue(varName);
+    std::unique_ptr<vv::Value> val = getInitialValue(varName);
 
     int historySize =  getHistorySize(varName)->toInteger().value();
     int dim =  getDim(varName)->toInteger().value();
@@ -703,7 +703,7 @@ vleSmDT::Parametrable(const QString& variableName,
                       const bool parametrable,
 		      const bool snap)
 {
-    vv::Value* val = vleSmDT::getInitialValue(variableName);
+    std::unique_ptr<vv::Value> val = vleSmDT::getInitialValue(variableName);
 
     if ((getDim(variableName))->toInteger().value() > 1 or
         (getHistorySize(variableName))->toInteger().value() > 1) {
@@ -720,7 +720,7 @@ vleSmDT::Parametrable(const QString& variableName,
         QDomNodeList initList = var.toElement().elementsByTagName("initial_value");
         if (not initList.length() == 0) {
             QDomNode init_value = initList.at(0);
-            vleVpz::removeAllChilds(init_value);
+            vleDomVpz::removeAllChilds(init_value);
         }
         setInitialCondValue(variableName, *val, false);
     } else {
@@ -757,10 +757,10 @@ vleSmDT::setPortCondTupleValue(const QString& portName,
         return;
     }
 
-    vleVpz::removeAllChilds(port);
+    vleDomVpz::removeAllChilds(port);
 
     QDomElement tple = mDocSm->createElement("tuple");
-    vleVpz::fillWithValue(*mDocSm, mVdoSm, tple, val);
+    vleVpz::fillWithValue(*mDocSm, tple, val);
 
     port.appendChild(tple);
 
@@ -776,7 +776,7 @@ vleSmDT::setPortCondDoubleValue(const QString& portName,
         return;
     }
 
-    vleVpz::removeAllChilds(port);
+    vleDomObject::removeAllChilds(port);
 
     QDomElement dble = mDocSm->createElement("double");
     dble.appendChild(mDocSm->createTextNode(
@@ -795,7 +795,7 @@ vleSmDT::setPortCondIntegerValue(const QString& portName,
         return;
     }
 
-    vleVpz::removeAllChilds(port);
+    vleDomObject::removeAllChilds(port);
 
     QDomElement dble = mDocSm->createElement("integer");
     dble.appendChild(mDocSm->createTextNode(
@@ -822,27 +822,27 @@ vleSmDT::setPortCondBoolValue(const QString& portName,
     emit modified();
 }
 
-vv::Value*
+std::unique_ptr<value::Value>
 vleSmDT::getInitialValue(const QString& varName)
 {
     if (isParametrable(varName)){
         QDomNode port = nodeCondPort("init_value_" + varName);
         if (port.isNull()) {
-            return 0;
+            return std::unique_ptr<value::Value>();
         }
         QDomNode init_value = port.firstChildElement();
-        return vleVpz::buildValue(mVdoSm, init_value, false);
+        return std::move(vleVpz::buildValue(init_value, false));
     } else {
         QDomNode var = nodeVariable(varName);
         if (var.isNull()) {
-            return 0;
+            return std::unique_ptr<value::Value>();
         }
         QDomNodeList initList = var.toElement().elementsByTagName("initial_value");
         if (initList.length() == 0) {
-            return 0;
+            return std::unique_ptr<value::Value>();
         }
         QDomNode init_value = initList.at(0).firstChildElement();
-        return vleVpz::buildValue(mVdoSm, init_value, false);
+        return std::move(vleVpz::buildValue(init_value, false));
     }
 }
 
@@ -1681,13 +1681,12 @@ vleSmDT::getData()
     for (int i = 0; i < variablesXml.length(); i++) {
         QDomNode variable = variablesXml.item(i);
         QString varName = variable.attributes().namedItem("name").nodeValue();
-        vv::Value* val = getInitialValue(varName);
+        std::unique_ptr<vv::Value> val = getInitialValue(varName);
         if (val) {
             if (not isParametrable(varName)) {
                 vleTpl.listSymbol().append("init_value_var", varName.toStdString());
                 vleTpl.listSymbol().append("init_value_val", val->writeToString());
             }
-            delete val;
         }
 
         if ((getDim(varName))->toInteger().value() == 1) {

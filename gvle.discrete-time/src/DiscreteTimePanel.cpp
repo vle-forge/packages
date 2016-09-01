@@ -668,7 +668,8 @@ DiscreteTimePanel::updateConfigVar()
     }
     right->ui->varLabel->setText(lab);
 
-    vv::Value* val = cppMetadata->getInitialValue(mCurrVar);
+    std::unique_ptr<vv::Value> val = std::move(
+            cppMetadata->getInitialValue(mCurrVar));
 
     // even if we only expect one widget to be there..
     for (int i = 0; i < right->ui->vlInitialValue->count(); i++) {
@@ -698,7 +699,7 @@ DiscreteTimePanel::updateConfigVar()
                              this, SLOT(onValUpdated(const vle::value::Value&)));
 
             right->ui->vlInitialValue->addWidget(valWidget);
-            valWidget->setValue(val);
+            valWidget->setValue(std::move(val));
             valWidget->show();
         }
     }

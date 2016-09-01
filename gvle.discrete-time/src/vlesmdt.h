@@ -199,7 +199,7 @@ public:
 			      const vv::Value& val);
     void setPortCondTupleValue(const QString& portName,
                                const vv::Value& val);
-    vv::Value* getInitialValue(const QString& variableName);
+    std::unique_ptr<value::Value> getInitialValue(const QString& variableName);
     vv::Value* getHistorySize(const QString& variableName);
     vv::Value* getDim(const QString& variableName);
     vv::Value* getSync(const QString& variableName);
