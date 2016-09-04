@@ -60,8 +60,8 @@ DiscreteTimePanel::DiscreteTimePanel():
 
 DiscreteTimePanel::~DiscreteTimePanel()
 {
-    delete left->ui;
-    delete right->ui;
+    delete left;
+    delete right;
 }
 
 QString
@@ -98,8 +98,9 @@ DiscreteTimePanel::init(const gvle_file& gf, utils::Package* pkg, Logger* ,
 {
 
     cppMetadata = new vleSmDT(gf.source_file, gf.metadata_file, getname());
-    cppMetadata->setPackageToDoc(pkg->name().c_str());
-    cppMetadata->setClassNameToDoc(gf.baseName());
+
+    cppMetadata->setPackageToDoc(pkg->name().c_str(), false);
+    cppMetadata->setClassNameToDoc(gf.baseName(), false);
     cppMetadata->save();
 
     getComputeWidget()->setText(cppMetadata->getComputeBody());
@@ -149,6 +150,7 @@ DiscreteTimePanel::init(const gvle_file& gf, utils::Package* pkg, Logger* ,
                      this, SLOT(onModified()));
 
     reload();
+
 
 }
 
@@ -240,140 +242,120 @@ DiscreteTimePanel::reload()
         QDomNode variable = variablesXml.item(i);
         QString name = variable.attributes().namedItem("name").nodeValue();
         right->ui->tableVars->insertRow(i);
-        insertTextEdit(i, 0, name);
-        insertSpinBoxDim(i, 1, (cppMetadata->getDim(name))->toInteger().value());
-        insertSpinBoxHistory(i, 2, (cppMetadata->getHistorySize(name))->toInteger().value());
-        insertSpinBoxSync(i, 3, (cppMetadata->getSync(name))->toInteger().value());
-        insertBooleanIn(i, 4, cppMetadata->hasInFromDoc(name));
-        insertBooleanOut(i, 5, cppMetadata->hasOutFromDoc(name));
-        insertBooleanObs(i, 6, cppMetadata->hasObsFromDoc(name));
-        insertBooleanParam(i, 7, cppMetadata->isParametrable(name));
+        insertRowVar(i, name);
     }
 
     updateConfigVar();
 }
 
 void
-DiscreteTimePanel::insertTextEdit(int row, int col, const QString& val)
-{
-    QString id = QString("%1,%2").arg(row).arg(col);
-    VleTextEdit* w = new VleTextEdit(right->ui->tableVars, val, id, true);
-    right->ui->tableVars->setCellWidget(row, col, w);
-    right->ui->tableVars->setItem(row, col, new QTableWidgetItem);//used to find it
-    QObject::connect(w, SIGNAL(
-            textUpdated(const QString&, const QString&, const QString&)),
-            this, SLOT(
-            onTextUpdated(const QString&, const QString&, const QString&)));
-    QObject::connect(w, SIGNAL(selected(const QString&)),
-            this, SLOT(onSelected(const QString&)));
-}
-
-void
-DiscreteTimePanel::insertBooleanIn(int row, int col, bool val)
+DiscreteTimePanel::insertRowVar(int row, const QString& name)
 {
 
-    QString id = QString("%1,%2").arg(row).arg(col);
-    VleBooleanEdit* w = new VleBooleanEdit(right->ui->tableVars, val, id);
+    bool isVect = cppMetadata->isVect(name);
+    int dim = cppMetadata->getDim(name);
+    QString type = cppMetadata->getType(name);
+    int sync = cppMetadata->getSync(name);
+    int historySize = cppMetadata->getHistorySize(name);
+    bool obs = cppMetadata->isObs(name);
+    int col = 0;
 
-    right->ui->tableVars->setCellWidget(row, col, w);
-    right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
+    //insert Name
+    {
+        col = 0;
+        QString id = QString("%1,%2").arg(row).arg(col);
+        VleTextEdit* w = new VleTextEdit(right->ui->tableVars, name, id, true);
+        right->ui->tableVars->setCellWidget(row, col, w);
+        right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
+        QObject::connect(w, SIGNAL(
+                textUpdated(const QString&, const QString&, const QString&)),
+                this, SLOT(
+                onTextUpdated(const QString&, const QString&, const QString&)));
+        QObject::connect(w, SIGNAL(selected(const QString&)),
+                this, SLOT(onSelected(const QString&)));
+    }
+    //insert dim
+    {
+        col = 1;
+        QString id = QString("%1,%2").arg(row).arg(col);
+        VleSpinBox* w = new VleSpinBox(right->ui->tableVars, dim, id, 1);
+        QObject::connect(w, SIGNAL(selected(const QString&)),
+                            this, SLOT(onSelected(const QString&)));
+        if (isVect) {
+            QObject::connect(w, SIGNAL(valUpdated(const QString&, int)),
+                    this, SLOT(onDimUpdated(const QString&, int)));
+        } else {
+            w->setReadOnly(true);
+        }
+        right->ui->tableVars->setCellWidget(row, col, w);
+        right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
 
-    QObject::connect(w, SIGNAL(valUpdated(const QString&, bool)),
-            this, SLOT(onIn(const QString&, bool)));
-    QObject::connect(w, SIGNAL(selected(const QString&)),
-            this, SLOT(onSelected(const QString&)));
-}
+    }
+    //insert type (In or Out or In/Out)
+    {
+        col = 2;
+        QString id = QString("%1,%2").arg(row).arg(col);
+        VleCombo* w = new VleCombo(right->ui->tableVars, id);
+        QList <QString> l;
+        l.append("In");
+        l.append("Out");
+        l.append("In/Out");
+        w->addItems(l);
+        w->setCurrentIndex(w->findText(type));
+        QObject::connect(w, SIGNAL(valUpdated(const QString&, const QString&)),
+                this, SLOT(onTypeUpdated(const QString&, const QString&)));
+        QObject::connect(w, SIGNAL(selected(const QString&)),
+                this, SLOT(onSelected(const QString&)));
+        right->ui->tableVars->setCellWidget(row, col, w);
+        right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
+    }
+    //insert Sync
+    {
+        col = 3;
+        QString id = QString("%1,%2").arg(row).arg(col);
+        VleSpinBox* w = new VleSpinBox(right->ui->tableVars, sync,
+                                       id, 0);
+        QObject::connect(w, SIGNAL(selected(const QString&)),
+                                 this, SLOT(onSelected(const QString&)));
+        if (type == "Out") {
+            w->setReadOnly(true);
+        } else {
+            QObject::connect(w, SIGNAL(valUpdated(const QString&, int)),
+                             this, SLOT(onSyncUpdated(const QString&, int)));
+        }
+        right->ui->tableVars->setCellWidget(row, col, w);
+        right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
+    }
+    //insert history size
+    {
+        col = 4;
+        QString id = QString("%1,%2").arg(row).arg(col);
+        VleSpinBox* w = new VleSpinBox(right->ui->tableVars, historySize,
+                id, 1);
 
-void
-DiscreteTimePanel::insertBooleanOut(int row, int col, bool val)
-{
-    QString id = QString("%1,%2").arg(row).arg(col);
-    VleBooleanEdit* w = new VleBooleanEdit(right->ui->tableVars, val, id);
+        right->ui->tableVars->setCellWidget(row, col, w);
+        right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
 
-    right->ui->tableVars->setCellWidget(row, col, w);
-    right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
+        QObject::connect(w, SIGNAL(valUpdated(const QString&, int)),
+                this, SLOT(onHistoryUpdated(const QString&, int)));
+        QObject::connect(w, SIGNAL(selected(const QString&)),
+                this, SLOT(onSelected(const QString&)));
+    }
+    //insert obs check box
+    {
+        col = 5;
+        QString id = QString("%1,%2").arg(row).arg(col);
+        VleBooleanEdit* w = new VleBooleanEdit(right->ui->tableVars, obs, id);
 
-    QObject::connect(w, SIGNAL(valUpdated(const QString&, bool)),
-            this, SLOT(onOut(const QString&, bool)));
-    QObject::connect(w, SIGNAL(selected(const QString&)),
-            this, SLOT(onSelected(const QString&)));
-}
+        right->ui->tableVars->setCellWidget(row, col, w);
+        right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
 
-void
-DiscreteTimePanel::insertBooleanObs(int row, int col, bool val)
-{
-    QString id = QString("%1,%2").arg(row).arg(col);
-    VleBooleanEdit* w = new VleBooleanEdit(right->ui->tableVars, val, id);
+        QObject::connect(w, SIGNAL(valUpdated(const QString&, bool)),
+                this, SLOT(onObs(const QString&, bool)));
+        QObject::connect(w, SIGNAL(selected(const QString&)),
+                this, SLOT(onSelected(const QString&)));
 
-    right->ui->tableVars->setCellWidget(row, col, w);
-    right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
-
-    QObject::connect(w, SIGNAL(valUpdated(const QString&, bool)),
-            this, SLOT(onObs(const QString&, bool)));
-    QObject::connect(w, SIGNAL(selected(const QString&)),
-            this, SLOT(onSelected(const QString&)));
-}
-
-void
-DiscreteTimePanel::insertBooleanParam(int row, int col, bool val)
-{
-    QString id = QString("%1,%2").arg(row).arg(col);
-    VleBooleanEdit* w = new VleBooleanEdit(right->ui->tableVars, val, id);
-
-    right->ui->tableVars->setCellWidget(row, col, w);
-    right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
-
-    QObject::connect(w, SIGNAL(valUpdated(const QString&, bool)),
-            this, SLOT(onParam(const QString&, bool)));
-    QObject::connect(w, SIGNAL(selected(const QString&)),
-            this, SLOT(onSelected(const QString&)));
-}
-
-void
-DiscreteTimePanel::insertSpinBoxHistory(int row, int col, int val)
-{
-    QString id = QString("%1,%2").arg(row).arg(col);
-    VleSpinBox* w = new VleSpinBox(right->ui->tableVars, val,
-                                   id, 0);
-
-    right->ui->tableVars->setCellWidget(row, col, w);
-    right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
-
-    QObject::connect(w, SIGNAL(valUpdated(const QString&, int)),
-                     this, SLOT(onHistoryUpdated(const QString&, int)));
-    QObject::connect(w, SIGNAL(selected(const QString&)),
-                     this, SLOT(onSelected(const QString&)));
-}
-
-void
-DiscreteTimePanel::insertSpinBoxDim(int row, int col, int val)
-{
-    QString id = QString("%1,%2").arg(row).arg(col);
-    VleSpinBox* w = new VleSpinBox(right->ui->tableVars, val,
-                                   id, 1);
-
-    right->ui->tableVars->setCellWidget(row, col, w);
-    right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
-
-    QObject::connect(w, SIGNAL(valUpdated(const QString&, int)),
-                     this, SLOT(onDimUpdated(const QString&, int)));
-    QObject::connect(w, SIGNAL(selected(const QString&)),
-                     this, SLOT(onSelected(const QString&)));
-}
-void
-DiscreteTimePanel::insertSpinBoxSync(int row, int col, int val)
-{
-    QString id = QString("%1,%2").arg(row).arg(col);
-    VleSpinBox* w = new VleSpinBox(right->ui->tableVars, val,
-                                   id, 0);
-
-    right->ui->tableVars->setCellWidget(row, col, w);
-    right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
-
-    QObject::connect(w, SIGNAL(valUpdated(const QString&, int)),
-                     this, SLOT(onSyncUpdated(const QString&, int)));
-    QObject::connect(w, SIGNAL(selected(const QString&)),
-                     this, SLOT(onSelected(const QString&)));
+    }
 }
 
 VleTextEdit*
@@ -460,32 +442,68 @@ DiscreteTimePanel::onTableVarsMenu(const QPoint& pos)
 {
     QPoint globalPos = right->ui->tableVars->viewport()->mapToGlobal(pos);
     QModelIndex index = right->ui->tableVars->indexAt(pos);
-    VleTextEdit* item = (VleTextEdit*)right->ui->tableVars->cellWidget(index.row(), index.column());
+
+
+    QString varName = "";
+    bool hasInitialValue = false;
+    if (index.row() >= 0 ){
+        VleTextEdit* item = (VleTextEdit*)right->ui->tableVars->cellWidget(
+                index.row(), 0);
+        varName = item->getCurrentText();
+        hasInitialValue = cppMetadata->hasInitialValue(varName);
+    }
 
     QAction* action;
     QMenu menu;
     action = menu.addAction("Add variable");
     action->setData(1);
-    action = menu.addAction("Remove");
+    action = menu.addAction("Add vector");
     action->setData(2);
-    action->setEnabled(item != 0);
+    action = menu.addAction("Remove");
+    action->setData(3);
+    action->setEnabled(varName != "");
+    menu.addSeparator();
+    action = menu.addAction("Set initial value");
+    action->setData(4);
+    action->setEnabled(varName != "" and not hasInitialValue);
+    action = menu.addAction("Unset initial value");
+    action->setData(5);
+    action->setEnabled(varName != "" and hasInitialValue);
 
     QAction* selAction = menu.exec(globalPos);
     if (selAction) {
         int actCode =  selAction->data().toInt();
         switch(actCode) {
         case 1: //Add variable
-            cppMetadata->addVariableToDoc(cppMetadata->newVarNameToDoc());
+            cppMetadata->addVariableToDoc(cppMetadata->newVarNameToDoc(), false);
+            mCurrVar = varName;
             reload();
             emit undoAvailable(true);
             break;
-        case 2: //Remove
-            cppMetadata->rmVariableToDoc(item->getSavedText());
+        case 2: //Add vector
+            cppMetadata->addVariableToDoc(cppMetadata->newVarNameToDoc(), true);
+            mCurrVar = varName;
+            reload();
+            emit undoAvailable(true);
+            break;
+        case 3: //Remove
+            cppMetadata->rmVariableToDoc(varName);
             mCurrVar = "";
             reload();
             emit undoAvailable(true);
             break;
-
+        case 4: //Set initial value
+            cppMetadata->setInitialDefaultValue(varName);
+            mCurrVar = varName;
+            reload();
+            emit undoAvailable(true);
+            break;
+        case 5: //Unset initial value
+            cppMetadata->unsetInitialValue(varName);
+            mCurrVar = varName;
+            reload();
+            emit undoAvailable(true);
+            break;
         }
     }
 }
@@ -529,14 +547,14 @@ DiscreteTimePanel::onSelected(const QString& id)
 }
 
 void
-DiscreteTimePanel::onInitialValue(const QString& /*id*/, double val)
+DiscreteTimePanel::onTypeUpdated(const QString& id, const QString& val)
 {
-    if (mCurrVar == "") {
-        return;
-    }
-    cppMetadata->setInitialValue(mCurrVar,vv::Double(val));
+    QStringList split = id.split(",");
+    int row = split.at(0).toInt();
+    mCurrVar =  getTextEdit(row, 0)->getCurrentText();
+    cppMetadata->setType(mCurrVar, val);
+    reload();
 }
-
 
 void
 DiscreteTimePanel::onTextUpdated(const QString& /*id*/,
@@ -548,43 +566,6 @@ DiscreteTimePanel::onTextUpdated(const QString& /*id*/,
     }
     mCurrVar =  "";
     reload(); //to manage the case when new name already used
-}
-
-
-void
-DiscreteTimePanel::onIn(const QString& /*id*/, bool val)
-{
-    if (mCurrVar == "") {
-        return;
-    }
-    if (val) {
-        cppMetadata->addInToDoc(mCurrVar);
-    } else {
-        cppMetadata->rmInToDoc(mCurrVar);
-    }
-}
-
-void
-DiscreteTimePanel::onOut(const QString& /*id*/, bool val)
-{
-    if (mCurrVar == "") {
-        return;
-    }
-    if (val) {
-        cppMetadata->addOutToDoc(mCurrVar);
-    } else {
-        cppMetadata->rmOutToDoc(mCurrVar);
-    }
-}
-
-void
-DiscreteTimePanel::onParam(const QString& /*id*/, bool val)
-{
-    if (mCurrVar == "") {
-        return;
-    }
-    cppMetadata->Parametrable(mCurrVar, val, true);
-    reload(); //only to "disable" the checkbox when not appropriate
 }
 
 void
@@ -619,9 +600,7 @@ DiscreteTimePanel::onHistoryUpdated(const QString& id, int value)
     if (mCurrVar == "") {
         return;
     }
-
-    cppMetadata->setHistorySizeAndValue(mCurrVar, vv::Integer(value));
-
+    cppMetadata->setHistorySize(mCurrVar, value);
     reload();
 }
 
@@ -635,7 +614,7 @@ DiscreteTimePanel::onDimUpdated(const QString& id, int value)
         return;
     }
 
-    cppMetadata->setDimAndValue(mCurrVar, vv::Integer(value));
+    cppMetadata->setDim(mCurrVar, value);
 
     reload();
 }
@@ -649,61 +628,35 @@ DiscreteTimePanel::onSyncUpdated(const QString& id, int value)
     if (mCurrVar == "") {
         return;
     }
-    cppMetadata->setSync(mCurrVar,vv::Integer(value));
+    cppMetadata->setSync(mCurrVar,value);
 }
 
 void
 DiscreteTimePanel::updateConfigVar()
 {
-    if (mCurrVar == "") {
-        right->ui->varLabel->setText("");
-        return;
-    }
-
-    QString lab;
-    if (not cppMetadata->isParametrable(mCurrVar)) {
-        lab = mCurrVar + " fixed initial conditions";
-    } else {
-        lab = mCurrVar + " default initial conditions";
-    }
-    right->ui->varLabel->setText(lab);
-
-    std::unique_ptr<vv::Value> val = std::move(
-            cppMetadata->getInitialValue(mCurrVar));
-
     // even if we only expect one widget to be there..
     for (int i = 0; i < right->ui->vlInitialValue->count(); i++) {
         QWidget* currwid = right->ui->vlInitialValue->itemAt(i)->widget();
         right->ui->vlInitialValue->removeWidget(currwid);
         delete currwid;
     }
+    if (mCurrVar == "") {
+        return;
+    }
+    QString lab = mCurrVar + " default initial conditions";
+    std::unique_ptr<vv::Value> val = std::move(
+            cppMetadata->getInitialValue(mCurrVar));
 
     if (val) {
-        if (val->isDouble()) {
-            VleDoubleEdit* vde = new VleDoubleEdit(right, 0., "dummy");
-            QObject::connect(vde, SIGNAL(valUpdated(const QString&, double)),
-                             this, SLOT(onInitialValue(const QString&, double)));
-            right->ui->vlInitialValue->addWidget(vde);
+        VleValueWidget* valWidget = new VleValueWidget(right, true, lab);
+        QObject::connect(valWidget,
+                SIGNAL(valUpdated(const vle::value::Value&)),
+                this, SLOT(onValUpdated(const vle::value::Value&)));
 
-            vde->show();
-
-            if (val) {
-                vde->setValue(val->toDouble().value());
-            } else {
-                vde->setValue(0.0);
-            }
-        } else {
-            VleValueWidget* valWidget = new VleValueWidget(right, true);
-            QObject::connect(valWidget,
-                             SIGNAL(valUpdated(const vle::value::Value&)),
-                             this, SLOT(onValUpdated(const vle::value::Value&)));
-
-            right->ui->vlInitialValue->addWidget(valWidget);
-            valWidget->setValue(std::move(val));
-            valWidget->show();
-        }
+        right->ui->vlInitialValue->addWidget(valWidget);
+        valWidget->setValue(std::move(val));
+        valWidget->show();
     }
-
 }
 
 }} //namespaces

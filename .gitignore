@@ -55,3 +55,4 @@ vle.output/cmake/doxygen-sources.conf.in.bak
 vle.output/doc/html/
 vle.output/plugins/
 GNUmakefile
+/Debug/

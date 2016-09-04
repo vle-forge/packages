@@ -63,6 +63,8 @@ class vleSmDT : public QObject
 public:
     vleSmDT(const QString& srcpath, const QString& smpath,
             QString pluginName);
+
+
     QString getSrcPath() const
     {return mFileNameSrc;};
     QString getSmPath() const
@@ -71,47 +73,68 @@ public:
     {mFileNameSrc = name;};
     void setSmPath(const QString& name)
     {mFileNameSm = name;};
-    QString toQString(const QDomNode& node) const;
     void xCreateDom();
     void xReadDom();
     QString getSrcPlugin();
+    void clearSnapStack();
      /**
      * @brief add a simple variable without history to the model
      * @param variableName is the name of the variable
+     * @param vect, if true, add a vector
      * @note if the variable already exist, nothing is done
      * By default all the ports are provided to the conditions
      * And by default the is initial value is 0.0 and is not hardcode
      */
-    void addVariableToDoc(const QString& variableName);
-     /**
-     * @brief set the initial value in the definition element
-     * @param variableName is the name of the variable
-     * @param val the value can be a double or a tuple
-     * @param snap to manage if a snapshot is expected ore not
-     */
-    void setInitialDefValue(const QString& variableName,
-			    const vv::Value& val,
-			    const bool snap = true);
+    void addVariableToDoc(const QString& variableName, bool vect);
     /**
-     * @brief set the initial value in the configuration element
-     * @param variableName is the name of the variable
-     * @param val the value can be a double or a tuple
-     * @param snap to manage if a snapshot is expected ore not
+     * @brief Tells is a variable is defined as a vector
+     * @param varName is the name of the variable
+     * @return true if varName is defined as a vector
      */
-    void setInitialCondValue(const QString& variableName,
-			     const vv::Value& val,
-			     const bool snap = true);
+    bool isVect(const QString& varName) const;
+    /**
+     * @brief Tells is a variable is declared as input port
+     * @param varName is the name of the variable
+     * @return true if varName is declared as input port
+     */
+    bool isIn(const QString& varName) const;
+    /**
+     * @brief Tells is a variable is declared as output port
+     * @param varName is the name of the variable
+     * @return true if varName is declared as output port
+     */
+    bool isOut(const QString& varName) const;
+    /**
+     * @brief get the type: In, Out or In/0ut
+     * @param varName is the name of the variable
+     * @return the string representing the variable type
+     */
+    QString getType(const QString& varName) const;
+    /**
+     * @brief Set the type: In, Out or In/0ut
+     * @param varName is the name of the variable
+     * @param type: In, Out or In/0ut
+     * @param snap, if true, perfoms a snapshot
+     */
+    void setType(const QString& varName, const QString& type, bool snap = true);
+
+    /**
+     * @brief Tells if a variable is observable
+     * @param varName is the name of the variable
+     * @return true if the variable is observable
+     */
+    bool isObs(const QString& varName) const;
+
     /**
      * @brief set the initial value
-     * @param variableName is the name of the variable
+     * @param varName is the name of the variable
      * @param val the value can be a double or a tuple
      * @param snap to manage if a snapshot is expected ore not
      * @nore check whether it should be in the definition or
      * in the configuration
      */
-    void setInitialValue(const QString& variableName,
-			 const vv::Value& val,
-			 const bool snap = true);
+    void setInitialValue(const QString& varName,
+            const vv::Value& val, bool snap = true);
      /**
      * @brief set the time step condition in the configuration element
      * @param val the value of the time step
@@ -133,76 +156,37 @@ public:
     bool hasTimeStep();
      /**
      * @brief set the history size of a variable in the definition element
-     * @param variableName is the name of the variable
-     * @param val the value of the history size
+     * @param varName is the name of the variable
+     * @param hsize the value of the history size
      * @param snap to manage if a snapshot is expected ore not
      */
-    void setHistorySize(const QString& variableName,
-			const vv::Value& val,
-			const bool snap = true);
-     /**
-     * @brief set the history size and update the initial value
-     * @param variableName is the name of the variable
-     * @param histval the value of the history size
-     * @param snap to manage if a snapshot is expected ore not
-     * @note the structure depending of the context can change from double to
-     * tuple and when resizing already existing values are keeped
-     */
-    void setHistorySizeAndValue(const QString& variableName,
-            const vv::Value& histValue,
-            const bool snap = true);
-
+    void setHistorySize(const QString& varName, int hsize,
+            bool snap = true);
     /**
      * @brief set the dimension of a variable in the definition element
      * @param variableName is the name of the variable
-     * @param val the value of the dimension
+     * @param dim , the dimension
      * @param snap to manage if a snapshot is expected ore not
      */
-    void setDim(const QString& variableName,
-            const vv::Value& val,
-            const bool snap = true);
-    /**
-     * @brief set the dimension  and update the initial value
-     * @param variableName is the name of the variable
-     * @param dimvalue the value of the dimension
-     * @param snap to manage if a snapshot is expected ore not
-     * @note the structure depending of the context can change from double to
-     * tuple and when resizing already existing values are keeped
-     */
-    void setDimAndValue(const QString& variableName,
-            const vv::Value& dimValue,
-            const bool snap = true);
-    /**
-     * @brief move the initial value from the definition element
-     * to the configuration or reverse
-     * @param variableName is the name of the variable
-     * @param parametrable if true the init is parametrable,
-     * if not it is harcoded
-     * @param snap to manage if a snapshot is expected ore not
-     */
-    void Parametrable(const QString& variableName,
-            const bool parametrable,
-            const bool snap = true);
+    void setDim(const QString& variableName, int dim, bool snap = true);
+
+
      /**
      * @brief set the sync condition to the configuration
-     * @param variableName is the name of the variable
+     * @param varName is the name of the variable
      * @param val the value of the sync cond
      */
-    void setSync(const QString& variableName,
-		 const vv::Value& val);
+    void setSync(const QString& varName,int val);
 
-    void setPortCondDoubleValue(const QString& variableName,
-				const vv::Value& val);
-    void setPortCondIntegerValue(const QString& variableName,
-				 const vv::Value& val);
-    void setPortCondBoolValue(const QString& variableName,
-			      const vv::Value& val);
-    void setPortCondTupleValue(const QString& portName,
-                               const vv::Value& val);
-    std::unique_ptr<value::Value> getInitialValue(const QString& variableName);
-    vv::Value* getHistorySize(const QString& variableName);
-    vv::Value* getDim(const QString& variableName);
-    vv::Value* getSync(const QString& variableName);
+    bool hasInitialValue(const QString& varName) const;
+    std::unique_ptr<value::Value> getInitialValue(
+            const QString& variableName) const;
+    void setInitialDefaultValue(const QString& varName);
+    void unsetInitialValue(const QString& varName);
+
+    int getHistorySize(const QString& variableName);
+    int getDim(const QString& variableName);
+    int getSync(const QString& variableName);
      /**
      * @brief rename everywhere the name of a avariable
      * @param oldVariableName the previous name
@@ -225,22 +209,11 @@ public:
      * @brief remove a variable and all the related items
      * @param variableName the name of
      */
-    void rmVariableToDoc(const QString& variableName);
-    void addInToDoc(const QString& variableName);
-    void rmInToDoc(const QString& variableName);
-    bool hasInFromDoc(const QString& variableName);
-    void addOutToDoc(const QString& variableName);
-    void rmOutToDoc(const QString& variableName);
-    bool hasOutFromDoc(const QString& variableName);
-    void addObsToDoc(const QString& variableName);
-    void rmObsToDoc(const QString& variableName);
-    bool hasObsFromDoc(const QString& variableName);
-    /**
-     * @brief check if a variable is parametrable
-     * @param variableName the name of
-     * @note so far only simple double variable can be hardcoded
-     */
-    bool isParametrable(const QString& variableName);
+    void rmVariableToDoc(const QString& varName);
+
+
+    void addObsToDoc(const QString& varName);
+    void rmObsToDoc(const QString& varName);
 
     void setComputeToDoc(const QString& computeBody);
     QString getComputeBody();
@@ -250,9 +223,9 @@ public:
     QString getIncludesBody();
     void setUserSectionToDoc(const QString& computeBody);
     QString getUserSectionBody();
-    void setClassNameToDoc(const QString& className);
+    void setClassNameToDoc(const QString& className, bool snap=true);
     QString getClassName();
-    void setPackageToDoc(const QString& nm);
+    void setPackageToDoc(const QString& nm, bool snap=true);
     QString getPackage();
 
     QDomNodeList variablesFromDoc();
@@ -274,9 +247,15 @@ public:
     { return *mDocSm; }
 
 private:
-    QDomNode nodeVariable(const QString& varName);
-    QDomNode nodeCondPort(const QString& portName);
+    QDomNode nodeVariables() const;
+    QDomNode nodeVariable(const QString& varName) const;
+    QDomNode nodeCond() const;
+    QDomNode nodeCondPort(const QString& portName) const;
+    QDomNode nodeObs() const;
     QDomNode nodeObsPort(const QString& portName);
+    QDomNode nodeIn() const;
+    QDomNode nodeOut() const;
+    QDomNode nodeConfiguration() const;
     QDomNode nodeInPort(const QString& portName);
     QDomNode nodeOutPort(const QString& portName);
 

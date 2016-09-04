@@ -74,14 +74,7 @@ public:
     VleDoubleEdit* getTimeStepWidget();
     QGroupBox* getTimeStepBox();
     void reload();
-    void insertTextEdit(int row, int col, const QString& val);
-    void insertBooleanIn(int row, int col, bool val);
-    void insertBooleanOut(int row, int col, bool val);
-    void insertBooleanObs(int row, int col, bool val);
-    void insertBooleanParam(int row, int col, bool val);
-    void insertSpinBoxDim(int row, int col, int val);
-    void insertSpinBoxHistory(int row, int col, int val);
-    void insertSpinBoxSync(int row, int col, int val);
+    void insertRowVar(int row, const QString& val);
     VleTextEdit* getTextEdit(int row, int col);
 
 public slots:
@@ -106,14 +99,11 @@ public slots:
     void onSetUserSection();
     void onSetIncludes();
     //for right widget
+    void onTypeUpdated(const QString& id, const QString& val);
     void onTextUpdated(const QString& id, const QString& oldname,
 		       const QString& newname);
     void onSelected(const QString&);
-    void onInitialValue(const QString& id, double val);
-    void onIn(const QString& id, bool val);
-    void onOut(const QString& id, bool val);
     void onObs(const QString& id, bool val);
-    void onParam(const QString& id, bool val);
     void onValUpdated(const vle::value::Value& newVal);
     void onHistoryUpdated(const QString& id, int val);
     void onDimUpdated(const QString& id, int val);
