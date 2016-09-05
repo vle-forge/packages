@@ -29,6 +29,7 @@
 #include <vle/extension/decision/Activities.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/Exception.hpp>
+#include <vle/utils/Trace.hpp>
 #include <vle/utils/i18n.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -464,11 +465,23 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
         std::sort(strsUniq.begin(), strsUniq.end());
         it = std::unique (strsUniq.begin(), strsUniq.end());
         strsUniq.resize(std::distance(strsUniq.begin(),it));
+
+        bool notSatisfiable = false;
         for (jt = strsUniq.begin(); jt != strsUniq.end(); jt++) {
             if (count(strs.begin(), strs.end(), *jt) > mKb.getResourceQuantity(*jt)){
-                throw utils::ArgError(fmt(
-   _("Decision: resource syntax error, more ressources wanted than available: '%1%'")) % *jt);
+                if (mKb.resourcesCheck()) {
+                    throw utils::ArgError(fmt(
+            _("Decision: resource syntax error, more ressources wanted than available: '%1%'")) % *jt);
+                } else {
+                    notSatisfiable = true;
+                    TraceAlways(fmt(
+            _("Decision: resource syntax error, more ressources wanted than available: '%1%'")) % *jt);
+                }
             }
+        }
+
+        if (notSatisfiable){
+            continue;
         }
 
         std::vector< std::vector< std::string > > resourceSet;
