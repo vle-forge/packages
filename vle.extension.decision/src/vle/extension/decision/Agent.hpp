@@ -54,6 +54,10 @@ public:
         if (evts.exist("wait")) {
             mWait = evts.getInt("wait");
         }
+
+        if (evts.exist("kbResourcesCheck")) {
+            checkResources(evts.getBoolean("kbResourcesCheck"));
+        }
     }
 
     virtual ~Agent() {}

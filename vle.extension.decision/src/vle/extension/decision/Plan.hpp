@@ -55,7 +55,7 @@ class Plan
 public:
 
     Plan(utils::ContextPtr ctxp, KnowledgeBase& kb)
-        : ctx(ctxp), mKb(kb), mActivities(kb)
+        : ctx(ctxp), mKb(kb), mActivities(ctxp, kb)
     {}
     /**
      * @brief Plan constructor

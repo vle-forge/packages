@@ -35,6 +35,8 @@
 #include <vle/extension/decision/Resources.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/Tools.hpp>
+#include <vle/utils/Context.hpp>
+
 
 namespace vle { namespace extension { namespace decision {
 
@@ -58,8 +60,8 @@ public:
      */
     typedef std::pair < bool, devs::Time > Result;
 
-    Activities(KnowledgeBase& kb)
-        : mKb(kb), mPriorityIncrement(0.)
+    Activities(utils::ContextPtr ctxp, KnowledgeBase& kb)
+        : ctx(ctxp), mKb(kb), mPriorityIncrement(0.)
     {}
 
     /**
@@ -352,6 +354,7 @@ public:
     }
 
 private:
+    utils::ContextPtr ctx;
     KnowledgeBase& mKb;
     double mPriorityIncrement;
 

@@ -116,7 +116,9 @@ namespace vle { namespace extension { namespace decision { namespace ex {
             addResources("Farmer", "Bill");
             addResources("Worker", "Tim");
 
-            A.getParams().addString("resources", "Bob|Bill");
+            //checkResources(true);
+
+            A.getParams().addString("resources", "Bob+Bob|Bob|Bill");
             B.getParams().addString("resources", "Bob|Bill");
             C.getParams().addString("resources", "Tim|Bob|Bill");
 

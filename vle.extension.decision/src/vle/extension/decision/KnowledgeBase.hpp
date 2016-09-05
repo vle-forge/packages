@@ -246,8 +246,25 @@ public:
     typedef std::pair < bool, devs::Time > Result;
 
     KnowledgeBase(utils::ContextPtr ctxp)
-        : mPlan(ctxp, *this), mLibrary(ctxp, *this)
+        : mPlan(ctxp, *this), mLibrary(ctxp, *this), mResourcesCheck(false)
     {}
+
+    /**
+     * @brief if checkRessources is set to true, the simulation will
+     * stop, when a resource constraint needs more than all the
+     * resources defined, elle only a warning will be raised.
+     * @param check
+     */
+
+    void checkResources(bool check)
+    {
+        mResourcesCheck = check;
+    }
+
+    bool resourcesCheck()
+    {
+        return mResourcesCheck;
+    }
 
     /**
      * @brief a resource can be defined by a id(string),
@@ -807,6 +824,7 @@ private:
 
     Library mLibrary; /**< The plan library. It stocks all plans available for
                         this decision knowledge base. */
+    bool mResourcesCheck;
 
     Resources mResources;
     RessTable mRessTable;

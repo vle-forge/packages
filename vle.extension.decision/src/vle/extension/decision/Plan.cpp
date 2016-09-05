@@ -48,7 +48,7 @@ typedef utils::Block::Reals UBR;
 using boost::lexical_cast;
 
 Plan::Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, const std::string& buffer)
-    : ctx(ctxp), mKb(kb), mActivities(kb)
+    : ctx(ctxp), mKb(kb), mActivities(ctxp, kb)
 {
     try {
         std::istringstream in(buffer);
@@ -61,7 +61,7 @@ Plan::Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, const std::string& buffer)
 }
 
 Plan::Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, std::istream& stream)
-    : ctx(ctxp), mKb(kb), mActivities(kb)
+    : ctx(ctxp), mKb(kb), mActivities(ctxp, kb)
 {
     try {
         utils::Parser parser(stream);
