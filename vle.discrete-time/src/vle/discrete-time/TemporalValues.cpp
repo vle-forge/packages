@@ -24,6 +24,7 @@
 
 #include <vle/discrete-time/TemporalValues.hpp>
 #include <vle/value/Tuple.hpp>
+#include <vle/value/Table.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/value/Boolean.hpp>
 #include <vle/value/Integer.hpp>
@@ -58,6 +59,16 @@ VectUpdate::VectUpdate(const vle::devs::Time& t, unsigned int dim,
 VectUpdate::VectUpdate(const vle::devs::Time& t, const vle::value::Tuple& val):
         timeOfUpdate(t), value(val.value()), complete(true)
 {
+}
+
+VectUpdate::VectUpdate(const devs::Time& t, const value::Table& tab,
+        unsigned int col):
+        timeOfUpdate(t), value(), complete(true)
+{
+    value.resize(tab.height());
+    for (unsigned int r=0; r<tab.height(); r++) {
+        value[r]=tab.get(col,r);
+    }
 }
 
 VectUpdate::~VectUpdate()
@@ -195,10 +206,30 @@ VarInterface::initHistoryVar(const std::string& varName,
             if (itVar->init_value->isTuple()) {
                 const vle::value::Tuple& tuple = itVar->init_value->toTuple();
                 itVar->history.push_back(new VectUpdate(t, tuple));
+            } else if (itVar->init_value->isTable()) {
+                const vle::value::Table& tab = itVar->init_value->toTable();
+                if (itVar->history_size_given and
+                        (tab.width() != itVar->history_size)) {
+                    throw utils::ModellingError(utils::format(
+                            "[%s] Error initialization of variable"
+                            " '%s' (history size not eq table height)\n",
+                            tvp->get_model_name().c_str(), varName.c_str()));
+                }
+                if (itVar->dim != tab.height()) {
+                    throw utils::ModellingError(utils::format(
+                            "[%s] Error initialization of variable"
+                            " '%s' (dim not eq table height)\n",
+                            tvp->get_model_name().c_str(), varName.c_str()));
+                }
+                for (unsigned int c=0; c<tab.width(); c++) {
+                    itVar->history.push_front(new VectUpdate(
+                            t-c*tvp->getDelta(), tab, c));
+                }
             } else {
+
                 throw vle::utils::ModellingError(
                         vu::format("[%s] Error initialisation of variable '%s'"
-                                " (expect Tuple)\n",
+                                " (expect Tuple or Table)\n",
                                 tvp->get_model_name().c_str(), varName.c_str()));
             }
         } else {
@@ -389,6 +420,7 @@ VarMulti::getVal(unsigned int i, const vle::devs::Time& t,
                 "to index `%u` of a Vect of size `%u`.",
                 tvp->get_model_name().c_str(), i, dim));
     }
+
     const std::vector<double>& value = getVal(t,delay);
     return value[i];
 }
@@ -863,7 +895,7 @@ Vect::init(TemporalValuesProvider* tvpin, const std::string& varName,
 
     name.assign(varName);
 
-    port.assign("dimension_");
+    port.assign("dim_");
     port += varName;
     itf = initMap.find(port);
     unsigned int dim = 2;//Default

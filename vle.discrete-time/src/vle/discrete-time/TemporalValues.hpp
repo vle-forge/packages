@@ -52,9 +52,10 @@ struct VarUpdate
 
 struct VectUpdate
 {
-    VectUpdate(const vle::devs::Time& t, unsigned int dim);
-    VectUpdate(const vle::devs::Time& t, unsigned int dim, bool complet);
-    VectUpdate(const vle::devs::Time& t, const vle::value::Tuple&);
+    VectUpdate(const devs::Time& t, unsigned int dim);
+    VectUpdate(const devs::Time& t, unsigned int dim, bool complet);
+    VectUpdate(const devs::Time& t, const value::Tuple&);
+    VectUpdate(const devs::Time& t, const value::Table&, unsigned int col);
 
     virtual ~VectUpdate();
 

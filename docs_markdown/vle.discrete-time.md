@@ -147,13 +147,15 @@ Basic settings:
 
 * **time_step** (double, default 1.0) : the time step of the discrete time
   atomic model.
-* **init_value_X** (vle::Value, default vle::Double(0.0)) :
-  the initial value of the internal variable *X*. It also contains
-  the historic values if *history_size_X* > 0 using e.g. vv::Set.
 * **dim_X** (int, default 2) : if *X* is a vector, it defines
-  the dimension of the vector.
+  the dimension of the vector. Used only if *X* is a vector.
 * **history_size_X** (uint, default 1) : it gives the size of the
   history of internal variable *X*.
+* **init_value_X** (vle::Value, default vle::Double(0.0)) :
+  the initial value of the internal variable *X*. It can be a vv::Double for a
+  variable without history, a vv::Tuple for a variable with history or a
+  vv::Table for a vector. Checks are performed with *dim_X* and 
+  *history_size_X*.
 * **syncs** (set of strings, default empty): each variable into this set are
   parameterized with a value of 1 for sync parameter.
 * **sync_X** (uint, default 0): if *sync_X* > 0, the value of
