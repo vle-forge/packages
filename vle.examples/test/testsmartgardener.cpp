@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(test_qss4)
             new vpz::Vpz(pack.getExpFile("smartgardener.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;

@@ -89,7 +89,7 @@ ttconfOutputPlugins(vz::Vpz& vpz)
         configOutput->addInt("inc_rows",10000);
         configOutput->addString("header","top");
         vz::Output& output = itb->second;
-        output.setLocalStream("", "storage", "vle.output");
+        output.setStream("", "storage", "vle.output");
         output.setData(std::move(configOutput));
     }
 }

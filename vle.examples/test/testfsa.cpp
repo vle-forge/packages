@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(test_moore1)
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("moore.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(test_moore2)
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("moore2.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(test_mealy1)
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("mealy.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(test_mealy2)
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("mealy2.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(test_statechart1)
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(test_statechart1)
 //    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart2.vpz")));
 //
 //    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-//    o.setLocalStream("", "storage", "vle.output");
+//    o.setStream("", "storage", "vle.output");
 //
 //
 //    manager::Error error;
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE(test_statechart1)
 //    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart3.vpz")));
 //
 //    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-//    o.setLocalStream("", "storage", "vle.output");
+//    o.setStream("", "storage", "vle.output");
 //
 //
 //    manager::Error error;
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(test_statechart1)
 //    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart4.vpz")));
 //
 //    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-//    o.setLocalStream("", "storage", "vle.output");
+//    o.setStream("", "storage", "vle.output");
 //
 //
 //    manager::Error error;
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE(test_statechart1)
 //    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart5.vpz")));
 //
 //    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-//    o.setLocalStream("", "storage", "vle.output");
+//    o.setStream("", "storage", "vle.output");
 //
 //
 //    manager::Error error;
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE(test_statechart1)
 //    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart6.vpz")));
 //
 //    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-//    o.setLocalStream("", "storage", "vle.output");
+//    o.setStream("", "storage", "vle.output");
 //
 //
 //    manager::Error error;
@@ -513,7 +513,7 @@ BOOST_AUTO_TEST_CASE(test_statechart1)
 //    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("stage.vpz")));
 //
 //    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-//    o.setLocalStream("", "storage", "vle.output");
+//    o.setStream("", "storage", "vle.output");
 //
 //
 //    manager::Error error;
@@ -551,7 +551,7 @@ BOOST_AUTO_TEST_CASE(test_statechart7)
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart7.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -584,7 +584,7 @@ BOOST_AUTO_TEST_CASE(test_statechart7)
 //    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart8.vpz")));
 //
 //    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-//    o.setLocalStream("", "storage", "vle.output");
+//    o.setStream("", "storage", "vle.output");
 //
 //
 //    manager::Error error;
@@ -619,7 +619,7 @@ BOOST_AUTO_TEST_CASE(test_statechart7)
 //    std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart9.vpz")));
 //
 //    vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-//    o.setLocalStream("", "storage", "vle.output");
+//    o.setStream("", "storage", "vle.output");
 //
 //
 //    manager::Error error;
@@ -659,7 +659,7 @@ BOOST_AUTO_TEST_CASE(test_statechart10)
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart10.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -688,7 +688,7 @@ BOOST_AUTO_TEST_CASE(test_statechart11)
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("statechart11.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -742,7 +742,7 @@ BOOST_AUTO_TEST_CASE(test_statechartMultipleSend)
         "statechartMultipleSend.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;

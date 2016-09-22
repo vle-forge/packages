@@ -144,7 +144,7 @@ public:
     {
         vz::Views& vle_views = vpz.project().experiment().views();
         vz::Output& out = vle_views.outputs().get(view);
-        out.setLocalStream("",plugin,"vle.output");
+        out.setStream("",plugin,"vle.output");
 
         //configure output plugins for column names
         if(plugin == "storage"){
@@ -188,7 +188,7 @@ public:
         for (; itb != ite; itb++) {
             const std::string& v = itb->first;
             vz::Output& out = vle_views.outputs().get(v);
-            out.setLocalStream("",plugin,"vle.output");
+            out.setStream("",plugin,"vle.output");
             //configure output plugins for column names
             if(plugin == "storage"){
                 std::unique_ptr<vv::Value> configOutput = vv::Map::create();

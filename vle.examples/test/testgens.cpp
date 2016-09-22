@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE(test_gens)
     /* change the output text to storage output */
     vpz::Output& o(file->project().experiment().views().outputs().get("view1"));
     vpz::Output& o2(file->project().experiment().views().outputs().get("view2"));
-    o.setLocalStream("", "storage", "vle.output");
-    o2.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
+    o2.setStream("", "storage", "vle.output");
 
     /* run the simulation */
 
@@ -124,8 +124,8 @@ BOOST_AUTO_TEST_CASE(test_gens_with_class)
     /* change the output text to storage output */
     vpz::Output& o(file->project().experiment().views().outputs().get("view1"));
     vpz::Output& o2(file->project().experiment().views().outputs().get("view2"));
-    o.setLocalStream("", "storage", "vle.output");
-    o2.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
+    o2.setStream("", "storage", "vle.output");
 
     /* run the simulation */
 
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(test_gens_with_graph)
 
     /* change the output text to storage output */
     vpz::Output& o(file->project().experiment().views().outputs().get("view1"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
     /* run the simulation */
 
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE(test_gens_delete_connection)
 
     /* change the output text to storage output */
     vpz::Output& o(file->project().experiment().views().outputs().get("view1"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
     /* run the simulation */
 

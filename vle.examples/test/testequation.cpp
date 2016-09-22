@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(test_equation1)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation1.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(test_equation2)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation2.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(test_equation3)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation3.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(test_equation4)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation4.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE(test_equation5)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation5.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(test_equation6)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation6.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE(test_equation7)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation7.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE(test_equation8)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation8.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE(test_equation9)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation9.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE(test_equation10)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation10.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE(test_equation11)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation11.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -566,7 +566,7 @@ BOOST_AUTO_TEST_CASE(test_equation12)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation12.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -617,7 +617,7 @@ BOOST_AUTO_TEST_CASE(test_equation13)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation13.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -654,7 +654,7 @@ BOOST_AUTO_TEST_CASE(test_equation14)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation14.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -697,7 +697,7 @@ BOOST_AUTO_TEST_CASE(test_equation15)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("equation15.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -733,7 +733,7 @@ BOOST_AUTO_TEST_CASE(test_asynchronous)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("asynchronous.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -770,7 +770,7 @@ BOOST_AUTO_TEST_CASE(test_earlyPerturb)
     std::unique_ptr<vpz::Vpz> file(
     		new vpz::Vpz(pack.getExpFile("earlyPerturb.vpz")));
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;

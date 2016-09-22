@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
         configOutput->addInt("inc_rows",10000);
         configOutput->addString("header","top");
         vz::Output& output = itb->second;
-        output.setLocalStream("", "storage", "vle.output");
+        output.setStream("", "storage", "vle.output");
         output.setData(std::move(configOutput));
     }
 
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
         configOutput->addInt("inc_rows",10000);
         configOutput->addString("header","top");
         vz::Output& output = itb->second;
-        output.setLocalStream("", "storage", "vle.output");
+        output.setStream("", "storage", "vle.output");
         output.setData(std::move(configOutput));
     }
 
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_Seir)
         configOutput->addInt("inc_rows",10000);
         configOutput->addString("header","top");
         vz::Output& output = itb->second;
-        output.setLocalStream("", "storage", "vle.output");
+        output.setStream("", "storage", "vle.output");
         output.setData(std::move(configOutput));
     }
 
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
         configOutput->addInt("inc_rows",10000);
         configOutput->addString("header","top");
         vz::Output& output = itb->second;
-        output.setLocalStream("", "storage", "vle.output");
+        output.setStream("", "storage", "vle.output");
         output.setData(std::move(configOutput));
     }
 

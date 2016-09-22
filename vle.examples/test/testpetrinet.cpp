@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_and)
             new vpz::Vpz(pack.getExpFile("petrinet-and.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_or)
             new vpz::Vpz(pack.getExpFile("petrinet-or.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_nand1)
             new vpz::Vpz(pack.getExpFile("petrinet-nand1.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_nand2)
             new vpz::Vpz(pack.getExpFile("petrinet-nand2.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_and_timed)
             new vpz::Vpz(pack.getExpFile("petrinet-and-timed.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_or_priority)
             new vpz::Vpz(pack.getExpFile("petrinet-or-priority.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_meteo)
             new vpz::Vpz(pack.getExpFile("petrinet-meteo.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_inout)
             new vpz::Vpz(pack.getExpFile("petrinet-inout.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;
@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE(test_petrinet_conflict)
             new vpz::Vpz(pack.getExpFile("petrinet-conflict.vpz")));
 
     vpz::Output& o(file->project().experiment().views().outputs().get("view"));
-    o.setLocalStream("", "storage", "vle.output");
+    o.setStream("", "storage", "vle.output");
 
 
     manager::Error error;

@@ -103,7 +103,7 @@ void simLogThread::setOutputPath(QString path)
     {
         vle::vpz::Output& output = itb->second;
         if (output.location().empty())
-            output.setLocalStreamLocation(mOutputPath.toStdString());
+            output.setStreamLocation(mOutputPath.toStdString());
     }
 }
 

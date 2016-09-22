@@ -109,7 +109,7 @@ public:
                 //configOutput->addInt("inc_rows",10000);
                 configOutput->addString("header","top");//A voir
                 vz::Output& output = itb->second;
-                output.setLocalStream("", "storage", "vle.output");
+                output.setStream("", "storage", "vle.output");
                 output.setData(std::unique_ptr<value::Value>(configOutput));
             }
         }
