@@ -44,8 +44,6 @@ public:
 
     virtual devs::Time init(devs::Time /* time */) override
     {
-        translator::GraphTranslator tr(*this);
-
         value::Map mp;
         mp.addString("prefix", "node");
         mp.addInt("number", 6);
@@ -60,7 +58,7 @@ public:
         mp.addString("classes", "beepbeep beepbeepbeep beepbeep beepbeepbeep "
                      "beepbeep counter");
 
-        tr.translate(mp);
+        auto ret = vle::translator::make_graph(*this, mp);
 
         return devs::infinity;
     }
