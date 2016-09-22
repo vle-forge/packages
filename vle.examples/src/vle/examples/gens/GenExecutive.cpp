@@ -113,25 +113,26 @@ public:
             coupledmodel().writeXML(out);
             return value::String::create(out.str());
         } else if (ev.onPort("adjacency_matrix")) {
-            std::unique_ptr<value::Set> set(new vle::value::Set());
-            set->add(value::Integer::create(1));
+            auto ret = vle::value::Set::create();
+            auto& set = ret->toSet();
+            set.add(value::Integer::create(1));
             if(get_nb_model() > 0 and ev.getTime() < 50.0){
-                set->add(value::String::create("add"));
+                set.add(value::String::create("add"));
                 std::string name = vle::utils::format("beep_%i",
                         (int) m_stacknames.size());
-                set->add(value::String::create(name));
-                set->add(value::String::create("2"));
+                set.add(value::String::create(name));
+                set.add(value::String::create("2"));
                 std::string edge =  name + std::string(" counter ");
-                set->add(value::String::create(edge));
+                set.add(value::String::create(edge));
             }
             else if(get_nb_model() > 0){
-                set->add(value::String::create("delete"));
+                set.add(value::String::create("delete"));
                 std::string name = vle::utils::format(
                         "beep_%u", get_nb_model());
-                set->add(value::String::create(name));
+                set.add(value::String::create(name));
             }
 
-            return set;
+            return ret;
         } else if (ev.onPort("value"))
             return value::Integer::create(1);
 

@@ -61,7 +61,8 @@ using namespace vle;
 
 BOOST_AUTO_TEST_CASE(test_gens)
 {
-    auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
+    auto ctx = vle::utils::make_context();
+    vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(pack.getExpFile("gens.vpz")));
 
     /* change the output text to storage output */
