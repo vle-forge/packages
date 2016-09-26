@@ -1,4 +1,4 @@
-Package: MyProject
+Package: gvle.discrete-time
 Version: 0.1.0
 Depends:
 Build-Depends:

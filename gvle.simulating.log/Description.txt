@@ -1,4 +1,4 @@
-Package: MyProject
+Package: gvle.simulating.log
 Version: 0.1.0
 Depends: vle.output, vle.extension.celldevs, vle.extension.cellqss, vle.extension.decision, vle.extension.difference-equation, vle.extension.differential-equation, vle.extension.dsdevs, vle.extension.fsa, vle.extension.petrinet
 Build-Depends:
