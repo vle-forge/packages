@@ -1,4 +1,4 @@
-Package: ext.muparser
+Package: ext.lua
 Version: 0.1.0
 Depends: vle (>=1.1)
 Build-Depends:
