@@ -494,15 +494,17 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
             resourceSetIter.push_back(resourceSet[j].begin());
         }
 
-        bool explorationEnd = true;
+        bool explorationEnd = false;
+
         for (uint j = 0; j < strs.size(); j++) {
-            if (not (resourceSetIter[j] ==  resourceSet[j].end())) {
-                explorationEnd = false;
+            if (resourceSetIter[j] == resourceSet[j].end()) {
+                explorationEnd = true;
                 break;
             }
         }
 
         while (not explorationEnd) {
+
             ResourceAvailability localA = mResourceAvailability;
 
             for (uint j=0; j < strs.size(); j++) {
@@ -525,6 +527,7 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
 
             bool solutionFound = true;
             for (uint j = 0; j < strs.size(); j++) {
+
                 if (not (resourceSetIter[j] == resourceSet[j].end()) and
                     solutionFound == true) {
                     solutionFound = true;
@@ -541,11 +544,11 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
                 return solution;
             }
 
-            explorationEnd = true;
+            explorationEnd = false;
 
             for (uint j = 0; j < strs.size(); j++) {
-                if (not (resourceSetIter[j] == resourceSet[j].end())) {
-                    explorationEnd = false;
+                if (resourceSetIter[j] == resourceSet[j].end()) {
+                    explorationEnd = true;
                     break;
                 }
             }
