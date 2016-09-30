@@ -350,6 +350,24 @@ public:
         return mActivitiesResources.equal_range(activityname);
     }
 
+    /**
+     * @brief returns a map of boolean indexed by ressource names
+     */
+    const ResourceAvailability& availableRessources() const
+    {
+        return mResourceAvailability;
+    }
+
+    /**
+     * @brief returns a multimap of resources names indexed by
+     * activity names
+     */
+    const ActivitiesResources& activitiesRessources() const
+    {
+        return mActivitiesResources;
+    }
+
+
 private:
     KnowledgeBase& mKb;
     double mPriorityIncrement;

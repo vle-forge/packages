@@ -34,6 +34,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <iterator>
 #include <vle/vle.hpp>
@@ -190,6 +191,149 @@ namespace vle { namespace extension { namespace decision { namespace ex {
         }
 
     };
+
+    class Resourcetest_5: public vmd::KnowledgeBase
+    {
+    public:
+        Resourcetest_5()
+        {
+            vmd::Activity& A = addActivity("A", 1.0, 10.0);
+            vmd::Activity& B = addActivity("B", 1.0, 10.0);
+            vmd::Activity& C = addActivity("C", 1.0, 10.0);
+            vmd::Activity& D = addActivity("D", 1.0, 10.0);
+
+            for (int i = 1; i<= 13; i++){
+                std::string female = "ff1"+ boost::lexical_cast<std::string>(i) ;
+                addResources("farmA",female);
+                addResources("female",female);
+            }
+
+            for (int i = 1; i<= 13; i++){
+                std::string male = "mf1"+boost::lexical_cast<std::string>(i) ;
+                addResources("farmA",male);
+                addResources("male",male);
+            }
+
+            for (int i = 1; i<= 25; i++){
+                std::string female = "ff2"+boost::lexical_cast<std::string>(i) ;
+                addResources("farmB",female);
+                addResources("female",female);
+            }
+
+            for (int i = 1; i<= 13; i++){
+                std::string male = "mf2"+boost::lexical_cast<std::string>(i) ;
+                addResources("farmB",male);
+                addResources("male",male);
+            }
+
+            addResources("bullock","bf11");
+            addResources("tractor","tf11");
+            addResources("farmA","bf11");
+            addResources("farmA","tf11");
+
+            addResources("bullock","bf21");
+            addResources("tractor","tf21");
+            addResources("farmB","bf21");
+            addResources("farmB","tf21");
+
+            for (int i = 1; i<= 300; i++){
+                std::string female = "fv"+boost::lexical_cast<std::string>(i) ;
+                addResources("farmA",female);
+                addResources("farmB",female);
+                addResources("female",female);
+            }
+
+            for (int i = 1; i<= 300; i++){
+                std::string male = "mv"+boost::lexical_cast<std::string>(i) ;
+                addResources("farmA",male);
+                addResources("farmB",male);
+                addResources("male",male);
+            }
+
+            addResources("tractor","tv1");
+            addResources("tractor","tv2");
+            //addResources("tractor","tv3");
+            addResources("farmA","tv1");
+            addResources("farmA","tv2");
+            addResources("farmA","tv3");
+            addResources("farmB","tv1");
+            addResources("farmB","tv2");
+            addResources("farmB","tv3");
+
+
+            //addResources("tractor","tv4");
+            //addResources("tractor","tv5");
+            //addResources("tractor","tv6");
+             addResources("farmA","tv4");
+             addResources("farmA","tv5");
+             addResources("farmA","tv6");
+             addResources("farmB","tv4");
+             addResources("farmB","tv5");
+             addResources("farmB","tv6");
+
+
+             addResources("bullock","bv1");
+             addResources("bullock","bv2");
+             addResources("bullock","bv3");
+             addResources("bullock","bv4");
+             addResources("bullock","bv5");
+             addResources("bullock","bv6");
+             addResources("bullock","bv7");
+             addResources("bullock","bv8");
+             addResources("bullock","bv9");
+             addResources("bullock","bv10");
+             addResources("bullock","bv11");
+             addResources("bullock","bv12");
+             addResources("bullock","bv13");
+             addResources("bullock","bv14");
+             addResources("bullock","bv15");
+
+             addResources("farmA","bv1");
+             addResources("farmA","bv2");
+             addResources("farmA","bv3");
+             addResources("farmA","bv4");
+             addResources("farmA","bv5");
+             addResources("farmA","bv6");
+             addResources("farmA","bv7");
+             addResources("farmA","bv8");
+             addResources("farmA","bv9");
+             addResources("farmA","bv10");
+             addResources("farmA","bv11");
+             addResources("farmA","bv12");
+             addResources("farmA","bv13");
+             addResources("farmA","bv14");
+             addResources("farmA","bv15");
+
+             addResources("farmB","bv1");
+             addResources("farmB","bv2");
+             addResources("farmB","bv3");
+             addResources("farmB","bv4");
+             addResources("farmB","bv5");
+             addResources("farmB","bv6");
+             addResources("farmB","bv7");
+             addResources("farmB","bv8");
+             addResources("farmB","bv9");
+             addResources("farmB","bv10");
+             addResources("farmB","bv11");
+             addResources("farmB","bv12");
+             addResources("farmB","bv13");
+             addResources("farmB","bv14");
+             addResources("farmB","bv15");
+
+            A.getParams().addString("resources", "male&farmA.8 + tractor&farmA");
+            B.getParams().addString("resources", "male&farmA.12 + tractor&farmA");
+            C.getParams().addString("resources", "male&farmB.15 + tractor&farmB");
+            D.getParams().addString("resources", "male&farmB.19 + tractor&farmB.2");
+
+            A.freeRessources();
+            B.freeRessources();
+            C.freeRessources();
+            D.freeRessources();
+        }
+
+        virtual ~Resourcetest_5() {}
+    };
+
 
 }}}} // namespace vle extension decision ex
 
@@ -382,5 +526,35 @@ BOOST_AUTO_TEST_CASE(resource_4)
             BOOST_REQUIRE_EQUAL(std::distance(pit.first, pit.second), 1);
             BOOST_REQUIRE_EQUAL((*(pit.first)).second, "Tim");
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(resource_5)
+{
+    vmd::ex::Resourcetest_5 base;
+    vmd::Activities::result_t lst;
+
+    base.processChanges(0.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        const vmd::Activity& C =  base.activities().get("C")->second;
+        const vmd::Activity& D =  base.activities().get("D")->second;
+        BOOST_REQUIRE(A.isInWaitState());
+        BOOST_REQUIRE(B.isInWaitState());
+        BOOST_REQUIRE(C.isInWaitState());
+        BOOST_REQUIRE(D.isInWaitState());
+    }
+
+    base.processChanges(1.0);
+    {
+        const vmd::Activity& A =  base.activities().get("A")->second;
+        const vmd::Activity& B =  base.activities().get("B")->second;
+        const vmd::Activity& C =  base.activities().get("C")->second;
+        const vmd::Activity& D =  base.activities().get("D")->second;
+        BOOST_REQUIRE(A.isInWaitState());
+        BOOST_REQUIRE(B.isInStartedState());
+        BOOST_REQUIRE(C.isInStartedState());
+        BOOST_REQUIRE(D.isInStartedState());
     }
 }
