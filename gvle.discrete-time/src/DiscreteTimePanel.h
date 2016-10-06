@@ -93,7 +93,6 @@ public slots:
     void onTimeStepUpdated(const QString& /* id */, double val);
     void onTableVarsMenu(const QPoint&);
     void onModified();
-    void onUndoRedoSm(QDomNode oldValSm, QDomNode newValSm);
     void onSetCompute();
     void onSetConstructor();
     void onSetUserSection();
