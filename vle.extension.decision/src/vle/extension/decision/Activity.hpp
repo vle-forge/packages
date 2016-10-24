@@ -180,7 +180,8 @@ public:
           m_done(devs::negativeInfinity),
           m_hasRessources(true),
           m_priority(devs::negativeInfinity),
-          m_neverfail(false)
+          m_neverfail(false),
+          m_neverfailifpcvalid(false)
 
     {}
 
@@ -195,6 +196,12 @@ public:
 
     void neverFail()
     { m_neverfail = true; }
+
+    bool isNeverFailIfPCValid()
+    { return m_neverfailifpcvalid; }
+
+    void neverFailIfPCValid()
+    { m_neverfailifpcvalid = true; }
 
     void addResources(const ResourcesExtended& res)
     { mResourcesExtended = res; m_hasRessources = false;}
@@ -401,6 +408,7 @@ private:
     double m_priority;
 
     bool m_neverfail;
+    bool m_neverfailifpcvalid;
 };
 
 inline std::ostream& operator<<(

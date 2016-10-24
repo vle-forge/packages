@@ -398,6 +398,8 @@ private:
 
     PrecedenceConstraint::Result updateState(iterator activity,
                                              const devs::Time& time);
+    void stateFromGraph(iterator activity, PrecedenceConstraint::Result& newstate,
+                        const devs::Time& time);
 };
 
 inline std::ostream& operator<<(
