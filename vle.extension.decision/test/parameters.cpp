@@ -246,6 +246,126 @@ const char* Plan3 = \
 "\n"
 "}\n";
 
+const char* Plan4 = \
+"# This file is a part of the VLE environment # http://www.vle-project.org\n"
+"# Copyright (C) 2016 INRA http://www.inra.fr\n"
+"#\n"
+"# This program is free software: you can redistribute it and/or modify\n"
+"# it under the terms of the GNU General Public License as published by\n"
+"# the Free Software Foundation, either version 3 of the License, or\n"
+"# (at your option) any later version.\n"
+"#\n"
+"# This program is distributed in the hope that it will be useful,\n"
+"# but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"# GNU General Public License for more details.\n"
+"#\n"
+"# You should have received a copy of the GNU General Public License\n"
+"# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+"\n"
+"\n"
+"predicates { #Predicates list. \n"
+"	predicate {\n"
+"		id = \"p_P\";\n"
+"		type = \"predUsingPlanTimeStamp\";\n"
+"		parameter {\n"
+"			dayThreshold = 10.0;\n"
+"			planTimeStamp = 0.0;\n"
+"		}\n"
+"	}\n"
+"}\n"
+"\n"
+"rules { # listes des règles.\n"
+"    rule { # définition de la rèle `rule 1'.\n"
+"        id = \"rule 1\";\n"
+"        predicates = \"p_P\"; # sa liste de prédicats.\n"
+"    }\n"
+"}\n"
+"\n"
+"activities {\n"
+"    activity {\n"
+"        id = \"activity1\";\n"
+"        rules = \"rule 1\";\n"
+"        temporal {\n"
+"            minstart = 0;\n"
+"            maxstart = 5;\n"
+"            finish = 100;\n"
+"        }\n"
+"	 parameter {\n"
+"	      neverfailifpcvalid = 1.0;\n"
+"	 }\n"
+"    }\n"
+"}\n"
+"\n"
+"}\n";
+
+const char* Plan5 = \
+"# This file is a part of the VLE environment # http://www.vle-project.org\n"
+"# Copyright (C) 2016 INRA http://www.inra.fr\n"
+"#\n"
+"# This program is free software: you can redistribute it and/or modify\n"
+"# it under the terms of the GNU General Public License as published by\n"
+"# the Free Software Foundation, either version 3 of the License, or\n"
+"# (at your option) any later version.\n"
+"#\n"
+"# This program is distributed in the hope that it will be useful,\n"
+"# but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"# GNU General Public License for more details.\n"
+"#\n"
+"# You should have received a copy of the GNU General Public License\n"
+"# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+"\n"
+"\n"
+"predicates { #Predicates list. \n"
+"	predicate {\n"
+"		id = \"p_P\";\n"
+"		type = \"predUsingPlanTimeStamp\";\n"
+"		parameter {\n"
+"			dayThreshold = 10.0;\n"
+"			planTimeStamp = 0.0;\n"
+"		}\n"
+"	}\n"
+"}\n"
+"\n"
+"rules { # listes des règles.\n"
+"    rule { # définition de la rèle `rule 1'.\n"
+"        id = \"rule 1\";\n"
+"        predicates = \"p_P\"; # sa liste de prédicats.\n"
+"    }\n"
+"}\n"
+"\n"
+"activities {\n"
+"    activity {\n"
+"        id = \"activity0\";\n"
+"        temporal {\n"
+"            start = 6;\n"
+"            finish = 100;\n"
+"        }\n"
+"    }\n"
+"    activity {\n"
+"        id = \"activity1\";\n"
+"        rules = \"rule 1\";\n"
+"        temporal {\n"
+"            minstart = 0;\n"
+"            maxstart = 5;\n"
+"            finish = 100;\n"
+"        }\n"
+"	 parameter {\n"
+"	      neverfailifpcvalid = 1.0;\n"
+"	 }\n"
+"    }\n"
+"}\n"
+"precedences {\n"
+"    precedence {\n"
+"        type = FS;\n"
+"        first = \"activity0\";\n"
+"        second = \"activity1\";\n"
+"    }\n"
+"}\n"
+"\n"
+"}\n";
+
 }}}} // namespace vle ext decision ex
 
 void test_planTimeStamp()
@@ -309,6 +429,78 @@ void test_neverFail()
     }
 }
 
+void test_neverFail2()
+{
+    vle::Init app;
+    {
+        vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+        vmd::ex::KnowledgeBase b(ctxp);
+        b.plan().fill(std::string(vmd::ex::Plan4), 0);
+
+        const vmd::Activity& act1 = b.activities().get("activity1")->second;
+        b.applyFact("today", vle::value::Double(0));
+        b.processChanges(0.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+        b.applyFact("today", vle::value::Double(1));
+        b.processChanges(1.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+        b.applyFact("today", vle::value::Double(2));
+        b.processChanges(2.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+        b.applyFact("today", vle::value::Double(3));
+        b.processChanges(3.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+
+        b.applyFact("today", vle::value::Double(4));
+        b.processChanges(4.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+
+        b.applyFact("today", vle::value::Double(5));
+        b.processChanges(5.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+
+        b.applyFact("today", vle::value::Double(5.1));
+        b.processChanges(5.1);
+        EnsuresEqual(act1.isInStartedState(), true);
+    }
+}
+
+void test_neverFail3()
+{
+    vle::Init app;
+    {
+        vle::utils::ContextPtr ctxp =  vle::utils::make_context();
+        vmd::ex::KnowledgeBase b(ctxp);
+        b.plan().fill(std::string(vmd::ex::Plan5), 0);
+
+        const vmd::Activity& act1 = b.activities().get("activity1")->second;
+        b.applyFact("today", vle::value::Double(0));
+        b.processChanges(0.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+        b.applyFact("today", vle::value::Double(1));
+        b.processChanges(1.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+        b.applyFact("today", vle::value::Double(2));
+        b.processChanges(2.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+        b.applyFact("today", vle::value::Double(3));
+        b.processChanges(3.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+
+        b.applyFact("today", vle::value::Double(4));
+        b.processChanges(4.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+
+        b.applyFact("today", vle::value::Double(5));
+        b.processChanges(5.0);
+        EnsuresEqual(not act1.isInStartedState(), true);
+
+        b.applyFact("today", vle::value::Double(5.1));
+        b.processChanges(5.1);
+        EnsuresEqual(act1.isInFailedState(), true);
+    }
+}
+
 void test_resourceFunc()
 {
     vle::Init app;
@@ -337,6 +529,8 @@ int main()
 {
     test_planTimeStamp();
     test_neverFail();
+    test_neverFail2();
+    test_neverFail3();
     test_resourceFunc();
 
     return unit_test::report_errors();

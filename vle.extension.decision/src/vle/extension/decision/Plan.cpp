@@ -450,6 +450,12 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                     act.neverFail();
                 }
             }
+            if (act.params().exist("neverfailifpcvalid")) {
+                double neverfail = act.params().getDouble("neverfailifpcvalid");
+                if (neverfail == 1) {
+                    act.neverFailIfPCValid();
+                }
+            }
         }
     }
 }
@@ -641,7 +647,7 @@ Plan::DateResult Plan::getDate(const std::string& dateName,
                     utils::DateTime::toJulianDayNumber(
                         firstNonLeapYear + "-" + month + "-" + day));
                 int daysOfFullYears = 365 * lexical_cast<int>(year);
-
+std::cout << "daysOfirstNon+m+d>" << daysOfLastYear << "<"<< std::endl;
                 return DateResult(true, devs::Time(daysOfLastYear + daysOfFullYears));
 
             }

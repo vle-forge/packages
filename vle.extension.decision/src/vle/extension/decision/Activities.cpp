@@ -696,7 +696,25 @@ Activities::processWaitState(iterator activity,
         update.first = false;
         break;
     case PrecedenceConstraint::Failed:
-        if (activity->second.isNeverFail()) {
+        if (activity->second.isNeverFailIfPCValid()) {
+            PrecedenceConstraint::Result newstatebis;
+            newstatebis.first = PrecedenceConstraint::Valid;
+            newstatebis.second = devs::infinity;
+            stateFromGraph(activity, newstatebis, time);
+            std::cout << newstatebis.first << "-----"<< std::endl;
+            if (not (newstatebis.first == PrecedenceConstraint::Failed) &&
+                not (newstatebis.first == PrecedenceConstraint::Wait)) {
+                activity->second.start(time);
+                m_startedAct.push_back(activity);
+                m_latestStartedAct.push_back(activity);
+                update.first = true;
+            } else {
+                activity->second.fail(time);
+                m_failedAct.push_back(activity);
+                m_latestFailedAct.push_back(activity);
+                update.first = true;
+            }
+        } else if (activity->second.isNeverFail()) {
             activity->second.start(time);
             m_startedAct.push_back(activity);
             m_latestStartedAct.push_back(activity);
@@ -812,65 +830,73 @@ PrecedenceConstraint::Result Activities::updateState(iterator activity,
                activity->second.isAfterStartTimeConstraint(time)) {
         newstate.first = PrecedenceConstraint::Failed;
     } else {
-        PrecedencesGraph::findIn in = m_graph.findPrecedenceIn(activity);
-        PrecedencesGraph::iteratorIn it;
-
-        if (activity->second.waitAllFsBeforeStart()) {
-            it = in.first;
-            while (newstate.first == PrecedenceConstraint::Valid and
-                   it != in.second) {
-                PrecedenceConstraint::Result r = it->isValid(time);
-
-                switch (r.first) {
-                case PrecedenceConstraint::Wait:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Failed:
-                    if (activity->second.isNeverFail()) {
-                        newstate.first = PrecedenceConstraint::Wait;
-                    } else {
-                        newstate.first = r.first;
-                    }
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Valid:
-                case PrecedenceConstraint::Inapplicable:
-                    newstate.first = PrecedenceConstraint::Valid;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                }
-                ++it;
-            }
-        } else {
-            it = in.first;
-            while (it != in.second and
-                   newstate.first != PrecedenceConstraint::Valid) {
-                PrecedenceConstraint::Result r = it->isValid(time);
-
-                switch (r.first) {
-                case PrecedenceConstraint::Wait:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Failed:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Valid:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Inapplicable:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                }
-                ++it;
-            }
-        }
+        stateFromGraph(activity, newstate, time);
     }
     return newstate;
 }
+
+void
+Activities::stateFromGraph(iterator activity, PrecedenceConstraint::Result& newstate,
+                           const devs::Time& time)
+{
+    PrecedencesGraph::findIn in = m_graph.findPrecedenceIn(activity);
+    PrecedencesGraph::iteratorIn it;
+
+    if (activity->second.waitAllFsBeforeStart()) {
+        it = in.first;
+        while (newstate.first == PrecedenceConstraint::Valid and
+               it != in.second) {
+            PrecedenceConstraint::Result r = it->isValid(time);
+
+            switch (r.first) {
+            case PrecedenceConstraint::Wait:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Failed:
+                if (activity->second.isNeverFail()) {
+                    newstate.first = PrecedenceConstraint::Wait;
+                } else {
+                    newstate.first = r.first;
+                }
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Valid:
+            case PrecedenceConstraint::Inapplicable:
+                newstate.first = PrecedenceConstraint::Valid;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            }
+            ++it;
+        }
+    } else {
+        it = in.first;
+        while (it != in.second and
+               newstate.first != PrecedenceConstraint::Valid) {
+            PrecedenceConstraint::Result r = it->isValid(time);
+
+            switch (r.first) {
+            case PrecedenceConstraint::Wait:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Failed:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Valid:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Inapplicable:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            }
+            ++it;
+        }
+    }
+}
+
 
 }}} // namespace vle model decision
