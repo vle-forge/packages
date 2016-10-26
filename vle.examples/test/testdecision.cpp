@@ -35,6 +35,7 @@
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <string>
+#include <iostream>
 #include <stdexcept>
 #include <vle/manager/Manager.hpp>
 #include <vle/manager/Simulation.hpp>
@@ -68,9 +69,10 @@ BOOST_AUTO_TEST_CASE(test_agentonly)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -104,9 +106,10 @@ BOOST_AUTO_TEST_CASE(test_agentonlyprecedenceconstraint)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -137,9 +140,10 @@ BOOST_AUTO_TEST_CASE(test_agentonlywakeup)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);

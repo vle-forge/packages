@@ -103,15 +103,16 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
     conds.push_back("condEuler");
     conds.push_back("condLV");
     vz::Model& vpz_mod = vpz->project().model();
-    vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath("LotkaVolterra");
+    vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("LotkaVolterra");
     BOOST_REQUIRE(mdl != 0);
     vz::AtomicModel* atomg = mdl->toAtomic();
     atomg->setConditions(conds);
     //simulation
     vm::Error error;
-    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-    std::unique_ptr<va::Map> out =
-            sim.run(std::move(vpz), &error);
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<va::Map> out = sim.run(std::move(vpz),
+            "vle.extension.differential_equation", &error);
 
 
     //checks that simulation has succeeded
@@ -183,7 +184,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
         conds.push_back("condEuler");
         conds.push_back("condLV_X");
         vz::Model& vpz_mod = vpz->project().model();
-        vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath("LotkaVolterraX");
+        vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("LotkaVolterraX");
         BOOST_REQUIRE(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
@@ -193,7 +194,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
         conds.push_back("condEuler");
         conds.push_back("condLV_Y");
         vz::Model& vpz_mod = vpz->project().model();
-        vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath("LotkaVolterraY");
+        vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("LotkaVolterraY");
         BOOST_REQUIRE(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
@@ -201,9 +202,10 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
     //simulation
 
     vm::Error error;
-    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-    std::unique_ptr<va::Map> out =
-            sim.run(std::move(vpz), &error);
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<va::Map> out = sim.run(std::move(vpz),
+            "vle.extension.differential_equation", &error);
 
     //checks that simulation has succeeded
     BOOST_REQUIRE_EQUAL(error.code, 0);
@@ -242,7 +244,8 @@ BOOST_AUTO_TEST_CASE(test_Euler_Seir)
     auto ctx = vu::make_context();
     std::cout << "  test_Euler_Seir " << std::endl;
     vle::utils::Package pack(ctx, "vle.extension.differential-equation_test");
-    std::unique_ptr<vz::Vpz> vpz(new vz::Vpz(pack.getExpFile("Seir.vpz", vle::utils::PKG_BINARY)));
+    std::unique_ptr<vz::Vpz> vpz(new vz::Vpz(pack.getExpFile("Seir.vpz",
+            vle::utils::PKG_BINARY)));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =
@@ -265,16 +268,17 @@ BOOST_AUTO_TEST_CASE(test_Euler_Seir)
     conds.push_back("condEuler");
     conds.push_back("condSeir");
     vz::Model& vpz_mod = vpz->project().model();
-    vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath("Seir");
+    vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Seir");
     BOOST_REQUIRE(mdl != 0);
     vz::AtomicModel* atomg = mdl->toAtomic();
     atomg->setConditions(conds);
 
     //simulation
     vm::Error error;
-    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-    std::unique_ptr<va::Map> out =
-            sim.run(std::move(vpz), &error);
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<va::Map> out = sim.run(std::move(vpz),
+            "vle.extension.differential_equation", &error);
 
     //checks that simulation has succeeded
     BOOST_REQUIRE_EQUAL(error.code, 0);
@@ -316,7 +320,8 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
     auto ctx = vu::make_context();
     std::cout << "  test_Euler_SeirXY " << std::endl;
     vle::utils::Package pack(ctx, "vle.extension.differential-equation_test");
-    std::unique_ptr<vz::Vpz> vpz(new vz::Vpz(pack.getExpFile("SeirXY.vpz", vle::utils::PKG_BINARY)));
+    std::unique_ptr<vz::Vpz> vpz(new vz::Vpz(pack.getExpFile("SeirXY.vpz",
+            vle::utils::PKG_BINARY)));
 
     //set all output plugin to storage
     vz::Outputs::iterator itb =
@@ -342,7 +347,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
         conds.push_back("condSeir");
         conds.push_back("condSm");
         vz::Model& vpz_mod = vpz->project().model();
-        vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath("Sm");
+        vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Sm");
         BOOST_REQUIRE(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
@@ -353,7 +358,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
         conds.push_back("condSeir");
         conds.push_back("condEm");
         vz::Model& vpz_mod = vpz->project().model();
-        vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath("Em");
+        vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Em");
         BOOST_REQUIRE(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
@@ -364,7 +369,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
         conds.push_back("condSeir");
         conds.push_back("condIm");
         vz::Model& vpz_mod = vpz->project().model();
-        vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath("Im");
+        vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Im");
         BOOST_REQUIRE(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
@@ -375,7 +380,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
         conds.push_back("condSeir");
         conds.push_back("condRm");
         vz::Model& vpz_mod = vpz->project().model();
-        vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath("Rm");
+        vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Rm");
         BOOST_REQUIRE(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
@@ -383,9 +388,10 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
 
     //simulation
     vm::Error error;
-    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-    std::unique_ptr<va::Map> out =
-            sim.run(std::move(vpz), &error);
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<va::Map> out = sim.run(std::move(vpz),
+            "vle.extension.differential_equation", &error);
 
     //checks that simulation has succeeded
     BOOST_REQUIRE_EQUAL(error.code, 0);

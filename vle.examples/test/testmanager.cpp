@@ -71,7 +71,8 @@ BOOST_AUTO_TEST_CASE(build_experimental_frames)
 
     manager::Manager r(ctx, manager::LOG_NONE, manager::SIMULATION_NONE, NULL);
     manager::Error error;
-    std::unique_ptr<value::Matrix> out = r.run(std::move(file), 1, 0, 1, &error);
+    std::unique_ptr<value::Matrix> out = r.run(std::move(file), "vle.examples",
+            1, 0, 1, &error);
 
     BOOST_REQUIRE(not error.code);
     BOOST_REQUIRE(out);
@@ -123,7 +124,7 @@ BOOST_AUTO_TEST_CASE(build_linear_combination_size)
     manager::Manager r(ctx,manager::LOG_NONE, manager::SIMULATION_NONE, NULL);
     manager::Error error;
     std::unique_ptr<value::Matrix> out = 0;
-    BOOST_REQUIRE_THROW(out = r.run(std::move(file), 1, 0, 1, &error), std::logic_error);
+    BOOST_REQUIRE_THROW(out = r.run(std::move(file),  "vle.examples",1, 0, 1, &error), std::logic_error);
 
 }
 
@@ -150,7 +151,8 @@ BOOST_AUTO_TEST_CASE(build_linear_output_matrix_size)
 
     manager::Manager r(ctx, manager::LOG_NONE, manager::SIMULATION_NONE, NULL);
     manager::Error error;
-    std::unique_ptr<value::Matrix> out = r.run(std::move(file), 1, 0, 1, &error);
+    std::unique_ptr<value::Matrix> out = r.run(std::move(file),  "vle.examples",
+            1, 0, 1, &error);
 
     BOOST_REQUIRE(not error.code);
     BOOST_REQUIRE(out);
@@ -219,7 +221,8 @@ BOOST_AUTO_TEST_CASE(manager_thread_result_access)
 
     manager::Manager r(ctx, manager::LOG_NONE, manager::SIMULATION_NONE, NULL);
     manager::Error error;
-    std::unique_ptr<value::Matrix> out = r.run(std::move(file), 2, 0, 1, &error);
+    std::unique_ptr<value::Matrix> out = r.run(std::move(file),  "vle.examples",
+            2, 0, 1, &error);
 
     BOOST_REQUIRE(out);
     BOOST_REQUIRE_EQUAL(out->size(), (value::Matrix::size_type)2);
@@ -282,7 +285,8 @@ BOOST_AUTO_TEST_CASE(manager_thread_fast_producer)
 
     manager::Manager r(ctx, manager::LOG_NONE, manager::SIMULATION_NONE, NULL);
     manager::Error error;
-    std::unique_ptr<value::Matrix> out = r.run(std::move(file), 2, 0, 1, &error);
+    std::unique_ptr<value::Matrix> out = r.run(std::move(file),  "vle.examples",
+            2, 0, 1, &error);
 
     BOOST_REQUIRE(out);
 
@@ -336,7 +340,8 @@ BOOST_AUTO_TEST_CASE(manager_thread_fast_consumer)
 
     manager::Manager r(ctx, manager::LOG_NONE, manager::SIMULATION_NONE, NULL);
     manager::Error error;
-    std::unique_ptr<value::Matrix> out = r.run(std::move(file), 2, 0, 1, &error);
+    std::unique_ptr<value::Matrix> out = r.run(std::move(file),  "vle.examples",
+            2, 0, 1, &error);
 
     BOOST_REQUIRE(out);
 

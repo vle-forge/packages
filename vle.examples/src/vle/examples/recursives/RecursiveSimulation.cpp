@@ -27,6 +27,7 @@
 
 
 #include <string>
+#include <iostream>
 #include <cassert>
 
 #include <vle/devs/Dynamics.hpp>
@@ -72,16 +73,16 @@ public:
                 pack.getExpFile("recursive.vpz", vle::utils::PKG_BINARY)));
 
 
-        vpz::BaseModel::rename(file->project().model().model(),
+        vpz::BaseModel::rename(file->project().model().node(),
                                std::to_string(nb + 1));
-
 
         manager::Error error;
 
         manager::Simulation sim(context(), manager::LOG_NONE,
-                                manager::SIMULATION_NO_RETURN,
-                                NULL);
-        std::unique_ptr<value::Map> result = sim.run(std::move(file), &error);
+                manager::SIMULATION_NONE,
+                std::chrono::milliseconds(0), &std::cout);
+        std::unique_ptr<value::Map> result = sim.run(std::move(file),
+                "vle.examples", &error);
 
         assert(not result);
     }

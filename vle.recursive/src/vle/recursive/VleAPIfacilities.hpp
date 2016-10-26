@@ -105,7 +105,7 @@ public:
     {
         vz::Model& vpz_mod = vpz.project().model();
         vz::BaseModel* mdl =
-                vpz_mod.model()->findModelFromPath(atom_model_path);
+                vpz_mod.node()->findModelFromPath(atom_model_path);
         if (mdl == 0) {
             throw vu::InternalError(" model not found ");
         }
@@ -125,7 +125,7 @@ public:
      {
          vz::Model& vpz_mod = vpz.project().model();
          vz::BaseModel* mdl =
-                 vpz_mod.model()->findModelFromPath(atom_model_path);
+                 vpz_mod.node()->findModelFromPath(atom_model_path);
          if (mdl == 0) {
              throw vu::InternalError(" model not found ");
          }

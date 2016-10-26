@@ -995,7 +995,8 @@ MetaManager::runIntern(const vle::value::Map& init,
 //        model->write(tempvpzPath);
 //        //
         std::unique_ptr<value::Matrix> output_mat =  planSimulator.run(
-                std::move(model), mConfigParallelNbSlots, 0, 1, &manerror);
+                std::move(model), "vle.recursive", mConfigParallelNbSlots,
+                0, 1, &manerror);
         if (mexpe_debug){
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
                     "[vle.recursive] end simulation single/threads\n");
@@ -1283,7 +1284,6 @@ MetaManager::runIntern(const vle::value::Map& init,
         std::string line;
 
         int inputId = -1;
-        int inputRepl = -1;
         std::string viewName;
         std::map<std::string, int> insightsViewRows;
         std::unique_ptr<value::Matrix> viewMatrix;
@@ -1309,7 +1309,7 @@ MetaManager::runIntern(const vle::value::Map& init,
                 break;
             }
             inputId = std::stoi(tokens[1]);
-            inputRepl = std::stoi(tokens[2]);
+            //inputRepl = std::stoi(tokens[2]);
             finishViews = false;
             while(not finishViews){
                 //read view:viewName

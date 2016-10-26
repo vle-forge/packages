@@ -26,6 +26,8 @@
 #ifndef _VLE_UTILS_PKG_TESTER_SIMULATION_HPP
 #define _VLE_UTILS_PKG_TESTER_SIMULATION_HPP 1
 
+#include <chrono>
+
 #include <vle/vle.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/value/Matrix.hpp>
@@ -86,7 +88,7 @@ public:
     {
         if(mvpz){
             vz::Model& vpz_mod = mvpz->project().model();
-            vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath(atomModel);
+            vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath(atomModel);
             vz::AtomicModel* atomg = mdl->toAtomic();
             atomg->setConditions(conds);
         }
@@ -122,8 +124,10 @@ public:
     {
         if (mvpz) {
             setStorageViews();
-            vm::Simulation sim(mCtx, vm::LOG_NONE, vm::SIMULATION_NONE, NULL);
-            std::unique_ptr<va::Map> res = sim.run(std::move(mvpz), &merror);
+            vm::Simulation sim(mCtx, vm::LOG_NONE, vm::SIMULATION_NONE,
+                    std::chrono::milliseconds(0), &std::cout);
+            std::unique_ptr<va::Map> res = sim.run(std::move(mvpz),
+                    "vle.tester", &merror);
             return res;
         } else {
             return std::unique_ptr<va::Map>();

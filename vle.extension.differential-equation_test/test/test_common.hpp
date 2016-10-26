@@ -35,6 +35,7 @@
 
 #include <ostream>
 #include <iostream>
+#include <chrono>
 
 #include <vle/vle.hpp>
 #include <vle/value/Map.hpp>
@@ -100,7 +101,7 @@ ttattachConditions(vz::Vpz& vpz, const std::vector<std::string>& conds,
                    const std::string& atomModel)
 {
     vz::Model& vpz_mod = vpz.project().model();
-    vz::BaseModel* mdl = vpz_mod.model()->findModelFromPath(atomModel);
+    vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath(atomModel);
     BOOST_REQUIRE(mdl != 0);
     vz::AtomicModel* atomg = mdl->toAtomic();
     atomg->setConditions(conds);

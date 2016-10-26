@@ -36,6 +36,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <string>
 #include <stdexcept>
+#include <iostream>
 #include <vle/manager/Manager.hpp>
 #include <vle/manager/Simulation.hpp>
 #include <vle/vpz/Vpz.hpp>
@@ -70,9 +71,10 @@ BOOST_AUTO_TEST_CASE(test_equation1)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -108,9 +110,10 @@ BOOST_AUTO_TEST_CASE(test_equation2)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -143,9 +146,10 @@ BOOST_AUTO_TEST_CASE(test_equation3)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -181,9 +185,10 @@ BOOST_AUTO_TEST_CASE(test_equation4)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -218,9 +223,10 @@ BOOST_AUTO_TEST_CASE(test_equation5)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -269,9 +275,10 @@ BOOST_AUTO_TEST_CASE(test_equation6)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -320,9 +327,10 @@ BOOST_AUTO_TEST_CASE(test_equation7)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -367,9 +375,10 @@ BOOST_AUTO_TEST_CASE(test_equation8)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -418,9 +427,10 @@ BOOST_AUTO_TEST_CASE(test_equation9)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -469,9 +479,10 @@ BOOST_AUTO_TEST_CASE(test_equation10)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -520,9 +531,10 @@ BOOST_AUTO_TEST_CASE(test_equation11)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -571,9 +583,10 @@ BOOST_AUTO_TEST_CASE(test_equation12)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -622,9 +635,10 @@ BOOST_AUTO_TEST_CASE(test_equation13)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -659,9 +673,10 @@ BOOST_AUTO_TEST_CASE(test_equation14)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -702,9 +717,10 @@ BOOST_AUTO_TEST_CASE(test_equation15)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -738,9 +754,10 @@ BOOST_AUTO_TEST_CASE(test_asynchronous)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -775,9 +792,10 @@ BOOST_AUTO_TEST_CASE(test_earlyPerturb)
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NONE,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -808,15 +826,15 @@ BOOST_AUTO_TEST_CASE(test_confluentNosync)
 
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
-    		new vpz::Vpz(pack.getExpFile("confluentNosync.vpz")));
+            new vpz::Vpz(pack.getExpFile("confluentNosync.vpz")));
 
 
     manager::Error error;
     manager::Simulation sim(ctx, manager::LOG_NONE,
-                            manager::SIMULATION_NO_RETURN,
-                            NULL);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file),
+            "vle.examples", &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out == NULL);
 }
