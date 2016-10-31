@@ -73,8 +73,7 @@ BOOST_AUTO_TEST_CASE(test_qss4)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);

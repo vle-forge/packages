@@ -126,8 +126,7 @@ public:
             setStorageViews();
             vm::Simulation sim(mCtx, vm::LOG_NONE, vm::SIMULATION_NONE,
                     std::chrono::milliseconds(0), &std::cout);
-            std::unique_ptr<va::Map> res = sim.run(std::move(mvpz),
-                    "vle.tester", &merror);
+            std::unique_ptr<va::Map> res = sim.run(std::move(mvpz), &merror);
             return res;
         } else {
             return std::unique_ptr<va::Map>();

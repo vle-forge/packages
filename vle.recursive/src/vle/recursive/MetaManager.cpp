@@ -26,6 +26,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <vle/vpz/Vpz.hpp>
+#include <vle/utils/Tools.hpp>
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/Package.hpp>
 #include <vle/utils/Spawn.hpp>
@@ -741,6 +742,9 @@ MetaManager::run(const value::Map& init, vle::manager::Error& err)
     }
     if (init.exist("expe_debug")) {
         mexpe_debug = init.getBoolean("expe_debug");
+        if (mexpe_debug) {
+            mCtx->set_log_priority(7);
+        }
     }
     if (init.exist("expe_seed")) {
         mrand.seed(init.getInt("expe_seed"));
@@ -995,8 +999,7 @@ MetaManager::runIntern(const vle::value::Map& init,
 //        model->write(tempvpzPath);
 //        //
         std::unique_ptr<value::Matrix> output_mat =  planSimulator.run(
-                std::move(model), "vle.recursive", mConfigParallelNbSlots,
-                0, 1, &manerror);
+                std::move(model), mConfigParallelNbSlots, 0, 1, &manerror);
         if (mexpe_debug){
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
                     "[vle.recursive] end simulation single/threads\n");
@@ -1054,6 +1057,15 @@ MetaManager::runIntern(const vle::value::Map& init,
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
                     "[vle.recursive] simulation mvle %d \n",
                     mConfigParallelNbSlots);
+            std::string messageDbg ="";
+            for (const auto& s : argv ) {
+                messageDbg += " ";
+                messageDbg += s;
+            }
+            messageDbg += "\n";
+            mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                    vle::utils::format("[vle.recursive] launching in dir %s: %s %s",
+                            mWorkingDir.c_str(), exe.c_str(), messageDbg.c_str()).c_str());
         }
         bool started = mspawn.start(exe, mWorkingDir, argv);
         if (not started) {

@@ -70,8 +70,7 @@ BOOST_AUTO_TEST_CASE(test_moore1)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -115,8 +114,7 @@ BOOST_AUTO_TEST_CASE(test_moore2)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -152,8 +150,7 @@ BOOST_AUTO_TEST_CASE(test_mealy1)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -201,8 +198,7 @@ BOOST_AUTO_TEST_CASE(test_mealy2)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -238,8 +234,7 @@ BOOST_AUTO_TEST_CASE(test_statechart1)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -563,8 +558,7 @@ BOOST_AUTO_TEST_CASE(test_statechart7)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -672,8 +666,7 @@ BOOST_AUTO_TEST_CASE(test_statechart10)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -702,8 +695,7 @@ BOOST_AUTO_TEST_CASE(test_statechart11)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -757,8 +749,7 @@ BOOST_AUTO_TEST_CASE(test_statechartMultipleSend)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);

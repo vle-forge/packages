@@ -73,8 +73,7 @@ BOOST_AUTO_TEST_CASE(test_equation1)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -112,8 +111,7 @@ BOOST_AUTO_TEST_CASE(test_equation2)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -148,8 +146,7 @@ BOOST_AUTO_TEST_CASE(test_equation3)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -187,8 +184,7 @@ BOOST_AUTO_TEST_CASE(test_equation4)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -225,8 +221,7 @@ BOOST_AUTO_TEST_CASE(test_equation5)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -277,8 +272,7 @@ BOOST_AUTO_TEST_CASE(test_equation6)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -329,8 +323,7 @@ BOOST_AUTO_TEST_CASE(test_equation7)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -377,8 +370,7 @@ BOOST_AUTO_TEST_CASE(test_equation8)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -429,8 +421,7 @@ BOOST_AUTO_TEST_CASE(test_equation9)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -481,8 +472,7 @@ BOOST_AUTO_TEST_CASE(test_equation10)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -533,8 +523,7 @@ BOOST_AUTO_TEST_CASE(test_equation11)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -585,8 +574,7 @@ BOOST_AUTO_TEST_CASE(test_equation12)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -637,8 +625,7 @@ BOOST_AUTO_TEST_CASE(test_equation13)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -675,8 +662,7 @@ BOOST_AUTO_TEST_CASE(test_equation14)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -719,8 +705,7 @@ BOOST_AUTO_TEST_CASE(test_equation15)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -756,8 +741,7 @@ BOOST_AUTO_TEST_CASE(test_asynchronous)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -794,8 +778,7 @@ BOOST_AUTO_TEST_CASE(test_earlyPerturb)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
     BOOST_REQUIRE(out != NULL);
@@ -833,8 +816,7 @@ BOOST_AUTO_TEST_CASE(test_confluentNosync)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     BOOST_REQUIRE_EQUAL(error.code, 0);
 }

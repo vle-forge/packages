@@ -78,8 +78,7 @@ BOOST_AUTO_TEST_CASE(test_gens)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
     BOOST_REQUIRE_EQUAL(error.code, 0);
@@ -136,8 +135,7 @@ BOOST_AUTO_TEST_CASE(test_gens_with_class)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
     BOOST_REQUIRE_EQUAL(error.code, 0);
@@ -196,8 +194,7 @@ BOOST_AUTO_TEST_CASE(test_gens_with_graph)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
     BOOST_REQUIRE_EQUAL(error.code, 0);
@@ -249,8 +246,7 @@ BOOST_AUTO_TEST_CASE(test_gens_delete_connection)
     manager::Simulation sim(ctx, manager::LOG_NONE,
             manager::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<value::Map> out = sim.run(std::move(file),
-            "vle.examples", &error);
+    std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
     BOOST_REQUIRE_EQUAL(error.code, 0);

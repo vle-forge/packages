@@ -43,8 +43,7 @@ BOOST_AUTO_TEST_CASE(test_ExtUpLV)
     vm::Error error;
     vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<va::Map> out = sim.run(std::move(vpz),
-            "vle.extension.differential_equation", &error);
+    std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
 
     //checks that simulation has succeeded
@@ -82,8 +81,7 @@ BOOST_AUTO_TEST_CASE(test_OutputPeriod)
     vm::Error error;
     vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
             std::chrono::milliseconds(0), &std::cout);
-    std::unique_ptr<va::Map> out = sim.run(std::move(vpz),
-            "vle.extension.differential_equation", &error);
+    std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
 
     //checks that simulation has succeeded
