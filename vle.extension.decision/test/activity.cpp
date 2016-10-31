@@ -26,13 +26,9 @@
  */
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_activity
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+
+#include <vle/utils/unit-test.hpp>
+
 #include <iostream>
 #include <iterator>
 #include <vle/value/Double.hpp>
@@ -267,7 +263,7 @@ public:
 
 }}}} // namespace vle ext decision
 
-BOOST_AUTO_TEST_CASE(kb)
+void kb()
 {
     vle::Init app;
 
@@ -276,38 +272,38 @@ BOOST_AUTO_TEST_CASE(kb)
     vmd::Activities::result_t lst;
     double date = 0.0;
 
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(0));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(0));
     ++date;
 
     base.applyFact("today", vle::value::Double(16));
     base.processChanges(date);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(0));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(0));
     ++date;
 
     base.applyFact("today", vle::value::Double(21));
     base.processChanges(date);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
     ++date;
 
     base.applyFact("today", vle::value::Double(18));
     base.processChanges(date);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     ++date;
 
     base.applyFact("today", vle::value::Double(22));
     base.processChanges(date);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 }
 
-BOOST_AUTO_TEST_CASE(kb2)
+void kb2()
 {
     vle::Init app;
 
@@ -317,14 +313,14 @@ BOOST_AUTO_TEST_CASE(kb2)
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(0.0);
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(3));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(3));
 
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     for (vmd::Activities::result_t::iterator it = lst.begin(); it !=
          lst.end(); ++it) {
@@ -333,9 +329,9 @@ BOOST_AUTO_TEST_CASE(kb2)
 
     base.processChanges(0.0);
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     for (vmd::Activities::result_t::iterator it = lst.begin(); it !=
          lst.end(); ++it) {
@@ -344,7 +340,7 @@ BOOST_AUTO_TEST_CASE(kb2)
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     for (vmd::Activities::result_t::iterator it = lst.begin(); it !=
          lst.end(); ++it) {
@@ -352,10 +348,10 @@ BOOST_AUTO_TEST_CASE(kb2)
     }
 
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 }
 
-BOOST_AUTO_TEST_CASE(kb3)
+void kb3()
 {
     vle::Init app;
 
@@ -365,52 +361,52 @@ BOOST_AUTO_TEST_CASE(kb3)
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     base.setActivityDone("A", 0.0);
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     base.setActivityDone("B", 0.0);
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
     base.setActivityDone("C", 0.0);
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
     base.setActivityDone("D", 0.0);
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
     base.setActivityDone("E", 0.0);
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     base.setActivityDone("F", 0.0);
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 }
 
-BOOST_AUTO_TEST_CASE(Activity4)
+void Activity4()
 {
     vle::Init app;
 
@@ -420,16 +416,16 @@ BOOST_AUTO_TEST_CASE(Activity4)
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     base.setActivityDone("A", 0.0);
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(3));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(3));
     base.setActivityDone("B", 0.0);
 }
 
-BOOST_AUTO_TEST_CASE(ActivitiesnextDate1)
+void ActivitiesnextDate1()
 {
     vle::Init app;
 
@@ -437,27 +433,27 @@ BOOST_AUTO_TEST_CASE(ActivitiesnextDate1)
 
     vmd::Activities::result_t lst;
 
-    BOOST_REQUIRE_CLOSE((double)base.nextDate(0.), 0., 1.);
+    EnsuresApproximatelyEqual((double)base.nextDate(0.), 0., 1.);
     base.processChanges(0.);
     base.setActivityDone("A", 0.5);
-    BOOST_REQUIRE_CLOSE((double)base.nextDate(1.), 1., 1.);
+    EnsuresApproximatelyEqual((double)base.nextDate(1.), 1., 1.);
     base.processChanges(1.);
     base.setActivityDone("B", 1.5);
-    BOOST_REQUIRE_CLOSE((double)base.nextDate(1.), 1., 1.);
+    EnsuresApproximatelyEqual((double)base.nextDate(1.), 1., 1.);
     base.processChanges(1.);
     base.setActivityDone("C", 1.5);
-    BOOST_REQUIRE_CLOSE((double)base.nextDate(2.), 2., 1.);
+    EnsuresApproximatelyEqual((double)base.nextDate(2.), 2., 1.);
     base.processChanges(2.);
     base.setActivityDone("D", 2.5);
-    BOOST_REQUIRE_CLOSE((double)base.nextDate(3.), 3., 1.);
+    EnsuresApproximatelyEqual((double)base.nextDate(3.), 3., 1.);
     base.processChanges(3.);
     base.setActivityDone("E", 3.5);
-    BOOST_REQUIRE_CLOSE((double)base.nextDate(4.), 4., 1.);
+    EnsuresApproximatelyEqual((double)base.nextDate(4.), 4., 1.);
     base.processChanges(4.);
     base.setActivityDone("F", 4.5);
 }
 
-BOOST_AUTO_TEST_CASE(ActivitiesnextDate2)
+void ActivitiesnextDate2()
 {
     vle::Init app;
 
@@ -465,39 +461,39 @@ BOOST_AUTO_TEST_CASE(ActivitiesnextDate2)
 
     vmd::Activities::result_t lst;
 
-    BOOST_REQUIRE_CLOSE((double)base.duration(0.), 0., 1.);
+    EnsuresApproximatelyEqual((double)base.duration(0.), 0., 1.);
     base.processChanges(0.);
     base.setActivityDone("A", 0.5);
-    BOOST_REQUIRE_CLOSE((double)base.duration(.5), .5, 1.);
+    EnsuresApproximatelyEqual((double)base.duration(.5), .5, 1.);
     base.processChanges(1.);
     base.setActivityDone("B", 1.);
-    BOOST_REQUIRE_CLOSE((double)base.duration(1.), 0., 1.);
+    EnsuresApproximatelyEqual((double)base.duration(1.), 0., 1.);
     base.processChanges(1.);
     base.setActivityDone("C", 1.5);
-    BOOST_REQUIRE_CLOSE((double)base.duration(1.5), .5, 1.);
+    EnsuresApproximatelyEqual((double)base.duration(1.5), .5, 1.);
     base.processChanges(2.);
     base.setActivityDone("D", 2.5);
-    BOOST_REQUIRE_CLOSE((double)base.duration(2.5), .5, 1.);
+    EnsuresApproximatelyEqual((double)base.duration(2.5), .5, 1.);
     base.processChanges(3.);
     base.setActivityDone("E", 3.5);
-    BOOST_REQUIRE_CLOSE((double)base.duration(3.5), .5, 1.);
+    EnsuresApproximatelyEqual((double)base.duration(3.5), .5, 1.);
     base.processChanges(4.);
     base.setActivityDone("F", 4.5);
 }
 
-BOOST_AUTO_TEST_CASE(activitiesExist)
+void activitiesExist()
 {
     vle::Init app;
 
     vmd::ex::KB4 base;
 
     bool b = base.activities().exist("A");
-    BOOST_REQUIRE_EQUAL(b, true);
+    EnsuresEqual(b, true);
     b = base.activities().exist("Z");
-    BOOST_REQUIRE_EQUAL(b, false);
+    EnsuresEqual(b, false);
 }
 
-BOOST_AUTO_TEST_CASE(Activities_test_slot_function)
+void Activities_test_slot_function()
 {
     vle::Init app;
 
@@ -505,28 +501,42 @@ BOOST_AUTO_TEST_CASE(Activities_test_slot_function)
 
     vmd::Activities::result_t lst;
 
-    BOOST_REQUIRE_CLOSE((double)base.duration(0.), 0., 1.);
+    EnsuresApproximatelyEqual((double)base.duration(0.), 0., 1.);
     base.processChanges(0.);
     base.setActivityDone("A", 0.5);
-    BOOST_REQUIRE_CLOSE((double)base.duration(.5), .5, 1.);
+    EnsuresApproximatelyEqual((double)base.duration(.5), .5, 1.);
     base.processChanges(1.);
     base.setActivityDone("B", 1.);
-    BOOST_REQUIRE_CLOSE((double)base.duration(1.), 0., 1.);
+    EnsuresApproximatelyEqual((double)base.duration(1.), 0., 1.);
     base.processChanges(1.);
     base.setActivityDone("C", 1.5);
-    BOOST_REQUIRE_CLOSE((double)base.duration(1.5), .5, 1.);
+    EnsuresApproximatelyEqual((double)base.duration(1.5), .5, 1.);
     base.processChanges(2.);
     base.setActivityDone("D", 2.5);
-    BOOST_REQUIRE_CLOSE((double)base.duration(2.5), .5, 1.);
+    EnsuresApproximatelyEqual((double)base.duration(2.5), .5, 1.);
     base.processChanges(3.);
     base.setActivityDone("E", 3.5);
-    BOOST_REQUIRE_CLOSE((double)base.duration(3.5), .5, 1.);
+    EnsuresApproximatelyEqual((double)base.duration(3.5), .5, 1.);
     base.processChanges(4.);
     base.setActivityDone("F", 4.5);
     base.processChanges(5.);
 
     // All activity switch from wait to start and from start to end.
-    BOOST_REQUIRE_EQUAL(base.getNumberOfUpdate(), 12);
+    EnsuresEqual(base.getNumberOfUpdate(), 12);
     std::cout << vle::utils::format("%i %i\n", base.getNumberOfOut(),
         base.getNumberOfUpdate());
+}
+
+int main()
+{
+    kb();
+    kb2();
+    kb3();
+    Activity4();
+    ActivitiesnextDate1();
+    ActivitiesnextDate2();
+    activitiesExist();
+    Activities_test_slot_function();
+
+    return unit_test::report_errors();
 }

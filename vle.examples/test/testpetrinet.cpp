@@ -26,15 +26,7 @@
  */
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_petrinet_extension
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-#include <boost/version.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -58,11 +50,10 @@ struct F
     }
 };
 
-BOOST_GLOBAL_FIXTURE(F);
 
 using namespace vle;
 
-BOOST_AUTO_TEST_CASE(test_petrinet_and)
+void test_petrinet_and()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -78,24 +69,24 @@ BOOST_AUTO_TEST_CASE(test_petrinet_and)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         5);
     //due to appoximation
-    BOOST_REQUIRE(result.rows() >= 11);
-    BOOST_REQUIRE(result.rows() <= 12);
+    Ensures(result.rows() >= 11);
+    Ensures(result.rows() <= 12);
 
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 0.75, 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 1.0, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,10), 0.75, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,10), 1.0, 10e-5);
 }
 
-BOOST_AUTO_TEST_CASE(test_petrinet_or)
+void test_petrinet_or()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -111,25 +102,25 @@ BOOST_AUTO_TEST_CASE(test_petrinet_or)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         5);
     //due to appoximation
-    BOOST_REQUIRE(result.rows() >= 11);
-    BOOST_REQUIRE(result.rows() <= 12);
+    Ensures(result.rows() >= 11);
+    Ensures(result.rows() <= 12);
 
 
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 0.75, 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 2.0, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,10), 0.75, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,10), 2.0, 10e-5);
 }
 
-BOOST_AUTO_TEST_CASE(test_petrinet_nand1)
+void test_petrinet_nand1()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -145,25 +136,25 @@ BOOST_AUTO_TEST_CASE(test_petrinet_nand1)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         5);
     //due to appoximation
-    BOOST_REQUIRE(result.rows() >= 11);
-    BOOST_REQUIRE(result.rows() <= 12);
+    Ensures(result.rows() >= 11);
+    Ensures(result.rows() <= 12);
 
 
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 0., 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 0., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,10), 0., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,10), 0., 10e-5);
 }
 
-BOOST_AUTO_TEST_CASE(test_petrinet_nand2)
+void test_petrinet_nand2()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -179,25 +170,25 @@ BOOST_AUTO_TEST_CASE(test_petrinet_nand2)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         5);
     //due to appoximation
-    BOOST_REQUIRE(result.rows() >= 11);
-    BOOST_REQUIRE(result.rows() <= 12);
+    Ensures(result.rows() >= 11);
+    Ensures(result.rows() <= 12);
 
 
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 0.5, 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 1., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,10), 0.5, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,10), 1., 10e-5);
 }
 
-BOOST_AUTO_TEST_CASE(test_petrinet_and_timed)
+void test_petrinet_and_timed()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -213,25 +204,25 @@ BOOST_AUTO_TEST_CASE(test_petrinet_and_timed)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         5);
     //due to appoximation
-    BOOST_REQUIRE(result.rows() >= 20);
-    BOOST_REQUIRE(result.rows() <= 21);
+    Ensures(result.rows() >= 20);
+    Ensures(result.rows() <= 21);
 
 
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,19), 1.7, 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,19), 3., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,19), 1.7, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,19), 3., 10e-5);
 }
 
-BOOST_AUTO_TEST_CASE(test_petrinet_or_priority)
+void test_petrinet_or_priority()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -247,25 +238,25 @@ BOOST_AUTO_TEST_CASE(test_petrinet_or_priority)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         5);
     //due to appoximation
-    BOOST_REQUIRE(result.rows() >= 11);
-    BOOST_REQUIRE(result.rows() <= 12);
+    Ensures(result.rows() >= 11);
+    Ensures(result.rows() <= 12);
 
 
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 1., 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 6., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,10), 1., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,10), 6., 10e-5);
 }
 
-BOOST_AUTO_TEST_CASE(test_petrinet_meteo)
+void test_petrinet_meteo()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -281,27 +272,23 @@ BOOST_AUTO_TEST_CASE(test_petrinet_meteo)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         6);
-    BOOST_REQUIRE_EQUAL(result.rows(),
+    EnsuresEqual(result.rows(),
                         31);
 
-//#if BOOST_VERSION < 104000
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,30), 29., 10e-5);
-//#else
-    //BOOST_REQUIRE_CLOSE(result.getDouble(4,30), 28., 10e-5);
-//#endif
-    BOOST_REQUIRE_CLOSE(result.getDouble(5,30), 4., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,30), 29., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(5,30), 4., 10e-5);
 }
 
-BOOST_AUTO_TEST_CASE(test_petrinet_inout)
+void test_petrinet_inout()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -317,27 +304,27 @@ BOOST_AUTO_TEST_CASE(test_petrinet_inout)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         5);
     //due to appoximation
-    BOOST_REQUIRE(result.rows() >= 11);
-    BOOST_REQUIRE(result.rows() <= 12);
+    Ensures(result.rows() >= 11);
+    Ensures(result.rows() <= 12);
 
-    BOOST_REQUIRE_CLOSE(result.getDouble(0,10), 1., 1.);
+    EnsuresApproximatelyEqual(result.getDouble(0,10), 1., 1.);
 
-    BOOST_REQUIRE(result.getInt(2,10) == 6);
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 1., 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 6., 10e-5);
+    Ensures(result.getInt(2,10) == 6);
+    EnsuresApproximatelyEqual(result.getDouble(3,10), 1., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,10), 6., 10e-5);
 }
 
-BOOST_AUTO_TEST_CASE(test_petrinet_conflict)
+void test_petrinet_conflict()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -353,21 +340,38 @@ BOOST_AUTO_TEST_CASE(test_petrinet_conflict)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         5);
     //due to appoximation
-    BOOST_REQUIRE(result.rows() >= 11);
-    BOOST_REQUIRE(result.rows() <= 12);
+    Ensures(result.rows() >= 11);
+    Ensures(result.rows() <= 12);
 
 
-    BOOST_REQUIRE(result.getInt(2,10) == 1);
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,10), 1., 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,10), 5., 10e-5);
+    Ensures(result.getInt(2,10) == 1);
+    EnsuresApproximatelyEqual(result.getDouble(3,10), 1., 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,10), 5., 10e-5);
+}
+
+int main()
+{
+    F fixture;
+
+    test_petrinet_and();
+    test_petrinet_or();
+    test_petrinet_nand1();
+    test_petrinet_nand2();
+    test_petrinet_and_timed();
+    test_petrinet_or_priority();
+    test_petrinet_meteo();
+    test_petrinet_inout();
+    test_petrinet_conflict();
+
+    return unit_test::report_errors();
 }

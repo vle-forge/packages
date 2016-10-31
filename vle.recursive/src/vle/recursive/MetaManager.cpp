@@ -1064,8 +1064,8 @@ MetaManager::runIntern(const vle::value::Map& init,
             }
             messageDbg += "\n";
             mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
-                    vle::utils::format("[vle.recursive] launching in dir %s: %s %s",
-                            mWorkingDir.c_str(), exe.c_str(), messageDbg.c_str()).c_str());
+                    "[vle.recursive] launching in dir %s: %s %s",
+                            mWorkingDir.c_str(), exe.c_str(), messageDbg.c_str());
         }
         bool started = mspawn.start(exe, mWorkingDir, argv);
         if (not started) {

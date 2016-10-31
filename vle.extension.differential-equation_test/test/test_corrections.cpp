@@ -29,7 +29,7 @@
  * Bug correction, update of external variables were not taken into
  * account if not synchronized with a compute
  ******************/
-BOOST_AUTO_TEST_CASE(test_ExtUpLV)
+void test_ExtUpLV()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_ExtUpLV " << std::endl;
@@ -47,29 +47,29 @@ BOOST_AUTO_TEST_CASE(test_ExtUpLV)
 
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),3);
+    EnsuresEqual(view.columns(),3);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 52);
-    BOOST_REQUIRE(view.rows() >= 51);
+    Ensures(view.rows() <= 52);
+    Ensures(view.rows() >= 51);
 
     //gets X,Y
     int colX = ttgetColumnFromView(view, "Top model:LotkaVolterraY", "X");
 
     //check X at = 0.400 and t=0.41
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,41), 10, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,42), 1.0, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,41), 10, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,42), 1.0, 10e-5);
 }
 
 
 /******************
  * test output_period parameter
  ******************/
-BOOST_AUTO_TEST_CASE(test_OutputPeriod)
+void test_OutputPeriod()
 {
     auto ctx = vu::make_context();
     vle::utils::Package pack(ctx, "vle.extension.differential-equation_test");
@@ -85,18 +85,27 @@ BOOST_AUTO_TEST_CASE(test_OutputPeriod)
 
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),4);
-    BOOST_REQUIRE_EQUAL(view.rows(),2);
+    EnsuresEqual(view.columns(),4);
+    EnsuresEqual(view.rows(),2);
 
     //gets nbExtEvents
     int col = ttgetColumnFromView(view, "Top model:Counter", "nbExtEvents");
 
     //check X at = 0.400 and t=0.41
-    BOOST_REQUIRE_CLOSE(view.getDouble(col,1), 151, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(col,1), 151, 10e-5);
 
+}
+
+int main()
+{
+    F fixture;
+    test_ExtUpLV();
+    test_OutputPeriod();
+
+    return unit_test::report_errors();
 }

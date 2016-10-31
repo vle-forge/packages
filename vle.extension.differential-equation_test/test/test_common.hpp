@@ -25,14 +25,7 @@
 #ifndef VLE_EXTENSION_DIFFERENTIAL_EQUATION_TEST_COMMON_HPP
 #define VLE_EXTENSION_DIFFERENTIAL_EQUATION_TEST_COMMON_HPP 1
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE package_test
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
+#include <vle/utils/unit-test.hpp>
 #include <ostream>
 #include <iostream>
 #include <chrono>
@@ -60,8 +53,6 @@ struct F
 
     vle::Init app;
 };
-BOOST_GLOBAL_FIXTURE(F);
-
 
 int
 ttgetColumnFromView(const va::Matrix& view, const std::string& model,
@@ -102,7 +93,7 @@ ttattachConditions(vz::Vpz& vpz, const std::vector<std::string>& conds,
 {
     vz::Model& vpz_mod = vpz.project().model();
     vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath(atomModel);
-    BOOST_REQUIRE(mdl != 0);
+    Ensures(mdl != 0);
     vz::AtomicModel* atomg = mdl->toAtomic();
     atomg->setConditions(conds);
 }

@@ -26,13 +26,7 @@
  */
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_parser
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <iostream>
 #include <iterator>
 #include <vle/version.hpp>
@@ -287,33 +281,33 @@ std::string Block(
 
 }}}} // namespace vle ext decision ex
 
-BOOST_AUTO_TEST_CASE(parser_00)
+void parser_00()
 {
     vle::Init app;
 
     vmd::ex::KnowledgeBase b;
 
-    BOOST_REQUIRE_NO_THROW(b.library().add("main", vmd::ex::Block));
-    BOOST_REQUIRE_NO_THROW(b.library().add("main2", vmd::ex::Plan1));
+    EnsuresNotThrow(b.library().add("main", vmd::ex::Block), std::exception);
+    EnsuresNotThrow(b.library().add("main2", vmd::ex::Plan1), std::exception);
 }
 
-BOOST_AUTO_TEST_CASE(parser)
+void parser()
 {
     vle::Init app;
 
     vmd::ex::KnowledgeBase b;
     b.plan().fill(std::string(vmd::ex::Plan1));
 
-    BOOST_REQUIRE_EQUAL(b.activities().size(), (vmd::Activities::size_type)8);
-    BOOST_REQUIRE_EQUAL(
+    EnsuresEqual(b.activities().size(), (vmd::Activities::size_type)8);
+    EnsuresEqual(
         b.activities().get("activity2")->second.rules().size(), 2);
-    BOOST_REQUIRE_EQUAL(
+    EnsuresEqual(
         b.activities().get("activity5")->second.rules().get("rule 4").isAvailable(),
         false);
 }
 
 
-BOOST_AUTO_TEST_CASE(test_stringdates)
+void test_stringdates()
 {
     vle::Init app;
 
@@ -323,28 +317,38 @@ BOOST_AUTO_TEST_CASE(test_stringdates)
     const vmd::Activity& act6 = b.activities().get("activity6")->second;
     const vmd::Activity& act7 = b.activities().get("activity7")->second;
 
-    BOOST_REQUIRE_EQUAL(act6.start(),act7.start());
-    BOOST_REQUIRE_EQUAL(act6.start(),2451698);
-    BOOST_REQUIRE_EQUAL(act6.finish(),act7.finish());
-    BOOST_REQUIRE_EQUAL(act6.finish(),2451699);
+    EnsuresEqual(act6.start(),act7.start());
+    EnsuresEqual(act6.start(),2451698);
+    EnsuresEqual(act6.finish(),act7.finish());
+    EnsuresEqual(act6.finish(),2451699);
 }
 
-BOOST_AUTO_TEST_CASE(test_relativedates)
+void test_relativedates()
 {
     vle::Init app;
     {
         vmd::ex::KnowledgeBase b;
         b.plan().fill(std::string(vmd::ex::Plan1), 0);
         const vmd::Activity& act8 = b.activities().get("activity8")->second;
-        BOOST_REQUIRE_EQUAL(act8.start(),10.0);
-        BOOST_REQUIRE_EQUAL(act8.finish(),23.5);
+        EnsuresEqual(act8.start(),10.0);
+        EnsuresEqual(act8.finish(),23.5);
     }
     {
         vmd::ex::KnowledgeBase b;
         b.plan().fill(std::string(vmd::ex::Plan1), 5);
         const vmd::Activity& act8 = b.activities().get("activity8")->second;
-        BOOST_REQUIRE_EQUAL(act8.start(),15.0);
-        BOOST_REQUIRE_EQUAL(act8.finish(),28.5);
+        EnsuresEqual(act8.start(),15.0);
+        EnsuresEqual(act8.finish(),28.5);
     }
 }
 
+
+int main()
+{
+    parser_00();
+    parser();
+    test_stringdates();
+    test_relativedates();
+
+    return unit_test::report_errors();
+}

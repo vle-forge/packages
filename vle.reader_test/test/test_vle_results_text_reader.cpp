@@ -25,13 +25,7 @@
 //@@tagtest@@
 // @@tagdepends: vle.reader @@endtagdepends
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE table_file_reader
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 
 #include <vle/value/Matrix.hpp>
 #include <vle/value/Map.hpp>
@@ -43,7 +37,7 @@
 
 #include <iostream>
 
-BOOST_AUTO_TEST_CASE(test_vle_results_text_reader)
+void test_vle_results_text_reader()
 {
     {
         auto ctx = vle::utils::make_context();
@@ -53,10 +47,18 @@ BOOST_AUTO_TEST_CASE(test_vle_results_text_reader)
         vle::value::Matrix mat;
         tfr.readFile(mat);
         std::cout << " mat res:\n" << mat << "\n";
-        BOOST_REQUIRE((mat.rows() == 2));
-        BOOST_REQUIRE((mat.columns() == 2));
-        BOOST_REQUIRE_CLOSE(mat.getDouble(0,1), 1, 10e-5);
-        BOOST_REQUIRE((mat.getString(1,0)
+        Ensures((mat.rows() == 2));
+        Ensures((mat.columns() == 2));
+        EnsuresApproximatelyEqual(mat.getDouble(0,1), 1, 10e-5);
+        Ensures((mat.getString(1,0)
                 == "ExBohachevsky:ExBohachevsky.y"));
     }
+}
+
+
+int main()
+{
+    test_vle_results_text_reader();
+
+    return unit_test::report_errors();
 }

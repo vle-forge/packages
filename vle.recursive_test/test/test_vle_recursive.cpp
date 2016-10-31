@@ -25,20 +25,14 @@
 //@@tagtest@@
 //@@tagdepends: vle.recursive @@endtagdepends
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE package_test
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/utils/Package.hpp>
 #include <vle/recursive/MetaManager.hpp>
 
 #include <iostream>
 
-BOOST_AUTO_TEST_CASE(test_api)
+void test_api()
 {
     namespace vr = vle::recursive;
     namespace vv = vle::value;
@@ -85,22 +79,22 @@ BOOST_AUTO_TEST_CASE(test_api)
 
     std::cout << " res : " << *res << "\n";
 
-    BOOST_REQUIRE(res->getTable("ynoise").width() ==  2);//2 inputs
-    BOOST_REQUIRE(res->getTable("ynoise").height() ==  11);//duration+1
-    BOOST_REQUIRE(res->getTable("y").width() ==  2);
-    BOOST_REQUIRE(res->getTable("ynoiseFinish").height() ==  1);
-    BOOST_REQUIRE(res->getTable("ynoiseFinish").width() ==  2);
-    BOOST_REQUIRE(res->getTable("y").height() ==  1);
-    BOOST_REQUIRE_CLOSE(res->getTable("ynoise")(0/*col*/,0), 209.60005,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getTable("ynoiseFinish")(0,0),209.60005,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getTable("y")(0,0),209.6,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getTable("ynoise")(1,0),5.43077761310471e-05,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getTable("ynoiseFinish")(1,0),
+    Ensures(res->getTable("ynoise").width() ==  2);//2 inputs
+    Ensures(res->getTable("ynoise").height() ==  11);//duration+1
+    Ensures(res->getTable("y").width() ==  2);
+    Ensures(res->getTable("ynoiseFinish").height() ==  1);
+    Ensures(res->getTable("ynoiseFinish").width() ==  2);
+    Ensures(res->getTable("y").height() ==  1);
+    EnsuresApproximatelyEqual(res->getTable("ynoise")(0/*col*/,0), 209.60005,10e-4);
+    EnsuresApproximatelyEqual(res->getTable("ynoiseFinish")(0,0),209.60005,10e-4);
+    EnsuresApproximatelyEqual(res->getTable("y")(0,0),209.6,10e-4);
+    EnsuresApproximatelyEqual(res->getTable("ynoise")(1,0),5.43077761310471e-05,10e-4);
+    EnsuresApproximatelyEqual(res->getTable("ynoiseFinish")(1,0),
             5.43077761310471e-05,10e-4);
-    BOOST_REQUIRE_CLOSE(res->getTable("y")(1,0),0.0,10e-4);
+    EnsuresApproximatelyEqual(res->getTable("y")(1,0),0.0,10e-4);
 }
 
-BOOST_AUTO_TEST_CASE(test_complex_values)
+void test_complex_values()
 {
     namespace vr = vle::recursive;
     namespace vv = vle::value;
@@ -141,19 +135,19 @@ BOOST_AUTO_TEST_CASE(test_complex_values)
 
     std::cout << " res : " << *res << "\n";
 
-    BOOST_REQUIRE(res->getMatrix("yall").rows() ==  1);//integration last
-    BOOST_REQUIRE(res->getMatrix("yall").columns() ==  2);//2 inputs
+    Ensures(res->getMatrix("yall").rows() ==  1);//integration last
+    Ensures(res->getMatrix("yall").columns() ==  2);//2 inputs
     double v = res->getMatrix("yall").getMap(0,0).getDouble("with_noise");
-    BOOST_REQUIRE_CLOSE(v, 209.643,10e-4);
+    EnsuresApproximatelyEqual(v, 209.643,10e-4);
     v = res->getMatrix("yall").getMap(0,0).getDouble("without_noise");
-    BOOST_REQUIRE_CLOSE(v, 209.6,10e-4);
+    EnsuresApproximatelyEqual(v, 209.6,10e-4);
     v = res->getMatrix("yall").getMap(1,0).getDouble("with_noise");
-    BOOST_REQUIRE_CLOSE(v, 0.0427962,10e-4);
+    EnsuresApproximatelyEqual(v, 0.0427962,10e-4);
     v = res->getMatrix("yall").getMap(1,0).getDouble("without_noise");
-    BOOST_REQUIRE_CLOSE(v, 0.0,10e-4);
+    EnsuresApproximatelyEqual(v, 0.0,10e-4);
 }
 
-BOOST_AUTO_TEST_CASE(test_SIR)
+void test_SIR()
 {
     std::string conf_simu = "single"; int nb_slots=1;
     //std::string conf_simu = "threads"; int nb_slots=2;
@@ -197,13 +191,13 @@ BOOST_AUTO_TEST_CASE(test_SIR)
 
         std::cout << " Results1 : " << *res << "\n";
 
-        BOOST_REQUIRE(res->getTable("Sfinal").width() ==  5);
-        BOOST_REQUIRE(res->getTable("Sfinal").height() ==  1);
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(0,0), 9.2498,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(1,0), 18.4088,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(2,0), 31.4078,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(3,0), 49.1268,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(4,0), 44.8678,10e-4);
+        Ensures(res->getTable("Sfinal").width() ==  5);
+        Ensures(res->getTable("Sfinal").height() ==  1);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(0,0), 9.2498,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(1,0), 18.4088,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(2,0), 31.4078,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(3,0), 49.1268,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(4,0), 44.8678,10e-4);
     }
 
     {//multiple replicate on seed and multiple inputs on init_value_S
@@ -248,14 +242,14 @@ BOOST_AUTO_TEST_CASE(test_SIR)
         }
         std::cout << " Results2 (close to Results1): " << *res << "\n";
 
-        BOOST_REQUIRE(res->getTable("Sfinal").width() ==  5);
-        BOOST_REQUIRE(res->getTable("Sfinal").height() ==  1);
+        Ensures(res->getTable("Sfinal").width() ==  5);
+        Ensures(res->getTable("Sfinal").height() ==  1);
         //results below should be close to the first test
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(0,0), 11.5526,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(1,0), 22.2598,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(2,0), 36.1712,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(3,0), 51.3126,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("Sfinal")(4,0), 45.0968,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(0,0), 11.5526,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(1,0), 22.2598,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(2,0), 36.1712,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(3,0), 51.3126,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("Sfinal")(4,0), 45.0968,10e-4);
     }
 
     {//compute mse on multiple beta parameters
@@ -295,12 +289,22 @@ BOOST_AUTO_TEST_CASE(test_SIR)
         }
         std::cout << " Mse for beta in (0.001,0.002,0.003): " << *res << "\n";
 
-        BOOST_REQUIRE(res->getTable("mseI").width() ==  3);
-        BOOST_REQUIRE(res->getTable("mseI").height() ==  1);
-        BOOST_REQUIRE_CLOSE(res->getTable("mseI")(0,0), 102.158,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("mseI")(1,0), 0.233604,10e-4);
-        BOOST_REQUIRE_CLOSE(res->getTable("mseI")(2,0), 228.278,10e-4);
+        Ensures(res->getTable("mseI").width() ==  3);
+        Ensures(res->getTable("mseI").height() ==  1);
+        EnsuresApproximatelyEqual(res->getTable("mseI")(0,0), 102.158,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("mseI")(1,0), 0.233604,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("mseI")(2,0), 228.278,10e-4);
 
     }
 
+}
+
+
+int main()
+{
+    test_api();
+    test_complex_values();
+    test_SIR();
+
+    return unit_test::report_errors();
 }

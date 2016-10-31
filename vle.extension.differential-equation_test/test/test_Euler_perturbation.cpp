@@ -28,7 +28,7 @@
  *  Test of perturbation
  *  with X set to 0 at time 4.3545, Y should converge to 0
  ******************/
-BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterra)
+void test_Euler_PerturbLotkaVolterra()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_Euler_PerturbLotkaVolterra " << std::endl;
@@ -50,15 +50,15 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterra)
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),3);
+    EnsuresEqual(view.columns(),3);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 15003);
-    BOOST_REQUIRE(view.rows() >= 15002);
+    Ensures(view.rows() <= 15003);
+    Ensures(view.rows() >= 15002);
 
     //gets X,Y
     int colX = ttgetColumnFromView(view, "Top model:LotkaVolterra", "X");
@@ -66,13 +66,13 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterra)
     int colY = ttgetColumnFromView(view, "Top model:LotkaVolterra", "Y");
 
     //check X,Y at 4.357
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,4357) + 1, 1, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,4357),
+    EnsuresApproximatelyEqual(view.getDouble(colX,4357) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,4357),
                         6.62948339477899, 10e-4);//not sure
 
     //check X,Y line at 15
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,15000) + 1, 1, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY, 15000) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,15000) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY, 15000) + 1, 1, 10e-5);
 
 }
 
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterra)
  *  with X set to 0 at time 4.3545, Y should converge to 0
  *  same results as test_Euler_PerturbLotkaVolterra are expected
  ******************/
-BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterraXY)
+void test_Euler_PerturbLotkaVolterraXY()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_Euler_PerturbLotkaVolterraXY " << std::endl;
@@ -111,15 +111,15 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterraXY)
 
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),3);
+    EnsuresEqual(view.columns(),3);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 15003);
-    BOOST_REQUIRE(view.rows() >= 15002);
+    Ensures(view.rows() <= 15003);
+    Ensures(view.rows() >= 15002);
 
     //gets X,Y
     int colX = ttgetColumnFromView(view, "Top model:LotkaVolterraX", "X");
@@ -127,11 +127,20 @@ BOOST_AUTO_TEST_CASE(test_Euler_PerturbLotkaVolterraXY)
     int colY = ttgetColumnFromView(view, "Top model:LotkaVolterraY", "Y");
 
     //check X,Y at 4.357
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,4357) + 1, 1, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY, 4357),
+    EnsuresApproximatelyEqual(view.getDouble(colX,4357) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY, 4357),
                         6.62948339477899, 10e-4);//not sure
 
     //check X,Y line at 15
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX, 15000) + 1, 1, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY, 15000) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX, 15000) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY, 15000) + 1, 1, 10e-5);
+}
+
+int main()
+{
+    F fixture;
+    test_Euler_PerturbLotkaVolterra();
+    test_Euler_PerturbLotkaVolterraXY();
+
+    return unit_test::report_errors();
 }

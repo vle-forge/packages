@@ -28,7 +28,7 @@
  *  unit test of QSS2 on lotka_volterra model,
  *  based  on powerdevs results
  ******************/
-BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterra)
+void test_QSS2_LotkaVolterra()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_QSS2_LotkaVolterra " << std::endl;
@@ -51,15 +51,15 @@ BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterra)
 
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),3);
+    EnsuresEqual(view.columns(),3);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 15003);
-    BOOST_REQUIRE(view.rows() >= 15002);
+    Ensures(view.rows() <= 15003);
+    Ensures(view.rows() >= 15002);
 
     //gets X,Y
     int colX = ttgetColumnFromView(view,"Top model:LotkaVolterra", "X");
@@ -67,10 +67,10 @@ BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterra)
 
 
     //check X,Y line 15000
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,15001), 0.69363324986147468, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,15001), 0.69363324986147468, 10e-5);
     //previous 0.696088281553273
 
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,15001), 0.07761934820509947, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,15001), 0.07761934820509947, 10e-5);
     //previous 0.0774536442779648
 }
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterra)
  *
  *  note: results have to be the same as test_QSS2_LotkaVolterra
  ******************/
-BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterraXY)
+void test_QSS2_LotkaVolterraXY()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_QSS2_LotkaVolterraXY " << std::endl;
@@ -106,32 +106,32 @@ BOOST_AUTO_TEST_CASE(test_QSS2_LotkaVolterraXY)
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),3);
+    EnsuresEqual(view.columns(),3);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 15003);
-    BOOST_REQUIRE(view.rows() >= 15002);
+    Ensures(view.rows() <= 15003);
+    Ensures(view.rows() >= 15002);
 
     //gets X,Y
     int colX = ttgetColumnFromView(view, "Top model:LotkaVolterraX", "X");
     int colY = ttgetColumnFromView(view, "Top model:LotkaVolterraY", "Y");
 
     //check X,Y line 15000
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,15001), 0.69363324986147468, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,15001), 0.69363324986147468, 10e-5);
     //previous 0.696088281553273
 
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,15001), 0.07761934820509947, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,15001), 0.07761934820509947, 10e-5);
     //previous 0.0774536442779648
 }
 
 /******************
  *  Unit test based on powerdevs
  ******************/
-BOOST_AUTO_TEST_CASE(test_QSS2_Seir)
+void test_QSS2_Seir()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_QSS2_Seir " << std::endl;
@@ -152,15 +152,15 @@ BOOST_AUTO_TEST_CASE(test_QSS2_Seir)
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),5);
+    EnsuresEqual(view.columns(),5);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 1503);
-    BOOST_REQUIRE(view.rows() >= 1502);
+    Ensures(view.rows() <= 1503);
+    Ensures(view.rows() >= 1502);
 
 
     //gets S,E,I,R
@@ -170,10 +170,10 @@ BOOST_AUTO_TEST_CASE(test_QSS2_Seir)
     int colR = ttgetColumnFromView(view, "Top model:Seir", "R");
 
     //check S,E,I,R line 1500
-    BOOST_REQUIRE_CLOSE(view.getDouble(colS,1501), 0.636836529382071, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colE,1501), 0.636051925651117, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colI,1501), 2.95405622447345, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colR,1501), 6.77305532047774, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colS,1501), 0.636836529382071, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colE,1501), 0.636051925651117, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colI,1501), 2.95405622447345, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colR,1501), 6.77305532047774, 10e-5);
 
 }
 
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(test_QSS2_Seir)
  *  differential_equation (SeirXY.vpz) gets the same results
  *  in the case of QSS2 integration
  ******************/
-BOOST_AUTO_TEST_CASE(test_QSS2_SeirXY)
+void test_QSS2_SeirXY()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_QSS2_SeirXY " << std::endl;
@@ -224,17 +224,17 @@ BOOST_AUTO_TEST_CASE(test_QSS2_SeirXY)
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),5);
+    EnsuresEqual(view.columns(),5);
     //note: the number of rows depend on the averaging of sum of 0.01
     //The two last obs theoretically should be 14.99 and 15.0
     //but one can find eg. : 14.999999999 and 15.0 with one more obs
-    BOOST_REQUIRE(view.rows() <= 1503);
-    BOOST_REQUIRE(view.rows() >= 1502);
+    Ensures(view.rows() <= 1503);
+    Ensures(view.rows() >= 1502);
 
     //gets S,E,I,R
     int colS = ttgetColumnFromView(view, "Top model:Sm", "S");
@@ -243,11 +243,21 @@ BOOST_AUTO_TEST_CASE(test_QSS2_SeirXY)
     int colR = ttgetColumnFromView(view, "Top model:Rm", "R");
 
     //check S,E,I,R line 1500
-    BOOST_REQUIRE_CLOSE(view.getDouble(colS,1501), 0.636836529382071, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colE,1501), 0.636051925651117, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colI,1501), 2.95405622447345, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colR,1501), 6.77305532047774, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colS,1501), 0.636836529382071, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colE,1501), 0.636051925651117, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colI,1501), 2.95405622447345, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colR,1501), 6.77305532047774, 10e-5);
 }
 
+int main()
+{
+    F fixture;
+    test_QSS2_LotkaVolterra();
+    test_QSS2_LotkaVolterraXY();
+    test_QSS2_Seir();
+    test_QSS2_SeirXY();
+
+    return unit_test::report_errors();
+}
 
 

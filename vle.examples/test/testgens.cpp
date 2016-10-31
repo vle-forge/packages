@@ -26,14 +26,7 @@
  */
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_gens_model
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <string>
 #include <stdexcept>
 #include <iostream>
@@ -56,11 +49,9 @@ struct F
     }
 };
 
-BOOST_GLOBAL_FIXTURE(F);
-
 using namespace vle;
 
-BOOST_AUTO_TEST_CASE(test_gens)
+void test_gens()
 {
     auto ctx = vle::utils::make_context();
     vle::utils::Package pack(ctx, "vle.examples");
@@ -81,43 +72,43 @@ BOOST_AUTO_TEST_CASE(test_gens)
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 2);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 2);
 
     /* get result of simulation */
     value::Matrix& result = out->getMatrix("view1");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         3);
-    BOOST_REQUIRE_EQUAL(result.rows(),
+    EnsuresEqual(result.rows(),
                         101);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,0), 0);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,0), 0);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,0), 1);
+    EnsuresEqual(result.getDouble(0,0), 0);
+    EnsuresEqual(result.getDouble(1,0), 0);
+    EnsuresEqual(result.getInt(2,0), 1);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,10), 10);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,10), 55);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,10), 11);
+    EnsuresEqual(result.getDouble(0,10), 10);
+    EnsuresEqual(result.getDouble(1,10), 55);
+    EnsuresEqual(result.getInt(2,10), 11);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,14), 14);
-    BOOST_REQUIRE(result.get(1,14) == 0);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,14), 15);
+    EnsuresEqual(result.getDouble(0,14), 14);
+    Ensures(result.get(1,14) == 0);
+    EnsuresEqual(result.getInt(2,14), 15);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,31), 31);
-    BOOST_REQUIRE(result.get(1,31) == 0);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,31), 32);
+    EnsuresEqual(result.getDouble(0,31), 31);
+    Ensures(result.get(1,31) == 0);
+    EnsuresEqual(result.getInt(2,31), 32);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,100), 100);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,100), 2550);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,100), 1);
+    EnsuresEqual(result.getDouble(0,100), 100);
+    EnsuresEqual(result.getDouble(1,100), 2550);
+    EnsuresEqual(result.getInt(2,100), 1);
 
 
 }
 
-BOOST_AUTO_TEST_CASE(test_gens_with_class)
+void test_gens_with_class()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
@@ -138,47 +129,47 @@ BOOST_AUTO_TEST_CASE(test_gens_with_class)
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 2);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 2);
 
     /* get result of simulation */
     value::Matrix& result = out->getMatrix("view1");
 
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 2);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 2);
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         3);
-    BOOST_REQUIRE_EQUAL(result.rows(),
+    EnsuresEqual(result.rows(),
                         101);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,0), 0);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,0), 0);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,0), 2);
+    EnsuresEqual(result.getDouble(0,0), 0);
+    EnsuresEqual(result.getDouble(1,0), 0);
+    EnsuresEqual(result.getInt(2,0), 2);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,5), 5);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,5), 63);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,5), 7);
+    EnsuresEqual(result.getDouble(0,5), 5);
+    EnsuresEqual(result.getDouble(1,5), 63);
+    EnsuresEqual(result.getInt(2,5), 7);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,7), 7);
-    BOOST_REQUIRE(result.get(1,7) == 0);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,7), 9);
+    EnsuresEqual(result.getDouble(0,7), 7);
+    Ensures(result.get(1,7) == 0);
+    EnsuresEqual(result.getInt(2,7), 9);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,15), 15);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,15), 528);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,15), 17);
+    EnsuresEqual(result.getDouble(0,15), 15);
+    EnsuresEqual(result.getDouble(1,15), 528);
+    EnsuresEqual(result.getInt(2,15), 17);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,100), 100);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,100), 11400);
-    BOOST_REQUIRE_EQUAL(result.getInt(2,100), 2);
+    EnsuresEqual(result.getDouble(0,100), 100);
+    EnsuresEqual(result.getDouble(1,100), 11400);
+    EnsuresEqual(result.getInt(2,100), 2);
 
 
 }
 
-BOOST_AUTO_TEST_CASE(test_gens_with_graph)
+void test_gens_with_graph()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
@@ -197,40 +188,40 @@ BOOST_AUTO_TEST_CASE(test_gens_with_graph)
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     /* get result of simulation */
     value::Matrix& result = out->getMatrix("view1");
 
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         2);
-    BOOST_REQUIRE_EQUAL(result.rows(),
+    EnsuresEqual(result.rows(),
                         101);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,0), 0);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,0), 5);
+    EnsuresEqual(result.getDouble(0,0), 0);
+    EnsuresEqual(result.getDouble(1,0), 5);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,5), 5);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,5), 30);
+    EnsuresEqual(result.getDouble(0,5), 5);
+    EnsuresEqual(result.getDouble(1,5), 30);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,20), 20);
-    BOOST_REQUIRE(result.get(1,20) == 0);
+    EnsuresEqual(result.getDouble(0,20), 20);
+    Ensures(result.get(1,20) == 0);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,99), 99);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,99), 500);
+    EnsuresEqual(result.getDouble(0,99), 99);
+    EnsuresEqual(result.getDouble(1,99), 500);
 
-    BOOST_REQUIRE_EQUAL(result.getDouble(0,100), 100);
-    BOOST_REQUIRE_EQUAL(result.getDouble(1,100), 505);
+    EnsuresEqual(result.getDouble(0,100), 100);
+    EnsuresEqual(result.getDouble(1,100), 505);
 
 
 }
 
 
-BOOST_AUTO_TEST_CASE(test_gens_delete_connection)
+void test_gens_delete_connection()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
@@ -249,7 +240,18 @@ BOOST_AUTO_TEST_CASE(test_gens_delete_connection)
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
 
 
+}
+
+int main()
+{
+    F fixture;
+    test_gens();
+    test_gens_with_class();
+    test_gens_with_graph();
+    test_gens_delete_connection();
+
+    return unit_test::report_errors();
 }

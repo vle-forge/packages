@@ -22,60 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE package_test
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
-#include <ostream>
-#include <iostream>
-
-#include <vle/vle.hpp>
-#include <vle/value/Map.hpp>
-#include <vle/value/Matrix.hpp>
-#include <vle/vpz/Vpz.hpp>
-#include <vle/vpz/Model.hpp>
-#include <vle/vpz/AtomicModel.hpp>
-#include <vle/utils/Package.hpp>
-#include <vle/utils/Context.hpp>
-#include <vle/manager/Simulation.hpp>
-
-
-namespace vz = vle::vpz;
-namespace vu = vle::utils;
-namespace vm = vle::manager;
-namespace va = vle::value;
-
-struct F
-{
-    F()
-    {
-    }
-
-    vle::Init app;
-};
-BOOST_GLOBAL_FIXTURE(F);
-
-int getColumnFromView(const va::Matrix& view, const std::string& model,
-                                      const std::string& port)
-{
-    for(unsigned int j=1; j < view.columns(); j++){
-        if(view.getString(j,0) == (model + std::string(".") + port)){
-            return j;
-        }
-    }
-    return -1;
-}
-
+#include "test_common.hpp"
 
 /******************
  *  Unit test based on deSolve R package
  *  see R/check.R function test_Euler_LotkaVolterra
  ******************/
-BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
+void test_Euler_LotkaVolterra()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_Euler_LotkaVolterra " << std::endl;
@@ -104,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
     conds.push_back("condLV");
     vz::Model& vpz_mod = vpz->project().model();
     vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("LotkaVolterra");
-    BOOST_REQUIRE(mdl != 0);
+    Ensures(mdl != 0);
     vz::AtomicModel* atomg = mdl->toAtomic();
     atomg->setConditions(conds);
     //simulation
@@ -115,32 +68,32 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
 
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),3);
+    EnsuresEqual(view.columns(),3);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 15003);
-    BOOST_REQUIRE(view.rows() >= 15002);
+    Ensures(view.rows() <= 15003);
+    Ensures(view.rows() >= 15002);
 
     //gets X,Y
-    int colX = getColumnFromView(view, "Top model:LotkaVolterra", "X");
+    int colX = ttgetColumnFromView(view, "Top model:LotkaVolterra", "X");
 
-    int colY = getColumnFromView(view, "Top model:LotkaVolterra", "Y");
+    int colY = ttgetColumnFromView(view, "Top model:LotkaVolterra", "Y");
 
     //check X,Y line 10
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,10), 9.677077, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,10), 5.317209, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,10), 9.677077, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,10), 5.317209, 10e-5);
 
     //check X,Y line 30
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,30), 8.903716, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,30), 6.030680, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,30), 8.903716, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,30), 6.030680, 10e-5);
 
     //check X,Y line 15000
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,15000), 0.5528446, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,15000), 0.09330513, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,15000), 0.5528446, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,15000), 0.09330513, 10e-5);
 
 
 }
@@ -153,7 +106,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterra)
  *  differential_equation (LotkaVolterraXY.vpz) gets the same results
  *  in the case of Euler integration
  ******************/
-BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
+void test_Euler_LotkaVolterraXY()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_Euler_LotkaVolterraXY " << std::endl;
@@ -184,7 +137,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
         conds.push_back("condLV_X");
         vz::Model& vpz_mod = vpz->project().model();
         vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("LotkaVolterraX");
-        BOOST_REQUIRE(mdl != 0);
+        Ensures(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
     }
@@ -194,7 +147,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
         conds.push_back("condLV_Y");
         vz::Model& vpz_mod = vpz->project().model();
         vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("LotkaVolterraY");
-        BOOST_REQUIRE(mdl != 0);
+        Ensures(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
     }
@@ -206,38 +159,38 @@ BOOST_AUTO_TEST_CASE(test_Euler_LotkaVolterraXY)
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),3);
+    EnsuresEqual(view.columns(),3);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 15003);
-    BOOST_REQUIRE(view.rows() >= 15002);
+    Ensures(view.rows() <= 15003);
+    Ensures(view.rows() >= 15002);
 
     //gets X,Y
-    int colX = getColumnFromView(view, "Top model:LotkaVolterraX", "X");
-    int colY = getColumnFromView(view, "Top model:LotkaVolterraY", "Y");
+    int colX = ttgetColumnFromView(view, "Top model:LotkaVolterraX", "X");
+    int colY = ttgetColumnFromView(view, "Top model:LotkaVolterraY", "Y");
 
     //check X,Y line 10
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,10), 9.677077, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,10), 5.317209, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,10), 9.677077, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,10), 5.317209, 10e-5);
 
     //check X,Y line 30
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,30), 8.903716, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,30), 6.030680, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,30), 8.903716, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,30), 6.030680, 10e-5);
 
     //check X,Y line 15000
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,15000), 0.5528446, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,15000), 0.09330513, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colX,15000), 0.5528446, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,15000), 0.09330513, 10e-5);
 }
 
 /******************
  *  Unit test based on deSolve R package
  *  see R/check.R function test_Euler_Seir
  ******************/
-BOOST_AUTO_TEST_CASE(test_Euler_Seir)
+void test_Euler_Seir()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_Euler_Seir " << std::endl;
@@ -267,7 +220,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_Seir)
     conds.push_back("condSeir");
     vz::Model& vpz_mod = vpz->project().model();
     vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Seir");
-    BOOST_REQUIRE(mdl != 0);
+    Ensures(mdl != 0);
     vz::AtomicModel* atomg = mdl->toAtomic();
     atomg->setConditions(conds);
 
@@ -278,27 +231,27 @@ BOOST_AUTO_TEST_CASE(test_Euler_Seir)
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),5);
+    EnsuresEqual(view.columns(),5);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 1503);
-    BOOST_REQUIRE(view.rows() >= 1502);
+    Ensures(view.rows() <= 1503);
+    Ensures(view.rows() >= 1502);
 
     //gets S,E,I,R
-    int colS = getColumnFromView(view, "Top model:Seir", "S");
-    int colE = getColumnFromView(view, "Top model:Seir", "E");
-    int colI = getColumnFromView(view, "Top model:Seir", "I");
-    int colR = getColumnFromView(view, "Top model:Seir", "R");
+    int colS = ttgetColumnFromView(view, "Top model:Seir", "S");
+    int colE = ttgetColumnFromView(view, "Top model:Seir", "E");
+    int colI = ttgetColumnFromView(view, "Top model:Seir", "I");
+    int colR = ttgetColumnFromView(view, "Top model:Seir", "R");
 
     //check S,E,I,R line 1501
-    BOOST_REQUIRE_CLOSE(view.getDouble(colS,1501), 0.634334231496758, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colE,1501), 0.65430775343564, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colI,1501), 2.97798653683738, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colR,1501), 6.73337147823022, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colS,1501), 0.634334231496758, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colE,1501), 0.65430775343564, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colI,1501), 2.97798653683738, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colR,1501), 6.73337147823022, 10e-5);
     //E I R S
     //  0.65430775343564;2.97798653683738;6.73337147823022;0.634334231496758
 
@@ -312,7 +265,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_Seir)
  *  differential_equation (SeirXY.vpz) gets the same results
  *  in the case of Euler integration
  ******************/
-BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
+void test_Euler_SeirXY()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_Euler_SeirXY " << std::endl;
@@ -345,7 +298,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
         conds.push_back("condSm");
         vz::Model& vpz_mod = vpz->project().model();
         vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Sm");
-        BOOST_REQUIRE(mdl != 0);
+        Ensures(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
     }
@@ -356,7 +309,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
         conds.push_back("condEm");
         vz::Model& vpz_mod = vpz->project().model();
         vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Em");
-        BOOST_REQUIRE(mdl != 0);
+        Ensures(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
     }
@@ -367,7 +320,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
         conds.push_back("condIm");
         vz::Model& vpz_mod = vpz->project().model();
         vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Im");
-        BOOST_REQUIRE(mdl != 0);
+        Ensures(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
     }
@@ -378,7 +331,7 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
         conds.push_back("condRm");
         vz::Model& vpz_mod = vpz->project().model();
         vz::BaseModel* mdl = vpz_mod.node()->findModelFromPath("Rm");
-        BOOST_REQUIRE(mdl != 0);
+        Ensures(mdl != 0);
         vz::AtomicModel* atomg = mdl->toAtomic();
         atomg->setConditions(conds);
     }
@@ -390,25 +343,35 @@ BOOST_AUTO_TEST_CASE(test_Euler_SeirXY)
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 1503);
-    BOOST_REQUIRE(view.rows() >= 1502);
+    Ensures(view.rows() <= 1503);
+    Ensures(view.rows() >= 1502);
 
     //gets S,E,I,R
-    int colS = getColumnFromView(view, "Top model:Sm", "S");
-    int colE = getColumnFromView(view, "Top model:Em", "E");
-    int colI = getColumnFromView(view, "Top model:Im", "I");
-    int colR = getColumnFromView(view, "Top model:Rm", "R");
+    int colS = ttgetColumnFromView(view, "Top model:Sm", "S");
+    int colE = ttgetColumnFromView(view, "Top model:Em", "E");
+    int colI = ttgetColumnFromView(view, "Top model:Im", "I");
+    int colR = ttgetColumnFromView(view, "Top model:Rm", "R");
     //check S,E,I,R line 1501
-    BOOST_REQUIRE_CLOSE(view.getDouble(colS,1501), 0.634334231496758, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colE,1501), 0.65430775343564, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colI,1501), 2.97798653683738, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colR,1501), 6.73337147823022, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colS,1501), 0.634334231496758, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colE,1501), 0.65430775343564, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colI,1501), 2.97798653683738, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colR,1501), 6.73337147823022, 10e-5);
 }
 
 
+int main()
+{
+    F fixture;
+    test_Euler_LotkaVolterra();
+    test_Euler_LotkaVolterraXY();
+    test_Euler_Seir();
+    test_Euler_SeirXY();
+
+    return unit_test::report_errors();
+}

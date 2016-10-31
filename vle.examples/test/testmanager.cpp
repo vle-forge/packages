@@ -26,14 +26,7 @@
  */
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE manager_test
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <string>
 #include <stdexcept>
 #include <iostream>
@@ -55,11 +48,10 @@ struct F
     }
 };
 
-BOOST_GLOBAL_FIXTURE(F);
 
 using namespace vle;
 
-BOOST_AUTO_TEST_CASE(build_experimental_frames)
+void build_experimental_frames()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -74,31 +66,31 @@ BOOST_AUTO_TEST_CASE(build_experimental_frames)
     std::unique_ptr<value::Matrix> out = r.run(std::move(file),
             1, 0, 1, &error);
 
-    BOOST_REQUIRE(not error.code);
-    BOOST_REQUIRE(out);
+    Ensures(not error.code);
+    Ensures(out);
 
-    BOOST_REQUIRE_EQUAL(out->size(), (value::Matrix::size_type)3);
+    EnsuresEqual(out->size(), (value::Matrix::size_type)3);
 
     for (value::Matrix::size_type y = 0; y < out->size(); ++y) {
-        BOOST_REQUIRE(out->get(y, 0));
+        Ensures(out->get(y, 0));
         value::Map &map = out->getMap(y, 0);
 
-        BOOST_REQUIRE_EQUAL(map.size(), (value::Matrix::size_type)2);
+        EnsuresEqual(map.size(), (value::Matrix::size_type)2);
 
-        BOOST_REQUIRE(map.exist("view1"));
-        BOOST_REQUIRE(map.exist("view2"));
+        Ensures(map.exist("view1"));
+        Ensures(map.exist("view2"));
         const value::Matrix& matrix1 = map.getMatrix("view1");
         const value::Matrix& matrix2 = map.getMatrix("view2");
-        BOOST_REQUIRE_EQUAL(matrix1.rows(), 101);
-        BOOST_REQUIRE_EQUAL(matrix1.columns(), 5);
-        BOOST_REQUIRE_EQUAL(matrix2.rows(), 101);
-        BOOST_REQUIRE_EQUAL(matrix2.columns(), 4);
+        EnsuresEqual(matrix1.rows(), 101);
+        EnsuresEqual(matrix1.columns(), 5);
+        EnsuresEqual(matrix2.rows(), 101);
+        EnsuresEqual(matrix2.columns(), 4);
 
     }
 
 }
 
-BOOST_AUTO_TEST_CASE(build_linear_combination_size)
+void build_linear_combination_size()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -124,13 +116,13 @@ BOOST_AUTO_TEST_CASE(build_linear_combination_size)
     manager::Manager r(ctx,manager::LOG_NONE, manager::SIMULATION_NONE, NULL);
     manager::Error error;
     std::unique_ptr<value::Matrix> out = 0;
-    BOOST_REQUIRE_THROW(out = r.run(std::move(file),1, 0, 1, &error),
+    EnsuresThrow(out = r.run(std::move(file),1, 0, 1, &error),
             std::logic_error);
 
 }
 
 
-BOOST_AUTO_TEST_CASE(build_linear_output_matrix_size)
+void build_linear_output_matrix_size()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -155,36 +147,36 @@ BOOST_AUTO_TEST_CASE(build_linear_output_matrix_size)
     std::unique_ptr<value::Matrix> out = r.run(std::move(file),
             1, 0, 1, &error);
 
-    BOOST_REQUIRE(not error.code);
-    BOOST_REQUIRE(out);
+    Ensures(not error.code);
+    Ensures(out);
 
-    BOOST_REQUIRE_EQUAL(out->size(), (value::Matrix::size_type)5);
+    EnsuresEqual(out->size(), (value::Matrix::size_type)5);
 
     for (value::Matrix::size_type y = 0; y < out->size(); ++y) {
         value::Map &map = out->getMap(y, 0);
 
-        BOOST_REQUIRE_EQUAL(map.size(), (value::Matrix::size_type)2);
+        EnsuresEqual(map.size(), (value::Matrix::size_type)2);
 
-        BOOST_REQUIRE(map.exist("view1"));
-        BOOST_REQUIRE(map.exist("view2"));
+        Ensures(map.exist("view1"));
+        Ensures(map.exist("view2"));
         const value::Matrix& matrix1 = map.getMatrix("view1");
         const value::Matrix& matrix2 = map.getMatrix("view2");
-        BOOST_REQUIRE_EQUAL(matrix1.rows(), 101);
-        BOOST_REQUIRE_EQUAL(matrix1.columns(), 5);
-        BOOST_REQUIRE_EQUAL(matrix2.rows(), 101);
-        BOOST_REQUIRE_EQUAL(matrix2.columns(), 4);
+        EnsuresEqual(matrix1.rows(), 101);
+        EnsuresEqual(matrix1.columns(), 5);
+        EnsuresEqual(matrix2.rows(), 101);
+        EnsuresEqual(matrix2.columns(), 4);
 
-        BOOST_REQUIRE_EQUAL(100, matrix1.getDouble(0,100));
-        BOOST_REQUIRE_EQUAL(101, matrix1.getInt(1,100));
-        BOOST_REQUIRE_EQUAL(101, matrix1.getInt(2,100));
-        BOOST_REQUIRE_EQUAL(201, matrix1.getInt(3,100));
+        EnsuresEqual(100, matrix1.getDouble(0,100));
+        EnsuresEqual(101, matrix1.getInt(1,100));
+        EnsuresEqual(101, matrix1.getInt(2,100));
+        EnsuresEqual(201, matrix1.getInt(3,100));
 
     }
 
 }
 
 
-BOOST_AUTO_TEST_CASE(manager_thread_result_access)
+void manager_thread_result_access()
 {
     using namespace manager;
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
@@ -225,29 +217,29 @@ BOOST_AUTO_TEST_CASE(manager_thread_result_access)
     std::unique_ptr<value::Matrix> out = r.run(std::move(file),
             2, 0, 1, &error);
 
-    BOOST_REQUIRE(out);
-    BOOST_REQUIRE_EQUAL(out->size(), (value::Matrix::size_type)2);
+    Ensures(out);
+    EnsuresEqual(out->size(), (value::Matrix::size_type)2);
 
     for (value::Matrix::size_type y = 0; y < out->size(); ++y) {
-        BOOST_REQUIRE(out->get(y, 0));
+        Ensures(out->get(y, 0));
         value::Map &map = out->getMap(y, 0);
 
         //check number of views
-        BOOST_REQUIRE_EQUAL(map.size(), (value::Map::size_type)2);
+        EnsuresEqual(map.size(), (value::Map::size_type)2);
 
-        BOOST_REQUIRE(map.exist("view1"));
-        BOOST_REQUIRE(map.exist("view2"));
+        Ensures(map.exist("view1"));
+        Ensures(map.exist("view2"));
         const value::Matrix& matrix1 = map.getMatrix("view1");
         const value::Matrix& matrix2 = map.getMatrix("view2");
-        BOOST_REQUIRE_EQUAL(matrix1.rows(), 2);
-        BOOST_REQUIRE_EQUAL(matrix1.columns(), 5);
-        BOOST_REQUIRE_EQUAL(matrix2.rows(), 2);
-        BOOST_REQUIRE_EQUAL(matrix2.columns(), 4);
+        EnsuresEqual(matrix1.rows(), 2);
+        EnsuresEqual(matrix1.columns(), 5);
+        EnsuresEqual(matrix2.rows(), 2);
+        EnsuresEqual(matrix2.columns(), 4);
     }
 
 }
 
-BOOST_AUTO_TEST_CASE(manager_thread_fast_producer)
+void manager_thread_fast_producer()
 {
     using namespace manager;
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
@@ -289,13 +281,13 @@ BOOST_AUTO_TEST_CASE(manager_thread_fast_producer)
     std::unique_ptr<value::Matrix> out = r.run(std::move(file),
             2, 0, 1, &error);
 
-    BOOST_REQUIRE(out);
+    Ensures(out);
 
-    BOOST_REQUIRE_EQUAL(out->size(), (value::Matrix::size_type)2);
+    EnsuresEqual(out->size(), (value::Matrix::size_type)2);
 
 }
 
-BOOST_AUTO_TEST_CASE(manager_thread_fast_consumer)
+void manager_thread_fast_consumer()
 {
     /*
      * TODO parfois une errur au test
@@ -344,9 +336,22 @@ BOOST_AUTO_TEST_CASE(manager_thread_fast_consumer)
     std::unique_ptr<value::Matrix> out = r.run(std::move(file),
             2, 0, 1, &error);
 
-    BOOST_REQUIRE(out);
+    Ensures(out);
 
-    BOOST_REQUIRE_EQUAL(out->size(), (value::Matrix::size_type)2);
+    EnsuresEqual(out->size(), (value::Matrix::size_type)2);
 
 }
 
+
+int main()
+{
+    F fixture;
+    build_experimental_frames();
+    build_linear_combination_size();
+    build_linear_output_matrix_size();
+    manager_thread_result_access();
+    manager_thread_fast_producer();
+    manager_thread_fast_consumer();
+
+    return unit_test::report_errors();
+}

@@ -29,7 +29,7 @@
  *  simultaneous perturbations, only the success of simulation is
  *  tested
  ******************/
-BOOST_AUTO_TEST_CASE(test_coupling)
+void test_coupling()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_coupling " << std::endl;
@@ -46,8 +46,16 @@ BOOST_AUTO_TEST_CASE(test_coupling)
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
 
+}
+
+int main()
+{
+    F fixture;
+    test_coupling();
+
+    return unit_test::report_errors();
 }

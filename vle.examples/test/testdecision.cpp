@@ -26,14 +26,7 @@
  */
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_decision_extension
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <string>
 #include <iostream>
 #include <stdexcept>
@@ -56,11 +49,10 @@ struct F
     vle::Init app;
 };
 
-BOOST_GLOBAL_FIXTURE(F);
 
-    using namespace vle;
+using namespace vle;
 
-BOOST_AUTO_TEST_CASE(test_agentonly)
+void test_agentonly()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
@@ -73,30 +65,30 @@ BOOST_AUTO_TEST_CASE(test_agentonly)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("storage");
 
-    BOOST_REQUIRE_EQUAL(result.columns(), 2);
-    BOOST_REQUIRE_EQUAL(result.rows(), 12);
+    EnsuresEqual(result.columns(), 2);
+    EnsuresEqual(result.rows(), 12);
 
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 2), 4);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 3), 7);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 4), 8);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 5), 8);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 6), 8);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 7), 8);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 8), 8);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 9), 8);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 8);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 11), 9);
+    EnsuresEqual(result.getInt(1, 1), 1);
+    EnsuresEqual(result.getInt(1, 2), 4);
+    EnsuresEqual(result.getInt(1, 3), 7);
+    EnsuresEqual(result.getInt(1, 4), 8);
+    EnsuresEqual(result.getInt(1, 5), 8);
+    EnsuresEqual(result.getInt(1, 6), 8);
+    EnsuresEqual(result.getInt(1, 7), 8);
+    EnsuresEqual(result.getInt(1, 8), 8);
+    EnsuresEqual(result.getInt(1, 9), 8);
+    EnsuresEqual(result.getInt(1, 10), 8);
+    EnsuresEqual(result.getInt(1, 11), 9);
 
 }
 
-BOOST_AUTO_TEST_CASE(test_agentonlyprecedenceconstraint)
+void test_agentonlyprecedenceconstraint()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
@@ -109,27 +101,27 @@ BOOST_AUTO_TEST_CASE(test_agentonlyprecedenceconstraint)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix &result = out->getMatrix("storage");
 
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 2), 2);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 3), 3);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 4), 3);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 5), 3);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 6), 3);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 7), 3);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 8), 3);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 9), 3);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 3);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 11), 4);
+    EnsuresEqual(result.getInt(1, 1), 1);
+    EnsuresEqual(result.getInt(1, 2), 2);
+    EnsuresEqual(result.getInt(1, 3), 3);
+    EnsuresEqual(result.getInt(1, 4), 3);
+    EnsuresEqual(result.getInt(1, 5), 3);
+    EnsuresEqual(result.getInt(1, 6), 3);
+    EnsuresEqual(result.getInt(1, 7), 3);
+    EnsuresEqual(result.getInt(1, 8), 3);
+    EnsuresEqual(result.getInt(1, 9), 3);
+    EnsuresEqual(result.getInt(1, 10), 3);
+    EnsuresEqual(result.getInt(1, 11), 4);
 
 }
 
-BOOST_AUTO_TEST_CASE(test_agentonlywakeup)
+void test_agentonlywakeup()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -142,23 +134,33 @@ BOOST_AUTO_TEST_CASE(test_agentonlywakeup)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix &result = out->getMatrix("storage");
 
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 1), 0);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 2), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 3), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 4), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 5), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 6), 1);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 7), 2);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 8), 2);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 9), 2);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 10), 2);
-    BOOST_REQUIRE_EQUAL(result.getInt(1, 11), 2);
+    EnsuresEqual(result.getInt(1, 1), 0);
+    EnsuresEqual(result.getInt(1, 2), 1);
+    EnsuresEqual(result.getInt(1, 3), 1);
+    EnsuresEqual(result.getInt(1, 4), 1);
+    EnsuresEqual(result.getInt(1, 5), 1);
+    EnsuresEqual(result.getInt(1, 6), 1);
+    EnsuresEqual(result.getInt(1, 7), 2);
+    EnsuresEqual(result.getInt(1, 8), 2);
+    EnsuresEqual(result.getInt(1, 9), 2);
+    EnsuresEqual(result.getInt(1, 10), 2);
+    EnsuresEqual(result.getInt(1, 11), 2);
 
+}
+
+int main()
+{
+    F fixture;
+    test_agentonly();
+    test_agentonlyprecedenceconstraint();
+    test_agentonlywakeup();
+
+    return unit_test::report_errors();
 }
 

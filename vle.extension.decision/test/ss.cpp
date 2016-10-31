@@ -27,13 +27,7 @@
 
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_precedence_constraints
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <iostream>
 #include <iterator>
 #include <vle/vle.hpp>
@@ -54,7 +48,6 @@ struct F
     }
 };
 
-BOOST_GLOBAL_FIXTURE(F);
 
 namespace vmd = vle::extension::decision;
 
@@ -85,7 +78,7 @@ namespace vle { namespace extension { namespace decision { namespace ex {
  * B : 0--WAIT-------------------6--STARTED--10
  *
  */
-BOOST_AUTO_TEST_CASE(ss)
+void ss()
 {
     vmd::ex::SStest base;
     vmd::Activities::result_t lst;
@@ -94,8 +87,8 @@ BOOST_AUTO_TEST_CASE(ss)
     {
         const vmd::Activity& A =  base.activities().get("A")->second;
         const vmd::Activity& B =  base.activities().get("B")->second;
-        BOOST_REQUIRE(A.isInWaitState());
-        BOOST_REQUIRE(B.isInWaitState());
+        Ensures(A.isInWaitState());
+        Ensures(B.isInWaitState());
     }
     base.processChanges(1.0);
     base.setActivityDone("A",2.0);
@@ -103,8 +96,8 @@ BOOST_AUTO_TEST_CASE(ss)
     {
         const vmd::Activity& A =  base.activities().get("A")->second;
         const vmd::Activity& B =  base.activities().get("B")->second;
-        BOOST_REQUIRE(A.isInDoneState());
-        BOOST_REQUIRE(B.isInWaitState());
+        Ensures(A.isInDoneState());
+        Ensures(B.isInWaitState());
     }
     base.processChanges(3.0);
     base.processChanges(4.0);
@@ -114,7 +107,17 @@ BOOST_AUTO_TEST_CASE(ss)
     {
         const vmd::Activity& A =  base.activities().get("A")->second;
         const vmd::Activity& B =  base.activities().get("B")->second;
-        BOOST_REQUIRE(A.isInDoneState());
-        BOOST_REQUIRE(B.isInStartedState());
+        Ensures(A.isInDoneState());
+        Ensures(B.isInStartedState());
     }
+}
+
+
+int main()
+{
+    F fixture;
+
+    ss();
+
+    return unit_test::report_errors();
 }

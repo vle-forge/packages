@@ -26,13 +26,7 @@
  */
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_knowledge_base
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <iostream>
 #include <iterator>
 #include <vle/value/Double.hpp>
@@ -95,7 +89,7 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
 }}}} // namespace vle ext decision ex
 
-BOOST_AUTO_TEST_CASE(kb)
+void kb()
 {
     vle::Init app;
 
@@ -105,20 +99,28 @@ BOOST_AUTO_TEST_CASE(kb)
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_CHECK_EQUAL(lst.size(), vmd::Activities::result_t::size_type(0));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(0));
 
     base.processChanges(1.0);
     base.applyFact("today", vle::value::Double(16));
     lst = base.startedActivities();
-    BOOST_CHECK_EQUAL(lst.size(), vmd::Activities::result_t::size_type(0));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(0));
 
     base.processChanges(2.0);
     base.applyFact("today", vle::value::Double(21));
     lst = base.startedActivities();
-    BOOST_CHECK_EQUAL(lst.size(), vmd::Activities::result_t::size_type(0));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(0));
 
     base.processChanges(3.0);
     base.applyFact("today", vle::value::Double(18));
     lst = base.startedActivities();
-    BOOST_CHECK_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
+}
+
+
+int main()
+{
+    kb();
+
+    return unit_test::report_errors();
 }

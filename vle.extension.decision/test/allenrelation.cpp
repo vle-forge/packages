@@ -26,13 +26,7 @@
  */
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_relation_allen
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <iostream>
 #include <iterator>
 #include <vle/value/Double.hpp>
@@ -52,8 +46,6 @@ struct F
     {
     }
 };
-
-BOOST_GLOBAL_FIXTURE(F);
 
 namespace vmd = vle::extension::decision;
 
@@ -185,7 +177,7 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
 }}}} // namespace vle ext decision ex
 
-BOOST_AUTO_TEST_CASE(Before1)
+void Before1()
 {
     vmd::ex::Before base;
     vmd::Activities::result_t lst;
@@ -193,78 +185,78 @@ BOOST_AUTO_TEST_CASE(Before1)
     base.processChanges(0.0);
 
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(2.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(3.0);
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(4.0);
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 }
 
-BOOST_AUTO_TEST_CASE(Before2)
+void Before2()
 {
     vmd::ex::Before base;
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.setActivityDone("A", 1.0);
 
     base.processChanges(2.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(3.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(4.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(5.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(5.1);
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(6.0);
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 }
 
-BOOST_AUTO_TEST_CASE(Meets1)
+void Meets1()
 {
     vmd::ex::Meets base;
     vmd::Activities::result_t lst;
@@ -272,36 +264,36 @@ BOOST_AUTO_TEST_CASE(Meets1)
     base.processChanges(0.0);
 
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.setActivityDone("A", 1.0);
 
     base.processChanges(2.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(3.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.setActivityDone("B", 3.0);
 
     base.processChanges(4.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 }
 
-BOOST_AUTO_TEST_CASE(Overlaps1)
+void Overlaps1()
 {
     vmd::ex::Overlaps base;
     vmd::Activities::result_t lst;
@@ -309,31 +301,31 @@ BOOST_AUTO_TEST_CASE(Overlaps1)
     base.processChanges(0.0);
 
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(2.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(3.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.setActivityDone("A", 0.0);
     base.setActivityDone("B", 0.0);
 
     base.processChanges(4.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 }
 
-BOOST_AUTO_TEST_CASE(Overlaps2)
+void Overlaps2()
 {
     vmd::ex::Overlaps base;
     vmd::Activities::result_t lst;
@@ -341,237 +333,258 @@ BOOST_AUTO_TEST_CASE(Overlaps2)
     base.processChanges(0.0);
 
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(2.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(3.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.setActivityDone("A", 3.0);
 
     base.processChanges(4.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.setActivityDone("B", 4.0);
 
     base.processChanges(5.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 }
 
-BOOST_AUTO_TEST_CASE(During1)
+void During1()
 {
     vmd::ex::During base;
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(2.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(3.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.setActivityDone("A", 3.0);
 
     base.processChanges(4.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(0));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(0));
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(5.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(0));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(0));
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 }
 
-BOOST_AUTO_TEST_CASE(During2)
+void During2()
 {
     vmd::ex::During base;
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(2.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(3.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.setActivityDone("B", 3.0);
 
     base.processChanges(3.5);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.setActivityDone("A", 3.9);
 
     base.processChanges(4.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 }
 
-BOOST_AUTO_TEST_CASE(Starts1)
+void Starts1()
 {
     vmd::ex::Starts base;
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.setActivityDone("B", 0.0);
 
     base.processChanges(2.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.setActivityDone("A", 0.0);
 
     base.processChanges(3.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 }
 
-BOOST_AUTO_TEST_CASE(Starts2)
+void Starts2()
 {
     vmd::ex::StartsFailed base;
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
     lst = base.waitedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 }
 
-BOOST_AUTO_TEST_CASE(finishes)
+void finishes()
 {
     vmd::ex::Finishes base;
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(2.0);
     base.setActivityDone("A", 2.0);
 
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(3.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(4.0);
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 }
 
-BOOST_AUTO_TEST_CASE(Equal)
+void Equal()
 {
     vmd::ex::Equal base;
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.setActivityDone("A", 2.0);
     base.setActivityDone("B", 2.0);
     base.processChanges(2.0);
 
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(0));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(0));
 }
 
-BOOST_AUTO_TEST_CASE(EqualFail)
+void EqualFail()
 {
     vmd::ex::Equal base;
     vmd::Activities::result_t lst;
 
     base.processChanges(0.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.processChanges(1.0);
     lst = base.startedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(2));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(2));
 
     base.setActivityDone("A", 2.0);
     base.processChanges(2.0);
 
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
 
     base.processChanges(2.1);
 
     lst = base.endedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
     lst = base.failedActivities();
-    BOOST_REQUIRE_EQUAL(lst.size(), vmd::Activities::result_t::size_type(1));
+    EnsuresEqual(lst.size(), vmd::Activities::result_t::size_type(1));
+}
+
+
+int main()
+{
+    F fixture;
+
+    Before1();
+    Before2();
+    Meets1();
+    Overlaps1();
+    Overlaps2();
+    During1();
+    During2();
+    Starts1();
+    Starts2();
+    finishes();
+    Equal();
+    EqualFail();
+
+    return unit_test::report_errors();
 }

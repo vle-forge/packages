@@ -26,14 +26,7 @@
  */
 
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_qss_extension
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <string>
 #include <iostream>
 #include <stdexcept>
@@ -55,11 +48,10 @@ struct F
     }
 };
 
-BOOST_GLOBAL_FIXTURE(F);
 
 using namespace vle;
 
-BOOST_AUTO_TEST_CASE(test_qss4)
+void test_qss4()
 {
     auto ctx = vle::utils::make_context(); vle::utils::Package pack(ctx, "vle.examples");
     std::unique_ptr<vpz::Vpz> file(
@@ -75,25 +67,33 @@ BOOST_AUTO_TEST_CASE(test_qss4)
             std::chrono::milliseconds(0), &std::cout);
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
-    BOOST_REQUIRE_EQUAL(error.code, 0);
-    BOOST_REQUIRE(out != NULL);
-    BOOST_REQUIRE_EQUAL(out->size(), 1);
+    EnsuresEqual(error.code, 0);
+    Ensures(out != NULL);
+    EnsuresEqual(out->size(), 1);
 
     value::Matrix& result = out->getMatrix("view");
 
 
-    BOOST_REQUIRE_EQUAL(result.columns(),
+    EnsuresEqual(result.columns(),
                         5);
     //due to approximation
-    BOOST_REQUIRE(result.rows() >= 101);
-    BOOST_REQUIRE(result.rows() <= 102);
+    Ensures(result.rows() >= 101);
+    Ensures(result.rows() <= 102);
 
     //at the maximum of population of ladybirds
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,38), 146.5673122, 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,38), 1748.3006172, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,38), 146.5673122, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,38), 1748.3006172, 10e-5);
 
     //at the end
-    BOOST_REQUIRE_CLOSE(result.getDouble(3,100), 15.913027015, 10e-5);
-    BOOST_REQUIRE_CLOSE(result.getDouble(4,100), 122.1797197, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,100), 15.913027015, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(4,100), 122.1797197, 10e-5);
 
+}
+
+int main()
+{
+    F fixture;
+    test_qss4();
+
+    return unit_test::report_errors();
 }

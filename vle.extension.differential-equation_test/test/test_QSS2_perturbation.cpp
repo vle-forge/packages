@@ -29,7 +29,7 @@
  *  Test of perturbation
  *  with X set to 0 at time 4.3545, Y should converge to 0
  ******************/
-BOOST_AUTO_TEST_CASE(test_QSS2_PerturbLotkaVolterra)
+void test_QSS2_PerturbLotkaVolterra()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_QSS2_PerturbLotkaVolterra " << std::endl;
@@ -53,29 +53,29 @@ BOOST_AUTO_TEST_CASE(test_QSS2_PerturbLotkaVolterra)
 
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),3);
+    EnsuresEqual(view.columns(),3);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 15003);
-    BOOST_REQUIRE(view.rows() >= 15002);
+    Ensures(view.rows() <= 15003);
+    Ensures(view.rows() >= 15002);
 
     //gets X,Y
     int colX = ttgetColumnFromView(view, "Top model:LotkaVolterra", "X");
     int colY = ttgetColumnFromView(view, "Top model:LotkaVolterra", "Y");
 
     //check X,Y at 4.356
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,4356) + 1, 1, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,4356),
+    EnsuresApproximatelyEqual(view.getDouble(colX,4356) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,4356),
                         6.9326790251826349, 10e-4);//not sure
     //previous 6.97265225316311
 
     //check X,Y line at 15
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,15000) + 1, 1, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,15000) + 1,
+    EnsuresApproximatelyEqual(view.getDouble(colX,15000) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,15000) + 1,
                         1, 10e-2);//not precise
 
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(test_QSS2_PerturbLotkaVolterra)
  *  with X set to 0 at time 4.3545, Y should converge to 0.
  *  Results are expected to be the same as test_QSS2_PerturbLotkaVolterra
  ******************/
-BOOST_AUTO_TEST_CASE(test_QSS2_PerturbLotkaVolterraXY)
+void test_QSS2_PerturbLotkaVolterraXY()
 {
     auto ctx = vu::make_context();
     std::cout << "  test_QSS2_PerturbLotkaVolterraXY " << std::endl;
@@ -114,28 +114,39 @@ BOOST_AUTO_TEST_CASE(test_QSS2_PerturbLotkaVolterraXY)
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded
-    BOOST_REQUIRE_EQUAL(error.code, 0);
+    EnsuresEqual(error.code, 0);
     //checks the number of views
-    BOOST_REQUIRE_EQUAL(out->size(),1);
+    EnsuresEqual(out->size(),1);
     //checks the selected view
     const va::Matrix& view = out->getMatrix("view");
-    BOOST_REQUIRE_EQUAL(view.columns(),3);
+    EnsuresEqual(view.columns(),3);
     //note: the number of rows depend on the averaging of sum of 0.01
-    BOOST_REQUIRE(view.rows() <= 15003);
-    BOOST_REQUIRE(view.rows() >= 15002);
+    Ensures(view.rows() <= 15003);
+    Ensures(view.rows() >= 15002);
 
     //gets X,Y
     int colX = ttgetColumnFromView(view, "Top model:LotkaVolterraX", "X");
     int colY = ttgetColumnFromView(view, "Top model:LotkaVolterraY", "Y");
 
     //check X,Y at 4.355
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,4356) + 1, 1, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,4356),
+    EnsuresApproximatelyEqual(view.getDouble(colX,4356) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,4356),
                         6.9326790251826349, 10e-4);//not sure
     //previous : 6.97265225316311
 
     //check X,Y line at 14.999
-    BOOST_REQUIRE_CLOSE(view.getDouble(colX,15000) + 1, 1, 10e-5);
-    BOOST_REQUIRE_CLOSE(view.getDouble(colY,15000) + 1,
+    EnsuresApproximatelyEqual(view.getDouble(colX,15000) + 1, 1, 10e-5);
+    EnsuresApproximatelyEqual(view.getDouble(colY,15000) + 1,
                         1, 10e-2);//not precise
 }
+
+
+int main()
+{
+    F fixture;
+    test_QSS2_PerturbLotkaVolterra();
+    test_QSS2_PerturbLotkaVolterraXY();
+
+    return unit_test::report_errors();
+}
+

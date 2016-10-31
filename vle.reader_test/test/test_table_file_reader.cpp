@@ -25,13 +25,7 @@
 //@@tagtest@@
 //@@tagdepends: vle.reader @@endtagdepends
 
-#define BOOST_TEST_MAIN
-#define BOOST_AUTO_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE table_file_reader
-#include <boost/test/unit_test.hpp>
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <vle/utils/unit-test.hpp>
 
 #include <vle/value/Matrix.hpp>
 #include <vle/value/Map.hpp>
@@ -43,7 +37,7 @@
 #include <vle/reader/table_file_reader.hpp>
 
 
-BOOST_AUTO_TEST_CASE(test_table_file_reader)
+void test_table_file_reader()
 {
     auto ctx = vle::utils::make_context();
 
@@ -59,14 +53,14 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         tfr.setParams(params);
         vle::value::Matrix mat;
         tfr.readFile(mat);
-        BOOST_REQUIRE_CLOSE(mat.getDouble(2,1), 10.3, 10e-5);
+        EnsuresApproximatelyEqual(mat.getDouble(2,1), 10.3, 10e-5);
         vle::reader::TableFileReader tfr2(pkg.getDataFile("data.txt"));
         tfr2.setParams(params);
         vle::value::Set set;
         tfr2.readLine(set);
-        BOOST_REQUIRE_CLOSE(set.getDouble(2), 6, 10e-5);
+        EnsuresApproximatelyEqual(set.getDouble(2), 6, 10e-5);
         tfr2.readLine(set);
-        BOOST_REQUIRE_CLOSE(set.getDouble(2), 10.3, 10e-5);
+        EnsuresApproximatelyEqual(set.getDouble(2), 10.3, 10e-5);
     }
     {
         vle::value::Map params;
@@ -80,23 +74,23 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         tfr.setParams(params);
         vle::value::Matrix mat;
         tfr.readFile(mat);
-        BOOST_REQUIRE_CLOSE(mat.getDouble(2,1), 10.3, 10e-5);
+        EnsuresApproximatelyEqual(mat.getDouble(2,1), 10.3, 10e-5);
         vle::reader::TableFileReader tfr2(
                 pkg.getDataFile("dataWithCommaSep.txt"));
         tfr2.setParams(params);
         vle::value::Set set;
         tfr2.readLine(set);
-        BOOST_REQUIRE_CLOSE(set.getDouble(2), 25, 10e-5);
+        EnsuresApproximatelyEqual(set.getDouble(2), 25, 10e-5);
         tfr2.readLine(set);
-        BOOST_REQUIRE_CLOSE(set.getDouble(2), 10.3, 10e-5);
+        EnsuresApproximatelyEqual(set.getDouble(2), 10.3, 10e-5);
     }
     {
         vle::reader::TableFileReader tfr(
                 pkg.getDataFile("dataWithHeader.txt"));
         vle::value::Set header;
         tfr.readLine(header, " ");
-        BOOST_REQUIRE((header.size() == 3));
-        BOOST_REQUIRE((header.getString(2) == "V3"));
+        Ensures((header.size() == 3));
+        Ensures((header.getString(2) == "V3"));
     }
     {//readLineUndo
         vle::value::Map params;
@@ -110,17 +104,24 @@ BOOST_AUTO_TEST_CASE(test_table_file_reader)
         vle::value::Set set;
         tfr.readLine(set);
         std::cout << " 1: " << set << std::endl;
-        BOOST_REQUIRE_CLOSE(set.getDouble(2), 6, 10e-5);
+        EnsuresApproximatelyEqual(set.getDouble(2), 6, 10e-5);
         tfr.readLineUndo();
         tfr.readLine(set);
         std::cout << " 2: " << set << std::endl;
-        BOOST_REQUIRE_CLOSE(set.getDouble(2), 6, 10e-5);
+        EnsuresApproximatelyEqual(set.getDouble(2), 6, 10e-5);
         tfr.readLine(set);
         std::cout << " 3: " << set << std::endl;
-        BOOST_REQUIRE_CLOSE(set.getDouble(2), 10.3, 10e-5);
+        EnsuresApproximatelyEqual(set.getDouble(2), 10.3, 10e-5);
         tfr.readLineUndo();
         tfr.readLine(set);
         std::cout << " 4: " << set << std::endl;
-        BOOST_REQUIRE_CLOSE(set.getDouble(2), 10.3, 10e-5);
+        EnsuresApproximatelyEqual(set.getDouble(2), 10.3, 10e-5);
     }
+}
+
+int main()
+{
+    test_table_file_reader();
+
+    return unit_test::report_errors();
 }
