@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(MyProject CXX C)
+PROJECT(vle.adaptive-qss.examples CXX C)
 set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 ENABLE_TESTING()
 
@@ -70,7 +70,6 @@ if (COMMAND CMAKE_POLICY)
   cmake_policy(SET CMP0020 NEW)#for qt link
 endif (COMMAND CMAKE_POLICY)
 
-
 ##
 ## Check VLE and package dependencies
 ##
@@ -96,14 +95,6 @@ if (WITH_GVLE)
     message (WARNING "GVLE not found!")
   endif ()
 endif ()
-
-##
-## Find boost
-##
-
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREAD ON)
-find_package(Boost)
 
 ##
 ## Find Qt
@@ -179,6 +170,9 @@ endif ()
 if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data")
   add_subdirectory(data)
 endif ()
+if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/metadata")
+  add_subdirectory(metadata)
+endif ()
 if (WITH_DOC)
   if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/doc")
     add_subdirectory(doc)
@@ -190,11 +184,17 @@ endif ()
 if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_subdirectory(src)
 endif ()
-if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test")
+if (WITH_TEST)
+  if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test")
     add_subdirectory(test)
+  endif ()
 endif ()
 
-install(FILES Authors.txt Description.txt License.txt News.txt Readme.txt
+##
+## CPack configuration
+##
+
+INSTALL(FILES Authors.txt Description.txt License.txt News.txt Readme.txt
   DESTINATION .)
 
 INCLUDE(CMakeCPack.cmake)

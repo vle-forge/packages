@@ -30,7 +30,6 @@
 #include <iostream>
 #include <algorithm>
 #include <memory>
-#include <boost/checked_delete.hpp>
 #include <vle/extension/dsdevs/DSDevs.hpp>
 #include <vle/vpz/AtomicModel.hpp>
 #include <vle/vpz/Model.hpp>

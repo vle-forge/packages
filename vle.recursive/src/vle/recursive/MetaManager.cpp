@@ -23,8 +23,6 @@
 #include <string>
 #include <thread>
 
-#include <boost/algorithm/string.hpp>
-
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Tools.hpp>
 #include <vle/utils/Exception.hpp>
@@ -933,7 +931,6 @@ std::unique_ptr<vle::value::Map>
 MetaManager::runIntern(const vle::value::Map& init,
         vle::manager::Error& err)
 {
-    namespace ba = boost::algorithm;
 
     if (mexpe_debug){
         mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
@@ -1314,8 +1311,8 @@ MetaManager::runIntern(const vle::value::Map& init,
             } else {
                 std::getline(outFile,line);
             }
-
-            ba::split(tokens, line, ba::is_any_of("_"));
+            tokens.clear();
+            utils::tokenize(line, tokens, "_", false);
             if (tokens.size() != 3 or tokens[0] != "id") {
                 finishIds = true;
                 break;
@@ -1330,17 +1327,16 @@ MetaManager::runIntern(const vle::value::Map& init,
                 } else {
                     std::getline(outFile,line);
                 }
-
-                ba::split(tokens, line, ba::is_any_of(":"));
+                tokens.clear();
+                utils::tokenize(line, tokens, ":", false);
                 if (tokens.size() != 2 or tokens[0] != "view") {
                     break;
                 }
                 viewName.assign(tokens[1]);
                 //read view header and instantiate matrix view
                 std::getline(outFile,line);
-                boost::trim_if(line, boost::is_any_of(" "));
-                ba::split(tokens, line, ba::is_any_of(" "),
-                        boost::token_compress_on);
+                tokens.clear();
+                utils::tokenize(line, tokens, " ", true);
                 unsigned int nbCols = tokens.size();
                 bool getInsight = (insightsViewRows.find(viewName) !=
                         insightsViewRows.end());
@@ -1356,9 +1352,8 @@ MetaManager::runIntern(const vle::value::Map& init,
                 finishMatrixLine = false;
                 while(not finishMatrixLine){
                     std::getline(outFile,line);
-                    boost::trim_if(line, boost::is_any_of(" "));
-                    ba::split(tokens, line, ba::is_any_of(" "),
-                            boost::token_compress_on);
+                    tokens.clear();
+                    utils::tokenize(line, tokens, " ", true);
                     if (tokens.size() != nbCols) {
                         break;
                     }

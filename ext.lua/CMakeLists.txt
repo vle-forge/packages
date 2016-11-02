@@ -13,9 +13,9 @@ SET(VLE_NAME "${PROJECT_NAME}-${MODEL_MAJOR}.${MODEL_MINOR}")
 ## Options for compilation of package
 ##
 
-OPTION(WITH_TEST "will build the test [default: ON]" ON)
-OPTION(WITH_DOC "will compile doc and install it [default: OFF]" OFF)
-OPTION(WITH_WARNINGS "will compile with g++ warnings [default: ON]" ON)
+option(WITH_TEST "will build the test [default: ON]" ON)
+option(WITH_DOC "will compile doc and install it [default: OFF]" OFF)
+option(WITH_WARNINGS "will compile with g++ warnings [default: ON]" ON)
 option(WITH_GVLE "use the GVLE [default: on]" ON)
 
 ##
@@ -45,10 +45,23 @@ endif ()
 ## Modules
 ##
 
-INCLUDE(CheckIncludeFileCXX)
-INCLUDE(CheckIncludeFile)
-INCLUDE(CheckLibraryExists)
-INCLUDE(CMakeDetermineCCompiler)
+include(CheckIncludeFileCXX)
+include(CheckIncludeFile)
+include(CheckLibraryExists)
+include(CMakeDetermineCCompiler)
+include(CheckCXXCompilerFlag)
+
+CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX1Y)
+
+if (COMPILER_SUPPORTS_CXX14)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+elseif(COMPILER_SUPPORTS_CXX1Y)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+else()
+  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++14/1y support.
+                 Please use a different C++ compiler.")
+endif()
 
 ##
 ## cmake policy
@@ -56,6 +69,7 @@ INCLUDE(CMakeDetermineCCompiler)
 if (COMMAND CMAKE_POLICY)
   cmake_policy(SET CMP0020 NEW)#for qt link
 endif (COMMAND CMAKE_POLICY)
+
 ##
 ## Check VLE and package dependencies
 ##
@@ -81,14 +95,6 @@ if (WITH_GVLE)
     message (WARNING "GVLE not found!")
   endif ()
 endif ()
-##
-## Find boost
-##
-
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREAD ON)
-find_package(Boost COMPONENTS unit_test_framework date_time thread
-  system filesystem)
 
 ##
 ## Find Qt
@@ -164,6 +170,9 @@ endif ()
 if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data")
   add_subdirectory(data)
 endif ()
+if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/metadata")
+  add_subdirectory(metadata)
+endif ()
 if (WITH_DOC)
   if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/doc")
     add_subdirectory(doc)
@@ -175,12 +184,11 @@ endif ()
 if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_subdirectory(src)
 endif ()
-
-if (Boost_UNIT_TEST_FRAMEWORK_FOUND AND WITH_TEST)
+if (WITH_TEST)
   if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test")
     add_subdirectory(test)
   endif ()
-endif (Boost_UNIT_TEST_FRAMEWORK_FOUND AND WITH_TEST)
+endif ()
 
 ##
 ## CPack configuration
