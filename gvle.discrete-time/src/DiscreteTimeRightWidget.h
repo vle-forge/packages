@@ -28,7 +28,7 @@
 #include <QWidget>
 #include <QObject>
 #include <QDebug>
-#include <vle/gvle/vlevpm.h>
+#include <vle/gvle/vlevpz.hpp>
 
 namespace Ui {
     class rightWidget;

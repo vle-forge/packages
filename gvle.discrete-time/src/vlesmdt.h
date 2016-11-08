@@ -38,7 +38,7 @@
 #include <QXmlDefaultHandler>
 #include <vle/value/Value.hpp>
 #include <vle/value/Map.hpp>
-#include <vle/gvle/vleDomDiffStack.h>
+#include <vle/gvle/dom_tools.hpp>
 
 namespace vv = vle::value;
 
@@ -46,9 +46,9 @@ namespace vle {
 namespace gvle {
 
 /**
- * @brief Class that implements vleDomObject especially for vleSm
+ * @brief Class that implements DomObject especially for vleSm
  */
-class vleDomSmDT : public vleDomObject
+class vleDomSmDT : public DomObject
 {
 public:
     vleDomSmDT(QDomDocument* doc);
@@ -274,7 +274,7 @@ private:
     QString          mFileNameSrc;
     QString          mFileNameSm;
     vleDomSmDT*      mVdoSm;
-    vleDomDiffStack* undoStackSm;
+    DomDiffStack*    undoStackSm;
     bool             waitUndoRedoSm;
     QDomNode         oldValSm;
     QDomNode         newValSm;
