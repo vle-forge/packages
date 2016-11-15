@@ -636,7 +636,11 @@ Pimpl::confluentTransitions(const vle::devs::Time& t,
 
     switch (devs_state) {
     case INIT:
-        throw vu::InternalError("Error Unhandled error \n");
+        if (devs_guards.has_sync) {
+            devs_state = WAIT_SYNC;
+        } else {
+            devs_state = WAIT;
+        }
         break;
     case WAIT:
         if (devs_guards.bags_to_eat_eq_0) {
