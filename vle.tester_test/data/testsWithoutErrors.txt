@@ -1,10 +1,4 @@
-vle.examples equation1.vpz view "m:A.a" 11 10e-5 10
-vle.examples equation1.vpz view "m:B.b" 11 10e-5 52
-vle.examples equation1.vpz view "m:C.c" 11 10e-5 146
-vle.examples equation1.vpz view "m:D.d" 11 10e-5 461
-vle.examples equation1.vpz view "m:sum.s" 11 10e-5 669
-
-
-
+vle.examples stage.vpz view "stage:Meteo.state" 186 10e-3 23.6517409627881
+vle.examples stage.vpz view "stage:Meteo.state" 317 10e-3 19.8968079261578   
 
 

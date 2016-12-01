@@ -43,26 +43,26 @@ Or:
     vle --package vle.reader clean rclean configure build test
     vle --package vle.tester clean rclean configure build test
     vle --package vle.recursive clean rclean configure build test
-    vle --package vle.extension.difference-equation clean rclean configure build test
-    vle --package vle.extension.differential-equation clean rclean configure build test
-    vle --package vle.extension.differential-equation_test clean rclean configure build test
+    vle --package vle.ode clean rclean configure build test
+    vle --package vle.ode_test clean rclean configure build test
     vle --package vle.extension.dsdevs clean rclean configure build test
     vle --package vle.extension.fsa clean rclean configure build test
     vle --package vle.extension.petrinet clean rclean configure build test
     vle --package vle.examples clean rclean configure build test
     vle --package ext.muparser clean rclean configure build test
-    vle --package vle.forrester clean rclean configure build test
     vle --package vle.reader_test clean rclean configure build test
     vle --package vle.recursive_test clean rclean configure build test
     vle --package vle.discrete-time_test clean rclean configure build test
 
 ### Documentation
 
+Specific documentation to packages:
+
 * [vle.reader](docs_markdown/vle.reader.md)
 * [vle.tester](docs_markdown/vle.tester.md)
 * [vle.recursive](docs_markdown/vle.recursive.md)
-* [vle.discrete-time, vle.discrete-time.generic, vle.discrete-time.decision](docs_markdown/vle.discrete-time.md)
-* [vle.extension.differential-equation](docs_markdown/vle.extension.differential-equation.md)
+* [vle.discrete-timei.*](docs_markdown/vle.discrete-time.md)
+* [vle.ode](docs_markdown/vle.ode.md)
 
 ## License
 

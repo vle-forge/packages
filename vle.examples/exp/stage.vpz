@@ -1,114 +1,132 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
-<vle_project version="0.7" date="jeu, 23 oct 2008 23:00:27 +0200" author="HRaynal">
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE vle_project PUBLIC '-//VLE TEAM//DTD Strict//EN' 'http://www.vle-project.org/vle-1.3.0.dtd'>
+<vle_project version="0.7" author="HRaynal" date="jeu, 23 oct 2008 23:00:27 +0200">
 <structures>
-<model name="system" type="coupled" width="468" height="373"  >
+<model height="373" name="stage" width="468" type="coupled">
 <submodels>
-<model name="Meteo" type="atomic" conditions="condMeteo" dynamics="dynMeteo" observables="obsMeteo" x="17" y="25" width="100" height="45" >
+<model dynamics="dynMeteo" y="25" observables="obsMeteo" height="45" name="Meteo" width="100" type="atomic" conditions="condMeteo" x="17">
 <out>
- <port name="out" />
+ <port name="out"/>
 </out>
 </model>
-<model name="Stage" type="atomic" conditions="condStage" dynamics="dynStage" observables="obsStage" x="269" y="87" width="100" height="45" >
+<model dynamics="dynStage" y="87" observables="obsStage" height="45" name="Stage" width="100" type="atomic" conditions="condStage" x="269">
 <in>
- <port name="Tmoy" />
+ <port name="Tmoy"/>
 </in>
 <out>
- <port name="out" />
+ <port name="out"/>
 </out>
 </model>
 </submodels>
 <connections>
 <connection type="internal">
- <origin model="Meteo" port="out" />
- <destination model="Stage" port="Tmoy" />
+ <origin port="out" model="Meteo"/>
+ <destination port="Tmoy" model="Stage"/>
 </connection>
 </connections>
 </model>
 </structures>
 <dynamics>
-<dynamic name="dynMeteo" package="vle.examples" library="Meteo" type="local"  />
-<dynamic name="dynStage" package="vle.examples" library="Stage" type="local"  />
+<dynamic library="Meteo" name="dynMeteo" package="vle.examples" type="local"/>
+<dynamic library="Stage" name="dynStage" package="vle.examples" type="local"/>
 </dynamics>
-<experiment name="exp"  combination="linear" >
+<experiment combination="linear" name="stage">
 <conditions>
-<condition name="simulation_engine" >
- <port name="duration" >
+<condition name="simulation_engine">
+ <port name="duration">
 <double>330.0</double>
 </port>
- <port name="begin" >
+ <port name="begin">
 <double>2452884</double>
 </port>
 </condition>
-<condition name="condMeteo" >
- <port name="begin" >
+<condition name="condMeteo">
+ <port name="begin">
 <string>2003/09/01</string>
 </port>
 </condition>
-<condition name="condStage" >
- <port name="NETpot" >
+<condition name="condStage">
+ <port name="NETpot">
 <double>7</double>
 </port>
- <port name="Nstruct" >
+ <port name="Nstruct">
 <double>0.72</double>
 </port>
- <port name="P1Gpot" >
+ <port name="P1Gpot">
 <double>0.129</double>
 </port>
- <port name="datDF" >
+ <port name="datDF">
 <string>2004/06/08</string>
 </port>
- <port name="datrec" >
+ <port name="datrec">
 <string>2004/07/27</string>
 </port>
- <port name="datsemis" >
+ <port name="datsemis">
 <string>2004/03/04</string>
 </port>
- <port name="ifjour" >
+ <port name="ifjour">
 <double>13.5</double>
 </port>
- <port name="stdf" >
+ <port name="stdf">
 <double>200</double>
 </port>
- <port name="stdrg" >
+ <port name="stdrg">
 <double>265</double>
 </port>
- <port name="stif" >
+ <port name="stif">
 <double>150</double>
 </port>
- <port name="stlv" >
+ <port name="stlv">
 <double>150</double>
 </port>
- <port name="stmp" >
+ <port name="stmp">
 <double>400</double>
 </port>
- <port name="vdrg" >
+ <port name="vdrg">
 <double>30</double>
 </port>
 </condition>
 </conditions>
 <views>
 <outputs>
-<output name="view" location="" format="local" package="vle.output" plugin="file" />
+<output name="view" plugin="storage" package="vle.output" format="local" location="">
+     <map>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+     </map>
+    </output>
 
 </outputs>
 <observables>
-<observable name="obsMeteo" >
-<port name="state" >
- <attachedview name="view" />
+<observable name="obsMeteo">
+<port name="state">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="obsStage" >
-<port name="state" >
- <attachedview name="view" />
+<observable name="obsStage">
+<port name="state">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
 </observables>
-<view name="view" output="view" type="timed" timestep="1" />
+<view output="view" name="view" type="timed" timestep="1"/>
 
 </views>
 </experiment>
