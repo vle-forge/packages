@@ -44,8 +44,8 @@ public:
  {
     //Initialization of variables is done 
     //into the class constructor:
-    V1 = createVar("V1");
-    E1 = createVar("E1");
+    V1.init(this, "V1", events);
+    E1.init(this, "E1", events)
  }
  
  //gradients of state variables are expressed 

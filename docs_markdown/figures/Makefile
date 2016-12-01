@@ -15,5 +15,5 @@ clean:
 	rm -rf *.png
 
 upload:
-	scp -P 6999 *.png trepos@www.vle-project.org:/cross/pub/1.3/docs
+	scp -P 6999 *.png trepos@www.vle-project.org:/cross/pub/2.0/docs
 

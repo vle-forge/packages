@@ -58,11 +58,11 @@ Or:
 
 Specific documentation to packages:
 
-* [vle.reader](docs_markdown/vle.reader.md)
-* [vle.tester](docs_markdown/vle.tester.md)
-* [vle.recursive](docs_markdown/vle.recursive.md)
-* [vle.discrete-timei.*](docs_markdown/vle.discrete-time.md)
-* [vle.ode](docs_markdown/vle.ode.md)
+* [vle.ode](docs_markdown/vle.ode.md): ordinary differential equation
+* [vle.discrete-time](docs_markdown/vle.discrete-time.md): discrete time models
+* [vle.reader](docs_markdown/vle.reader.md): API to read files
+* [vle.tester](docs_markdown/vle.tester.md): API to test models
+* [vle.recursive](docs_markdown/vle.recursive.md): API to simulate embedded models
 
 ## License
 
