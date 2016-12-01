@@ -1,0 +1,301 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE vle_project PUBLIC '-//VLE TEAM//DTD Strict//EN' 'http://www.vle-project.org/vle-1.3.0.dtd'>
+<vle_project author="Ronan Trépos" version="1.1.0" date="2012-Jan-12 20:10:27">
+<structures>
+<model height="484" type="coupled" width="919" y="0" name="Top model" x="0">
+<submodels>
+<model height="90" type="atomic" dynamics="dynEm" observables="obsEm" conditions="condSeir_E,condQSS2,condSeir" width="100" y="63" name="Em" x="476">
+<in>
+ <port name="I"/>
+ <port name="R"/>
+ <port name="S"/>
+ <port name="E"/>
+</in>
+<out>
+ <port name="E"/>
+</out>
+</model>
+<model height="60" type="atomic" dynamics="dynIm" observables="obsIm" conditions="condSeir,condRK4" width="100" y="313" name="Im" x="234">
+<in>
+ <port name="E"/>
+ <port name="I"/>
+</in>
+<out>
+ <port name="I"/>
+</out>
+</model>
+<model height="45" type="atomic" dynamics="dynPerturb" conditions="condPertE,condPerturb" width="100" y="194" name="PerturbE" x="35">
+<out>
+ <port name="p"/>
+</out>
+</model>
+<model height="45" type="atomic" dynamics="dynPerturb" conditions="condPertI,condPerturb" width="100" y="262" name="PerturbI" x="40">
+<out>
+ <port name="p"/>
+</out>
+</model>
+<model height="60" type="atomic" dynamics="dynRm" observables="obsRm" conditions="condSeir,condRK4" width="100" y="235" name="Rm" x="443">
+<in>
+ <port name="I"/>
+ <port name="S"/>
+</in>
+<out>
+ <port name="R"/>
+</out>
+</model>
+<model height="75" type="atomic" dynamics="dynSm" observables="obsSm" conditions="condQSS2,condSeir,condSeir_S" width="100" y="46" name="Sm" x="189">
+<in>
+ <port name="E"/>
+ <port name="I"/>
+ <port name="R"/>
+</in>
+<out>
+ <port name="S"/>
+</out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin port="E" model="Em"/>
+ <destination port="E" model="Im"/>
+</connection>
+<connection type="internal">
+ <origin port="E" model="Em"/>
+ <destination port="E" model="Sm"/>
+</connection>
+<connection type="internal">
+ <origin port="I" model="Im"/>
+ <destination port="I" model="Em"/>
+</connection>
+<connection type="internal">
+ <origin port="I" model="Im"/>
+ <destination port="I" model="Sm"/>
+</connection>
+<connection type="internal">
+ <origin port="I" model="Im"/>
+ <destination port="I" model="Rm"/>
+</connection>
+<connection type="internal">
+ <origin port="p" model="PerturbE"/>
+ <destination port="E" model="Em"/>
+</connection>
+<connection type="internal">
+ <origin port="p" model="PerturbI"/>
+ <destination port="I" model="Im"/>
+</connection>
+<connection type="internal">
+ <origin port="R" model="Rm"/>
+ <destination port="R" model="Em"/>
+</connection>
+<connection type="internal">
+ <origin port="R" model="Rm"/>
+ <destination port="R" model="Sm"/>
+</connection>
+<connection type="internal">
+ <origin port="S" model="Sm"/>
+ <destination port="S" model="Em"/>
+</connection>
+<connection type="internal">
+ <origin port="S" model="Sm"/>
+ <destination port="S" model="Rm"/>
+</connection>
+<connection type="internal">
+     <origin port="p" model="PerturbE"/>
+     <destination port="E" model="Sm"/>
+    </connection>
+    <connection type="internal">
+     <origin port="p" model="PerturbE"/>
+     <destination port="E" model="Im"/>
+    </connection>
+    <connection type="internal">
+     <origin port="p" model="PerturbI"/>
+     <destination port="I" model="Rm"/>
+    </connection>
+    <connection type="internal">
+     <origin port="p" model="PerturbI"/>
+     <destination port="I" model="Em"/>
+    </connection>
+    <connection type="internal">
+     <origin port="p" model="PerturbI"/>
+     <destination port="I" model="Sm"/>
+    </connection>
+   </connections>
+</model>
+</structures>
+<dynamics>
+<dynamic package="vle.ode_test" type="local" library="Em" name="dynEm"/>
+<dynamic package="vle.ode_test" type="local" library="Im" name="dynIm"/>
+<dynamic package="vle.ode_test" type="local" library="Perturb" name="dynPerturb"/>
+<dynamic package="vle.ode_test" type="local" library="Rm" name="dynRm"/>
+<dynamic package="vle.ode_test" type="local" library="Sm" name="dynSm"/>
+</dynamics>
+<experiment name="PerturbSeirXY" combination="linear">
+<conditions>
+<condition name="simulation_engine">
+<port name="begin">
+<double>0.0</double>
+</port>  
+<port name="duration">
+<double>25.0</double>
+</port> 
+</condition>
+
+<condition name="condEuler">
+ <port name="method">
+<string>euler</string>
+</port>
+ <port name="time_step">
+<double>0.01</double>
+</port>
+</condition>
+
+<condition name="condPertE">
+ <port name="message">
+<map>
+      <key name="name">
+       <string>E</string>
+      </key>
+      <key name="value">
+       <double>0.000000000000000</double>
+      </key>
+     </map>
+</port>
+</condition>
+<condition name="condPertI">
+ <port name="message">
+<map>
+      <key name="name">
+       <string>I</string>
+      </key>
+      <key name="value">
+       <double>0.000000000000000</double>
+      </key>
+     </map>
+</port>
+</condition>
+<condition name="condPerturb">
+ <port name="sendTime">
+<double>15.000000000000000</double>
+</port>
+</condition>
+<condition name="condQSS2">
+ <port name="method">
+<string>qss2</string>
+</port>
+ 
+</condition>
+<condition name="condRK4">
+ <port name="method">
+<string>rk4</string>
+</port>
+ <port name="time_step">
+<double>0.001</double>
+</port>
+</condition>
+
+<condition name="condSeir">
+ <port name="beta">
+<double>0.900000000000000</double>
+</port>
+ <port name="gamma">
+<double>0.200000000000000</double>
+</port>
+ <port name="nu">
+<double>0.000000000000000</double>
+</port>
+ <port name="sigma">
+<double>0.500000000000000</double>
+</port>
+<port name="init_value_S">
+     <double>10</double>
+    </port>
+    <port name="init_value_E">
+     <double>1</double>
+    </port>
+    <port name="init_value_I">
+     <double>0</double>
+    </port>
+    <port name="init_value_R">
+     <double>0</double>
+    </port>
+   </condition>
+
+<condition name="condSeir_S">
+    <port name="quantum_S">
+     <double>0.1</double>
+    </port>
+   </condition>
+   <condition name="condSeir_E">
+    <port name="quantum_E">
+     <double>0.1</double>
+    </port>
+   </condition>
+   <condition name="condSeir_I">
+    <port name="quantum_I">
+     <double>0.1</double>
+    </port>
+   </condition>
+   <condition name="condSeir_R">
+    <port name="quantum_R">
+     <double>0.1</double>
+    </port>
+   </condition>
+  </conditions>
+<views>
+<outputs>
+<output package="vle.output" location="" format="local" name="view" plugin="storage">
+<map>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+     </map>
+    </output>
+
+</outputs>
+<observables>
+<observable name="obsEm">
+<port name="E">
+ <attachedview name="view"/>
+</port>
+
+</observable>
+
+<observable name="obsIm">
+<port name="I">
+ <attachedview name="view"/>
+</port>
+
+</observable>
+
+<observable name="obsRm">
+<port name="R">
+ <attachedview name="view"/>
+</port>
+
+</observable>
+
+<observable name="obsSm">
+<port name="S">
+ <attachedview name="view"/>
+</port>
+
+</observable>
+
+</observables>
+<view type="timed" output="view" name="view" timestep="0.010000000000000"/>
+
+</views>
+</experiment>
+</vle_project>

@@ -1,0 +1,32 @@
+                  VLE development team
+                  ====================
+
+
+Copyright
+=========
+
+- INRA
+  - Copyright © 2013
+  - French National Institute for Agricultural Research
+  - Institut National de la Recherche Agronomique
+  - http://www.inra.fr
+
+Authors
+=======
+
+Integrator / Release manager
+----------------------------
+
+- Gauthier Quesnel <quesnel@users.sourceforge.net>
+
+
+Main programmer and founder
+---------------------------
+
+- Ronan Trépos <rtreposl@toulouse.inra.fr>
+
+Contributors
+------------
+
+- Ronan Trépos <rtreposl@toulouse.inra.fr>
+- Eric Ramat <eramat@users.sourceforge.net>

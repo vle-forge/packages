@@ -1,0 +1,12 @@
+Package: vle.ode
+Version: 0.1.0
+Depends:
+Build-Depends: vle.output
+Conflicts:
+Maintainer: Ronan Trépos <rtrepos@toulouse.inra.fr>
+Description: An extension to simulate ordinary differential equations
+ .
+Tags: extension
+Url: http://www.vle-project.org/pub/2.0
+Size: 0
+MD5sum: xxxx
