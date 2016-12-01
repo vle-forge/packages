@@ -27,58 +27,57 @@
 
 /*
  * @@tagdynamic@@
- * @@tagdepends: vle.extension.difference-equation @@endtagdepends
+ * @@tagdepends: vle.discrete-time @@endtagdepends
  */
 
-#include <vle/extension/difference-equation/Simple.hpp>
-#include <vle/extension/difference-equation/Multiple.hpp>
+#include <vle/DiscreteTime.hpp>
+#include <iomanip>
 
 namespace vd = vle::devs;
-namespace ve = vle::extension;
 namespace vv = vle::value;
 
 namespace vle { namespace examples { namespace fsa {
 
-class EqLin : public ve::DifferenceEquation::Multiple
+using namespace vle::discrete_time;
+
+class LinearEqLin :public DiscreteTimeDyn
 {
 public:
-    EqLin(const vd::DynamicsInit& init, const vd::InitEventList& evts)
-        : ve::DifferenceEquation::Multiple(init, evts)
+    LinearEqLin(const vd::DynamicsInit& init, const vd::InitEventList& evts)
+        : DiscreteTimeDyn(init, evts)
     {
-        a = vv::toDouble(evts.get("a"));
-        b = vv::toDouble(evts.get("b"));
-        Y = createVar("Y");
-        A = createVar("A");
-        B = createVar("B");
-        X = createSync("X");
+        Y.init(this, "Y", evts);
+        A.init(this, "A", evts);
+        B.init(this, "B", evts);
+        X.init(this, "X", evts);
+        Y = A() * X() + B();
     }
 
-    virtual ~EqLin()
+    virtual ~LinearEqLin()
     {}
 
-    virtual void compute(const vd::Time& /*time*/)
+    virtual void compute(const vd::Time& time) override
     {
-        A = A(-1);
-        B = B(-1);
+        if (A.itVar->lastUpdateTime() < time) {
+            //first perturbation from fsa occurs before this compute thus,
+            //we should not update A since we need allow_update option for the
+            //second perturbation, which occurs after the compute
+            //TODO provide API lastUpdateTime in discrete_time
+            A = A(-1);
+        }
+        if (B.itVar->lastUpdateTime() < time) {
+            B = B(-1);
+        }
         Y = A() * X() + B();
     }
-
-    virtual void initValue(const vd::Time& /*time*/)
-    {
-        A = a;
-        B = b;
-        Y = A() * X() + B();
-    }
-
 private:
-    double a;
-    double b;
     Var Y;
     Var A;
     Var B;
-    Sync X;
+    Var X;//sync
+    //Sync X;
 };
 
-DECLARE_DYNAMICS(EqLin)
+DECLARE_DYNAMICS(LinearEqLin)
 
 }}} // namespace vle examples fsa

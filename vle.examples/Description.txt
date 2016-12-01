@@ -1,12 +1,12 @@
 Package: vle.examples
 Version: 0.1.0
 Depends: vle.output
-Build-Depends: vle.extension.celldevs, vle.extension.cellqss, vle.extension.decision, vle.extension.difference-equation, vle.extension.differential-equation, vle.extension.dsdevs, vle.extension.fsa, vle.extension.petrinet
+Build-Depends: vle.extension.celldevs, vle.extension.cellqss, vle.extension.decision, vle.discrete-time, vle.extension.differential-equation, vle.extension.dsdevs, vle.extension.fsa, vle.extension.petrinet
 Conflicts:
 Maintainer: Gauthier Quesnel <quesnel@users.sourceforge.net>
 Description: An set of examples which use VLE's extension
  .
 Tags: examples
-Url: http://www.vle-project.org/pub/1.3
+Url: http://www.vle-project.org/pub/2.0
 Size: 0
 MD5sum: xxxx

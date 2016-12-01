@@ -26,13 +26,12 @@
  */
 /*
  * @@tagdynamic@@
- * @@tagdepends: vle.extension.fsa,vle.extension.difference-equation @@endtagdepends
+ * @@tagdepends: vle.extension.fsa @@endtagdepends
  */
 
 
 
 #include <vle/extension/fsa/Statechart.hpp>
-#include <vle/extension/difference-equation/Base.hpp>
 
 namespace vle { namespace examples { namespace fsa {
 

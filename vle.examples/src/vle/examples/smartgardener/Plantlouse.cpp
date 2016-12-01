@@ -46,51 +46,55 @@
 
 /*
  * @@tagdynamic@@
- * @@tagdepends: vle.extension.difference-equation @@endtagdepends
+ * @@tagdepends: vle.discrete-time @@endtagdepends
  */
 
 
-#include <vle/extension/DifferenceEquation.hpp>
+#include <vle/DiscreteTime.hpp>
 
 
 
 namespace vd = vle::devs;
-namespace ve = vle::extension;
 namespace vv = vle::value;
 
 namespace vle { namespace examples { namespace smartgardeners {
 
-class Plantlouse : public ve::DifferenceEquation::Multiple
+
+using namespace vle::discrete_time;
+
+class Plantlouse : public DiscreteTimeDyn
 {
 public:
     Plantlouse(
        const vd::DynamicsInit& atom,
        const vd::InitEventList& evts)
-        : ve::DifferenceEquation::Multiple(atom, evts)
+        : DiscreteTimeDyn(atom, evts)
     {
         a = vv::toDouble(evts.get("a"));
         b = vv::toDouble(evts.get("b"));
-        x = createVar("x");
-        y = createSync("y");
+        ts = evts.getDouble("time-step");
+        x.init(this, "x", evts);
+        y.init(this, "y", evts);
     }
 
     virtual ~Plantlouse()
     {}
 
 
-    virtual void compute(const vd::Time& time) override
+    virtual void compute(const vd::Time& /*time*/) override
             {
-        x = x(-1) + timeStep(time) * (a* x(-1)-b*y()*x(-1));
+        //        x = x(-1) + timeStep(time) * (a* x(-1)-b*y()*x(-1));
+        x = x(-1) + ts * (a* x(-1)-b*y()*x(-1));
+
             }
 
-    virtual void initValue(const vd::Time& /*time*/) override
-    { }
 
 private:
     double a;
     double b;
+    double ts;
     Var x;
-    Sync y;
+    Var y;//sync
 };
 
 }}} // namespaces

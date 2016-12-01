@@ -32,6 +32,8 @@
 
 
 #include <vle/extension/fsa/Statechart.hpp>
+#include <iostream>
+#include <iomanip>
 
 namespace vle { namespace examples { namespace fsa {
 
@@ -39,8 +41,10 @@ namespace ve = vle::extension;
 namespace vf = vle::extension::fsa;
 namespace vd = vle::devs;
 
+
+
 typedef std::pair < double, double > param_pair;
-typedef std::map < double, param_pair > param_pair_map;
+typedef std::map < unsigned int, param_pair > param_pair_map;
 
 enum State2 { I = 1, A, B, C };
 
@@ -51,9 +55,9 @@ public:
                     const vd::InitEventList& events) :
         vf::Statechart(init, events)
     {
-        mStages[25.0] = std::make_pair(1.0, -25.0);
-        mStages[55.0] = std::make_pair(0.0, 30.0);
-        mStages[64.0] = std::make_pair(-1.5, 126);
+        mStages[25] = std::make_pair(1.0, -25.0);
+        mStages[55] = std::make_pair(0.0, 30.0);
+        mStages[64] = std::make_pair(-1.5, 126);
 
         states(this) << I << A << B << C;
 

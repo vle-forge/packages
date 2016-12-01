@@ -1,139 +1,159 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE vle_project PUBLIC '-//VLE TEAM//DTD Strict//EN' 'http://www.vle-project.org/vle-1.3.0.dtd'>
 <vle_project version="1.1.0" date="jeu., 18 févr. 2010" author="Patrick Chabrier">
 <structures>
-<model name="Top model" type="coupled" x="0" y="0" width="484" height="359"  >
+<model height="359" width="484" type="coupled" y="0" name="Top model" x="0">
 <submodels>
-<model name="Linear" type="atomic" conditions="cond_DE_Linear" dynamics="dyn_lin" observables="obs_Y" x="352" y="137" width="100" height="75" >
+<model debug="false" height="75" observables="obs_Y" conditions="cLinearEqLin" dynamics="dLinearEqLin" width="100" type="atomic" y="52" name="LinearEqLin" x="343">
 <in>
- <port name="perturb" />
- <port name="update" />
-</in>
+ <port name="A"/>
+ <port name="X"/>
+<port name="B"/>
+     </in>
 <out>
- <port name="A" />
- <port name="B" />
- <port name="Y" />
+ <port name="A"/>
+ <port name="B"/>
+ <port name="Y"/>
 </out>
 </model>
-<model name="Stages" type="atomic" dynamics="dyn_Stages" x="114" y="135" width="100" height="60" >
+<model debug="false" height="60" dynamics="dStatechartThreshold" width="100" type="atomic" y="77" name="StatechartThreshold" x="54">
 <in>
- <port name="Y" />
+ <port name="Y"/>
 </in>
 <out>
- <port name="A" />
- <port name="B" />
+ <port name="A"/>
+ <port name="B"/>
 </out>
 </model>
-<model name="generator" type="atomic" conditions="cond_DE_generator" dynamics="dyn_gen" observables="obs_X" x="143" y="259" width="100" height="60" >
-<in>
- <port name="perturb" />
- <port name="update" />
-</in>
+<model height="60" observables="obs_X" conditions="cLinearGenLin" dynamics="dLinearGenLin" width="100" type="atomic" y="174" name="LinearGenLin" x="134">
+<in/>
 <out>
- <port name="update" />
+ <port name="X"/>
 </out>
 </model>
 </submodels>
 <connections>
-<connection type="internal">
- <origin model="Linear" port="Y" />
- <destination model="Stages" port="Y" />
-</connection>
-<connection type="internal">
- <origin model="Stages" port="A" />
- <destination model="Linear" port="perturb" />
-</connection>
-<connection type="internal">
- <origin model="Stages" port="B" />
- <destination model="Linear" port="perturb" />
-</connection>
-<connection type="internal">
- <origin model="generator" port="update" />
- <destination model="Linear" port="update" />
-</connection>
-</connections>
+    <connection type="internal">
+     <origin model="LinearEqLin" port="Y"/>
+     <destination model="StatechartThreshold" port="Y"/>
+    </connection>
+    <connection type="internal">
+     <origin model="StatechartThreshold" port="A"/>
+     <destination model="LinearEqLin" port="A"/>
+    </connection>
+    <connection type="internal">
+     <origin model="LinearGenLin" port="X"/>
+     <destination model="LinearEqLin" port="X"/>
+    </connection>
+    <connection type="internal">
+     <origin model="StatechartThreshold" port="B"/>
+     <destination model="LinearEqLin" port="B"/>
+    </connection>
+   </connections>
 </model>
 </structures>
 <dynamics>
-<dynamic name="dyn_Stages" package="vle.examples" library="StatechartThreshold" type="local"  />
-<dynamic name="dyn_gen" package="vle.examples" library="LinearGenLin" type="local"  />
-<dynamic name="dyn_lin" package="vle.examples" library="LinearEqLin" type="local"  />
+<dynamic package="vle.examples" library="StatechartThreshold" type="local" name="dStatechartThreshold"/>
+<dynamic package="vle.examples" library="LinearGenLin" type="local" name="dLinearGenLin"/>
+<dynamic package="vle.examples" library="LinearEqLin" type="local" name="dLinearEqLin"/>
 </dynamics>
-<experiment name="exp"  combination="linear" >
+<experiment combination="linear" name="exp">
 <conditions>
-<condition name="simulation_engine" >
- <port name="duration" >
+<condition name="simulation_engine">
+ <port name="duration">
 <double>100.0</double>
 </port>
- <port name="begin" >
+ <port name="begin">
 <double>0.0</double>
 </port>
 </condition>
-<condition name="cond_DE_Linear" >
- <port name="a" >
+<condition name="cLinearEqLin">
+ <port name="init_value_A">
 <double>0.000000000000000</double>
 </port>
- <port name="b" >
+ <port name="init_value_B">
 <double>0.000000000000000</double>
 </port>
- <port name="mode" >
-<string>name</string>
-</port>
- <port name="time-step" >
+ 
+ <port name="time_step">
 <double>1.000000000000000</double>
 </port>
- <port name="variables" >
-<set><set><string>Y</string></set><set><string>A</string></set><set><string>B</string></set></set>
-</port>
-</condition>
-<condition name="cond_DE_generator" >
- <port name="a" >
+ 
+<port name="syncs">
+     <set>
+      <string>X</string>
+     </set>
+    </port>
+   <port name="bags_to_eat">
+     <integer>5</integer>
+    </port>
+    <port name="allow_update_A">
+     <boolean>1</boolean>
+    </port>
+    <port name="allow_update_B">
+     <boolean>1</boolean>
+    </port>
+   </condition>
+<condition name="cLinearGenLin">
+ <port name="a">
 <double>1.000000000000000</double>
 </port>
- <port name="mode" >
-<string>name</string>
-</port>
- <port name="name" >
-<string>X</string>
-</port>
- <port name="time-step" >
+ 
+ 
+ <port name="time_step">
 <double>1.000000000000000</double>
 </port>
- <port name="value" >
-<double>0.000000000000000</double>
-</port>
+ 
 </condition>
 </conditions>
 <views>
 <outputs>
-<output name="view" location="" format="local" package="vle.output" plugin="file" />
+<output package="vle.output" format="local" plugin="storage" location="" name="view">
+     <map>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+     </map>
+    </output>
 
 </outputs>
 <observables>
-<observable name="obs_X" >
-<port name="X" >
- <attachedview name="view" />
+<observable name="obs_X">
+<port name="X">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="obs_Y" >
-<port name="A" >
- <attachedview name="view" />
+<observable name="obs_Y">
+<port name="A">
+ <attachedview name="view"/>
 </port>
 
-<port name="B" >
- <attachedview name="view" />
+<port name="B">
+ <attachedview name="view"/>
 </port>
 
-<port name="Y" >
- <attachedview name="view" />
+<port name="Y">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
 </observables>
-<view name="view" output="view" type="timed" timestep="1.000000000000000" />
+<view output="view" timestep="1.000000000000000" type="timed" name="view"/>
 
 </views>
 </experiment>

@@ -27,7 +27,7 @@
 
 /*
  * @@tagdynamic@@
- * @@tagdepends: vle.extension.fsa,vle.extension.difference-equation @@endtagdepends
+ * @@tagdepends: vle.extension.fsa @@endtagdepends
  */
 
 #include <vle/examples/fsa/Stage.hpp>

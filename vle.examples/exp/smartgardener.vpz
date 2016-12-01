@@ -1,215 +1,243 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE vle_project PUBLIC "-//VLE TEAM//DTD Strict//EN" "http://www.vle-project.org/vle-1.3.0.dtd">
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE vle_project PUBLIC '-//VLE TEAM//DTD Strict//EN' 'http://www.vle-project.org/vle-1.3.0.dtd'>
 <vle_project version="0.1" date="2013-Mar-11 16:34:02" author="Ronan Trépos">
 <structures>
-<model name="smartgardener" type="coupled" x="0" y="0" width="1504" height="531"  >
+<model height="531" width="1504" type="coupled" y="0" name="smartgardener" x="0">
 <submodels>
-<model name="smartgardener" type="atomic" conditions="condDecisionPlan_smartgardener" dynamics="dynSmartgardener" observables="obs_Decision_smartgardener" x="66" y="20" width="100" height="75" >
+<model height="75" observables="obs_Decision_smartgardener" conditions="condDecisionPlan_smartgardener" dynamics="dynSmartgardener" width="100" type="atomic" y="20" name="Smartgardener" x="66">
 <in>
- <port name="ack" />
- <port name="x" />
- <port name="y" />
+ <port name="ack"/>
+ <port name="x"/>
+ <port name="y"/>
 </in>
 <out>
- <port name="x" />
- <port name="y" />
+ <port name="x"/>
+ <port name="y"/>
 </out>
 </model>
-<model name="bio" type="coupled" x="213" y="190" width="100" height="60"  >
+<model height="60" width="100" type="coupled" y="190" name="bio" x="213">
 <in>
- <port name="x" />
- <port name="y" />
+ <port name="x"/>
+ <port name="y"/>
 </in>
 <out>
- <port name="x" />
- <port name="y" />
+ <port name="x"/>
+ <port name="y"/>
 </out>
 <submodels>
-<model name="differenceEquationAdaptor" type="atomic" conditions="cond_DE_plantlouse" dynamics="dynDi" x="201" y="34" width="100" height="45" >
+<model height="45" conditions="cond_DE_plantlouse" dynamics="dynDi" width="100" type="atomic" y="34" name="differenceEquationAdaptor" x="201">
 <in>
- <port name="y" />
+ <port name="y"/>
 </in>
 <out>
- <port name="y" />
+ <port name="y"/>
 </out>
 </model>
-<model name="ladybird" type="atomic" conditions="cond_DTE_ladybird,cond_DTE_ladybird_integration,cond_params" dynamics="dynLadybird" observables="obs_DTE_ladybird" x="59" y="26" width="100" height="60" >
+<model height="60" observables="obs_DTE_ladybird" conditions="cond_DTE_ladybird,cond_DTE_ladybird_integration,cond_params" dynamics="dynLadybird" width="100" type="atomic" y="26" name="Ladybird" x="59">
 <in>
- <port name="perturb" />
- <port name="x" />
+ <port name="perturb"/>
+ <port name="x"/>
 </in>
 <out>
- <port name="y" />
+ <port name="y"/>
 </out>
 </model>
-<model name="plantlouse" type="atomic" conditions="cond_DE_plantlouse,cond_params" dynamics="dynPlantlouse" observables="obs_DE_plantlouse" x="249" y="214" width="100" height="60" >
+<model height="60" observables="obs_DE_plantlouse" conditions="cond_DE_plantlouse,cond_params" dynamics="dynPlantlouse" width="100" type="atomic" y="214" name="Plantlouse" x="249">
 <in>
- <port name="perturb" />
- <port name="y" />
+ <port name="perturb"/>
+ <port name="y"/>
 </in>
 <out>
- <port name="x" />
+ <port name="x"/>
 </out>
 </model>
 </submodels>
 <connections>
 <connection type="output">
- <origin model="plantlouse" port="x" />
- <destination model="bio" port="x" />
+ <origin model="Plantlouse" port="x"/>
+ <destination model="bio" port="x"/>
 </connection>
 <connection type="output">
- <origin model="ladybird" port="y" />
- <destination model="bio" port="y" />
+ <origin model="Ladybird" port="y"/>
+ <destination model="bio" port="y"/>
 </connection>
 <connection type="input">
- <origin model="bio" port="x" />
- <destination model="plantlouse" port="perturb" />
+ <origin model="bio" port="x"/>
+ <destination model="Plantlouse" port="perturb"/>
 </connection>
 <connection type="input">
- <origin model="bio" port="y" />
- <destination model="ladybird" port="perturb" />
+ <origin model="bio" port="y"/>
+ <destination model="Ladybird" port="perturb"/>
 </connection>
 <connection type="internal">
- <origin model="differenceEquationAdaptor" port="y" />
- <destination model="plantlouse" port="y" />
+ <origin model="differenceEquationAdaptor" port="y"/>
+ <destination model="Plantlouse" port="y"/>
 </connection>
 <connection type="internal">
- <origin model="ladybird" port="y" />
- <destination model="differenceEquationAdaptor" port="y" />
+ <origin model="Ladybird" port="y"/>
+ <destination model="differenceEquationAdaptor" port="y"/>
 </connection>
 <connection type="internal">
- <origin model="plantlouse" port="x" />
- <destination model="ladybird" port="x" />
+ <origin model="Plantlouse" port="x"/>
+ <destination model="Ladybird" port="x"/>
 </connection>
 </connections>
 </model>
 </submodels>
 <connections>
 <connection type="internal">
- <origin model="bio" port="x" />
- <destination model="smartgardener" port="x" />
+ <origin model="bio" port="x"/>
+ <destination model="Smartgardener" port="x"/>
 </connection>
 <connection type="internal">
- <origin model="bio" port="y" />
- <destination model="smartgardener" port="y" />
+ <origin model="bio" port="y"/>
+ <destination model="Smartgardener" port="y"/>
 </connection>
 <connection type="internal">
- <origin model="smartgardener" port="x" />
- <destination model="bio" port="x" />
+ <origin model="Smartgardener" port="x"/>
+ <destination model="bio" port="x"/>
 </connection>
 <connection type="internal">
- <origin model="smartgardener" port="y" />
- <destination model="bio" port="y" />
+ <origin model="Smartgardener" port="y"/>
+ <destination model="bio" port="y"/>
 </connection>
 </connections>
 </model>
 </structures>
 <dynamics>
-<dynamic name="dynDi" library="DifferenceEquationAdaptor" package="vle.examples"  />
-<dynamic name="dynLadybird" library="Ladybird" package="vle.examples"  />
-<dynamic name="dynPlantlouse" library="Plantlouse" package="vle.examples"  />
-<dynamic name="dynSmartgardener" library="Smartgardener" package="vle.examples"  />
+<dynamic package="vle.examples" library="DifferenceEquationAdaptor" name="dynDi"/>
+<dynamic package="vle.examples" library="Ladybird" name="dynLadybird"/>
+<dynamic package="vle.examples" library="Plantlouse" name="dynPlantlouse"/>
+<dynamic package="vle.examples" library="Smartgardener" name="dynSmartgardener"/>
 </dynamics>
-<experiment name="smartgardener" >
+<experiment name="smartgardener">
 <conditions>
-<condition name="simulation_engine" >
- <port name="duration" >
+<condition name="simulation_engine">
+ <port name="duration">
 <double>20.0</double>
 </port>
- <port name="begin" >
+ <port name="begin">
 <double>0.0</double>
 </port>
 </condition>
-<condition name="condDecisionPlan_smartgardener" >
- <port name="ladybird_min_population" >
+<condition name="condDecisionPlan_smartgardener">
+ <port name="ladybird_min_population">
 <double>2.000000000000000</double>
 </port>
- <port name="planFile" >
+ <port name="planFile">
 <string>SmartGardener</string>
 </port>
- <port name="plantlouse_max_population" >
+ <port name="plantlouse_max_population">
 <double>8000.000000000000000</double>
 </port>
- <port name="treatment_effect_on_ladybird" >
+ <port name="treatment_effect_on_ladybird">
 <double>0.100000000000000</double>
 </port>
- <port name="treatment_effect_on_plantlouse" >
+ <port name="treatment_effect_on_plantlouse">
 <double>0.600000000000000</double>
 </port>
 </condition>
-<condition name="cond_DE_plantlouse" >
- <port name="mode" >
+<condition name="cond_DE_plantlouse">
+ <port name="mode">
 <string>port</string>
 </port>
- <port name="time-step" >
+ <port name="time-step">
 <double>0.200000000000000</double>
 </port>
- <port name="variables" >
-<set><set><string>x</string><double>5000.000000000000000</double></set></set>
+ <port name="variables">
+<set>
+      <set>
+       <string>x</string>
+       <double>5000.000000000000000</double>
+      </set>
+     </set>
 </port>
 </condition>
-<condition name="cond_DTE_ladybird" >
- <port name="variables" >
-<map><key name="y"><double>10.000000000000000</double></key></map>
+<condition name="cond_DTE_ladybird">
+ <port name="variables">
+<map>
+      <key name="y">
+       <double>10.000000000000000</double>
+      </key>
+     </map>
 </port>
 </condition>
-<condition name="cond_DTE_ladybird_integration" >
- <port name="method" >
+<condition name="cond_DTE_ladybird_integration">
+ <port name="method">
 <string>qss2</string>
 </port>
- <port name="method-parameters" >
-<map><key name="DeltaQ"><map><key name="y"><double>1.000000000000000</double></key></map></key></map>
+ <port name="method-parameters">
+<map>
+      <key name="DeltaQ">
+       <map>
+        <key name="y">
+         <double>1.000000000000000</double>
+        </key>
+       </map>
+      </key>
+     </map>
 </port>
 </condition>
-<condition name="cond_params" >
- <port name="a" >
+<condition name="cond_params">
+ <port name="a">
 <double>0.500000000000000</double>
 </port>
- <port name="b" >
+ <port name="b">
 <double>0.010000000000000</double>
 </port>
- <port name="d" >
+ <port name="d">
 <double>0.010000000000000</double>
 </port>
- <port name="e" >
+ <port name="e">
 <double>0.200000000000000</double>
 </port>
 </condition>
 </conditions>
 <views>
 <outputs>
-<output name="view" location="" format="local" package="vle.output"  plugin="file" >
-<map><key name="julian-day"><boolean>false</boolean></key><key name="locale"><string>C</string></key><key name="type"><string>csv</string></key></map></output>
+<output package="vle.output" format="local" plugin="file" location="" name="view">
+<map>
+      <key name="julian-day">
+       <boolean>false</boolean>
+      </key>
+      <key name="locale">
+       <string>C</string>
+      </key>
+      <key name="type">
+       <string>csv</string>
+      </key>
+     </map>
+    </output>
 
 </outputs>
 <observables>
-<observable name="obs_DE_plantlouse" >
-<port name="x" >
- <attachedview name="view" />
+<observable name="obs_DE_plantlouse">
+<port name="x">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="obs_DTE_ladybird" >
-<port name="y" >
- <attachedview name="view" />
+<observable name="obs_DTE_ladybird">
+<port name="y">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
-<observable name="obs_Decision_smartgardener" >
-<port name="Activity_PlantlouseTreatment1" >
- <attachedview name="view" />
+<observable name="obs_Decision_smartgardener">
+<port name="Activity_PlantlouseTreatment1">
+ <attachedview name="view"/>
 </port>
 
-<port name="Rules_TreatmentRequired" >
- <attachedview name="view" />
+<port name="Rules_TreatmentRequired">
+ <attachedview name="view"/>
 </port>
 
 </observable>
 
 </observables>
-<view name="view" output="view" type="timed" timestep="0.200000000000000" />
+<view output="view" timestep="0.200000000000000" type="timed" name="view"/>
 
 </views>
 </experiment>

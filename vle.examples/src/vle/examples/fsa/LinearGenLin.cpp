@@ -27,42 +27,42 @@
 
 /*
  * @@tagdynamic@@
- * @@tagdepends: vle.extension.difference-equation @@endtagdepends
+ * @@tagdepends: vle.discrete-time @@endtagdepends
  */
 
-#include <vle/extension/difference-equation/Simple.hpp>
-#include <vle/extension/difference-equation/Multiple.hpp>
+#include <vle/DiscreteTime.hpp>
 
 namespace vd = vle::devs;
-namespace ve = vle::extension;
 namespace vv = vle::value;
 
 namespace vle { namespace examples { namespace fsa {
 
-class GenLin : public ve::DifferenceEquation::Simple
+using namespace vle::discrete_time;
+
+class LinearGenLin : public DiscreteTimeDyn
 {
 public:
-    GenLin(const vd::DynamicsInit& init, const vd::InitEventList& evts)
-        : ve::DifferenceEquation::Simple(init, evts)
+    LinearGenLin(const vd::DynamicsInit& init, const vd::InitEventList& evts)
+        : DiscreteTimeDyn(init, evts)
     {
         a = vv::toDouble(evts.get("a"));
-        X = createVar("X");
+        X.init(this, "X",evts);
     }
 
-    virtual ~GenLin()
+    virtual ~LinearGenLin()
     {}
 
-    virtual double compute(const vd::Time& /*time*/)
-    { return X(-1) + a; }
+    virtual void compute(const vd::Time& /*time*/) override
+    {
+        X = X(-1) + a;
+    }
 
-    virtual double initValue(const vd::Time& /*time*/)
-    { return 0; }
 
 private:
     double a;
     Var X;
 };
 
-DECLARE_DYNAMICS(GenLin)
+DECLARE_DYNAMICS(LinearGenLin)
 
 }}} // namespace vle examples fsa

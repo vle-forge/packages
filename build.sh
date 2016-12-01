@@ -26,8 +26,7 @@
 output=ext.log
 pkgs="vle.extension.celldevs vle.discrete-time 
 vle.discrete-time.generic vle.extension.cellqss vle.extension.decision 
-vle.discrete-time.decision vle.reader vle.tester vle.recursive 
-vle.extension.difference-equation vle.ode
+vle.discrete-time.decision vle.reader vle.tester vle.recursive vle.ode
 vle.ode_test vle.extension.dsdevs vle.extension.fsa
 vle.extension.petrinet vle.examples ext.muparser ext.qwt ext.shapelib
 vle.reader_test vle.recursive_test vle.discrete-time_test vle.tester_test

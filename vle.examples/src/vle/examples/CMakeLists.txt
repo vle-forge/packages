@@ -1,7 +1,6 @@
 add_subdirectory(counter)
 add_subdirectory(gens)
 add_subdirectory(lifegame)
-add_subdirectory(equation)
 add_subdirectory(petrinet)
 add_subdirectory(recursives)
 add_subdirectory(fsa)
