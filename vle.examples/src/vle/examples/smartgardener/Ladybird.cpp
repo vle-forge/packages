@@ -46,31 +46,32 @@
 
 /*
  * @@tagdynamic@@
- * @@tagdepends: vle.extension.differential-equation @@endtagdepends
+ * @@tagdepends: vle.ode @@endtagdepends
  */
 
 
-#include <vle/extension/DifferentialEquation.hpp>
+#include <vle/DifferentialEquation.hpp>
 
 namespace vd = vle::devs;
-namespace ve = vle::extension::differential_equation;
 namespace vv = vle::value;
 
 namespace vle { namespace examples { namespace smartgardeners {
 
-class Ladybird : public ve::DifferentialEquation
+using namespace vle::ode;
+
+class Ladybird : public DifferentialEquation
 {
 public:
     Ladybird(
        const vd::DynamicsInit& init,
        const vd::InitEventList& events)
-    : ve::DifferentialEquation(init, events)
+    : DifferentialEquation(init, events)
     {
         b = events.getDouble("b");
         d = events.getDouble("d");
         e = events.getDouble("e");
-        y = createVar("y");
-        x = createExt("x");
+        y.init(this, "y", events);
+        x.init(this, "x", events);
     }
 
     virtual void compute(const vd::Time& /*t*/) override
@@ -86,7 +87,7 @@ private:
     double d;
     double e;
     Var y;
-    Ext x;
+    Var x;//ext
 };
 
 }}} // namespaces

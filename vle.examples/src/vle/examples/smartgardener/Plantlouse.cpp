@@ -72,7 +72,7 @@ public:
     {
         a = vv::toDouble(evts.get("a"));
         b = vv::toDouble(evts.get("b"));
-        ts = evts.getDouble("time-step");
+        ts = evts.getDouble("time_step");
         x.init(this, "x", evts);
         y.init(this, "y", evts);
     }
@@ -81,12 +81,14 @@ public:
     {}
 
 
-    virtual void compute(const vd::Time& /*time*/) override
-            {
-        //        x = x(-1) + timeStep(time) * (a* x(-1)-b*y()*x(-1));
-        x = x(-1) + ts * (a* x(-1)-b*y()*x(-1));
-
-            }
+    virtual void compute(const vd::Time& time) override
+    {
+        if (x.itVar->lastUpdateTime() <= time - ts) {
+            //if an event occurred between the previous compute and this one
+            //it is understood as a forcing event, thus no update is done
+            x = x(-1) + ts * (a* x(-1)-b*y()*x(-1));
+        }
+    }
 
 
 private:

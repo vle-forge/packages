@@ -81,12 +81,16 @@ void test_qss4()
     Ensures(result.rows() <= 102);
 
     //at the maximum of population of ladybirds
-    EnsuresApproximatelyEqual(result.getDouble(3,38), 146.5673122, 10e-5);
-    EnsuresApproximatelyEqual(result.getDouble(4,38), 1748.3006172, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,38), 141.682, 10e-2);
+    EnsuresApproximatelyEqual(result.getDouble(4,38), 2035.99, 10e-2);
+    //previous version using differential equation, perturbation and
+    //difference equation: 146.5673122, 1748.3006172
 
     //at the end
-    EnsuresApproximatelyEqual(result.getDouble(3,100), 15.913027015, 10e-5);
-    EnsuresApproximatelyEqual(result.getDouble(4,100), 122.1797197, 10e-5);
+    EnsuresApproximatelyEqual(result.getDouble(3,100), 16.7642, 10e-2);
+    EnsuresApproximatelyEqual(result.getDouble(4,100), 146.028, 10e-2);
+    //previous version using differential equation, perturbation and
+    //difference equation: 15.913027015, 122.1797197
 
 }
 

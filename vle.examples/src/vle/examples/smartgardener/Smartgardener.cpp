@@ -57,6 +57,7 @@
 #include <sstream>
 #include <numeric>
 #include <fstream>
+#include <iostream>
 
 namespace vd = vle::devs;
 namespace vv = vle::value;

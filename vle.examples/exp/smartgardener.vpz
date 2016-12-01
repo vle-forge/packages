@@ -16,73 +16,69 @@
 </out>
 </model>
 <model height="60" width="100" type="coupled" y="190" name="bio" x="213">
-<in>
- <port name="x"/>
- <port name="y"/>
-</in>
-<out>
- <port name="x"/>
- <port name="y"/>
-</out>
-<submodels>
-<model height="45" conditions="cond_DE_plantlouse" dynamics="dynDi" width="100" type="atomic" y="34" name="differenceEquationAdaptor" x="201">
-<in>
- <port name="y"/>
-</in>
-<out>
- <port name="y"/>
-</out>
-</model>
-<model height="60" observables="obs_DTE_ladybird" conditions="cond_DTE_ladybird,cond_DTE_ladybird_integration,cond_params" dynamics="dynLadybird" width="100" type="atomic" y="26" name="Ladybird" x="59">
-<in>
- <port name="perturb"/>
- <port name="x"/>
-</in>
-<out>
- <port name="y"/>
-</out>
-</model>
-<model height="60" observables="obs_DE_plantlouse" conditions="cond_DE_plantlouse,cond_params" dynamics="dynPlantlouse" width="100" type="atomic" y="214" name="Plantlouse" x="249">
-<in>
- <port name="perturb"/>
- <port name="y"/>
-</in>
-<out>
- <port name="x"/>
-</out>
-</model>
-</submodels>
-<connections>
-<connection type="output">
- <origin model="Plantlouse" port="x"/>
- <destination model="bio" port="x"/>
-</connection>
-<connection type="output">
- <origin model="Ladybird" port="y"/>
- <destination model="bio" port="y"/>
-</connection>
-<connection type="input">
- <origin model="bio" port="x"/>
- <destination model="Plantlouse" port="perturb"/>
-</connection>
-<connection type="input">
- <origin model="bio" port="y"/>
- <destination model="Ladybird" port="perturb"/>
-</connection>
-<connection type="internal">
- <origin model="differenceEquationAdaptor" port="y"/>
- <destination model="Plantlouse" port="y"/>
-</connection>
-<connection type="internal">
- <origin model="Ladybird" port="y"/>
- <destination model="differenceEquationAdaptor" port="y"/>
-</connection>
-<connection type="internal">
- <origin model="Plantlouse" port="x"/>
- <destination model="Ladybird" port="x"/>
-</connection>
-</connections>
-</model>
+     <in>
+      <port name="x"/>
+      <port name="y"/>
+     </in>
+     <out>
+      <port name="x"/>
+      <port name="y"/>
+     </out>
+     <submodels>
+      <model height="60" observables="obs_DTE_ladybird" conditions="cInit,cLadybird,cond_params" dynamics="dynLadybird" width="100" type="atomic" y="76" name="Ladybird" x="145">
+       <in>
+        <port name="y"/>
+        <port name="x"/>
+       </in>
+       <out>
+        <port name="y"/>
+       </out>
+      </model>
+      <model height="60" observables="obs_DE_plantlouse" conditions="cPlantlouse,cInit,cond_params" dynamics="dynPlantlouse" width="100" type="atomic" y="178" name="Plantlouse" x="243">
+       <in>
+        <port name="x"/>
+        <port name="y"/>
+       </in>
+       <out>
+        <port name="x"/>
+       </out>
+      </model>
+     </submodels>
+     <connections>
+      <connection type="output">
+       <origin model="Plantlouse" port="x"/>
+       <destination model="bio" port="x"/>
+      </connection>
+      <connection type="output">
+       <origin model="Ladybird" port="y"/>
+       <destination model="bio" port="y"/>
+      </connection>
+      <connection type="input">
+       <origin model="bio" port="x"/>
+       <destination model="Plantlouse" port="x"/>
+      </connection>
+      <connection type="input">
+       <origin model="bio" port="y"/>
+       <destination model="Ladybird" port="y"/>
+      </connection>
+      <connection type="internal">
+       <origin model="Plantlouse" port="x"/>
+       <destination model="Ladybird" port="x"/>
+      </connection>
+      <connection type="internal">
+       <origin model="Ladybird" port="y"/>
+       <destination model="Plantlouse" port="y"/>
+      </connection>
+      <connection type="input">
+       <origin model="bio" port="x"/>
+       <destination model="Ladybird" port="x"/>
+      </connection>
+      <connection type="input">
+       <origin model="bio" port="y"/>
+       <destination model="Plantlouse" port="y"/>
+      </connection>
+     </connections>
+    </model>
 </submodels>
 <connections>
 <connection type="internal">
@@ -137,47 +133,28 @@
 <double>0.600000000000000</double>
 </port>
 </condition>
-<condition name="cond_DE_plantlouse">
- <port name="mode">
-<string>port</string>
-</port>
- <port name="time-step">
+<condition name="cPlantlouse">
+ 
+ <port name="time_step">
 <double>0.200000000000000</double>
 </port>
- <port name="variables">
-<set>
-      <set>
-       <string>x</string>
-       <double>5000.000000000000000</double>
-      </set>
-     </set>
-</port>
-</condition>
-<condition name="cond_DTE_ladybird">
- <port name="variables">
-<map>
-      <key name="y">
-       <double>10.000000000000000</double>
-      </key>
-     </map>
-</port>
-</condition>
-<condition name="cond_DTE_ladybird_integration">
+ 
+
+   <port name="allow_update_x">
+     <boolean>1</boolean>
+    </port>
+   </condition>
+
+<condition name="cLadybird">
  <port name="method">
 <string>qss2</string>
 </port>
- <port name="method-parameters">
-<map>
-      <key name="DeltaQ">
-       <map>
-        <key name="y">
-         <double>1.000000000000000</double>
-        </key>
-       </map>
-      </key>
-     </map>
-</port>
-</condition>
+ 
+<port name="quantum_y">
+     <double>1</double>
+    </port>
+    
+   </condition>
 <condition name="cond_params">
  <port name="a">
 <double>0.500000000000000</double>
@@ -192,19 +169,33 @@
 <double>0.200000000000000</double>
 </port>
 </condition>
-</conditions>
+<condition name="cInit">
+    <port name="init_value_y">
+     <double>10</double>
+    </port>
+    <port name="init_value_x">
+     <double>5000</double>
+    </port>
+   </condition>
+  </conditions>
 <views>
 <outputs>
-<output package="vle.output" format="local" plugin="file" location="" name="view">
+<output package="vle.output" format="local" plugin="storage" location="" name="view">
 <map>
-      <key name="julian-day">
-       <boolean>false</boolean>
+      <key name="inc_columns">
+       <integer>10</integer>
       </key>
-      <key name="locale">
-       <string>C</string>
+      <key name="header">
+       <string>top</string>
       </key>
-      <key name="type">
-       <string>csv</string>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
       </key>
      </map>
     </output>
