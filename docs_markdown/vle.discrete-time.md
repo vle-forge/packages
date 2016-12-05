@@ -54,7 +54,7 @@ by a _devs::Dynamic_ if the temporal value is declared
 (in constructor or not) using the function _Var::init_, 
 _Vect::init_ or _ValueVle::init_ (see lines 13, 14 in code).
 
-![MISSING FIG](http://www.vle-project.org/pub/1.3/docs/temporal_values.png)
+![MISSING FIG](http://www.vle-project.org/pub/2.0/docs/temporal_values.png)
 
 **Fig:** Example of updates for a temporal value of type _Var_.
 
@@ -91,7 +91,7 @@ _t - 2*D_. These expressions must be written in the
 _compute_ function.
 
 
-![MISSING FIG](http://www.vle-project.org/pub/1.3/docs/userInterfaceDiscreteTime.png)
+![MISSING FIG](http://www.vle-project.org/pub/2.0/docs/userInterfaceDiscreteTime.png)
 
 **Fig:** A discrete-time model with 6 variables, 3 can be
 updated from external event (inputs), 3 are sent by default at each time step 
@@ -227,14 +227,14 @@ Advanced settings for synchronisation:
 
 #### Activity diagram of a discrete time dynamic at a given time 
 
-![MISSING FIG](http://www.vle-project.org/pub/1.3/docs/dt_activity_diagram.png)
+![MISSING FIG](http://www.vle-project.org/pub/2.0/docs/dt_activity_diagram.png)
 
 **Fig:** The activity diagram of a discrete time model: sequence of calls at 
 a given time step.
 
 #### Global architecture
 
-![MISSING FIG](http://www.vle-project.org/pub/1.3/docs/DEVS_states.png)
+![MISSING FIG](http://www.vle-project.org/pub/2.0/docs/DEVS_states.png)
 
 **Fig:** The DEVS state transition graph  for discrete-time atomic models.
 
