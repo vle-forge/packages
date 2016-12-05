@@ -27,6 +27,7 @@
 
 #include <vle/devs/Executive.hpp>
 #include <vle/translator/GraphTranslator.hpp>
+#include <vle/utils/Tools.hpp>
 
 namespace vle { namespace examples { namespace gens {
 
@@ -42,25 +43,44 @@ public:
     virtual ~GenExecutiveGraph()
     {}
 
+    void make(const vle::translator::graph_generator::node_metrics& metrics,
+        std::string& name,
+        std::string& classname)
+    {
+        name = vle::utils::format("node-%d", metrics.id);
+
+        if (metrics.id == 1 or metrics.id == 3)
+            classname = "beepbeepbeep";
+        else if (metrics.id == 0 or metrics.id == 2 or metrics.id == 4)
+            classname = "beepbeep";
+        else
+            classname = "counter";
+    }
+
     virtual devs::Time init(devs::Time /* time */) override
     {
-        value::Map mp;
-        mp.addString("prefix", "node");
-        mp.addInt("number", 6);
-        mp.addString("port", "in-out");
-        mp.addString("adjacency matrix",
-                     " 0 0 0 0 0 1"
-                     " 0 0 1 0 0 1"
-                     " 0 1 0 0 0 1"
-                     " 0 0 0 1 0 1"
-                     " 0 0 0 1 0 1"
-                     " 0 0 0 0 0 0");
-        mp.addString("classes", "beepbeep beepbeepbeep beepbeep beepbeepbeep "
-                     "beepbeep counter");
+        vle::translator::graph_generator::parameter params {
+            std::bind(&GenExecutiveGraph::make, this,
+                      std::placeholders::_1,
+                      std::placeholders::_2,
+                      std::placeholders::_3),
+            vle::translator::graph_generator::connectivity::IN_OUT,
+            true };
 
-        auto ret = vle::translator::make_graph(*this, mp);
+        vle::translator::graph_generator gt(params);
+        vle::utils::Array<bool> adj(6, 6);
+
+        adj = { 0, 0, 0, 0, 0, 1,
+                0, 0, 1, 0, 0, 1,
+                0, 1, 0, 0, 0, 1,
+                0, 0, 0, 1, 0, 1,
+                0, 0, 0, 1, 0, 1,
+                0, 0, 0, 0, 0, 0 };
+
+        gt.make_graph(*this, adj.rows(), adj);
 
         return devs::infinity;
+
     }
 };
 
