@@ -74,6 +74,10 @@ public:
         p.separator="\t";
         vle_line_parser::parseLine(p, line, lineToFill);
         lineToFill.remove(lineToFill.size()-1);//extra \t at the end of header
+        if (lineToFill.size() > 0 and lineToFill.getString(0) == "#time") {
+            //rename time to be homogeneous with storage
+            lineToFill.set(0, value::String::create("time"));
+        }
 
         //build parser parameter
 
