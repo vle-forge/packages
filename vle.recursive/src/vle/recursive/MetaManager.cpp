@@ -1039,6 +1039,24 @@ MetaManager::runIntern(const vle::value::Map& init,
         std::string exe = mCtx->findProgram("mpirun").string();
 
         std::vector < std::string > argv;
+        //use mpi_warn_nf_forgk since mvle launches simulation with fork
+        argv.push_back("--mca");
+        argv.push_back("mpi_warn_on_fork");
+        argv.push_back("0");
+//        //set more log for mpirun
+//        argv.push_back("--mca");
+//        argv.push_back("ras_gridengine_verbose");
+//        argv.push_back("1");
+//        argv.push_back("--mca");
+//        argv.push_back("plm_gridengine_verbose");
+//        argv.push_back("1");
+//        argv.push_back("--mca");
+//        argv.push_back("ras_gridengine_show_jobid");
+//        argv.push_back("1");
+//        argv.push_back("--mca");
+//        argv.push_back("plm_gridengine_debug");
+//        argv.push_back("1");
+
         argv.push_back("-np");
         std::stringstream ss;
         {
@@ -1103,14 +1121,15 @@ MetaManager::runIntern(const vle::value::Map& init,
         mspawn.status(&message, &is_success);
 
         if (! is_success) {
-            err.code = -1;
-            err.message = "[MetaManager] ";
-            err.message += vle::utils::format("Error launching `%s' : %s ",
-                    exe.c_str(), message.c_str());
-            model.reset(nullptr);
-            results.reset(nullptr);
-            clear();
-            return nullptr;
+            //TODO with mpi_warn_on_fork=0, the forks can lead to an error.
+//            err.code = -1;
+//            err.message = "[MetaManager] ";
+//            err.message += vle::utils::format("Error launching `%s' : %s ",
+//                    exe.c_str(), message.c_str());
+//            model.reset(nullptr);
+//            results.reset(nullptr);
+//            clear();
+//            return nullptr;
         }
 
         std::unique_ptr<value::Value> aggrValue;
