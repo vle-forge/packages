@@ -44,7 +44,7 @@ namespace vu = vle::utils;
 namespace vz = vle::vpz;
 
 IntegrationMethod::IntegrationMethod(DifferentialEquationImpl& eq,
-        const vv::Map& /*params*/) :
+        const vd::InitEventList& /*params*/) :
         eqImpl(eq)
 {
 }
@@ -53,7 +53,7 @@ IntegrationMethod::~IntegrationMethod()
 {
 }
 
-Euler::Euler(DifferentialEquationImpl& eq, const vv::Map& params) :
+Euler::Euler(DifferentialEquationImpl& eq, const vd::InitEventList& params) :
         IntegrationMethod(eq, params)
 {
 }
@@ -86,7 +86,7 @@ void Euler::updateVars(const vd::Time& tin, const vd::Time& tout)
 
 }
 
-RK4::RK4(DifferentialEquationImpl& eq, const vv::Map& params) :
+RK4::RK4(DifferentialEquationImpl& eq, const vd::InitEventList& params) :
         IntegrationMethod(eq, params)
 {
 }

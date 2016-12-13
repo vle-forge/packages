@@ -78,7 +78,7 @@ public:
         vlast.init_history(t);
     }
     std::vector<Var*> vars;
-    vle::value::Map initMap;
+    devs::InitEventList initMap;
 };
 
 }}}

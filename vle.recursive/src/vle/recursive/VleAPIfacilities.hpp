@@ -27,6 +27,7 @@
 #include <vle/value/Double.hpp>
 #include <vle/value/Tuple.hpp>
 #include <vle/value/Map.hpp>
+#include <vle/value/Set.hpp>
 
 #include <vle/oov/Plugin.hpp>
 #include <vle/devs/Dynamics.hpp>
@@ -76,10 +77,8 @@ public:
                     conditions.begin(); it != conditions.end(); ++it) {
                 const vz::Condition& cnd(
                     vpz.project().experiment().conditions().get(*it));
-                vv::MapValue vl;
-                cnd.fillWithFirstValues(vl);
-                for (vv::MapValue::const_iterator itv = vl.begin();
-                        itv != vl.end(); ++itv) {
+                auto vl = cnd.fillWithFirstValues();
+                for (auto itv = vl.begin(); itv != vl.end(); ++itv) {
                     if (initValues->exist(itv->first)) {
                         throw vu::InternalError(vle::utils::format(
                                 "Multiples condition with the same init port "

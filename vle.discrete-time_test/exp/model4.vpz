@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<vle_project version="1.0" author="Ronan Trépos" date="2014-May-02 15:51:31">
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project date="2014-May-02 15:51:31" version="1.0" author="Ronan Trépos">
  <structures>
-<model name="model4" x="0" y="0" width="1504" height="501" type="coupled">
+<model x="0" type="coupled" y="0" width="1504" name="model4" height="501">
 <submodels>
-<model name="InitModel4" x="63" y="66" conditions="cond_init_a,cond_init_b,cond_init_c,cond_init_d,cond_init_sum_res" width="100" height="30" type="atomic" dynamics="dynInitModel4">
+<model x="63" conditions="cond_init_a,cond_init_b,cond_init_c,cond_init_d,cond_init_sum_res" dynamics="dynInitModel4" type="atomic" y="66" width="100" name="InitModel4" height="30">
 </model>
 </submodels>
 <connections>
@@ -11,12 +11,12 @@
 </model>
 </structures>
  <dynamics>
-<dynamic name="dynD1" package="vle.discrete-time_test" library="D1"/>
-<dynamic name="dynE3" package="vle.discrete-time_test" library="E3"/>
-<dynamic name="dynGenericSum" package="vle.discrete-time.generic" library="GenericSum"/>
-<dynamic name="dynInitModel4" package="vle.discrete-time_test" library="InitModel4"/>
+<dynamic package="vle.discrete-time_test" name="dynD1" library="D1"/>
+<dynamic package="vle.discrete-time_test" name="dynE3" library="E3"/>
+<dynamic package="vle.discrete-time" name="dynGenericSum" library="GenericSum"/>
+<dynamic package="vle.discrete-time_test" name="dynInitModel4" library="InitModel4"/>
 </dynamics>
- <experiment name="model4" combination="linear">
+ <experiment combination="linear" name="model4">
 <conditions>
 <condition name="simulation_engine">
 <port name="begin">
@@ -75,7 +75,7 @@
 </conditions>
 <views>
 <outputs>
-<output format="local" plugin="console" name="view" package="vle.output" location=""/>
+<output plugin="console" format="local" package="vle.output" location="" name="view"/>
 
 </outputs>
 <observables>
@@ -109,15 +109,15 @@
 </observable>
 
 </observables>
-<view name="view" timestep="0.100000000000000" type="timed" output="view"/>
+<view timestep="0.100000000000000" type="timed" output="view" name="view"/>
 
 </views>
 </experiment>
  <classes>
 <class name="model4">
-<model name="model4" width="1504" height="501" type="coupled">
+<model type="coupled" width="1504" name="model4" height="501">
 <submodels>
-<model name="D1" x="276" y="57" conditions="condD1,cond_init_a,cond_init_c,cond_init_d,cond_time_step" width="100" height="60" observables="oD1" type="atomic" dynamics="dynD1">
+<model x="276" conditions="condD1,cond_init_a,cond_init_c,cond_init_d,cond_time_step" dynamics="dynD1" observables="oD1" type="atomic" y="57" width="100" name="D1" height="60">
 <in>
  <port name="a"/>
  <port name="c"/>
@@ -126,14 +126,14 @@
  <port name="d"/>
 </out>
 </model>
-<model name="E3" x="63" y="67" conditions="cond_init_a,cond_init_c,cond_time_step" width="100" height="75" observables="oE3" type="atomic" dynamics="dynE3">
+<model x="63" conditions="cond_init_a,cond_init_c,cond_time_step" dynamics="dynE3" observables="oE3" type="atomic" y="67" width="100" name="E3" height="75">
 <out>
  <port name="a"/>
  <port name="b"/>
  <port name="c"/>
 </out>
 </model>
-<model name="GenericSum" x="356" y="175" conditions="cond_init_a,cond_init_c,cond_init_d,cond_init_sum_res,cond_sum,cond_time_step" width="100" height="90" observables="oSum" type="atomic" dynamics="dynGenericSum">
+<model x="356" conditions="cond_init_a,cond_init_c,cond_init_d,cond_init_sum_res,cond_sum,cond_time_step" dynamics="dynGenericSum" observables="oSum" type="atomic" y="175" width="100" name="GenericSum" height="90">
 <in>
  <port name="a"/>
  <port name="b"/>

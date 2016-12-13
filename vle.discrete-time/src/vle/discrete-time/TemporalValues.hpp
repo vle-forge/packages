@@ -30,6 +30,7 @@
 #include <iostream>
 #include <map>
 #include <vle/devs/Time.hpp>
+#include <vle/devs/InitEventList.hpp>
 #include <vle/value/Value.hpp>
 #include <vle/value/Map.hpp>
 
@@ -213,9 +214,9 @@ public:
     virtual ~Var();
 
     void init(TemporalValuesProvider* tvpin, const std::string& varName,
-            const vle::value::Map& initMap, const vle::devs::Time& currentTime);
+            const devs::InitEventList& initMap, const devs::Time& currentTime);
     void init(TemporalValuesProvider* tvpin, const std::string& varName,
-            const vle::value::Map& initMap);
+            const devs::InitEventList& initMap);
 
     void init_value(double v);
     void init_history(const vle::devs::Time& t);
@@ -253,9 +254,9 @@ public:
     virtual ~Vect();
 
     void init(TemporalValuesProvider* tvpin, const std::string& varName,
-            const vle::value::Map& initMap, const vle::devs::Time& currentTime);
+            const devs::InitEventList& initMap, const vle::devs::Time& currentTime);
     void init(TemporalValuesProvider* tvpin, const std::string& varName,
-            const vle::value::Map& initMap);
+            const devs::InitEventList& initMap);
 
     void history_size(unsigned int s);
     void dim(unsigned int s);
@@ -276,9 +277,9 @@ public:
     virtual ~ValueVle();
 
     void init(TemporalValuesProvider* tvpin, const std::string& varName,
-            const vle::value::Map& initMap, const vle::devs::Time& currentTime);
+            const devs::InitEventList& initMap, const vle::devs::Time& currentTime);
     void init(TemporalValuesProvider* tvpin, const std::string& varName,
-            const vle::value::Map& initMap);
+            const devs::InitEventList& initMap);
 
     void history_size(unsigned int s);
 
@@ -293,7 +294,7 @@ class TemporalValuesProvider
 public:
      TemporalValuesProvider();
      TemporalValuesProvider(const std::string& model_name,
-             const vle::value::Map& initMap);
+             const vle::devs::InitEventList& initMap);
      virtual ~TemporalValuesProvider();
 
      void initHistory(const vle::devs::Time& t);

@@ -476,7 +476,7 @@ namespace vle { namespace extension {
         /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
 
         // initial values
-        std::unique_ptr<value::Map> mInitEvents;
+        devs::InitEventList mInitEvents;
 
         // structure
         PlaceList mPlaces;

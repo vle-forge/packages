@@ -68,7 +68,7 @@ public:
         }
 
         void init(DifferentialEquation* de, const std::string& varName,
-                const vle::value::Map& initMap);
+                const vd::InitEventList& initMap);
 
         void operator=(double value);
 

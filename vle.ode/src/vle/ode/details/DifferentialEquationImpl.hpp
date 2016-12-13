@@ -155,7 +155,7 @@ class DifferentialEquationImpl
 public:
 
     DifferentialEquationImpl(DifferentialEquation& eq,
-            const vv::Map& /*parameters*/) : mvars(*this), meq(eq)
+            const vd::InitEventList& /*events*/) : mvars(*this), meq(eq)
     {
 
     }

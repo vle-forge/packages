@@ -46,13 +46,16 @@ DifferentialEquation::DifferentialEquation(const vd::DynamicsInit& model,
         vd::Dynamics(model, events), meqImpl(nullptr)
 {
     if (not events.exist("method")) {
-        meqImpl = new timeSlicingMethod::TimeSlicingMethod<timeSlicingMethod::Euler>(*this, events);
+        meqImpl = new timeSlicingMethod::TimeSlicingMethod
+                <timeSlicingMethod::Euler>(*this, events);
     } else {
         std::string method = events.getString("method");
         if (method == "euler") {
-            meqImpl= new timeSlicingMethod::TimeSlicingMethod<timeSlicingMethod::Euler>(*this, events);
+            meqImpl= new timeSlicingMethod::TimeSlicingMethod
+                    <timeSlicingMethod::Euler>(*this, events);
         } else if (method == "rk4") {
-            meqImpl= new timeSlicingMethod::TimeSlicingMethod<timeSlicingMethod::RK4>(*this, events);
+            meqImpl= new timeSlicingMethod::TimeSlicingMethod
+                    <timeSlicingMethod::RK4>(*this, events);
         } else if (method == "qss2") {
             meqImpl = new qss2::QSS2(*this, events);
         } else {
@@ -119,10 +122,10 @@ DifferentialEquation::observation(const vd::ObservationEvent& event) const
 
 void
 DifferentialEquation::Var::init(DifferentialEquation* de,
-        const std::string& varName, const vle::value::Map& initMap)
+        const std::string& varName, const vd::InitEventList& initMap)
 {
-    vle::value::Map::const_iterator ite = initMap.end();
-    vle::value::Map::const_iterator itf = ite;
+    vd::InitEventList::const_iterator ite = initMap.end();
+    vd::InitEventList::const_iterator itf = ite;
     std::string port;
 
     name.assign(varName);

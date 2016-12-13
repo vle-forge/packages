@@ -23,7 +23,7 @@
 
 #include <vle/value/Tuple.hpp>
 #include <vle/value/Null.hpp>
-#include <vle/utils/Tools.hpp>
+#include <vle/value/Set.hpp>
 #include <vle/utils/Tools.hpp>
 #include <vle/devs/Executive.hpp>
 #include <vle/discrete-time/TemporalValues.hpp>
@@ -1059,40 +1059,6 @@ DEVS_Options::getForcingEvent(double currentTime, bool beforeCompute,
         }
     }
     return 0;
-}
-
-void
-DEVS_Options::configDynOptions(const vle::value::Map& events)
-{
-    if (events.exist("dyn_type")) {
-        std::string dyn_type =  events.getString("dyn_type");
-        if (dyn_type == "Var") {
-            dyn_type = MONO;
-        } else if (dyn_type == "Vect") {
-            dyn_type = MULTI;
-        } else if (dyn_type == "ValueVle") {
-            dyn_type = VALUE_VLE;
-        } else {
-            dyn_type = MONO;
-        }
-    } else {
-        dyn_type = MONO;
-    }
-    if (events.exist("dyn_sync")) {
-        if (events.get("dyn_sync")->isInteger()) {
-            dyn_sync = events.getInt("dyn_sync");
-        } else {
-            dyn_sync = (unsigned int) events.getBoolean("dyn_sync");
-        }
-    }
-    dyn_init_value.reset();
-    if (events.exist("dyn_init_value")) {
-        dyn_init_value = std::unique_ptr<vle::value::Value>(
-                events.get("dyn_init_value")->clone());
-    } else {
-        dyn_init_value = std::unique_ptr<vle::value::Value>(
-                new value::Double(0.0));
-    }
 }
 
 void

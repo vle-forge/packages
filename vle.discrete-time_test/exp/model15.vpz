@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <vle_project version="1.0" author="Ronan Trépos" date="2014-May-02 13:32:15">
  <structures>
-<model name="model15" x="0" y="0" type="coupled" height="501" width="1504">
+<model x="0" width="1504" name="model15" height="501" type="coupled" y="0">
 <submodels>
-<model name="D1" x="335" y="30" conditions="condD1,cond_time_step" dynamics="dynD1" observables="obsD1" type="atomic" height="60" width="100">
+<model x="335" width="100" name="D1" observables="obsD1" height="60" dynamics="dynD1" type="atomic" conditions="condD1,cond_time_step" y="30">
 <in>
  <port name="a"/>
  <port name="c"/>
@@ -12,14 +12,14 @@
  <port name="d"/>
 </out>
 </model>
-<model name="E3" x="56" y="140" conditions="cond_init_b,cond_time_step" dynamics="dynE3" observables="obsE3" type="atomic" height="75" width="100">
+<model x="56" width="100" name="E3" observables="obsE3" height="75" dynamics="dynE3" type="atomic" conditions="cond_init_b,cond_time_step" y="140">
 <out>
  <port name="a"/>
  <port name="b"/>
  <port name="c"/>
 </out>
 </model>
-<model name="GenericSum" x="434" y="179" conditions="cond_init_sum_res,cond_sum,cond_time_step" dynamics="dynGenericSum" observables="obs_sum" type="atomic" height="90" width="100">
+<model x="434" width="100" name="GenericSum" observables="obs_sum" height="90" dynamics="dynGenericSum" type="atomic" conditions="cond_init_sum_res,cond_sum,cond_time_step" y="179">
 <in>
  <port name="a"/>
  <port name="b"/>
@@ -59,7 +59,7 @@
  <dynamics>
 <dynamic name="dynD1" package="vle.discrete-time_test" library="D1"/>
 <dynamic name="dynE3" package="vle.discrete-time_test" library="E3"/>
-<dynamic name="dynGenericSum" package="vle.discrete-time.generic" library="GenericSum"/>
+<dynamic name="dynGenericSum" package="vle.discrete-time" library="GenericSum"/>
 </dynamics>
  <experiment name="model15" combination="linear">
 <conditions>
@@ -105,7 +105,7 @@
 </conditions>
 <views>
 <outputs>
-<output name="view" format="local" plugin="console" package="vle.output" location=""/>
+<output name="view" plugin="console" location="" package="vle.output" format="local"/>
 
 </outputs>
 <observables>
@@ -139,7 +139,7 @@
 </observable>
 
 </observables>
-<view name="view" timestep="0.100000000000000" type="timed" output="view"/>
+<view name="view" output="view" type="timed" timestep="0.100000000000000"/>
 
 </views>
 </experiment>

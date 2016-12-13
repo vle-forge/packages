@@ -3,7 +3,6 @@
 <vle_project_metadata version="1.x" author="me">
  <condPlugins/>
  <outputGUIplugins>
-  <outputGUIplugin GUIplugin="" view="view"/>
- <outputGUIplugin GUIplugin="" view="NewView"/>
+  <outputGUIplugin view="view" GUIplugin="gvle.output/file"/>
  </outputGUIplugins>
 </vle_project_metadata>

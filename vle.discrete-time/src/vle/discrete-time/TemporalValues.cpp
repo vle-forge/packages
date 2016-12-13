@@ -23,6 +23,7 @@
 
 
 #include <vle/discrete-time/TemporalValues.hpp>
+#include <vle/devs/InitEventList.hpp>
 #include <vle/value/Tuple.hpp>
 #include <vle/value/Table.hpp>
 #include <vle/value/Double.hpp>
@@ -681,7 +682,7 @@ Var::~Var()
 
 void
 Var::init(TemporalValuesProvider* tvpin, const std::string& varName,
-        const vle::value::Map& initMap, const vle::devs::Time& currentTime)
+        const devs::InitEventList& initMap, const devs::Time& currentTime)
 {
     Var::init(tvpin, varName, initMap);
     itVar->initHistoryVar(varName, currentTime);
@@ -689,10 +690,10 @@ Var::init(TemporalValuesProvider* tvpin, const std::string& varName,
 
 void
 Var::init(TemporalValuesProvider* tvpin, const std::string& varName,
-        const vle::value::Map& initMap)
+        const devs::InitEventList& initMap)
 {
-    vle::value::Map::const_iterator ite = initMap.end();
-    vle::value::Map::const_iterator itf = ite;
+    devs::InitEventList::const_iterator ite = initMap.end();
+    devs::InitEventList::const_iterator itf = ite;
     std::string port;
 
     name.assign(varName);
@@ -879,7 +880,7 @@ Vect::~Vect()
 
 void
 Vect::init(TemporalValuesProvider* tvpin, const std::string& varName,
-        const vle::value::Map& initMap, const vle::devs::Time& currentTime)
+        const devs::InitEventList& initMap, const devs::Time& currentTime)
 {
     init(tvpin, varName, initMap);
     itVar->initHistoryVar(varName, currentTime);
@@ -887,10 +888,10 @@ Vect::init(TemporalValuesProvider* tvpin, const std::string& varName,
 
 void
 Vect::init(TemporalValuesProvider* tvpin, const std::string& varName,
-        const vle::value::Map& initMap)
+        const devs::InitEventList& initMap)
 {
-    vle::value::Map::const_iterator ite = initMap.end();
-    vle::value::Map::const_iterator itf = ite;
+    devs::InitEventList::const_iterator ite = initMap.end();
+    devs::InitEventList::const_iterator itf = ite;
     std::string port;
 
     name.assign(varName);
@@ -978,7 +979,7 @@ ValueVle::~ValueVle()
 
 void
 ValueVle::init(TemporalValuesProvider* tvpin, const std::string& varName,
-        const vle::value::Map& initMap, const vle::devs::Time& currentTime)
+        const devs::InitEventList& initMap, const vle::devs::Time& currentTime)
 {
     init(tvpin, varName, initMap, 0);
     itVar->initHistoryVar(varName, currentTime);
@@ -986,10 +987,10 @@ ValueVle::init(TemporalValuesProvider* tvpin, const std::string& varName,
 
 void
 ValueVle::init(TemporalValuesProvider* tvpin, const std::string& varName,
-        const vle::value::Map& initMap)
+        const devs::InitEventList& initMap)
 {
-    vle::value::Map::const_iterator ite = initMap.end();
-    vle::value::Map::const_iterator itf = ite;
+    devs::InitEventList::const_iterator ite = initMap.end();
+    devs::InitEventList::const_iterator itf = ite;
     std::string port;
 
     name.assign(varName);
@@ -1080,11 +1081,11 @@ TemporalValuesProvider::TemporalValuesProvider():
 }
 
 TemporalValuesProvider::TemporalValuesProvider(const std::string& modelname,
-        const vle::value::Map& initMap):
+        const vle::devs::InitEventList& initMap):
         model_name(modelname), variables(), current_time(0), delta(1.0)
 {
-    vle::value::Map::const_iterator itf = initMap.find("time_step");
-    vle::value::Map::const_iterator ite = initMap.end();
+    auto itf = initMap.find("time_step");
+    auto ite = initMap.end();
     if (itf != ite) {
         delta = itf->second->toDouble().value();
     }

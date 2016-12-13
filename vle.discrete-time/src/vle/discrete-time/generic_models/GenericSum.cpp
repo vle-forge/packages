@@ -22,12 +22,10 @@
 
 
 //@@tagdynamic@@
-//@@tagdepends: vle.discrete-time @@endtagdepends
 
 
 #include <vle/DiscreteTime.hpp>
-
-
+#include <vle/devs/Dynamics.hpp>
 #include <iostream>
 
 
@@ -37,51 +35,37 @@ namespace vle {
 namespace discrete_time {
 namespace generic {
 
-class GenericMean : public DiscreteTimeDyn
+class GenericSum : public DiscreteTimeDyn
 {
 public:
-    GenericMean(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
-        : DiscreteTimeDyn(init, events)
+    GenericSum(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
+        : DiscreteTimeDyn(init, events), Sum()
     {
-        Mean.init(this, "Mean", events);
-        vle::vpz::ConnectionList::const_iterator itb =
-                getModel().getInputPortList().begin();
-        vle::vpz::ConnectionList::const_iterator ite =
-                getModel().getInputPortList().end();
-        for (; itb != ite; itb++) {
-            Var* v = new Var();
-            v->init(this, itb->first, events);
-            getOptions().syncs.insert(std::make_pair(itb->first, 1));
-            inputs.push_back(v);
-        }
+        Sum.init(this, "Sum", events);
     }
 
-    virtual ~GenericMean()
+    virtual ~GenericSum()
     {
-        std::vector<Var*>::iterator itb = inputs.begin();
-        std::vector<Var*>::iterator ite = inputs.end();
-        for (; itb!= ite; itb++) {
-            delete *itb;
-        }
-
     }
 
-    void compute(const vle::devs::Time& /*t*/)
+    void compute(const vle::devs::Time& t)
     {
-        std::vector<Var*>::iterator itb = inputs.begin();
-        std::vector<Var*>::iterator ite = inputs.end();
+        Variables::const_iterator itb = getVariables().begin();
+        Variables::const_iterator ite = getVariables().end();
         double sum = 0;
-        for (; itb!=ite; itb++) {
-            sum += ((*itb)->operator()());
+        for (; itb != ite; itb++) {
+            if ((itb->first != "Sum") and (itb->second->getType() == MONO)) {
+                VarMono* v = (VarMono*) itb->second;
+                sum += v->getVal(t,0.0);
+            }
         }
-        Mean = sum / (double) inputs.size();
+        Sum = sum;
     }
 
-    Var Mean;
-    std::vector<Var*> inputs;
+    Var Sum;
 };
 
 }}}
 
-DECLARE_DYNAMICS(vle::discrete_time::generic::GenericMean)
+DECLARE_DYNAMICS(vle::discrete_time::generic::GenericSum)
 

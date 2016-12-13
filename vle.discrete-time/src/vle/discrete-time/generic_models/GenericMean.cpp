@@ -22,11 +22,11 @@
 
 
 //@@tagdynamic@@
-//@@tagdepends: vle.discrete-time @@endtagdepends
 
 
 #include <vle/DiscreteTime.hpp>
-#include <vle/devs/Dynamics.hpp>
+
+
 #include <iostream>
 
 
@@ -36,37 +36,51 @@ namespace vle {
 namespace discrete_time {
 namespace generic {
 
-class GenericSum : public DiscreteTimeDyn
+class GenericMean : public DiscreteTimeDyn
 {
 public:
-    GenericSum(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
-        : DiscreteTimeDyn(init, events), Sum()
+    GenericMean(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events)
+        : DiscreteTimeDyn(init, events)
     {
-        Sum.init(this, "Sum", events);
-    }
-
-    virtual ~GenericSum()
-    {
-    }
-
-    void compute(const vle::devs::Time& t)
-    {
-        Variables::const_iterator itb = getVariables().begin();
-        Variables::const_iterator ite = getVariables().end();
-        double sum = 0;
+        Mean.init(this, "Mean", events);
+        vle::vpz::ConnectionList::const_iterator itb =
+                getModel().getInputPortList().begin();
+        vle::vpz::ConnectionList::const_iterator ite =
+                getModel().getInputPortList().end();
         for (; itb != ite; itb++) {
-            if ((itb->first != "Sum") and (itb->second->getType() == MONO)) {
-                VarMono* v = (VarMono*) itb->second;
-                sum += v->getVal(t,0.0);
-            }
+            Var* v = new Var();
+            v->init(this, itb->first, events);
+            getOptions().syncs.insert(std::make_pair(itb->first, 1));
+            inputs.push_back(v);
         }
-        Sum = sum;
     }
 
-    Var Sum;
+    virtual ~GenericMean()
+    {
+        std::vector<Var*>::iterator itb = inputs.begin();
+        std::vector<Var*>::iterator ite = inputs.end();
+        for (; itb!= ite; itb++) {
+            delete *itb;
+        }
+
+    }
+
+    void compute(const vle::devs::Time& /*t*/)
+    {
+        std::vector<Var*>::iterator itb = inputs.begin();
+        std::vector<Var*>::iterator ite = inputs.end();
+        double sum = 0;
+        for (; itb!=ite; itb++) {
+            sum += ((*itb)->operator()());
+        }
+        Mean = sum / (double) inputs.size();
+    }
+
+    Var Mean;
+    std::vector<Var*> inputs;
 };
 
 }}}
 
-DECLARE_DYNAMICS(vle::discrete_time::generic::GenericSum)
+DECLARE_DYNAMICS(vle::discrete_time::generic::GenericMean)
 

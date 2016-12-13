@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <vle_project version="1.0" author="Ronan Trépos" date="2014-Jun-19 13:44:29">
  <structures>
-<model name="DTexec" x="0" y="0" height="339" type="coupled" width="907">
+<model x="0" width="907" name="DTexec" height="339" type="coupled" y="0">
    <submodels>
-    <model name="GenericSum" x="171" y="67" conditions="cGenericSum" dynamics="dGenericSum" observables="oGenericSum" height="39" type="atomic" width="-52">
+    <model x="171" width="-52" name="GenericSum" observables="oGenericSum" height="39" dynamics="dGenericSum" type="atomic" conditions="cGenericSum" y="67">
      <in/>
      <out>
       <port name="Sum"/>
      </out>
     </model>
-    <model name="DTexec" x="50" y="68" conditions="cDTexec" dynamics="dDTexec" height="49" type="atomic" width="73">
+    <model x="50" width="73" name="DTexec" height="49" dynamics="dDTexec" type="atomic" conditions="cDTexec" y="68">
      <out/>
     </model>
    </submodels>
@@ -18,7 +18,7 @@
 </structures>
  <dynamics>
 <dynamic name="dA1" package="vle.discrete-time_test" library="A1"/>
-<dynamic name="dGenericSum" package="vle.discrete-time.generic" library="GenericSum"/>
+<dynamic name="dGenericSum" package="vle.discrete-time" library="GenericSum"/>
 <dynamic name="dDTexec" package="vle.discrete-time_test" library="DTexec"/>
 </dynamics>
  <experiment name="executiveDT" combination="linear">
@@ -60,7 +60,7 @@
 <outputs>
 
 
-<output format="local" plugin="console" name="view" package="vle.output" location="">
+<output name="view" plugin="console" location="" package="vle.output" format="local">
      <map>
       <key name="flush-by-bag">
        <boolean>0</boolean>
@@ -106,12 +106,12 @@
    </observables>
 
 
-<view name="view" timestep="1" type="timed" output="view"/>
+<view name="view" output="view" type="timed" timestep="1"/>
   </views>
 </experiment>
  <classes>
 <class name="AClass">
-<model name="A" conditions="" dynamics="dA1" observables="oA" height="45" type="atomic">
+<model name="A" observables="oA" height="45" dynamics="dA1" type="atomic" conditions="">
 <in/>
 <out>
      <port name="a"/>

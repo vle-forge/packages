@@ -1,7 +1,7 @@
 
-The vle packages **vle.discrete-time**, **vle.discrete-time.generic**
-and **vle.discrete-time.decision** provide new extensions and generic models
-for simulating discrete time models into VLE.
+The vle packages **vle.discrete-time** and **vle.discrete-time.decision** 
+provide new extensions and generic models for simulating discrete time models
+into VLE.
 
 The first objective of this work is to improve the current extension 
 **vle.extension.difference-equation** for modeling recurrent relations.
@@ -19,8 +19,6 @@ _t, t - D, t - 2 * D,..._,
 There is the list of packages :
 * **vle.discrete-time** provides the discrete time extension
  itself.
-* **vle.discrete-time.generic** provides generic discrete
- time models (ie. with unkonwn input ports).
 * **vle.discrete-time.decision** provides a decision agent having
  a discrete time dynamic. It embeds a _KnowledgeBase_ from package
  **vle.extension.decision**. This is an experimental package.

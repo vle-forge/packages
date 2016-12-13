@@ -348,12 +348,12 @@ public:
      * @param eq, reference on the corresponding differential equation
      * @param params, the map for initialization of QSS2
      */
-    QSS2(de::DifferentialEquation& eq, const vv::Map& params) :
-            de::DifferentialEquationImpl(eq, params), devs_state(INIT),
+    QSS2(de::DifferentialEquation& eq, const vd::InitEventList& events) :
+            de::DifferentialEquationImpl(eq, events), devs_state(INIT),
             devs_options(), devs_guards(), devs_internal(), varImprovers()
     {
-        vle::devs::InitEventList::const_iterator itb = params.begin();
-        vle::devs::InitEventList::const_iterator ite = params.end();
+        vle::devs::InitEventList::const_iterator itb = events.begin();
+        vle::devs::InitEventList::const_iterator ite = events.end();
         std::string prefix;
         std::string var_name;
         //2nd init (prior)

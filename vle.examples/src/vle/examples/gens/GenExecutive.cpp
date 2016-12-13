@@ -28,6 +28,7 @@
 
 #include <vle/devs/Executive.hpp>
 #include <vle/utils/Tools.hpp>
+#include <vle/value/Set.hpp>
 #include <stack>
 #include <sstream>
 

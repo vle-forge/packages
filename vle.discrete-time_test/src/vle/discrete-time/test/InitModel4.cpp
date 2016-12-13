@@ -61,6 +61,11 @@ public:
     virtual vle::devs::Time init(vle::devs::Time /* time */) override
     {
         {//init d(0) = a(0) + c(0)
+            std::cout << " dbg InitModel4:: init " << "\n";
+            for (const auto& c : conditions().conditionnames()) {
+                std::cout << " dbg InitModel4:: init c=" << c << "\n";
+            }
+            std::cout << " dbg InitModel4:: init2 " << "\n";
             vz::Condition& cond = conditions().get("cond_init_d");
             cond.clearValueOfPort("init_value_d");
             d_0 = a_0 + c_0;

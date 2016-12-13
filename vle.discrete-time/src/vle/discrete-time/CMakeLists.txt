@@ -33,3 +33,5 @@ install(FILES TemporalValues.hpp DiscreteTimeDyn.hpp DiscreteTimeExec.hpp
         DESTINATION src/vle/discrete-time)
 install(FILES details/DiscreteTimeGen.hpp details/ComputeInterface.hpp
         DESTINATION src/vle/discrete-time/details)
+        
+add_subdirectory(generic_models)

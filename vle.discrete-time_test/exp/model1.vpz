@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<vle_project version="1.0" date="2014-Apr-17 12:48:05" author="Ronan Trépos">
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" author="Ronan Trépos" date="2014-Apr-17 12:48:05">
  <structures>
-<model width="1504" y="0" x="0" height="501" type="coupled" name="model1">
+<model width="1504" x="0" name="model1" height="501" type="coupled" y="0">
 <submodels>
-<model dynamics="dynA1" width="100" y="76" x="77" height="45" observables="obsA1" type="atomic" conditions="cond_time_step" name="A1">
+<model width="100" x="77" name="A1" observables="obsA1" height="45" dynamics="dynA1" type="atomic" conditions="cond_time_step" y="76">
 <out>
  <port name="a"/>
 </out>
 </model>
-<model dynamics="dynB1" width="100" y="107" x="291" height="45" observables="obsB1" type="atomic" conditions="cond_time_step,condB1,cond_init_b" name="B1">
+<model width="100" x="291" name="B1" observables="obsB1" height="45" dynamics="dynB1" type="atomic" conditions="cond_time_step,condB1,cond_init_b" y="107">
 <in>
  <port name="a"/>
 </in>
@@ -16,7 +16,7 @@
  <port name="b"/>
 </out>
 </model>
-<model dynamics="dynC1" width="100" y="107" x="468" height="45" observables="obsC1" type="atomic" conditions="cond_time_step,condC1,cond_init_b" name="C1">
+<model width="100" x="468" name="C1" observables="obsC1" height="45" dynamics="dynC1" type="atomic" conditions="cond_time_step,condC1,cond_init_b" y="107">
 <in>
  <port name="b"/>
 </in>
@@ -24,7 +24,7 @@
  <port name="c"/>
 </out>
 </model>
-<model dynamics="dynD1" width="100" y="296" x="608" height="60" observables="obsD1" type="atomic" conditions="condD1,cond_time_step" name="D1">
+<model width="100" x="608" name="D1" observables="obsD1" height="60" dynamics="dynD1" type="atomic" conditions="condD1,cond_time_step" y="296">
 <in>
  <port name="a"/>
  <port name="c"/>
@@ -33,7 +33,7 @@
  <port name="d"/>
 </out>
 </model>
-<model dynamics="dynGenericSum" width="100" y="176" x="822" height="90" observables="obsSum" type="atomic" conditions="cond_sum,cond_time_step" name="GenericSum">
+<model width="100" x="822" name="GenericSum" observables="obsSum" height="90" dynamics="dynGenericSum" type="atomic" conditions="cond_sum,cond_time_step" y="176">
 <in>
  <port name="a"/>
  <port name="b"/>
@@ -82,13 +82,13 @@
 </model>
 </structures>
  <dynamics>
-<dynamic package="vle.discrete-time_test" library="A1" name="dynA1"/>
-<dynamic package="vle.discrete-time_test" library="B1" name="dynB1"/>
-<dynamic package="vle.discrete-time_test" library="C1" name="dynC1"/>
-<dynamic package="vle.discrete-time_test" library="D1" name="dynD1"/>
-<dynamic package="vle.discrete-time.generic" library="GenericSum" name="dynGenericSum"/>
+<dynamic name="dynA1" package="vle.discrete-time_test" library="A1"/>
+<dynamic name="dynB1" package="vle.discrete-time_test" library="B1"/>
+<dynamic name="dynC1" package="vle.discrete-time_test" library="C1"/>
+<dynamic name="dynD1" package="vle.discrete-time_test" library="D1"/>
+<dynamic name="dynGenericSum" package="vle.discrete-time" library="GenericSum"/>
 </dynamics>
- <experiment duration="1,1" combination="linear" name="model1">
+ <experiment name="model1" duration="1,1" combination="linear">
 <conditions>
 <condition name="simulation_engine">
 <port name="begin">
@@ -145,7 +145,7 @@
 <outputs>
 
 
-<output plugin="console" package="vle.output" location="" format="local" name="view"/>
+<output name="view" plugin="console" location="" package="vle.output" format="local"/>
 
 </outputs>
 <observables>
@@ -192,7 +192,7 @@
 </observables>
 
 
-<view timestep="0.100000000000000" output="view" type="timed" name="view"/>
+<view name="view" output="view" type="timed" timestep="0.100000000000000"/>
 
 </views>
 </experiment>

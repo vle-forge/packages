@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <vle_project version="1.0" author="Ronan Trépos" date="2015-Mar-27 16:05:44">
  <structures>
-<model name="forcingEvents" x="0" y="0" type="coupled" height="345" width="854">
+<model x="0" width="854" name="forcingEvents" height="345" type="coupled" y="0">
 <submodels>
-<model name="D3" x="207" y="25" conditions="condD3,cond_init_c,cond_init_d,cond_time_step" dynamics="dynD3" observables="obsD3" type="atomic" height="60" width="100">
+<model x="207" width="100" name="D3" observables="obsD3" height="60" dynamics="dynD3" type="atomic" conditions="condD3,cond_init_c,cond_init_d,cond_time_step" y="25">
 <in>
  <port name="a"/>
  <port name="c"/>
@@ -12,14 +12,14 @@
  <port name="d"/>
 </out>
 </model>
-<model name="E3" x="45" y="160" conditions="cond_init_b,cond_init_c,cond_time_step" dynamics="dynE3" observables="obsE3" type="atomic" height="75" width="100">
+<model x="45" width="100" name="E3" observables="obsE3" height="75" dynamics="dynE3" type="atomic" conditions="cond_init_b,cond_init_c,cond_time_step" y="160">
 <out>
  <port name="a"/>
  <port name="b"/>
  <port name="c"/>
 </out>
 </model>
-<model name="GenericSum" x="366" y="184" conditions="cond_sum,cond_time_step" dynamics="dynGenericSum" observables="obsSum" type="atomic" height="90" width="100">
+<model x="366" width="100" name="GenericSum" observables="obsSum" height="90" dynamics="dynGenericSum" type="atomic" conditions="cond_sum,cond_time_step" y="184">
 <in>
  <port name="a"/>
  <port name="b"/>
@@ -59,7 +59,7 @@
  <dynamics>
 <dynamic name="dynD3" package="vle.discrete-time_test" library="D3"/>
 <dynamic name="dynE3" package="vle.discrete-time_test" library="E3"/>
-<dynamic name="dynGenericSum" package="vle.discrete-time.generic" library="GenericSum"/>
+<dynamic name="dynGenericSum" package="vle.discrete-time" library="GenericSum"/>
 </dynamics>
  <experiment name="forcingEvents" combination="linear">
 <conditions>
@@ -136,7 +136,7 @@
 </conditions>
 <views>
 <outputs>
-<output name="view" format="local" plugin="console" package="vle.output" location=""/>
+<output name="view" plugin="console" location="" package="vle.output" format="local"/>
 
 </outputs>
 <observables>
@@ -174,7 +174,7 @@
 </observable>
 
 </observables>
-<view name="view" timestep="1.000000000000000" type="timed" output="view"/>
+<view name="view" output="view" type="timed" timestep="1.000000000000000"/>
 
 </views>
 </experiment>

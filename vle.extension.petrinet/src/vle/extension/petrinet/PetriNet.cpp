@@ -349,10 +349,9 @@ PetriNet::Transition* PetriNet::selectTransition()
 PetriNet::PetriNet(const devs::DynamicsInit& model,
                    const devs::InitEventList& events) :
     devs::Dynamics(model, events),
-    mInitEvents(nullptr),
+    mInitEvents(events),
     mTokenNumber(0)
 {
-    mInitEvents.reset(new value::Map(events));
     mRand.seed(events.getInt("seed"));
 }
 
@@ -514,10 +513,10 @@ void PetriNet::addTransition(const std::string& transitionName,
 
 void PetriNet::build()
 {
-    initPlaces(mInitEvents->getSet("places").value());
-    initTransitions(mInitEvents->getSet("transitions").value());
-    initArcs(mInitEvents->getSet("arcs").value());
-    initInitialMarking(mInitEvents->getSet("initialMarkings").value());
+    initPlaces(mInitEvents.getSet("places").value());
+    initTransitions(mInitEvents.getSet("transitions").value());
+    initArcs(mInitEvents.getSet("arcs").value());
+    initInitialMarking(mInitEvents.getSet("initialMarkings").value());
 }
 
 void PetriNet::buildInitialMarking(const devs::Time& time)

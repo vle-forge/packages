@@ -128,13 +128,14 @@ private:
 
 public:
 
-    TimeSlicingMethod(DifferentialEquation& eq, const vv::Map& params) :
-            DifferentialEquationImpl(eq, params), devs_state(INIT),
+    TimeSlicingMethod(DifferentialEquation& eq,
+            const vd::InitEventList& events) :
+            DifferentialEquationImpl(eq, events), devs_state(INIT),
             devs_options(), devs_guards(), devs_internal(),
-            int_method(*this, params)
+            int_method(*this, events)
     {
-        if (params.exist("output_period")) {
-            const value::Value& v = *(params.get("output_period"));
+        if (events.exist("output_period")) {
+            const value::Value& v = *(events.get("output_period"));
             devs_options.output_period = 0;
             if (v.isInteger()) {
                 devs_options.output_period = v.toInteger().value();
@@ -145,8 +146,8 @@ public:
                         getModelName().c_str()));
             }
         }
-        if (params.exist("time_step")) {
-            devs_options.dt = params.getDouble("time_step");
+        if (events.exist("time_step")) {
+            devs_options.dt = events.getDouble("time_step");
             if (devs_options.dt <= 0) {
                 throw utils::ModellingError(vle::utils::format(
                         "[%s] Parameter 'time_step' should be > 0",
@@ -420,7 +421,8 @@ struct IntegrationMethod
     /**
      * @brief Constructor of IntegrationMethod
      */
-    IntegrationMethod(DifferentialEquationImpl& eq, const vv::Map& /*params*/);
+    IntegrationMethod(DifferentialEquationImpl& eq,
+            const vd::InitEventList& /*params*/);
     /**
      * @brief Destructor of IntegrationMethod
      */
@@ -431,7 +433,7 @@ struct IntegrationMethod
 
 struct Euler : public IntegrationMethod
 {
-    Euler(DifferentialEquationImpl& eq, const vv::Map& params);
+    Euler(DifferentialEquationImpl& eq, const vd::InitEventList& events);
 
     virtual ~Euler();
 
@@ -441,7 +443,7 @@ struct Euler : public IntegrationMethod
 struct RK4 : public IntegrationMethod
 {
 
-    RK4(DifferentialEquationImpl& eq, const vv::Map& params);
+    RK4(DifferentialEquationImpl& eq, const vd::InitEventList& events);
 
     virtual ~RK4();
 
