@@ -1,68 +1,14 @@
 Virtual Laboratory Environment 2.0
 ==================================
 
-A lot of packages for the VFL.
-
+This repository stores the packages distributed into the distribution of VLE.
 See AUTHORS and COPYRIGHT files for the list of contributors.
 
-### Changes since v1.2
 
-Some utils packages have been added.
-A new extension for discrete time models is also proposed.
+## Documentation
 
-#### Requirements
-
-* vle (>= 2.0)
-* boost (>= 1.47)
-* cmake (>= 3.0)
-* c++ compiler (gcc >= 4.9, clang >= 3.1, intel icc >= 11.0)
-
-### Getting the code
-
-The source tree is currently hosted on Github and Sourceforge. To view the
-repository online: https://github.com/vle-forge/packages The URL to clone it:
-
-    git clone git://github.com/vle-forge/packages.git
-
-### Installation
-
-Once you have met requirements, compiling and installing is simple:
-
-    cd packages
-    ./build.sh
-
-Or:
-
-    cd packages
-    vle --package vle.extension.celldevs clean rclean configure build test
-    vle --package vle.discrete-time clean rclean configure build test
-    vle --package vle.discrete-time.generic clean rclean configure build test
-    vle --package vle.extension.cellqss clean rclean configure build test
-    vle --package vle.extension.decision clean rclean configure build test
-    vle --package vle.discrete-time.decision clean rclean configure build test
-    vle --package vle.reader clean rclean configure build test
-    vle --package vle.tester clean rclean configure build test
-    vle --package vle.recursive clean rclean configure build test
-    vle --package vle.ode clean rclean configure build test
-    vle --package vle.ode_test clean rclean configure build test
-    vle --package vle.extension.dsdevs clean rclean configure build test
-    vle --package vle.extension.fsa clean rclean configure build test
-    vle --package vle.extension.petrinet clean rclean configure build test
-    vle --package vle.examples clean rclean configure build test
-    vle --package ext.muparser clean rclean configure build test
-    vle --package vle.reader_test clean rclean configure build test
-    vle --package vle.recursive_test clean rclean configure build test
-    vle --package vle.discrete-time_test clean rclean configure build test
-
-### Documentation
-
-Specific documentation to packages:
-
-* [vle.ode](docs_markdown/vle.ode.md): ordinary differential equation
-* [vle.discrete-time](docs_markdown/vle.discrete-time.md): discrete time models
-* [vle.reader](docs_markdown/vle.reader.md): API to read files
-* [vle.tester](docs_markdown/vle.tester.md): API to test models
-* [vle.recursive](docs_markdown/vle.recursive.md): API to simulate embedded models
+Documentation of the packages are given on the [dedicated VLE web page]
+(http://www.vle-project.org/packages/)
 
 ## License
 
