@@ -85,6 +85,15 @@ struct VlePropagate
 
 };
 
+struct VlePropagateSorter
+{
+    bool operator() (const std::unique_ptr<VlePropagate>& i,
+                     const std::unique_ptr<VlePropagate>& j)
+    {
+        return (i->getName()<j->getName());
+    }
+};
+
 struct VleInput
 {
     /*
@@ -121,7 +130,15 @@ struct VleInput
     unsigned int nbValues;
     //only for distribution configuration
     std::unique_ptr<value::Tuple> mvalues;
+};
 
+struct VleInputSorter
+{
+    bool operator() (const std::unique_ptr<VleInput>& i,
+                     const std::unique_ptr<VleInput>& j)
+    {
+        return (i->getName()<j->getName());
+    }
 };
 
 struct VleReplicate
@@ -209,9 +226,6 @@ public:
     insertReplicate(vle::value::Matrix& outMat,
             unsigned int currInput) override;
 
-
-
-
     //for replicate aggregation for current input index
     std::map<int, std::unique_ptr<AccuMono>> mreplicateAccu;
     std::unique_ptr<AccuMono> minputAccu;
@@ -281,6 +295,11 @@ public:
     VleOutput(const std::string& id, const vle::value::Value& config);
     ~VleOutput();
 
+    inline std::string getId() const
+    {
+        return id;
+    }
+
     /**
      * @brief insert a replicate from a map of views
      * @param result, one simulation result (map of views)
@@ -324,6 +343,16 @@ public:
     std::unique_ptr<vle::value::Tuple> mse_times;
     std::unique_ptr<vle::value::Tuple> mse_observations;
 };
+
+struct VleOutputSorter
+{
+    bool operator() (const std::unique_ptr<VleOutput>& i,
+                     const std::unique_ptr<VleOutput>& j)
+    {
+        return (i->getId()<j->getId());
+    }
+};
+
 
 /**
  * @brief Class that implements a meta manager, ie an API for performing
@@ -495,6 +524,10 @@ public:
                     mOutputs.emplace_back(new VleOutput(out_id, *itb->second));
                 }
             }
+            std::sort(mPropagate.begin(), mPropagate.end(),
+                    VlePropagateSorter());
+            std::sort(mInputs.begin(), mInputs.end(), VleInputSorter());
+            std::sort(mOutputs.begin(), mOutputs.end(), VleOutputSorter());
         } catch (const std::exception& e){
             err.code = -1;
             err.message = "[MetaManager] ";
