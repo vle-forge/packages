@@ -29,7 +29,6 @@
 #include <vle/utils/unit-test.hpp>
 #include <iostream>
 #include <iterator>
-#include <vle/version.hpp>
 #include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/devs/Time.hpp>
