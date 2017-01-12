@@ -45,35 +45,135 @@ vle.recursive.dateFromNum = function(dateNum)
 #' @param pkg, package where is located the embedded simulator
 #' @param file, vpz file that identifies the embedded simulator
 #'   
-#' @return a rvle object of vle recursive model
+#' @return a rvle handle of vle recursive model
 #' 
 #' @author Ronan Trépos MIA-T, INRA
 #' 
 #' @note
 #' 
-#' Will build the rvle_obj (a Rvle object)
+#' Will build the rvle handle (with rvle.open)
 #' 
 #' @examples
 #' 
-#' #TODO
+#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz")
 #'  
 vle.recursive.init = function(pkg=NULL, file=NULL)
 {
-    rvle_obj = new("Rvle", pkg="vle.recursive", file="vle-recursive.vpz");
-    rvle.addCondition(rvle_obj@sim, "cond");
-    rvle.addPort(rvle_obj@sim, "cond", "vpz");
-    rvle.addPort(rvle_obj@sim, "cond", "package");
-    rvle.setStringCondition(rvle_obj@sim, "cond", "package", pkg);
-    rvle.setStringCondition(rvle_obj@sim, "cond", "vpz", file);
-    return(rvle_obj);
+    rvle_handle = rvle.open(pkg="vle.recursive", file="vle-recursive.vpz");
+    rvle.addCondition(rvle_handle, "cond");
+    rvle.addPort(rvle_handle, "cond", "vpz");
+    rvle.addPort(rvle_handle, "cond", "package");
+    rvle.setStringCondition(rvle_handle, "cond", "package", pkg);
+    rvle.setStringCondition(rvle_handle, "cond", "vpz", file);
+    return(rvle_handle);
 }
 
 #'
-#' show the content of the embedded simulator
+#' init the embedded simulator
+#' 
+#' @export
+#' 
+#' @param rvle_handle, any rvle_handle built from rvle.open
+#' @param all, a boolean that tells if a full check is performed
+#'   
+#' @return TRUE if the rvle_handle is built from vle.recursive.init 
+#' (and configuration is ok if all=TRUE), false otherwise  
+#' 
+#' @author Ronan Trépos MIA-T, INRA
+#' 
+#' @note
+#' 
+#' @examples
+#' 
+#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz")
+#' vle.recursive.check(f)
+#'
+vle.recursive.check = function(rvle_handle=NULL, all=FALSE)
+{
+    if (is.null(rvle_handle)) {
+        return (FALSE)
+    }
+    if (class(rvle_handle) != "rvle") {
+        return (FALSE);
+    }
+    listCond = rvle.listConditions(rvle_handle);
+    if (sum(listCond == "cond") ==0) {
+        return (FALSE);
+    }
+    listPorts = rvle.listConditionPorts(rvle_handle, "cond");
+    if (sum(listPorts == "package") ==0) {
+        return (FALSE);
+    }
+    if (sum(listPorts == "vpz") ==0) {
+        return (FALSE);
+    }
+    
+    if (all) {
+        #TODO check config
+        return (FALSE);
+    }
+    return (TRUE);
+}
+
+
+#'
+#' get a Rvle Object of the ebmedded model
 #' 
 #' @export
 #'
-#' @param rvle_obj, a rvle object of vle recursive model
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
+#' @param replicate, index of the replicate for embedded
+#'                   model configuration
+#' 
+#' @return a rvle handle built the embedded simulator
+#' 
+#' @author Ronan Trépos MIA-T, INRA
+#' 
+#' @return return the embedded model
+#' 
+#' @note
+#' 
+#' Will build an new rvle handle based on the embedding handle
+#' 
+#' @examples
+#' 
+#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz");
+#' femb = vle.recursive.getEmbedded (f);
+#'  
+vle.recursive.getEmbedded = function(rvle_handle=NULL, replicate=1)
+{
+    if (! vle.recursive.check(rvle_handle)) {
+        stop("[vle.recursive] Error: rvle_handle is malformed");
+        return (NULL);
+    }
+    ftmp = rvle.open(
+            pkg=rvle.getConditionPortValues(rvle_handle, "cond", "package"),
+            file=rvle.getConditionPortValues(rvle_handle, "cond", "vpz"));
+    for (cond in rvle.listConditions(rvle_handle)) {
+        for (port in rvle.listConditionPorts(rvle_handle, cond)) {
+            if (startsWith(port, "propagate_")) {
+                econdPort = strsplit(port, split="propagate_")[[1]][2]
+                econd = strsplit(econdPort, split="\\.")[[1]][1]
+                eport = strsplit(econdPort, split="\\.")[[1]][2]
+                rvle.setValueCondition(ftmp, econd, eport,
+                        rvle.getConditionPortValues(rvle_handle, cond, port));
+            } else if (startsWith(port, "input_")) {	
+                #TODO should get inputs
+                
+            } else if (startsWith(port, "replicate_")) {
+                #TODO should get replicate id 'replicate'
+            }
+        }
+    }
+    return(ftmp);
+}
+
+#'
+#' show the content of the embedding simulator
+#' 
+#' @export
+#'
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' 
 #' @return NULL
 #' 
@@ -81,62 +181,43 @@ vle.recursive.init = function(pkg=NULL, file=NULL)
 #' 
 #' @note
 #' 
-#' Nothing
-#' 
 #' @examples
 #' 
-#' #TODO
+#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz")
+#' vle.recursive.show(f);
+#' 
 #'  
-vle.recursive.showEmbedded = function(rvle_obj=NULL)
+vle.recursive.show = function(rvle_handle=NULL)
 {
-  ftmp = vle.recursive.getEmbedded(rvle_obj);
-  show(ftmp);
-  rm(ftmp);
+    rvle.show(rvle_handle);
 }
 
 #'
-#' get a Rvle Object of the ebmedded model
+#' show the content of the embedded model
 #' 
 #' @export
 #'
-#' @param rvle_obj, a rvle object of vle recursive model
-#' @param replicate, index of the replicate for embedded
-#'                   model configuration
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' 
-#' @return a Rvle object of the embedded simulator
+#' @return NULL
 #' 
 #' @author Ronan Trépos MIA-T, INRA
 #' 
 #' @note
 #' 
-#' Nothing
+#' Will first build the embedded model and show its conditions
 #' 
 #' @examples
 #' 
-#' #TODO
+#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz")
+#' vle.recursive.showEmbedded(f);
+#' 
 #'  
-vle.recursive.getEmbedded = function(rvle_obj=NULL, replicate=1)
+vle.recursive.showEmbedded = function(rvle_handle=NULL)
 {
-  ftmp = new("Rvle", pkg=getDefault(rvle_obj, "cond.package"), 
-             file=getDefault(rvle_obj, "cond.vpz"));
-  for (cond in rvle.listConditions(rvle_obj@sim)) {
-    for (port in rvle.listConditionPorts(rvle_obj@sim, cond)) {
-      if (startsWith(port, "propagate_")) {
-        econdPort = strsplit(port, split="propagate_")[[1]][2]
-        econd = strsplit(econdPort, split="\\.")[[1]][1]
-        eport = strsplit(econdPort, split="\\.")[[1]][2]
-        rvle.setValueCondition(ftmp@sim, econd, eport,
-           rvle.getConditionPortValues(rvle_obj@sim, 
-              cond, port));                  
-      } else if (startsWith(port, "input_")) {	
-        #TODO should get inputs
-
-      } else if (startsWith(port, "replicate_")) {
-	#TODO should get replicate id 'replicate'
-      }      
-    }  
-  }
-  return(ftmp);
+  ftmp = vle.recursive.getEmbedded(rvle_handle);
+  rvle.show(ftmp);
+  rm(ftmp);
 }
 
 #'
@@ -144,7 +225,7 @@ vle.recursive.getEmbedded = function(rvle_obj=NULL, replicate=1)
 #' 
 #' @export
 #'
-#' @param rvle_obj, a rvle object of vle recursive model
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param propagate, a string of the form 'cond.port'
 #' @param value, the value to propagate to the embedded simulator
 #' 
@@ -158,20 +239,22 @@ vle.recursive.getEmbedded = function(rvle_obj=NULL, replicate=1)
 #' 
 #' @examples
 #' 
-#' #TODO
+#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz")
+#' vle.recursive.configPropagate(f, "mycond.myport", value=0.5)
 #'  
 
-vle.recursive.configPropagate = function(rvle_obj=NULL, propagate=NULL, value=NULL)
+vle.recursive.configPropagate = function(rvle_handle=NULL, propagate=NULL, 
+                                         value=NULL)
 {
-  if (is.null(rvle_obj)) {
-    print("[vle.recursive] error missing rvle_obj");
-    return (NULL);
+  if (! vle.recursive.check(rvle_handle)) {
+      stop("[vle.recursive] Error: rvle_handle is malformed");
+      return (NULL);
   }
   inputPort = paste("propagate", sep="_", propagate);
   
-  listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) ==0) {
-    rvle.addPort(rvle_obj@sim, "cond", inputPort);
+    rvle.addPort(rvle_handle, "cond", inputPort);
   }
   #avoid MULTIPLE values
   classVal = class(value);
@@ -186,19 +269,19 @@ vle.recursive.configPropagate = function(rvle_obj=NULL, propagate=NULL, value=NU
       stop("[R vle.recursise] configuring a propagate with multiple values");
     }
   }
-  rvle.setValueCondition(rvle_obj@sim, cond="cond", port=inputPort, 
+  rvle.setValueCondition(rvle_handle, cond="cond", port=inputPort, 
                          value);
   
   #remove replicate and input with same name
   inputPort = paste("replicate", sep="_", propagate);
-  listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) != 0) {
-    rvle.removePort(rvle_obj@sim, "cond", inputPort);
+    rvle.removePort(rvle_handle, "cond", inputPort);
   }
   inputPort = paste("input", sep="_", propagate);
-  listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) != 0) {
-    rvle.removePort(rvle_obj@sim, "cond", inputPort);
+    rvle.removePort(rvle_handle, "cond", inputPort);
   }
 }
 
@@ -208,7 +291,7 @@ vle.recursive.configPropagate = function(rvle_obj=NULL, propagate=NULL, value=NU
 #' 
 #' @export
 #' 
-#' @param rvle_obj, a rvle object of vle recursive model
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param input, a string of the form 'cond.port'
 #' @param values, the set of values to simulate
 #' 
@@ -222,20 +305,21 @@ vle.recursive.configPropagate = function(rvle_obj=NULL, propagate=NULL, value=NU
 #' 
 #' @examples
 #' 
-#' #TODO
+#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz")
+#' vle.recursive.configInput(f, "mycond.myport", value=c(0.5, 0.6, 0.7))
 #'  
     
-vle.recursive.configInput = function(rvle_obj=NULL, input=NULL, values=NULL)
+vle.recursive.configInput = function(rvle_handle=NULL, input=NULL, values=NULL)
 {
-  if (is.null(rvle_obj)) {
-    print("[vle.recursive] error missing rvle_obj");
-    return (NULL);
+  if (! vle.recursive.check(rvle_handle)) {
+      stop("[vle.recursive] Error: rvle_handle is malformed");
+      return (NULL);
   }
   inputPort = paste("input", sep="_", input);
   
-  listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) ==0) {
-    rvle.addPort(rvle_obj@sim, "cond", inputPort);
+    rvle.addPort(rvle_handle, "cond", inputPort);
   }
   #avoid MULTIPLE values
   classVal = class(values);
@@ -250,19 +334,19 @@ vle.recursive.configInput = function(rvle_obj=NULL, input=NULL, values=NULL)
       stop("[R vle.recursise] configuring an input with multiple values");
     }
   }
-  rvle.setValueCondition(rvle_obj@sim, cond="cond", port=inputPort, 
+  rvle.setValueCondition(rvle_handle, cond="cond", port=inputPort, 
             values);
 
   #remove replicate and propagate with same name
   inputPort = paste("replicate", sep="_", input);
-  listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) != 0) {
-    rvle.removePort(rvle_obj@sim, "cond", inputPort);
+    rvle.removePort(rvle_handle, "cond", inputPort);
   }
   inputPort = paste("propagate", sep="_", input);
-  listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) != 0) {
-    rvle.removePort(rvle_obj@sim, "cond", inputPort);
+    rvle.removePort(rvle_handle, "cond", inputPort);
   }
 }
 
@@ -271,7 +355,7 @@ vle.recursive.configInput = function(rvle_obj=NULL, input=NULL, values=NULL)
 #' 
 #' @export
 #' 
-#' @param rvle_obj, a rvle object of vle recursive model
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param replicate, a string of the form 'cond.port'
 #' @param values, the set of values to simulate
 #' 
@@ -288,16 +372,16 @@ vle.recursive.configInput = function(rvle_obj=NULL, input=NULL, values=NULL)
 #' #TODO
 #'  
 
-vle.recursive.configReplicate = function(rvle_obj=NULL, replicate=NULL, values=NULL)
+vle.recursive.configReplicate = function(rvle_handle=NULL, replicate=NULL, values=NULL)
 {
-  if (is.null(rvle_obj)) {
-    print("[vle.recursive] error missing rvle_obj");
-    return (NULL);
+  if (! vle.recursive.check(rvle_handle)) {
+      stop("[vle.recursive] Error: rvle_handle is malformed");
+      return (NULL);
   }
   inputPort = paste("replicate", sep="_", replicate);
-  listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) ==0) {
-    rvle.addPort(rvle_obj@sim, "cond", inputPort);
+    rvle.addPort(rvle_handle, "cond", inputPort);
   }
   #avoid MULTIPLE values
   classVal = class(values);
@@ -312,19 +396,19 @@ vle.recursive.configReplicate = function(rvle_obj=NULL, replicate=NULL, values=N
       stop("[R vle.recursise] configuring a replicate with multiple values");
     }
   }
-  rvle.setValueCondition(rvle_obj@sim, cond="cond", port=inputPort, 
+  rvle.setValueCondition(rvle_handle, cond="cond", port=inputPort, 
                          values);
   
   #remove input and propagate with same name
   inputPort = paste("input", sep="_", replicate);
-  listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) != 0) {
-    rvle.removePort(rvle_obj@sim, "cond", inputPort);
+    rvle.removePort(rvle_handle, "cond", inputPort);
   }
   inputPort = paste("propagate", sep="_", replicate);
-  listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) != 0) {
-    rvle.removePort(rvle_obj@sim, "cond", inputPort);
+    rvle.removePort(rvle_handle, "cond", inputPort);
   }
 }
 
@@ -333,7 +417,7 @@ vle.recursive.configReplicate = function(rvle_obj=NULL, replicate=NULL, values=N
 #' 
 #' @export
 #' 
-#' @param rvle_obj, a rvle object of vle recursive model
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param id, a string of the form 'cond.port'
 #' 
 #' @return NULL
@@ -348,36 +432,43 @@ vle.recursive.configReplicate = function(rvle_obj=NULL, replicate=NULL, values=N
 #' 
 #' #TODO
 #'  
-vle.recursive.getValue = function(rvle_obj=NULL, id=NULL)
+vle.recursive.getValue = function(rvle_handle=NULL, id=NULL)
 {
+  if (! vle.recursive.check(rvle_handle)) {
+      stop("[vle.recursive] Error: rvle_handle is malformed");
+      return (NULL);
+  }
   inputPort = paste("input", sep="_", id);
-  ##try to find into rvle_obj an input
-  if (length(which(rvle.listConditionPorts(rvle_obj@sim,"cond") == 
+  ##try to find into rvle_handle an input
+  if (length(which(rvle.listConditionPorts(rvle_handle,"cond") == 
                    inputPort)) > 0) {
-    return(rvle.getConditionPortValues(rvle_obj@sim, 
+    return(rvle.getConditionPortValues(rvle_handle, 
                                        "cond", inputPort));
   }
   
   inputPort = paste("replicate", sep="_", id);
-  ##try to find into rvle_obj a replicate
-  if (length(which(rvle.listConditionPorts(rvle_obj@sim,"cond") == 
+  ##try to find into rvle_handle a replicate
+  if (length(which(rvle.listConditionPorts(rvle_handle,"cond") == 
                    inputPort)) > 0) {
-    return(rvle.getConditionPortValues(rvle_obj@sim, 
+    return(rvle.getConditionPortValues(rvle_handle, 
                                        "cond", inputPort));
   }
   
   inputPort = paste("propagate", sep="_", id);
-  ##try to find into rvle_obj a replicate
-  if (length(which(rvle.listConditionPorts(rvle_obj@sim,"cond") == 
+  ##try to find into rvle_handle a propagate
+  if (length(which(rvle.listConditionPorts(rvle_handle,"cond") == 
                    inputPort)) > 0) {
-    return(rvle.getConditionPortValues(rvle_obj@sim, 
+    return(rvle.getConditionPortValues(rvle_handle, 
                                        "cond", inputPort));
   }
 
   ##try to find into embedded sim
-  ftmp = new("Rvle", pkg=getDefault(rvle_obj, "cond.package"), 
-            file=getDefault(rvle_obj, "cond.vpz"));
-  return (getDefault(ftmp, id));
+  ftmp = rvle.open(
+          pkg=rvle.getConditionPortValues(rvle_handle, "cond", "package"),
+          file=rvle.getConditionPortValues(rvle_handle, "cond", "vpz"));
+  econd = strsplit(id, split="\\.")[[1]][1]
+  eport = strsplit(id, split="\\.")[[1]][2]
+  return (rvle.getConditionPortValues(ftmp, econd, eport));
 }
 
 #'
@@ -385,7 +476,7 @@ vle.recursive.getValue = function(rvle_obj=NULL, id=NULL)
 #' 
 #' @export
 #' 
-#' @param rvle_obj, a rvle object of vle recursive model
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param id, the id (a string) of the output
 #' @param path, a string of the form  'viewname/pathOfTheAtomicModel.ObsPort'
 #' that identifies the column to get from the simulation of the embedded
@@ -408,18 +499,19 @@ vle.recursive.getValue = function(rvle_obj=NULL, id=NULL)
 #' 
 #' #TODO
 #' 
-vle.recursive.configOutput = function(rvle_obj=NULL, id=NULL, path=NULL, 
+vle.recursive.configOutput = function(rvle_handle=NULL, id=NULL, path=NULL, 
         mse_observations=NULL, mse_times=NULL, integration="all", 
         aggregation_input="all")
 {
-    if (is.null(rvle_obj)) {
-        print("[vle.recursive] error missing rvle_obj");
+    if (! vle.recursive.check(rvle_handle)) {
+        stop("[vle.recursive] Error: rvle_handle is malformed");
         return (NULL);
     }
+
     outputPort = paste("output", sep="_", id);
-    listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+    listPorts = rvle.listConditionPorts(rvle_handle, "cond");
     if (sum(listPorts == outputPort) == 0) {
-        rvle.addPort(rvle_obj@sim, "cond", outputPort);
+        rvle.addPort(rvle_handle, "cond", outputPort);
     }
     
     config = NULL;
@@ -434,10 +526,10 @@ vle.recursive.configOutput = function(rvle_obj=NULL, id=NULL, path=NULL,
                 aggregation_input=aggregation_input);   
     }
     class(config) <- "VleMAP";
-    rvle.setValueCondition(rvle_obj@sim, cond="cond", port=outputPort, 
+    rvle.setValueCondition(rvle_handle, cond="cond", port=outputPort, 
             config);
-#    rvle.addObservablePort(rvle_obj@sim, "obs", id)
-#    rvle.attachView(rvle_obj@sim, "view", "obs", id)
+#    rvle.addObservablePort(rvle_handle, "obs", id)
+#    rvle.attachView(rvle_handle, "view", "obs", id)
 }
 
 #'
@@ -445,7 +537,7 @@ vle.recursive.configOutput = function(rvle_obj=NULL, id=NULL, path=NULL,
 #' 
 #' @export
 #' 
-#' @param rvle_obj, a rvle object of vle recursive model
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param config_parallel_type (string amongst threads, mvle and single). 
 #'  It sets the type of parallelization to perform.
 #' @param config_parallel_rm_files (bool; default true). 
@@ -470,54 +562,55 @@ vle.recursive.configOutput = function(rvle_obj=NULL, id=NULL, path=NULL,
 #' #TODO
 #' 
 
-vle.recursive.configSimulation = function(rvle_obj=NULL, config_parallel_type=NULL, 
+vle.recursive.configSimulation = function(rvle_handle=NULL, config_parallel_type=NULL, 
         config_parallel_rm_files=NULL, config_parallel_nb_slots=NULL, 
         working_dir=NULL)
 {
-    if (is.null(rvle_obj)) {
-        print("[vle.recursive] error missing rvle_obj");
+    if (! vle.recursive.check(rvle_handle)) {
+        stop("[vle.recursive] Error: rvle_handle is malformed");
         return (NULL);
     }
-    listPorts = rvle.listConditionPorts(rvle_obj@sim, "cond");
+
+    listPorts = rvle.listConditionPorts(rvle_handle, "cond");
     if (sum(listPorts == "config_parallel_type") == 0) {
-        rvle.addPort(rvle_obj@sim, "cond", "config_parallel_type");
+        rvle.addPort(rvle_handle, "cond", "config_parallel_type");
     }
     if (sum(listPorts == "config_parallel_rm_files") == 0) {
-        rvle.addPort(rvle_obj@sim, "cond", "config_parallel_rm_files");
+        rvle.addPort(rvle_handle, "cond", "config_parallel_rm_files");
     }
     if (sum(listPorts == "config_parallel_nb_slots") == 0) {
-        rvle.addPort(rvle_obj@sim, "cond", "config_parallel_nb_slots");
+        rvle.addPort(rvle_handle, "cond", "config_parallel_nb_slots");
     }
     if (sum(listPorts == "working_dir") == 0) {
-        rvle.addPort(rvle_obj@sim, "cond", "working_dir");
+        rvle.addPort(rvle_handle, "cond", "working_dir");
     }
     if (is.null(config_parallel_type)) {
-        rvle.setValueCondition(rvle_obj@sim, cond="cond",
+        rvle.setValueCondition(rvle_handle, cond="cond",
                 port="config_parallel_type", "single");
     } else {
-        rvle.setValueCondition(rvle_obj@sim, cond="cond",
+        rvle.setValueCondition(rvle_handle, cond="cond",
                 port="config_parallel_type", config_parallel_type);
     }
     if (is.null(config_parallel_rm_files)) {
-        rvle.setValueCondition(rvle_obj@sim, cond="cond",
+        rvle.setValueCondition(rvle_handle, cond="cond",
                 port="config_parallel_rm_files", FALSE);
     } else {
-        rvle.setValueCondition(rvle_obj@sim, cond="cond",
+        rvle.setValueCondition(rvle_handle, cond="cond",
                 port="config_parallel_rm_files", config_parallel_rm_files);
     }
     if (is.null(config_parallel_nb_slots)) {
-        rvle.setValueCondition(rvle_obj@sim, cond="cond",
+        rvle.setValueCondition(rvle_handle, cond="cond",
                 port="config_parallel_nb_slots", as.integer(1));
     } else {
-        rvle.setValueCondition(rvle_obj@sim, cond="cond",
+        rvle.setValueCondition(rvle_handle, cond="cond",
                 port="config_parallel_nb_slots",
                 as.integer(config_parallel_nb_slots));
     }
     if (is.null(working_dir)) {
-        rvle.setValueCondition(rvle_obj@sim, cond="cond",
+        rvle.setValueCondition(rvle_handle, cond="cond",
                 port="working_dir", "/tmp/");
     } else {
-        rvle.setValueCondition(rvle_obj@sim, cond="cond",
+        rvle.setValueCondition(rvle_handle, cond="cond",
                 port="working_dir", working_dir);
     }
 }
@@ -528,7 +621,7 @@ vle.recursive.configSimulation = function(rvle_obj=NULL, config_parallel_type=NU
 #' 
 #' @export
 #' 
-#' @param rvle_obj, a rvle object of vle recursive model
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' 
 #' @return results structure
 #' 
@@ -543,17 +636,18 @@ vle.recursive.configSimulation = function(rvle_obj=NULL, config_parallel_type=NU
 #' #TODO
 #' 
 
-vle.recursive.simulate = function(rvle_obj=NULL)
+vle.recursive.simulate = function(rvle_handle=NULL)
 {
-  if (is.null(rvle_obj)) {
-    print("[vle.recursive] error missing rvle_obj");
-    return (NULL);
+  if (! vle.recursive.check(rvle_handle)) {
+      stop("[vle.recursive] Error: rvle_handle is malformed");
+      return (NULL);
   }
-  res = rvle.run(rvle_obj@sim)$view$"vle-recursive:vle_recursive.outputs"[[1]];
+
+  res = rvle.run(rvle_handle)$view$"vle-recursive:vle_recursive.outputs"[[1]];
   if (is.null(res)) {
     savedVpz = paste(Sys.getenv("VLE_HOME"),sep="/",
                      "pkgs-2.0/vle.recursive/exp/test_error.vpz"); 
-    saveVpz(rvle_obj, savedVpz);
+    rvle.save(rvle_handle, savedVpz);
     rvlelog = paste(Sys.getenv("VLE_HOME"),sep="/", "rvle.log");
     print(paste("[vle.recursive] error in simul, file log date: ", 
                 file.info(rvlelog)$mtime));
