@@ -62,6 +62,7 @@ DiscreteTimePanel::~DiscreteTimePanel()
 {
     delete left;
     delete right;
+    delete cppMetadata;
 }
 
 QString

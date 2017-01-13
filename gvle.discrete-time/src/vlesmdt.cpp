@@ -188,6 +188,16 @@ vleSmDT::vleSmDT(const QString& srcpath, const QString& smpath,
                 this, SLOT(onUndoAvailable(bool)));
 }
 
+vleSmDT::~vleSmDT()
+{
+    delete mDocSm;
+    delete mVdoSm;
+    if (undoStackSm) {
+        undoStackSm->deleteLater();
+    }
+
+}
+
 void
 vleSmDT::xCreateDom()
 {

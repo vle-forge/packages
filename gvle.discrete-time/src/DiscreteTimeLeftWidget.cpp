@@ -38,7 +38,7 @@ DiscreteTimeLeftWidget::DiscreteTimeLeftWidget():
 }
 DiscreteTimeLeftWidget::~DiscreteTimeLeftWidget()
 {
-
+    delete ui;
 }
 
 }} //namespaces

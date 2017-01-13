@@ -63,7 +63,7 @@ class vleSmDT : public QObject
 public:
     vleSmDT(const QString& srcpath, const QString& smpath,
             QString pluginName);
-
+    ~vleSmDT();
 
     QString getSrcPath() const
     {return mFileNameSrc;};
