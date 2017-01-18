@@ -18,6 +18,7 @@
  */
 
 #include <iostream>
+#include <algorithm>
 #include <sstream>
 #include <cmath>
 #include <string>
@@ -44,6 +45,156 @@
 namespace vle {
 namespace recursive {
 
+
+/***********wrapper_init*************/
+
+wrapper_init::wrapper_init(const devs::InitEventList* init_evt_list):
+    mInitEventList(init_evt_list), mMap(0), itbI(),
+    itbM(), iteI(), iteM(), def()
+{
+    itbI =  mInitEventList->begin();
+    iteI =  mInitEventList->end();
+}
+
+wrapper_init::wrapper_init(const value::Map* init_map):
+    mInitEventList(0), mMap(init_map), itbI(),
+    itbM(), iteI(), iteM(), def()
+{
+    itbM =  mMap->begin();
+    iteM =  mMap->end();
+}
+
+wrapper_init::~wrapper_init()
+{
+    mInitEventList = 0;
+    mMap = 0;
+}
+
+void
+wrapper_init::begin()
+{
+    if (mInitEventList) {
+        itbI =  mInitEventList->begin();
+    } else {
+        itbM =  mMap->begin();
+    }
+}
+
+bool
+wrapper_init::isEnded() const
+{
+    if (mInitEventList and itbI != iteI) {
+        return false;
+    }
+    if (mMap and itbM != iteM) {
+        return false;
+    }
+    return true;
+}
+
+bool
+wrapper_init::next()
+{
+    if (mInitEventList and itbI != iteI) {
+        itbI++ ;
+        return true;
+    }
+    if (mMap and itbM != iteM) {
+        itbM++;
+        return true;
+    }
+    return false;
+}
+
+const value::Value&
+wrapper_init::current(std::string& key, bool& status)
+{
+    if (mInitEventList and itbI != iteI) {
+        const value::Value& res_val = *itbI->second.get();
+        status = true;
+        key.assign(itbI->first);
+        return res_val;
+    }
+    if (mMap and itbM != iteM) {
+        const value::Value& res_val = *itbM->second.get();
+        status = true;
+        key.assign(itbM->first);
+        return res_val;
+    }
+    key.assign("");
+    status = false;
+    return def;
+}
+
+bool
+wrapper_init::exist(const std::string& key, bool& status) const
+{
+    if (mInitEventList) {
+        status = true;
+        return mInitEventList->exist(key);
+    }
+    if (mMap) {
+        status = true;
+        return mMap->exist(key);
+    }
+    status = false;
+    return false;
+}
+
+
+const value::Value&
+wrapper_init::get(const std::string& key, bool& status) const
+{
+    if (mInitEventList) {
+        const std::shared_ptr<const value::Value>& res_val =
+                mInitEventList->get(key);
+        if (res_val) {
+            status = true;
+            return *res_val.get();
+        }
+    }
+    if (mMap) {
+        const std::unique_ptr<value::Value>& res_val =
+                mMap->get(key);
+        if (res_val) {
+            status = true;
+            return *res_val.get();
+        }
+    }
+    status = false;
+    return def;
+}
+
+
+std::string
+wrapper_init::getString(const std::string& key, bool& status) const
+{
+    const value::Value& v = get(key, status);
+    if (status and v.isString()) {
+        return v.toString().value();
+    }
+    return "";
+}
+
+int
+wrapper_init::getInt(const std::string& key, bool& status) const
+{
+    const value::Value& v = get(key, status);
+    if (status and v.isInteger()) {
+        return v.toInteger().value();
+    }
+    return 0;
+}
+
+int
+wrapper_init::getBoolean(const std::string& key, bool& status) const
+{
+    const value::Value& v = get(key, status);
+    if (status and v.isBoolean()) {
+        return v.toBoolean().value();
+    }
+    return 0;
+}
 
 
 /***********VlePropagate*************/
@@ -107,6 +258,19 @@ VleInput::~VleInput()
 {
 }
 
+const vle::value::Value&
+VleInput::values(const wrapper_init& init)
+{
+    if (mvalues){
+        return *mvalues;
+    } else {
+        std::string key("input_");
+        key.append(getName());
+        bool status = true;
+        return init.get(key, status);
+    }
+}
+
 std::string
 VleInput::getName() const
 {
@@ -157,6 +321,19 @@ VleReplicate::VleReplicate(const std::string& _cond, const std::string& _port,
 
 VleReplicate::~VleReplicate()
 {
+}
+
+const vle::value::Value&
+VleReplicate::values(const wrapper_init& init)
+{
+    if (mvalues){
+        return *mvalues;
+    } else {
+        std::string key("replicate_");
+        key.append(getName());
+        bool status = true;
+        return init.get(key, status);
+    }
 }
 
 std::string
@@ -592,6 +769,29 @@ VleOutput::insertReplicate(value::Matrix& outMat, unsigned int currInput,
 
 /***********MetaManager*************/
 
+MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
+        mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
+        mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
+        mexpe_debug(true), mrand(), mPropagate(), mInputs(),
+        mReplicate(nullptr), mOutputs(), mWorkingDir(""),
+        mCtx(utils::make_context())
+{
+    mCtx->set_log_priority(3);//erros only
+}
+
+MetaManager::~MetaManager()
+{
+    mCtx.reset();
+    clear();
+}
+
+utils::Rand&
+MetaManager::random_number_generator()
+{
+    return mrand;
+}
+
+
 unsigned int
 MetaManager::inputsSize() const
 {
@@ -618,31 +818,807 @@ MetaManager::readResultFile(const std::string& filePath, value::Matrix& mat)
     tfr.readFile(mat);
 }
 
-
-
-MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
-        mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
-        mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
-        mexpe_debug(true), mrand(), mPropagate(), mInputs(),
-        mReplicate(nullptr), mOutputs(), mWorkingDir(""),
-        mCtx(utils::make_context())
+std::unique_ptr<vpz::Vpz>
+MetaManager::init_embedded_model(const wrapper_init& init)
 {
-    mCtx->set_log_priority(3);//erros only
+    vle::utils::Package pkg(mCtx, mIdPackage);
+    std::string vpzFile = pkg.getExpFile(mIdVpz, vle::utils::PKG_BINARY);
+
+    std::unique_ptr<vpz::Vpz> model(new vpz::Vpz(vpzFile));
+    model->project().experiment().setCombination("linear");
+
+    VleAPIfacilities::changeAllPlugin(*model, "dummy");
+    std::vector<std::unique_ptr<VleOutput>>::const_iterator itb =
+            mOutputs.begin();
+    std::vector<std::unique_ptr<VleOutput>>::const_iterator ite =
+            mOutputs.end();
+    for (; itb != ite; itb++) {
+        switch(mConfigParallelType) {
+        case SINGLE:
+        case THREADS:
+        case CVLE: {
+            VleAPIfacilities::changePlugin(*model, (*itb)->view, "storage");
+            break;
+        } case MVLE: {
+            VleAPIfacilities::changePlugin(*model, (*itb)->view, "file");
+            break;
+        }}
+    }
+    post_propagates(*model, init);
+    return model;
 }
 
-MetaManager::~MetaManager()
+std::unique_ptr<value::Map>
+MetaManager::init_results()
 {
-    mCtx.reset();
-    clear();
+    //build output matrix with header
+    std::unique_ptr<value::Map> results(new value::Map());
+    for (unsigned int j=0; j<mOutputs.size();j++) {
+        results->add(mOutputs[j]->id, value::Null::create());
+    }
+    return results;
 }
 
-utils::Rand&
-MetaManager::random_number_generator()
+
+std::unique_ptr<value::Map>
+MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
 {
-    return mrand;
+    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init);
+    std::unique_ptr<value::Map> results = init_results();
+
+    unsigned int inputSize = inputsSize();
+    unsigned int repSize = replicasSize();
+    unsigned int outputSize =  mOutputs.size();
+    post_inputs(*model, init);
+    vle::manager::Manager planSimulator(
+            mCtx,
+            vle::manager::LOG_NONE,
+            vle::manager::SIMULATION_NONE,
+            nullptr);
+    vle::manager::Error manerror;
+    if (mexpe_debug){
+        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                "[vle.recursive] simulation single/threads(%d slots) "
+                "nb simus: %u \n", mConfigParallelNbSlots,
+                (repSize*inputSize));
+    }
+
+    //        //for dbg
+    //        std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
+    //        tempvpzPath.append("/temp_saved.vpz");
+    //        model->write(tempvpzPath);
+    //        //
+    std::unique_ptr<value::Matrix> output_mat =  planSimulator.run(
+            std::move(model), mConfigParallelNbSlots, 0, 1, &manerror);
+    if (mexpe_debug){
+        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                "[vle.recursive] end simulation single/threads\n");
+    }
+    if (manerror.code != 0) {
+        err.code = -1;
+        err.message = "[MetaManager] ";
+        err.message += manerror.message;
+        model.reset(nullptr);
+        results.reset(nullptr);
+        clear();
+        return nullptr;
+    }
+    std::unique_ptr<value::Value> aggrValue;
+    for (unsigned int out =0; out < outputSize; out++) {
+        VleOutput& outId = *mOutputs[out];
+        for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
+            for (unsigned int j = 0; j < repSize; j++) {
+                aggrValue = std::move(outId.insertReplicate(
+                        output_mat->get(i+j,0)->toMap(),
+                        i/repSize, inputSize, repSize));
+            }
+        }
+        results->set(outId.id, std::move(aggrValue));
+    }
+    if (mexpe_debug){
+        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                "[vle.recursive] aggregation finished\n");
+    }
+    return results;
+}
+
+std::unique_ptr<value::Map>
+MetaManager::run_with_mvle(const wrapper_init& init, manager::Error& err)
+{
+    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init);
+    std::unique_ptr<value::Map> results = init_results();
+
+    unsigned int inputSize = inputsSize();
+    unsigned int repSize = replicasSize();
+    unsigned int outputSize =  mOutputs.size();
+
+    post_inputs(*model, init);
+
+    vu::Package pkg(mCtx, "vle.recursive");//TODO should be saved outside
+    std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
+    tempvpzPath.append("/temp_gen_MPI.vpz");
+    model->write(tempvpzPath);
+    vu::Spawn mspawn(mCtx);
+    std::string exe = mCtx->findProgram("mpirun").string();
+
+    std::vector < std::string > argv;
+    //use mpi_warn_nf_forgk since mvle launches simulation with fork
+    argv.push_back("--mca");
+    argv.push_back("mpi_warn_on_fork");
+    argv.push_back("0");
+    //        //set more log for mpirun
+    //        argv.push_back("--mca");
+    //        argv.push_back("ras_gridengine_verbose");
+    //        argv.push_back("1");
+    //        argv.push_back("--mca");
+    //        argv.push_back("plm_gridengine_verbose");
+    //        argv.push_back("1");
+    //        argv.push_back("--mca");
+    //        argv.push_back("ras_gridengine_show_jobid");
+    //        argv.push_back("1");
+    //        argv.push_back("--mca");
+    //        argv.push_back("plm_gridengine_debug");
+    //        argv.push_back("1");
+
+    argv.push_back("-np");
+    std::stringstream ss;
+    {
+        ss << mConfigParallelNbSlots;
+        argv.push_back(ss.str());
+    }
+    argv.push_back("mvle");
+    argv.push_back("-P");//TODO should be simulated outside the rr package
+    argv.push_back("vle.recursive");
+    argv.push_back("temp_gen_MPI.vpz");
+
+    if (mexpe_debug){
+        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                "[vle.recursive] simulation mvle %d \n",
+                mConfigParallelNbSlots);
+        std::string messageDbg ="";
+        for (const auto& s : argv ) {
+            messageDbg += " ";
+            messageDbg += s;
+        }
+        messageDbg += "\n";
+        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                "[vle.recursive] launching in dir %s: %s %s",
+                mWorkingDir.c_str(), exe.c_str(), messageDbg.c_str());
+    }
+    bool started = mspawn.start(exe, mWorkingDir, argv);
+    if (not started) {
+        err.code = -1;
+        err.message = vle::utils::format(
+                "[MetaManager] Failed to start `%s'", exe.c_str());
+        model.reset(nullptr);
+        results.reset(nullptr);
+        clear();
+        return nullptr;
+    }
+    bool is_success = true;
+    std::string message, output, error;
+    while (not mspawn.isfinish()) {
+        if (mspawn.get(&output, &error)) {
+            if (not error.empty() and message.empty()){
+                //TODO info such as Context are written into error.
+                //                    is_success = false;
+                //                    message.assign(error);
+            }
+            output.clear();
+            error.clear();
+            std::this_thread::sleep_for(std::chrono::microseconds(200));
+        } else {
+            break;
+        }
+    }
+    mspawn.wait();
+    if (! is_success) {
+        err.code = -1;
+        err.message = "[MetaManager] ";
+        err.message += message;
+        model.reset(nullptr);
+        results.reset(nullptr);
+        clear();
+        return nullptr;
+    }
+    mspawn.status(&message, &is_success);
+
+    if (! is_success) {
+        //TODO with mpi_warn_on_fork=0, the forks can lead to an error.
+        //            err.code = -1;
+        //            err.message = "[MetaManager] ";
+        //            err.message += vle::utils::format("Error launching `%s' : %s ",
+        //                    exe.c_str(), message.c_str());
+        //            model.reset(nullptr);
+        //            results.reset(nullptr);
+        //            clear();
+        //            return nullptr;
+    }
+
+    std::unique_ptr<value::Value> aggrValue;
+    for (unsigned int out =0; out < outputSize; out++) {
+        VleOutput& outId = *mOutputs[out];
+        for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
+            for (unsigned int j = 0; j < repSize; j++) {
+                std::string vleResultFilePath = mWorkingDir;
+                vleResultFilePath.append(model->project().experiment().name());
+                vleResultFilePath.append("-");
+                vleResultFilePath.append(std::to_string(i+j));
+                vleResultFilePath.append("_");
+                vleResultFilePath.append(outId.view);
+                vleResultFilePath.append(".dat");
+                value::Matrix mat;
+                readResultFile(vleResultFilePath, mat);
+                aggrValue = std::move(outId.insertReplicate(mat, i/repSize,
+                        inputSize, repSize));
+                if (mRemoveSimulationFiles and out == (outputSize-1)) {
+                    utils::Path torm(vleResultFilePath.c_str());
+                    torm.remove();
+                }
+            }
+        }
+        results->set(outId.id, std::move(aggrValue));
+    }
+    if (mexpe_debug){
+        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                "[vle.recursive] aggregation finished \n");
+    }
+    return results;
+}
+
+
+std::unique_ptr<value::Map>
+MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
+{
+    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init);
+    std::unique_ptr<value::Map> results = init_results();
+
+    unsigned int inputSize = inputsSize();
+    unsigned int repSize = replicasSize();
+
+    //save vpz
+    vu::Package pkg(mCtx, "vle.recursive");//TODO should be saved outside
+    std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
+    tempvpzPath.append("/temp_gen_CVLE.vpz");
+    model->write(tempvpzPath);
+
+    //build in.csv file
+    utils::Path inPath(mWorkingDir);
+    inPath /= "in.csv";
+    std::ofstream inFile;
+    inFile.open (inPath.string());
+    //write header
+    for (unsigned int in=0; in < mInputs.size(); in++) {
+        VleInput& tmp_input = *mInputs[in];
+        inFile << tmp_input.getName() << ",";
+    }
+    if (mReplicate) {
+        inFile << mReplicate->getName() << ",";
+    }
+    inFile << "id\n";
+    //write content
+    for (unsigned int i = 0; i < inputSize; i++) {
+        for (unsigned int j = 0; j < repSize; j++) {
+            for (unsigned int in=0; in < mInputs.size(); in++) {
+                VleInput& tmp_input = *mInputs[in];
+                const value::Value& exp = tmp_input.values(init);
+                switch(exp.getType()) {
+                case value::Value::SET:
+                    exp.toSet().get(i)->writeFile(inFile);
+                    inFile << ",";
+                    break;
+                case value::Value::TUPLE:
+                    inFile << exp.toTuple().at(i) <<",";
+                    break;
+                default:
+                    mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                            "[vle.recursive] Error value not handled \n");
+                    break;
+                }
+            }
+            if (mReplicate) {
+                const value::Value& exp = mReplicate->values(init);
+                switch(exp.getType()) {
+                case value::Value::SET:
+                    exp.toSet().get(j)->writeFile(inFile);
+                    inFile << ",";
+                    break;
+                case value::Value::TUPLE:
+                    inFile << exp.toTuple().at(j) <<",";
+                    break;
+                default:
+                    mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                            "[vle.recursive] Error1 value not handled \n");
+                    break;
+                }
+            }
+            inFile << "id_" << i << "_" << j << "\n";
+        }
+    }
+    inFile.close();
+    //launch mpirun
+    vu::Spawn mspawn(mCtx);
+    std::string exe = mCtx->findProgram("mpirun").string();
+
+    std::vector < std::string > argv;
+    argv.push_back("-np");
+    std::stringstream ss;
+    {
+        ss << std::max((int) mConfigParallelNbSlots, 2);
+        argv.push_back(ss.str());
+    }
+    argv.push_back("cvle");
+    argv.push_back("-P");//TODO should be simulated outside the rr package
+    argv.push_back("vle.recursive");
+    argv.push_back("temp_gen_CVLE.vpz");
+    argv.push_back("-i");
+    argv.push_back("in.csv");
+    argv.push_back("-o");
+    argv.push_back("out.csv");
+
+    if (mexpe_debug){
+        std::string messageDbg ="";
+        for (const auto& s : argv ) {
+            messageDbg += " ";
+            messageDbg += s;
+        }
+        messageDbg += "\n";
+        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                "[vle.recursive] launching in dir %s: %s %s",
+                mWorkingDir.c_str(), exe.c_str(), messageDbg.c_str());
+    }
+    bool started = mspawn.start(exe, mWorkingDir, argv);
+    if (not started) {
+        err.code = -1;
+        err.message = vle::utils::format(
+                "[MetaManager] Failed to start `%s'", exe.c_str());
+        model.reset(nullptr);
+        results.reset(nullptr);
+        clear();
+        return nullptr;
+    }
+    bool is_success = true;
+    std::string message, output, error;
+    while (not mspawn.isfinish()) {
+        if (mspawn.get(&output, &error)) {
+            if (not error.empty() and message.empty()){
+                //TODO info such as Context are written into error.
+                //                    is_success = false;
+                //                    message.assign(error);
+            }
+            output.clear();
+            error.clear();
+            std::this_thread::sleep_for(std::chrono::microseconds(200));
+        } else {
+            break;
+        }
+    }
+    mspawn.wait();
+    if (! is_success) {
+        err.code = -1;
+        err.message = "[MetaManager] ";
+        err.message += message;
+        model.reset(nullptr);
+        results.reset(nullptr);
+        clear();
+        return nullptr;
+    }
+    mspawn.status(&message, &is_success);
+
+    if (! is_success) {
+        err.code = -1;
+        err.message = "[MetaManager] ";
+        err.message += vle::utils::format("Error launching `%s' : %s ",
+                exe.c_str(), message.c_str());
+        model.reset(nullptr);
+        results.reset(nullptr);
+        clear();
+        return nullptr;
+    }
+    //read output file
+    utils::Path outPath(mWorkingDir);
+    outPath /= "out.csv";
+    std::ifstream outFile;
+    outFile.open (outPath.string(), std::ios_base::in);
+    std::string line;
+
+    int inputId = -1;
+    std::string viewName;
+    std::map<std::string, int> insightsViewRows;
+    std::unique_ptr<value::Matrix> viewMatrix;
+
+    std::vector <std::string> tokens;
+    bool finishMatrixLine = true;
+    bool finishViews = true;
+    bool finishIds = false;
+    while(not finishIds){
+        //read id_1_0
+        if (not finishViews) {
+            finishViews = true;
+            if (not std::getline(outFile,line)) {//read empty line
+                break;
+            }
+        } else {
+            std::getline(outFile,line);
+        }
+        tokens.clear();
+        utils::tokenize(line, tokens, "_", false);
+        if (tokens.size() != 3 or tokens[0] != "id") {
+            finishIds = true;
+            break;
+        }
+        inputId = std::stoi(tokens[1]);
+        //inputRepl = std::stoi(tokens[2]);
+        finishViews = false;
+        while(not finishViews){
+            //read view:viewName
+            if (not finishMatrixLine) {
+                finishMatrixLine = true;
+            } else {
+                std::getline(outFile,line);
+            }
+            tokens.clear();
+            utils::tokenize(line, tokens, ":", false);
+            if (tokens.size() != 2 or tokens[0] != "view") {
+                break;
+            }
+            viewName.assign(tokens[1]);
+            //read view header and instantiate matrix view
+            std::getline(outFile,line);
+            tokens.clear();
+            utils::tokenize(line, tokens, " ", true);
+            unsigned int nbCols = tokens.size();
+            bool getInsight = (insightsViewRows.find(viewName) !=
+                    insightsViewRows.end());
+            if (not getInsight) {
+                insightsViewRows.insert(std::make_pair(viewName,100));
+            }
+            int rows = insightsViewRows[viewName];
+            viewMatrix.reset(new value::Matrix(nbCols,1,nbCols, rows));
+            for (unsigned int c=0; c<nbCols; c++){
+                viewMatrix->set(c,0,value::String::create(tokens[c]));
+            }
+
+            finishMatrixLine = false;
+            while(not finishMatrixLine){
+                std::getline(outFile,line);
+                tokens.clear();
+                utils::tokenize(line, tokens, " ", true);
+                if (tokens.size() != nbCols) {
+                    break;
+                }
+                viewMatrix->addRow();
+                for (unsigned int c=0; c<nbCols; c++){
+                    if (c == 0 and tokens[c] == "inf") {
+                        viewMatrix->set(c,viewMatrix->rows()-1,
+                                value::Double::create(
+                                        std::numeric_limits<double>::max()));
+                    } else {
+                        viewMatrix->set(c,viewMatrix->rows()-1,
+                                value::Double::create(
+                                        std::stod(tokens[c])));
+                    }
+                }
+            }
+            if (not getInsight) {
+                insightsViewRows[viewName] = viewMatrix->rows();
+            }
+            //insert replicate for
+            std::unique_ptr<value::Value> aggrValue;
+            for (unsigned int o=0; o< mOutputs.size(); o++) {
+                VleOutput& outId = *mOutputs[o];
+                if (outId.view == viewName) {
+                    for (unsigned int p=0; p<viewMatrix->columns(); p++) {
+                        if (viewMatrix->getString(p,0) ==
+                                outId.absolutePort) {
+                            aggrValue = std::move(outId.insertReplicate(
+                                    *viewMatrix, inputId, inputSize,
+                                    repSize));
+                            if (aggrValue) {
+                                results->set(outId.id,
+                                        std::move(aggrValue));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return results;
+}
+
+
+void
+MetaManager::post_propagates(vpz::Vpz& model, const wrapper_init& init)
+{
+    vpz::Conditions& conds = model.project().experiment().conditions();
+    //post propagate
+    for (unsigned int i=0; i < mPropagate.size(); i++) {
+        VlePropagate& tmp_propagate = *mPropagate[i];
+        vpz::Condition& cond = conds.get(tmp_propagate.cond);
+        cond.clearValueOfPort(tmp_propagate.port);
+        const value::Value& exp = tmp_propagate.value(init);
+        cond.addValueToPort(tmp_propagate.port, exp.clone());
+    }
 }
 
 /******************* Static public functions ****************************/
+
+
+
+std::unique_ptr<value::Map>
+MetaManager::run(wrapper_init& init,
+        manager::Error& err)
+{
+    clear();
+    bool status = true;
+    if (init.exist("config_parallel_type", status)) {
+        std::string tmp;
+        tmp.assign(init.getString("config_parallel_type", status));
+        if (tmp == "threads") {
+            mConfigParallelType = THREADS;
+        } else if (tmp == "mvle") {
+            mConfigParallelType = MVLE;
+            if (! init.exist("working_dir", status)) {
+                err.code = -1;
+                err.message = "[MetaManager] error for "
+                        "mvle config, missing 'working_dir' parameter";
+                return nullptr;
+            }
+            mWorkingDir.assign(init.getString("working_dir", status));
+        } else if (tmp == "cvle") {
+            mConfigParallelType = CVLE;
+            if (! init.exist("working_dir", status)) {
+                err.code = -1;
+                err.message = "[MetaManager] error for "
+                        "mvle config, missing 'working_dir' parameter";
+                return nullptr;
+            }
+            mWorkingDir.assign(init.getString("working_dir", status));
+        } else if (tmp == "single") {
+            mConfigParallelType = SINGLE;
+        } else {
+            err.code = -1;
+            err.message = "[MetaManager] error for configuration type of "
+                    "parallel process";
+            return nullptr;
+        }
+    }
+    if (init.exist("config_parallel_nb_slots", status)) {
+        int tmp = init.getInt("config_parallel_nb_slots", status);
+        if (tmp > 0) {
+            mConfigParallelNbSlots = tmp;
+        } else {
+            err.code = -1;
+            err.message = "[MetaManager] error for "
+                    "configuration type of parallel nb slots)";
+            return nullptr;
+        }
+    }
+    if (init.exist("config_parallel_max_expes", status)) {
+        int tmp;
+        tmp = init.getInt("config_parallel_max_expes", status);
+        if (tmp > 0) {
+            if ((unsigned int) tmp < mConfigParallelNbSlots) {
+                err.code = -1;
+                err.message = vle::utils::format(
+                        "[MetaManager] error for configuration type of parallel"
+                        " max expes, got '%i'which is less than nb slots:'%i'",
+                        tmp,  mConfigParallelNbSlots);
+                return nullptr;
+            }
+            mConfigParallelMaxExpes = tmp;
+        } else {
+            err.code = -1;
+            err.message = vle::utils::format(
+                    "[MetaManager] error for configuration type of parallel "
+                    "max expes, got '%i'", tmp);
+            return nullptr;
+        }
+    }
+    if (init.exist("expe_debug", status)) {
+        mexpe_debug = init.getBoolean("expe_debug", status);
+        if (mexpe_debug) {
+            mCtx->set_log_priority(7);
+        }
+    }
+    if (init.exist("expe_seed", status)) {
+        mrand.seed(init.getInt("expe_seed", status));
+    }
+    if (init.exist("config_parallel_rm_files", status)) {
+        mRemoveSimulationFiles = init.getBoolean(
+                "config_parallel_rm_files", status);
+    }
+    if (init.exist("package", status)) {
+        mIdPackage = init.getString("package", status);
+    } else {
+        err.code = -1;
+        err.message = "[MetaManager] missing 'package'";
+        return nullptr;
+    }
+    if (init.exist("vpz", status)) {
+        mIdVpz = init.getString("vpz", status);
+    } else {
+        err.code = -1;
+        err.message = "[MetaManager] missing 'vpz'";
+        return nullptr;
+    }
+
+    std::string in_cond;
+    std::string in_port;
+    std::string out_id;
+
+
+
+
+    try {
+        std::string conf = "";
+
+
+        for (init.begin(); not init.isEnded(); init.next()) {
+            const value::Value& val = init.current(conf, status);
+            if (MetaManager::parseInput(conf, in_cond, in_port, "propagate_")) {
+                mPropagate.emplace_back(new VlePropagate(in_cond, in_port));
+            } else if (MetaManager::parseInput(conf, in_cond, in_port)) {
+                mInputs.emplace_back(new VleInput(
+                        in_cond, in_port, val, mrand));
+            } else if (MetaManager::parseInput(conf, in_cond, in_port,
+                    "replicate_")){
+                if (not mReplicate == 0) {
+                    err.code = -1;
+                    err.message = vle::utils::format(
+                            "[MetaManager] : the replica is already defined "
+                            "with '%s'", mReplicate->getName().c_str());
+                    clear();
+                    return nullptr;
+                }
+                mReplicate.reset(new VleReplicate(in_cond, in_port,
+                        val, mrand));
+            } else if (MetaManager::parseOutput(conf, out_id)){
+                mOutputs.emplace_back(new VleOutput(out_id, val));
+            }
+        }
+        std::sort(mPropagate.begin(), mPropagate.end(),
+                VlePropagateSorter());
+        std::sort(mInputs.begin(), mInputs.end(), VleInputSorter());
+        std::sort(mOutputs.begin(), mOutputs.end(), VleOutputSorter());
+    } catch (const std::exception& e){
+        err.code = -1;
+        err.message = "[MetaManager] ";
+        err.message += e.what();
+        clear();
+        return nullptr;
+    }
+    //check
+
+    unsigned int initSize = 0;
+    for (unsigned int i = 0; i< mInputs.size(); i++) {
+        const VleInput& vleIn = *mInputs[i];
+        //check size which has to be consistent
+        if (initSize == 0 and vleIn.nbValues > 1) {
+            initSize = vleIn.nbValues;
+        } else {
+            if (vleIn.nbValues > 1 and initSize > 0
+                    and initSize != vleIn.nbValues) {
+                err.code = -1;
+                err.message = utils::format(
+                        "[MetaManager]: error in input values: wrong number"
+                        " of values 1st input has %u values,  input %s has %u "
+                        "values", initSize, vleIn.getName().c_str(),
+                        vleIn.nbValues);
+                clear();
+                return nullptr;
+            }
+        }
+        //check if already exist in replicate or propagate
+        if (mReplicate and (mReplicate->getName() == vleIn.getName())) {
+            err.code = -1;
+            err.message = utils::format(
+                    "[MetaManager]: error input '%s' is also the replicate",
+                    vleIn.getName().c_str());
+            clear();
+            return nullptr;
+        }
+        for (unsigned int j=0; j<mPropagate.size(); j++) {
+            const VlePropagate& vleProp = *mPropagate[j];
+            if (vleProp.getName() == vleIn.getName()) {
+                err.code = -1;
+                err.message = utils::format(
+                        "[MetaManager]: error input '%s' is also a propagate",
+                        vleIn.getName().c_str());
+                clear();
+                return nullptr;
+            }
+        }
+    }
+    switch(mConfigParallelType) {
+    case SINGLE:
+    case THREADS: {
+        return run_with_threads(init, err);
+        break;
+    } case MVLE: {
+        return run_with_mvle(init, err);
+        break;
+    } case CVLE: {
+        return run_with_cvle(init, err);
+        break;
+    }}
+    return nullptr;
+}
+
+void
+MetaManager::post_inputs(vpz::Vpz& model, const wrapper_init& init)
+{
+    vpz::Conditions& conds = model.project().experiment().conditions();
+    //post replicas
+    if (mReplicate) {
+        vpz::Condition& condRep = conds.get(mReplicate->cond);
+        condRep.clearValueOfPort(mReplicate->port);
+        for (unsigned int i=0; i < inputsSize(); i++) {
+            for (unsigned int k=0; k < replicasSize(); k++) {
+                const value::Value& exp = mReplicate->values(init);
+                switch(exp.getType()) {
+                case value::Value::SET:
+                    condRep.addValueToPort(mReplicate->port,
+                            exp.toSet().get(k)->clone());
+                    break;
+                case value::Value::TUPLE:
+                    condRep.addValueToPort(mReplicate->port,
+                            value::Double::create(exp.toTuple().at(k)));
+                    break;
+                default:
+                    //error already detected
+                    break;
+                }
+            }
+        }
+    }
+    //post inputs
+    for (unsigned int i=0; i < mInputs.size(); i++) {
+        VleInput& tmp_input = *mInputs[i];
+        vpz::Condition& cond = conds.get(tmp_input.cond);
+        cond.clearValueOfPort(tmp_input.port);
+        const value::Value& exp = tmp_input.values(init);
+
+        switch (exp.getType()) {
+        case value::Value::TUPLE: {
+            const value::Tuple& tmp_val_tuple = exp.toTuple();
+            for (unsigned j=0; j < tmp_val_tuple.size(); j++) {//TODO maxExpe
+                double tmp_j = tmp_val_tuple[j];
+                if (not mReplicate) {
+                    cond.addValueToPort(tmp_input.port,
+                            value::Double::create(tmp_j));
+                } else {
+                    for (unsigned int k=0; k < replicasSize(); k++) {
+                        cond.addValueToPort(tmp_input.port,
+                                value::Double::create(tmp_j));
+                    }
+                }
+            }
+            break;
+        } case value::Value::SET: {
+            const value::Set& tmp_val_set =exp.toSet();
+            for (unsigned j=0; j < tmp_val_set.size(); j++) {//TODO maxExpe
+                const value::Value& tmp_j = *tmp_val_set.get(j);
+                if (not mReplicate) {
+                    cond.addValueToPort(tmp_input.port,tmp_j.clone());
+                } else {
+                    for (unsigned int k=0; k < replicasSize(); k++) {
+                        cond.addValueToPort(tmp_input.port,
+                                tmp_j.clone());
+                    }
+                }
+            }
+            break;
+        } default: {
+            mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+                    "[vle.recursive] Not TUPLE NOR SET %s \n",
+                    exp.writeToString().c_str());
+            cond.addValueToPort(tmp_input.port,exp.clone());
+            break;
+        }}
+    }
+}
 
 void
 MetaManager::split(std::vector<std::string>& elems, const std::string &s,

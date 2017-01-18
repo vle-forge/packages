@@ -7,4 +7,5 @@ VleBuildTest(test_LogExMM test_LogExMM.cpp)
 
 ##REQUIRE mvle 
 VleBuildTest(test_ExBohachevskyMM_mvle test_ExBohachevskyMM_mvle.cpp)
-
+##REQUIRE cvle 
+VleBuildTest(test_ExBohachevskyMM_cvle test_ExBohachevskyMM_cvle.cpp)
