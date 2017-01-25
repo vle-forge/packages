@@ -60,8 +60,7 @@ public:
         if (events.exist("vpz") and
                 not events.getString("vpz").empty()){
             mstate = EXPE_LAUNCH;
-            wrapper_init init(&events);
-            mresults = meta.run(init, merror);
+            mresults = meta.run(events, merror);
         }
         if (merror.code != 0){
             mresults.reset(nullptr);
@@ -154,8 +153,7 @@ public:
                 merror.message.clear();
                 value::Map& init_map =
                         itb->attributes()->toMap().getMap("inputs");
-                wrapper_init init(&init_map);
-                mresults = std::move(meta.run(init, merror));
+                mresults = std::move(meta.run(init_map, merror));
                 mresults.reset(nullptr);
                 mstate = EXPE_LAUNCH;
             }

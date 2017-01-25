@@ -414,8 +414,6 @@ private:
     CONFIG_PARALLEL_TYPE mConfigParallelType;
     bool mRemoveSimulationFiles;
     unsigned int mConfigParallelNbSlots;
-    unsigned int mConfigParallelMaxExpes;
-    bool mexpe_debug;
     utils::Rand mrand;
     std::vector<std::unique_ptr<VlePropagate>> mPropagate;
     std::vector<std::unique_ptr<VleInput>> mInputs;
@@ -432,6 +430,8 @@ public:
      * @brief MetaManager constructor
      */
     MetaManager();
+    MetaManager(utils::ContextPtr ctx);
+
     /**
      * @brief MetaManager destructor
      */
@@ -445,7 +445,32 @@ public:
      * @param[out] init, an error structure
      * @return the simulated values
      */
-    std::unique_ptr<value::Map> run(wrapper_init& init, manager::Error& err);
+    inline std::unique_ptr<value::Map> run(
+            std::shared_ptr<vle::value::Map> init,
+            manager::Error& err)
+    {
+        wrapper_init init_rec(init.get());
+        return run(init_rec, err);
+    }
+
+    inline std::unique_ptr<value::Map> run(
+            const vle::value::Map& init,
+            manager::Error& err)
+    {
+        wrapper_init init_rec(&init);
+        return run(init_rec, err);
+    }
+
+
+    inline std::unique_ptr<value::Map> run(
+            const vd::InitEventList& events,
+                manager::Error& err)
+    {
+        wrapper_init init_rec(&events);
+        return run(init_rec, err);
+    }
+
+
 
     //split a string with a char
     static void split(std::vector<std::string>& elems,
@@ -496,8 +521,15 @@ private:
     unsigned int inputsSize() const;
     unsigned int replicasSize() const;
 
+    void produceCvleInFile(const wrapper_init& init, const std::string& inPath,
+            manager::Error& err);
+
+    std::unique_ptr<value::Map> run(wrapper_init& init, manager::Error& err);
+
     //file the matrix with the result of one simulation
     void readResultFile(const std::string& filePath, value::Matrix&);
+
+
 
 
     std::unique_ptr<vpz::Vpz> init_embedded_model(const wrapper_init& init);

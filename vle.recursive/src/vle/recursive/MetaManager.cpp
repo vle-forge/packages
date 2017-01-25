@@ -44,6 +44,24 @@
 
 namespace vle {
 namespace recursive {
+/*********** local functions *************/
+
+template <class OBJ_TO_PRINT>
+std::string toString(const OBJ_TO_PRINT& o)
+{
+    std::stringstream ss;
+    ss << o;
+    return ss.str();
+}
+
+
+utils::Path make_temp(const char* format, const std::string& dir)
+{
+    //utils::Path tmp = utils::Path::temp_directory_path();
+    utils::Path tmp(dir);
+    tmp /= utils::Path::unique_path(format);
+    return tmp;
+}
 
 
 /***********wrapper_init*************/
@@ -771,13 +789,26 @@ VleOutput::insertReplicate(value::Matrix& outMat, unsigned int currInput,
 
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
-        mConfigParallelNbSlots(1), mConfigParallelMaxExpes(1),
-        mexpe_debug(true), mrand(), mPropagate(), mInputs(),
-        mReplicate(nullptr), mOutputs(), mWorkingDir(""),
+        mConfigParallelNbSlots(2), mrand(), mPropagate(), mInputs(),
+        mReplicate(nullptr), mOutputs(),
+        mWorkingDir(utils::Path::temp_directory_path().string()),
         mCtx(utils::make_context())
 {
+
     mCtx->set_log_priority(3);//erros only
+
 }
+
+MetaManager::MetaManager(utils::ContextPtr ctx): mIdVpz(), mIdPackage(),
+        mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
+        mConfigParallelNbSlots(2), mrand(), mPropagate(), mInputs(),
+        mReplicate(nullptr), mOutputs(),
+        mWorkingDir(utils::Path::temp_directory_path().string()),
+        mCtx(ctx)
+{
+
+}
+
 
 MetaManager::~MetaManager()
 {
@@ -810,6 +841,280 @@ MetaManager::replicasSize() const
     }
     return mReplicate->nbValues;
 }
+
+//write kth element of exp (a Set or a Tuple) as xml into out
+bool
+produceXml(const value::Value& exp, unsigned int k, std::ostream& out,
+        manager::Error& err)
+{
+    switch(exp.getType()) {
+    case value::Value::SET:
+        exp.toSet().get(k)->writeXml(out);
+        return true;
+        break;
+    case value::Value::TUPLE:
+        out << "<double>" << exp.toTuple().at(k) <<"</double>";
+        return true;
+        break;
+    default:
+        if (k == 0){
+            out << exp.writeToXml();
+            return true;
+        }
+        break;
+    }
+    err.code = -1;
+    err.message = "[vle.recursive] error while producing cvle file";
+    return false;
+}
+
+void
+MetaManager::produceCvleInFile(const wrapper_init& init,
+        const std::string& inPath, manager::Error& err)
+{
+    std::ofstream inFile;
+    inFile.open (inPath);
+    //write header
+    inFile << "_cvle_complex_values\n";
+    //write content
+    std::string curr_cond = "";
+    bool has_simulation_engine = false;
+    bool replicate_written = false;
+    for (unsigned int i = 0; i < inputsSize(); i++) {
+        for (unsigned int j = 0; j < replicasSize(); j++) {
+            curr_cond = "";
+            has_simulation_engine = false;
+            replicate_written = false;
+            inFile << "<?xml version='1.0' encoding='UTF-8'?>"
+                    "<vle_project date=\"\" version=\"1.0\" author=\"cvle\">"
+                    "<experiment name=\"cvle_exp\"><conditions>";
+            for (unsigned int in=0; in < mInputs.size(); in++) {
+                VleInput& tmp_input = *mInputs[in];
+                has_simulation_engine = has_simulation_engine or
+                        (tmp_input.cond == "simulation_engine");
+                if (curr_cond != "" and tmp_input.cond != curr_cond){
+                    inFile << "</condition>";
+                }
+                if (tmp_input.cond != curr_cond) {
+                    inFile << "<condition name =\"" << tmp_input.cond << "\">";
+                }
+                curr_cond = tmp_input.cond;
+
+                inFile << "<port name =\"" << tmp_input.port << "\">";
+                produceXml(tmp_input.values(init), i, inFile, err);
+                inFile << "</port>";
+                //write replicate if the same cond name
+                if (mReplicate and not replicate_written
+                        and mReplicate->cond == curr_cond) {
+                    inFile << "<port name =\"" << mReplicate->port << "\">";
+                    produceXml(mReplicate->values(init), j, inFile, err);
+                    inFile << "</port>";
+                    replicate_written = true;
+                }
+                if ((int) in == ((int) mInputs.size())-1) {
+                    inFile << "</condition>";
+                }
+            }
+            //write replicate if not already written
+            if (mReplicate and not replicate_written) {
+                has_simulation_engine = has_simulation_engine or
+                        (mReplicate->cond == "simulation_engine");
+                inFile << "<condition name =\"" << mReplicate->cond << "\">";
+                inFile << "<port name =\"" << mReplicate->port << "\">";
+                produceXml(mReplicate->values(init), j, inFile, err);
+                inFile << "</port>";
+                inFile << "</condition>";
+            }
+            //write _cvle_cond
+            inFile << "<condition name =\"_cvle_cond\">";
+            inFile << "<port name =\"id\">";
+            inFile << "<string>id_" << i << "_" << j << "</string>";
+            inFile << "</port>";
+            inFile << "</condition>";
+            inFile << "</conditions>";
+            inFile << "</experiment>";
+            inFile << "</vle_project>";
+            inFile <<"\n";
+        }
+    }
+    inFile.close();
+}
+
+
+std::unique_ptr<value::Map>
+MetaManager::run(wrapper_init& init,
+        manager::Error& err)
+{
+    clear();
+    bool status = true;
+    if (init.exist("config_parallel_type", status)) {
+        std::string tmp;
+        tmp.assign(init.getString("config_parallel_type", status));
+        if (tmp == "threads") {
+            mConfigParallelType = THREADS;
+        } else if (tmp == "mvle") {
+            mConfigParallelType = MVLE;
+            if (! init.exist("working_dir", status)) {
+                err.code = -1;
+                err.message = "[MetaManager] error for "
+                        "mvle config, missing 'working_dir' parameter";
+                return nullptr;
+            }
+            mWorkingDir.assign(init.getString("working_dir", status));
+        } else if (tmp == "cvle") {
+            mConfigParallelType = CVLE;
+            if (! init.exist("working_dir", status)) {
+                err.code = -1;
+                err.message = "[MetaManager] error for "
+                        "mvle config, missing 'working_dir' parameter";
+                return nullptr;
+            }
+            mWorkingDir.assign(init.getString("working_dir", status));
+        } else if (tmp == "single") {
+            mConfigParallelType = SINGLE;
+        } else {
+            err.code = -1;
+            err.message = "[MetaManager] error for configuration type of "
+                    "parallel process";
+            return nullptr;
+        }
+    }
+    if (init.exist("config_parallel_nb_slots", status)) {
+        mConfigParallelNbSlots =
+                init.getInt("config_parallel_nb_slots", status);
+    }
+    if (init.exist("expe_log", status)) {
+        mCtx->set_log_priority(init.getInt("expe_log", status));
+    }
+    if (init.exist("expe_seed", status)) {
+        mrand.seed(init.getInt("expe_seed", status));
+    }
+    if (init.exist("config_parallel_rm_files", status)) {
+        mRemoveSimulationFiles = init.getBoolean(
+                "config_parallel_rm_files", status);
+    }
+    if (init.exist("package", status)) {
+        mIdPackage = init.getString("package", status);
+    } else {
+        err.code = -1;
+        err.message = "[MetaManager] missing 'package'";
+        return nullptr;
+    }
+    if (init.exist("vpz", status)) {
+        mIdVpz = init.getString("vpz", status);
+    } else {
+        err.code = -1;
+        err.message = "[MetaManager] missing 'vpz'";
+        return nullptr;
+    }
+
+    std::string in_cond;
+    std::string in_port;
+    std::string out_id;
+
+    try {
+        std::string conf = "";
+        for (init.begin(); not init.isEnded(); init.next()) {
+            const value::Value& val = init.current(conf, status);
+            if (MetaManager::parseInput(conf, in_cond, in_port, "propagate_")) {
+                mPropagate.emplace_back(new VlePropagate(in_cond, in_port));
+            } else if (MetaManager::parseInput(conf, in_cond, in_port)) {
+                mInputs.emplace_back(new VleInput(
+                        in_cond, in_port, val, mrand));
+            } else if (MetaManager::parseInput(conf, in_cond, in_port,
+                    "replicate_")){
+                if (not mReplicate == 0) {
+                    err.code = -1;
+                    err.message = vle::utils::format(
+                            "[MetaManager] : the replica is already defined "
+                            "with '%s'", mReplicate->getName().c_str());
+                    clear();
+                    return nullptr;
+                }
+                mReplicate.reset(new VleReplicate(in_cond, in_port,
+                        val, mrand));
+            } else if (MetaManager::parseOutput(conf, out_id)){
+                mOutputs.emplace_back(new VleOutput(out_id, val));
+            }
+        }
+        std::sort(mPropagate.begin(), mPropagate.end(),
+                VlePropagateSorter());
+        std::sort(mInputs.begin(), mInputs.end(), VleInputSorter());
+        std::sort(mOutputs.begin(), mOutputs.end(), VleOutputSorter());
+    } catch (const std::exception& e){
+        err.code = -1;
+        err.message = "[MetaManager] ";
+        err.message += e.what();
+        clear();
+        return nullptr;
+    }
+
+    //check
+    unsigned int initSize = 0;
+    for (unsigned int i = 0; i< mInputs.size(); i++) {
+        const VleInput& vleIn = *mInputs[i];
+        //check size which has to be consistent
+        if (initSize == 0 and vleIn.nbValues > 1) {
+            initSize = vleIn.nbValues;
+        } else {
+            if (vleIn.nbValues > 1 and initSize > 0
+                    and initSize != vleIn.nbValues) {
+                err.code = -1;
+                err.message = utils::format(
+                        "[MetaManager]: error in input values: wrong number"
+                        " of values 1st input has %u values,  input %s has %u "
+                        "values", initSize, vleIn.getName().c_str(),
+                        vleIn.nbValues);
+                clear();
+                return nullptr;
+            }
+        }
+        //check if already exist in replicate or propagate
+        if (mReplicate and (mReplicate->getName() == vleIn.getName())) {
+            err.code = -1;
+            err.message = utils::format(
+                    "[MetaManager]: error input '%s' is also the replicate",
+                    vleIn.getName().c_str());
+            clear();
+            return nullptr;
+        }
+        for (unsigned int j=0; j<mPropagate.size(); j++) {
+            const VlePropagate& vleProp = *mPropagate[j];
+            if (vleProp.getName() == vleIn.getName()) {
+                err.code = -1;
+                err.message = utils::format(
+                        "[MetaManager]: error input '%s' is also a propagate",
+                        vleIn.getName().c_str());
+                clear();
+                return nullptr;
+            }
+        }
+    }
+    //check nb slots
+    if (mConfigParallelNbSlots < 2 and mConfigParallelType == CVLE) {
+        err.code = -1;
+        err.message = "[MetaManager] error for "
+                "configuration of cvle for the nb of slots (< 2)";
+        return nullptr;
+    }
+
+
+    //launch simulations
+    switch(mConfigParallelType) {
+    case SINGLE:
+    case THREADS: {
+        return run_with_threads(init, err);
+        break;
+    } case MVLE: {
+        return run_with_mvle(init, err);
+        break;
+    } case CVLE: {
+        return run_with_cvle(init, err);
+        break;
+    }}
+    return nullptr;
+}
+
 
 void
 MetaManager::readResultFile(const std::string& filePath, value::Matrix& mat)
@@ -876,12 +1181,12 @@ MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
             vle::manager::SIMULATION_NONE,
             nullptr);
     vle::manager::Error manerror;
-    if (mexpe_debug){
-        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
-                "[vle.recursive] simulation single/threads(%d slots) "
-                "nb simus: %u \n", mConfigParallelNbSlots,
-                (repSize*inputSize));
-    }
+
+    mCtx->log(7, "", __LINE__, "",
+            "[vle.recursive] simulation single/threads(%d slots) "
+            "nb simus: %u \n", mConfigParallelNbSlots,
+            (repSize*inputSize));
+
 
     //        //for dbg
     //        std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
@@ -890,10 +1195,10 @@ MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
     //        //
     std::unique_ptr<value::Matrix> output_mat =  planSimulator.run(
             std::move(model), mConfigParallelNbSlots, 0, 1, &manerror);
-    if (mexpe_debug){
-        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
-                "[vle.recursive] end simulation single/threads\n");
-    }
+
+    mCtx->log(7, "", __LINE__, "",
+            "[vle.recursive] end simulation single/threads\n");
+
     if (manerror.code != 0) {
         err.code = -1;
         err.message = "[MetaManager] ";
@@ -915,10 +1220,10 @@ MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
         }
         results->set(outId.id, std::move(aggrValue));
     }
-    if (mexpe_debug){
-        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
-                "[vle.recursive] aggregation finished\n");
-    }
+
+    mCtx->log(7, "", __LINE__, "",
+            "[vle.recursive] aggregation finished\n");
+
     return results;
 }
 
@@ -971,8 +1276,9 @@ MetaManager::run_with_mvle(const wrapper_init& init, manager::Error& err)
     argv.push_back("vle.recursive");
     argv.push_back("temp_gen_MPI.vpz");
 
-    if (mexpe_debug){
-        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+    //log before run
+    if (mCtx->get_log_priority() >= 7) {
+        mCtx->log(7, "", __LINE__, "",
                 "[vle.recursive] simulation mvle %d \n",
                 mConfigParallelNbSlots);
         std::string messageDbg ="";
@@ -981,10 +1287,11 @@ MetaManager::run_with_mvle(const wrapper_init& init, manager::Error& err)
             messageDbg += s;
         }
         messageDbg += "\n";
-        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+        mCtx->log(1, "", __LINE__, "",
                 "[vle.recursive] launching in dir %s: %s %s",
                 mWorkingDir.c_str(), exe.c_str(), messageDbg.c_str());
     }
+
     bool started = mspawn.start(exe, mWorkingDir, argv);
     if (not started) {
         err.code = -1;
@@ -1059,10 +1366,10 @@ MetaManager::run_with_mvle(const wrapper_init& init, manager::Error& err)
         }
         results->set(outId.id, std::move(aggrValue));
     }
-    if (mexpe_debug){
-        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
-                "[vle.recursive] aggregation finished \n");
-    }
+
+    mCtx->log(7, "", __LINE__, "",
+            "[vle.recursive] aggregation finished \n");
+
     return results;
 }
 
@@ -1078,95 +1385,56 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
 
     //save vpz
     vu::Package pkg(mCtx, "vle.recursive");//TODO should be saved outside
-    std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
-    tempvpzPath.append("/temp_gen_CVLE.vpz");
-    model->write(tempvpzPath);
+    utils::Path vleRecPath(pkg.getExpDir(vu::PKG_BINARY));
+    utils::Path tempVpzPath = make_temp(
+            "vle-rec-%%%%-%%%%-%%%%-%%%%.vpz", vleRecPath.string());
+    model->write(tempVpzPath.string());
+    std::string tempVpzFile = tempVpzPath.filename();
 
-    //build in.csv file
-    utils::Path inPath(mWorkingDir);
-    inPath /= "in.csv";
-    std::ofstream inFile;
-    inFile.open (inPath.string());
-    //write header
-    for (unsigned int in=0; in < mInputs.size(); in++) {
-        VleInput& tmp_input = *mInputs[in];
-        inFile << tmp_input.getName() << ",";
+    //write content in in.csv file
+    utils::Path tempInCsv = make_temp(
+            "vle-rec-%%%%-%%%%-%%%%-%%%%-in.csv", mWorkingDir);
+    produceCvleInFile(init, tempInCsv.string(), err);
+    if (err.code == -1) {
+        return nullptr;
     }
-    if (mReplicate) {
-        inFile << mReplicate->getName() << ",";
-    }
-    inFile << "id\n";
-    //write content
-    for (unsigned int i = 0; i < inputSize; i++) {
-        for (unsigned int j = 0; j < repSize; j++) {
-            for (unsigned int in=0; in < mInputs.size(); in++) {
-                VleInput& tmp_input = *mInputs[in];
-                const value::Value& exp = tmp_input.values(init);
-                switch(exp.getType()) {
-                case value::Value::SET:
-                    exp.toSet().get(i)->writeFile(inFile);
-                    inFile << ",";
-                    break;
-                case value::Value::TUPLE:
-                    inFile << exp.toTuple().at(i) <<",";
-                    break;
-                default:
-                    mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
-                            "[vle.recursive] Error value not handled \n");
-                    break;
-                }
-            }
-            if (mReplicate) {
-                const value::Value& exp = mReplicate->values(init);
-                switch(exp.getType()) {
-                case value::Value::SET:
-                    exp.toSet().get(j)->writeFile(inFile);
-                    inFile << ",";
-                    break;
-                case value::Value::TUPLE:
-                    inFile << exp.toTuple().at(j) <<",";
-                    break;
-                default:
-                    mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
-                            "[vle.recursive] Error1 value not handled \n");
-                    break;
-                }
-            }
-            inFile << "id_" << i << "_" << j << "\n";
-        }
-    }
-    inFile.close();
+
+    //find output
+    utils::Path  tempOutCsv = make_temp(
+            "vle-rec-%%%%-%%%%-%%%%-%%%%-out.csv", mWorkingDir);
+
     //launch mpirun
     vu::Spawn mspawn(mCtx);
     std::string exe = mCtx->findProgram("mpirun").string();
 
     std::vector < std::string > argv;
     argv.push_back("-np");
-    std::stringstream ss;
-    {
-        ss << std::max((int) mConfigParallelNbSlots, 2);
-        argv.push_back(ss.str());
-    }
+    argv.push_back(toString(mConfigParallelNbSlots));
     argv.push_back("cvle");
-    argv.push_back("-P");//TODO should be simulated outside the rr package
-    argv.push_back("vle.recursive");
-    argv.push_back("temp_gen_CVLE.vpz");
+    argv.push_back("--block-size");
+    argv.push_back(toString(
+            (int(inputSize*repSize)/int(mConfigParallelNbSlots-1))+1));
+    argv.push_back("--withoutspawn");
+    argv.push_back("--package");//TODO required by cvle but unused
+    argv.push_back("vle.recursive");//TODO required by cvle but unused
+    argv.push_back(tempVpzFile);
     argv.push_back("-i");
-    argv.push_back("in.csv");
+    argv.push_back(tempInCsv.string());
     argv.push_back("-o");
-    argv.push_back("out.csv");
+    argv.push_back(tempOutCsv.string());
 
-    if (mexpe_debug){
+    if (mCtx->get_log_priority() >= 7) {
         std::string messageDbg ="";
         for (const auto& s : argv ) {
             messageDbg += " ";
             messageDbg += s;
         }
         messageDbg += "\n";
-        mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
+        mCtx->log(7, "", __LINE__, "",
                 "[vle.recursive] launching in dir %s: %s %s",
                 mWorkingDir.c_str(), exe.c_str(), messageDbg.c_str());
     }
+
     bool started = mspawn.start(exe, mWorkingDir, argv);
     if (not started) {
         err.code = -1;
@@ -1196,7 +1464,7 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
     mspawn.wait();
     if (! is_success) {
         err.code = -1;
-        err.message = "[MetaManager] ";
+        err.message = "[vle.recursive] ";
         err.message += message;
         model.reset(nullptr);
         results.reset(nullptr);
@@ -1207,7 +1475,7 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
 
     if (! is_success) {
         err.code = -1;
-        err.message = "[MetaManager] ";
+        err.message = "[vle.recursive] ";
         err.message += vle::utils::format("Error launching `%s' : %s ",
                 exe.c_str(), message.c_str());
         model.reset(nullptr);
@@ -1216,10 +1484,8 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
         return nullptr;
     }
     //read output file
-    utils::Path outPath(mWorkingDir);
-    outPath /= "out.csv";
     std::ifstream outFile;
-    outFile.open (outPath.string(), std::ios_base::in);
+    outFile.open (tempOutCsv.string(), std::ios_base::in);
     std::string line;
 
     int inputId = -1;
@@ -1324,6 +1590,12 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
             }
         }
     }
+    if (mRemoveSimulationFiles) {
+        tempOutCsv.remove();
+        tempInCsv.remove();
+        tempVpzPath.remove();
+    }
+
     return results;
 }
 
@@ -1345,206 +1617,6 @@ MetaManager::post_propagates(vpz::Vpz& model, const wrapper_init& init)
 /******************* Static public functions ****************************/
 
 
-
-std::unique_ptr<value::Map>
-MetaManager::run(wrapper_init& init,
-        manager::Error& err)
-{
-    clear();
-    bool status = true;
-    if (init.exist("config_parallel_type", status)) {
-        std::string tmp;
-        tmp.assign(init.getString("config_parallel_type", status));
-        if (tmp == "threads") {
-            mConfigParallelType = THREADS;
-        } else if (tmp == "mvle") {
-            mConfigParallelType = MVLE;
-            if (! init.exist("working_dir", status)) {
-                err.code = -1;
-                err.message = "[MetaManager] error for "
-                        "mvle config, missing 'working_dir' parameter";
-                return nullptr;
-            }
-            mWorkingDir.assign(init.getString("working_dir", status));
-        } else if (tmp == "cvle") {
-            mConfigParallelType = CVLE;
-            if (! init.exist("working_dir", status)) {
-                err.code = -1;
-                err.message = "[MetaManager] error for "
-                        "mvle config, missing 'working_dir' parameter";
-                return nullptr;
-            }
-            mWorkingDir.assign(init.getString("working_dir", status));
-        } else if (tmp == "single") {
-            mConfigParallelType = SINGLE;
-        } else {
-            err.code = -1;
-            err.message = "[MetaManager] error for configuration type of "
-                    "parallel process";
-            return nullptr;
-        }
-    }
-    if (init.exist("config_parallel_nb_slots", status)) {
-        int tmp = init.getInt("config_parallel_nb_slots", status);
-        if (tmp > 0) {
-            mConfigParallelNbSlots = tmp;
-        } else {
-            err.code = -1;
-            err.message = "[MetaManager] error for "
-                    "configuration type of parallel nb slots)";
-            return nullptr;
-        }
-    }
-    if (init.exist("config_parallel_max_expes", status)) {
-        int tmp;
-        tmp = init.getInt("config_parallel_max_expes", status);
-        if (tmp > 0) {
-            if ((unsigned int) tmp < mConfigParallelNbSlots) {
-                err.code = -1;
-                err.message = vle::utils::format(
-                        "[MetaManager] error for configuration type of parallel"
-                        " max expes, got '%i'which is less than nb slots:'%i'",
-                        tmp,  mConfigParallelNbSlots);
-                return nullptr;
-            }
-            mConfigParallelMaxExpes = tmp;
-        } else {
-            err.code = -1;
-            err.message = vle::utils::format(
-                    "[MetaManager] error for configuration type of parallel "
-                    "max expes, got '%i'", tmp);
-            return nullptr;
-        }
-    }
-    if (init.exist("expe_debug", status)) {
-        mexpe_debug = init.getBoolean("expe_debug", status);
-        if (mexpe_debug) {
-            mCtx->set_log_priority(7);
-        }
-    }
-    if (init.exist("expe_seed", status)) {
-        mrand.seed(init.getInt("expe_seed", status));
-    }
-    if (init.exist("config_parallel_rm_files", status)) {
-        mRemoveSimulationFiles = init.getBoolean(
-                "config_parallel_rm_files", status);
-    }
-    if (init.exist("package", status)) {
-        mIdPackage = init.getString("package", status);
-    } else {
-        err.code = -1;
-        err.message = "[MetaManager] missing 'package'";
-        return nullptr;
-    }
-    if (init.exist("vpz", status)) {
-        mIdVpz = init.getString("vpz", status);
-    } else {
-        err.code = -1;
-        err.message = "[MetaManager] missing 'vpz'";
-        return nullptr;
-    }
-
-    std::string in_cond;
-    std::string in_port;
-    std::string out_id;
-
-
-
-
-    try {
-        std::string conf = "";
-
-
-        for (init.begin(); not init.isEnded(); init.next()) {
-            const value::Value& val = init.current(conf, status);
-            if (MetaManager::parseInput(conf, in_cond, in_port, "propagate_")) {
-                mPropagate.emplace_back(new VlePropagate(in_cond, in_port));
-            } else if (MetaManager::parseInput(conf, in_cond, in_port)) {
-                mInputs.emplace_back(new VleInput(
-                        in_cond, in_port, val, mrand));
-            } else if (MetaManager::parseInput(conf, in_cond, in_port,
-                    "replicate_")){
-                if (not mReplicate == 0) {
-                    err.code = -1;
-                    err.message = vle::utils::format(
-                            "[MetaManager] : the replica is already defined "
-                            "with '%s'", mReplicate->getName().c_str());
-                    clear();
-                    return nullptr;
-                }
-                mReplicate.reset(new VleReplicate(in_cond, in_port,
-                        val, mrand));
-            } else if (MetaManager::parseOutput(conf, out_id)){
-                mOutputs.emplace_back(new VleOutput(out_id, val));
-            }
-        }
-        std::sort(mPropagate.begin(), mPropagate.end(),
-                VlePropagateSorter());
-        std::sort(mInputs.begin(), mInputs.end(), VleInputSorter());
-        std::sort(mOutputs.begin(), mOutputs.end(), VleOutputSorter());
-    } catch (const std::exception& e){
-        err.code = -1;
-        err.message = "[MetaManager] ";
-        err.message += e.what();
-        clear();
-        return nullptr;
-    }
-    //check
-
-    unsigned int initSize = 0;
-    for (unsigned int i = 0; i< mInputs.size(); i++) {
-        const VleInput& vleIn = *mInputs[i];
-        //check size which has to be consistent
-        if (initSize == 0 and vleIn.nbValues > 1) {
-            initSize = vleIn.nbValues;
-        } else {
-            if (vleIn.nbValues > 1 and initSize > 0
-                    and initSize != vleIn.nbValues) {
-                err.code = -1;
-                err.message = utils::format(
-                        "[MetaManager]: error in input values: wrong number"
-                        " of values 1st input has %u values,  input %s has %u "
-                        "values", initSize, vleIn.getName().c_str(),
-                        vleIn.nbValues);
-                clear();
-                return nullptr;
-            }
-        }
-        //check if already exist in replicate or propagate
-        if (mReplicate and (mReplicate->getName() == vleIn.getName())) {
-            err.code = -1;
-            err.message = utils::format(
-                    "[MetaManager]: error input '%s' is also the replicate",
-                    vleIn.getName().c_str());
-            clear();
-            return nullptr;
-        }
-        for (unsigned int j=0; j<mPropagate.size(); j++) {
-            const VlePropagate& vleProp = *mPropagate[j];
-            if (vleProp.getName() == vleIn.getName()) {
-                err.code = -1;
-                err.message = utils::format(
-                        "[MetaManager]: error input '%s' is also a propagate",
-                        vleIn.getName().c_str());
-                clear();
-                return nullptr;
-            }
-        }
-    }
-    switch(mConfigParallelType) {
-    case SINGLE:
-    case THREADS: {
-        return run_with_threads(init, err);
-        break;
-    } case MVLE: {
-        return run_with_mvle(init, err);
-        break;
-    } case CVLE: {
-        return run_with_cvle(init, err);
-        break;
-    }}
-    return nullptr;
-}
 
 void
 MetaManager::post_inputs(vpz::Vpz& model, const wrapper_init& init)
@@ -1611,9 +1683,6 @@ MetaManager::post_inputs(vpz::Vpz& model, const wrapper_init& init)
             }
             break;
         } default: {
-            mCtx->log(1, __FILE__, __LINE__, __FUNCTION__,
-                    "[vle.recursive] Not TUPLE NOR SET %s \n",
-                    exp.writeToString().c_str());
             cond.addValueToPort(tmp_input.port,exp.clone());
             break;
         }}

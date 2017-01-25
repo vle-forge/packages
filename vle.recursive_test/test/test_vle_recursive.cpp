@@ -71,8 +71,7 @@ void test_api()
 
     vr::MetaManager meta;
     vle::manager::Error err;
-    vr::wrapper_init w_init(&init);
-    std::unique_ptr<vv::Map> res = meta.run(w_init, err);
+    std::unique_ptr<vv::Map> res = meta.run(init, err);
 
     if (err.code ==-1) {
         std::cout << " error: " << err.message << "\n";
@@ -128,8 +127,7 @@ void test_complex_values()
 
     vr::MetaManager meta;
     vle::manager::Error err;
-    vr::wrapper_init w_init(&init);
-    std::unique_ptr<vv::Map> res = meta.run(w_init, err);
+    std::unique_ptr<vv::Map> res = meta.run(init, err);
 
     if (err.code ==-1) {
         std::cout << " error: " << err.message << "\n";
@@ -182,10 +180,8 @@ void test_SIR()
         Svalues[4] = 50;
 
         vr::MetaManager meta;
-        vr::wrapper_init w_init(&init);
         vle::manager::Error err;
-
-        std::unique_ptr<vv::Map> res = meta.run(w_init, err);
+        std::unique_ptr<vv::Map> res = meta.run(init, err);
 
 
         if (err.code ==-1) {
@@ -237,9 +233,8 @@ void test_SIR()
         seeds[4] = 95699;
 
         vr::MetaManager meta;
-        vr::wrapper_init w_init(&init);
         vle::manager::Error err;
-        std::unique_ptr<vv::Map> res = meta.run(w_init, err);
+        std::unique_ptr<vv::Map> res = meta.run(init, err);
 
         if (err.code ==-1) {
             std::cout << " error: " << err.message << "\n";
@@ -286,9 +281,8 @@ void test_SIR()
         beta[2] = 0.003;
 
         vr::MetaManager meta;
-        vr::wrapper_init w_init(&init);
         vle::manager::Error err;
-        std::unique_ptr<vv::Map> res = meta.run(w_init, err);
+        std::unique_ptr<vv::Map> res = meta.run(init, err);
         if (err.code ==-1) {
             std::cout << " error: " << err.message << "\n";
         }
