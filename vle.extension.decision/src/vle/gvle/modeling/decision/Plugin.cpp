@@ -1490,37 +1490,52 @@ void PluginDecision::generateConditions(vpz::AtomicModel& model,
 }
 
 void PluginDecision::generateObservables(vpz::AtomicModel& model,
-                                    vpz::Observables& observables) {
+                                    vpz::Observables& observables)
+{
     std::string observableName((fmt("obs_Decision_%1%") %
             model.getName()).str());
 
     if (observables.exist(observableName)) {
         vpz::Observable& observable(observables.get(observableName));
 
-        // suppresses the activities and rules deleted
-        for (vpz::Observable::iterator it = observable.begin();
-                it != observable.end();
-                ++it) {
-            bool found = false;
+        bool tobeSuppressed = true;
 
-            for (activitiesModel_t::const_iterator it2 = mDecision->
-                    activitiesModel().begin(); it2 !=
-                    mDecision->activitiesModel().end() && found == false;
-                    ++it2) {
-                if (it->first == "Activity_" + it2->second->name()) {
-                    found = true;
+        while (tobeSuppressed) {
+            tobeSuppressed = false;
+            vpz::Observable::iterator it;
+
+            // suppresses the activities and rules deleted
+            for (it = observable.begin();
+                 it != observable.end();
+                 ++it) {
+                bool found = false;
+
+                for (activitiesModel_t::const_iterator it2 = mDecision->
+                         activitiesModel().begin(); it2 !=
+                         mDecision->activitiesModel().end() && found == false;
+                     ++it2) {
+
+                    if (it->first == "Activity_" + it2->second->name()) {
+                        found = true;
+                    }
+                }
+
+                for (std::map < std::string, strings_t > ::const_iterator it2 =
+                         mRule.begin()
+                         ; it2 != mRule.end() && found == false; ++it2) {
+
+                    if ("Rules_" + it2->first == it->first) {
+                        found = true;
+                    }
+                }
+
+                if (found == false) {
+                    tobeSuppressed = true;
+                    break;
+                    observable.del(it->first);
                 }
             }
-
-            for (std::map < std::string, strings_t > ::const_iterator it2 =
-                    mRule.begin()
-                    ; it2 != mRule.end() && found == false; ++it2) {
-                if ("Rules_" + it2->first == it->first) {
-                    found = true;
-                }
-            }
-
-            if (found == false) {
+            if (tobeSuppressed) {
                 observable.del(it->first);
             }
         }
@@ -1530,6 +1545,7 @@ void PluginDecision::generateObservables(vpz::AtomicModel& model,
                 activitiesModel().begin(); it !=
                 mDecision->activitiesModel().end();
                 ++it) {
+
             if (!observable.exist("Activity_" + it->second->name())) {
                 observable.add("Activity_" + it->second->name());
             }
@@ -1539,6 +1555,7 @@ void PluginDecision::generateObservables(vpz::AtomicModel& model,
         for (std::map < std::string, strings_t > ::const_iterator it =
                 mRule.begin()
                 ; it != mRule.end(); ++it) {
+
             if (!observable.exist("Rules_" + it->first)) {
                 observable.add("Rules_" + it->first);
             }
