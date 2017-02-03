@@ -548,7 +548,9 @@ vle.recursive.configOutput = function(rvle_handle=NULL, id=NULL, path=NULL,
 #' @param working_dir.  Required only if config_parallel_type is set to mvle. 
 #' It gives the working directory where are produced result file of single 
 #' simulations.
-#' 
+#' @param expe_seed. Seed for the rng
+#' @param expe_log. level of log (between 1 and 7) 
+#'
 #' @return NULL
 #' 
 #' @author Ronan Trépos MIA-T, INRA
@@ -564,7 +566,7 @@ vle.recursive.configOutput = function(rvle_handle=NULL, id=NULL, path=NULL,
 
 vle.recursive.configSimulation = function(rvle_handle=NULL, config_parallel_type=NULL, 
         config_parallel_rm_files=NULL, config_parallel_nb_slots=NULL, 
-        working_dir=NULL)
+        working_dir=NULL, expe_seed = 12369, expe_log = 7)
 {
     if (! vle.recursive.check(rvle_handle)) {
         stop("[vle.recursive] Error: rvle_handle is malformed");
@@ -583,6 +585,12 @@ vle.recursive.configSimulation = function(rvle_handle=NULL, config_parallel_type
     }
     if (sum(listPorts == "working_dir") == 0) {
         rvle.addPort(rvle_handle, "cond", "working_dir");
+    }
+    if (sum(listPorts == "expe_seed") == 0) {
+        rvle.addPort(rvle_handle, "cond", "expe_seed");
+    }
+    if (sum(listPorts == "expe_log") == 0) {
+        rvle.addPort(rvle_handle, "cond", "expe_log");
     }
     if (is.null(config_parallel_type)) {
         rvle.setValueCondition(rvle_handle, cond="cond",
@@ -613,6 +621,11 @@ vle.recursive.configSimulation = function(rvle_handle=NULL, config_parallel_type
         rvle.setValueCondition(rvle_handle, cond="cond",
                 port="working_dir", working_dir);
     }
+    rvle.setValueCondition(rvle_handle, cond="cond",
+            port="expe_log", as.integer(expe_log));
+
+    rvle.setValueCondition(rvle_handle, cond="cond",
+            port="expe_seed", as.integer(expe_seed));
 }
 
 
