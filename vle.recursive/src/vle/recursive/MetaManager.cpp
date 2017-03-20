@@ -873,7 +873,7 @@ MetaManager::produceCvleInFile(const wrapper_init& init,
         const std::string& inPath, manager::Error& err)
 {
     std::ofstream inFile;
-    inFile.open (inPath);
+    inFile.open (inPath, std::ios_base::trunc);
     //write header
     inFile << "_cvle_complex_values\n";
     //write content
