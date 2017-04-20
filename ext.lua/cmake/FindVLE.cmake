@@ -37,17 +37,10 @@
 #
 #=============================================================================
 #
-# Notes :
-# ---------
-#   FindVLE will try to find VLE and the gtkmm dependencies,
-#   only some boost libraries are not included into the libraries given
-#
-#=============================================================================
-#
 # Usage
 # -----
 #
-# set(VLE_ABI_VERSION 1.2)
+# set(VLE_ABI_VERSION 2.0)
 # find_package(VLE REQUIRED)
 #
 #=============================================================================
@@ -139,9 +132,9 @@ else (${_find_vle_using_cmake})
   PKG_CHECK_MODULES(VLE vle-${VLE_ABI_VERSION})
   # select only the directory of vle, containing the pkgs directory
   # to build VLE_SHARE_DIR
-  find_path(vle_lib_dir vle-${VLE_ABI_VERSION} PATHS
-            ${VLE_LIBRARY_DIRS} NO_DEFAULT_PATH)
-  set (VLE_SHARE_DIR "${vle_lib_dir}/../share/vle-${VLE_ABI_VERSION}")
+  find_path(vle_lib_dir vle PATHS
+            ${VLE_INCLUDE_DIRS} NO_DEFAULT_PATH)
+  set (VLE_SHARE_DIR "${vle_lib_dir}/../../share/vle-${VLE_ABI_VERSION}")
 endif (${_find_vle_using_cmake})
 
 
