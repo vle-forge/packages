@@ -41,6 +41,7 @@
 #include <map>
 #include <ostream>
 #include <algorithm>
+#include <list>
 
 
 
@@ -116,7 +117,7 @@ private:
     container_type m_lst;
 };
 
-typedef std::list < std::string > ResourceSolution;
+typedef std::vector < std::string > ResourceSolution;
 typedef std::list < ResourceSolution > ResourcesExtended;
 
 class Activity
@@ -178,7 +179,9 @@ public:
           m_ff(devs::negativeInfinity),
           m_done(devs::negativeInfinity),
           m_hasRessources(true),
-                    m_priority(devs::negativeInfinity)
+          m_priority(devs::negativeInfinity),
+          m_neverfail(false),
+          m_neverfailifpcvalid(false)
 
     {}
 
@@ -188,6 +191,17 @@ public:
     void setPriority(double priority)
     { m_priority = priority; }
 
+    bool isNeverFail()
+    { return m_neverfail; }
+
+    void neverFail()
+    { m_neverfail = true; }
+
+    bool isNeverFailIfPCValid()
+    { return m_neverfailifpcvalid; }
+
+    void neverFailIfPCValid()
+    { m_neverfailifpcvalid = true; }
 
     void addResources(const ResourcesExtended& res)
     { mResourcesExtended = res; m_hasRessources = false;}
@@ -268,6 +282,10 @@ public:
 
     void takeRessources()
     { m_hasRessources = true; }
+
+    void freeRessources()
+    { m_hasRessources = false; }
+
     //
     //
     //
@@ -307,6 +325,8 @@ public:
     bool isValidTimeConstraint(const devs::Time& time) const;
     bool isBeforeTimeConstraint(const devs::Time& time) const;
     bool isAfterTimeConstraint(const devs::Time& time) const;
+    bool isAfterStartTimeConstraint(const devs::Time& time) const;
+    bool isBeforeFinishTimeConstraint(const devs::Time& time) const;
     bool isValidHorizonTimeConstraint(const devs::Time& lowerBound,
                                       const devs::Time& upperBound) const;
 
@@ -386,6 +406,9 @@ private:
     ResourcesExtended mResourcesExtended;
     bool m_hasRessources;
     double m_priority;
+
+    bool m_neverfail;
+    bool m_neverfailifpcvalid;
 };
 
 inline std::ostream& operator<<(

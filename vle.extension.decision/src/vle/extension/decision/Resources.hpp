@@ -31,12 +31,13 @@
 
 #include <string>
 #include <map>
+#include <set>
 
 namespace vle { namespace extension { namespace decision {
 
 typedef std::pair < std::string, std::string > Resource;
 
-typedef std::multimap < std::string, std::string > Resources;
+typedef std::map < std::string, std::set < std::string > > Resources;
 
 typedef  Resources::iterator ResourcesIterator;
 typedef  Resources::const_iterator ResourcesConstIterator;
@@ -50,14 +51,13 @@ typedef std::pair < std::string, std::string > ActivityResource;
 
 typedef std::multimap < std::string, std::string > ActivitiesResources;
 
-typedef  Resources::iterator ActivitiesResourcesIterator;
-typedef  Resources::const_iterator ActivitiesResourcesConstIterator;
+typedef  ActivitiesResources::iterator ActivitiesResourcesIterator;
+typedef  ActivitiesResources::const_iterator ActivitiesResourcesConstIterator;
 
 typedef std::pair < ActivitiesResourcesIterator,
                     ActivitiesResourcesIterator> ActivitiesResourcesIteratorPair;
 typedef std::pair < ActivitiesResourcesConstIterator,
                     ActivitiesResourcesConstIterator> ActivitiesResourcesConstIteratorPair;
-
 
 }}} // namespace vle model decision
 

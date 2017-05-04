@@ -37,6 +37,7 @@ devs::Time Agent::init(const devs::Time& time)
     mState = Output;
     mCurrentTime = time;
     mNextChangeTime = processChanges(time);
+    waiter = mWait;
 
     return 0.0;
 }
@@ -107,8 +108,14 @@ void Agent::internalTransition(const devs::Time& time)
         clearLatestActivitiesLists();
     case Init:
     case UpdateFact:
-        mNextChangeTime = processChanges(time);
-        mState = Process;
+        waiter--;
+        if (waiter < 0) {
+            mNextChangeTime = processChanges(time);
+            mState = Process;
+            waiter = mWait;
+        } else {
+            mState = UpdateFact;
+        }
         break;
     case Process:
         mState = Output;
@@ -167,8 +174,8 @@ void Agent::confluentTransitions(
     const devs::Time& time,
     const devs::ExternalEventList& extEventlist)
 {
-    internalTransition(time);
     externalTransition(extEventlist, time);
+    internalTransition(time);
 }
 
 value::Value* Agent::observation(
@@ -186,10 +193,27 @@ value::Value* Agent::observation(
         return new value::String(out.str());
     } else if ((port.compare(0, 9, "Activity_") == 0) and port.size() > 9) {
         std::string activity(port, 9, std::string::npos);
-        const Activity& act(activities().get(activity)->second);
-        std::stringstream out;
-        out << act.state();
-        return new value::String(out.str());
+        if (activities().exist(activity)) {
+            const Activity& act(activities().get(activity)->second);
+            std::stringstream out;
+            out << act.state();
+            return new value::String(out.str());
+        }
+    } else if ((port.compare(0, 16, "Activity(state)_") == 0) and port.size() > 16) {
+        std::string activity(port, 16, std::string::npos);
+        if (activities().exist(activity)) {
+            const Activity& act(activities().get(activity)->second);
+            std::stringstream out;
+            out << act.state();
+            return new value::String(out.str());
+        }
+    } else if ((port.compare(0, 20, "Activity(resources)_") == 0) and port.size() > 20) {
+        std::string activity(port, 20, std::string::npos);
+        if (activities().exist(activity)) {
+            std::stringstream out;
+            out << activities().resources(activity);
+            return new value::String(out.str());
+        }
     }
 
     return vle::devs::Dynamics::observation(event);

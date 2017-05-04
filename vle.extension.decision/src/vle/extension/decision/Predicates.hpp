@@ -65,6 +65,26 @@ public:
     void sort();
 
     /**
+     * To check if the parameter does exist.
+     *
+     */
+    bool exist(const std::string& name) const;
+
+    /**
+     * Reset a double from container.
+     *
+     * if already exist.
+     */
+    void resetDouble(const std::string& name, double param);
+
+    /**
+     * Reset a string from the container.
+     *
+     * if already exist.
+     */
+    void resetString(const std::string& name, const std::string& param);
+
+    /**
      * Get a double from container.
      *
      * @attention O(log(n)) operation, but container must be sorted with

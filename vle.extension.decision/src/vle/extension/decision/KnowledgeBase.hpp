@@ -31,20 +31,33 @@
 
 #include <vle/extension/decision/Resources.hpp>
 #include <vle/extension/decision/Activities.hpp>
+#include <vle/extension/decision/Ress.hpp>
 #include <vle/extension/decision/Facts.hpp>
 #include <vle/extension/decision/Library.hpp>
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/extension/decision/Table.hpp>
 #include <vle/extension/decision/Plan.hpp>
+#include <boost/algorithm/string.hpp>
+#include <iostream>
 
 namespace vle { namespace extension { namespace decision {
 
+typedef Table < ResFct > RessTable;
 typedef Table < Fact > FactsTable;
 typedef Table < PortFact > PortFactsTable;
 typedef Table < PredicateFunction > PredicatesTable;
 typedef Table < Activity::AckFct > AcknowledgeFunctions;
 typedef Table < Activity::OutFct > OutputFunctions;
 typedef Table < Activity::UpdateFct > UpdateFunctions;
+
+inline std::ostream& operator<<(std::ostream& o, const RessTable& kb)
+{
+    o << "Ress: ";
+    for (RessTable::const_iterator it = kb.begin(); it != kb.end(); ++it) {
+        o << " (" << it->first << ")";
+    }
+    return o;
+}
 
 inline std::ostream& operator<<(std::ostream& o, const FactsTable& kb)
 {
@@ -63,6 +76,17 @@ inline std::ostream& operator<<(std::ostream& o, const PortFactsTable& kb)
     }
     return o;
 }
+
+template < typename F >
+struct r
+{
+    r(const std::string& name, F func)
+        : name(name), func(func)
+    {}
+
+    std::string name;
+    F func;
+};
 
 template < typename F >
 struct f
@@ -128,6 +152,14 @@ struct u
 
     std::string name;
     F func;
+};
+
+template < typename X >
+struct AddRess
+{
+    AddRess(X kb) : kb(kb) {}
+
+    X kb;
 };
 
 template < typename X >
@@ -213,33 +245,157 @@ public:
     typedef std::pair < bool, devs::Time > Result;
 
     KnowledgeBase()
-        : mPlan(*this), mLibrary(*this)
+        : mPlan(*this), mLibrary(*this), mResourcesCheck(false)
     {}
 
-    void addResources(const std::string& type, const std::string& name)
+    /**
+     * @brief if checkRessources is set to true, the simulation will
+     * stop, when a resource constraint needs more than all the
+     * resources defined, elle only a warning will be raised.
+     * @param check
+     */
+
+    void checkResources(bool check)
     {
-        mResources.insert(Resource(type, name));
-        mPlan.activities().setResourceAvailable(name);
+        mResourcesCheck = check;
     }
 
-    bool resourceTypeExist(const std::string& type) const
-    { return mResources.find(type) != mResources.end();}
+    bool resourcesCheck()
+    {
+        return mResourcesCheck;
+    }
 
+    /**
+     * @brief a resource can be defined by a id(string),
+     * @param name the name of the resource
+     */
+    void addResources(const std::string& name)
+    {
+        if (not resourceTypeExist(name)) {
+            mResources[name].insert(name);
+            mPlan.activities().setResourceAvailable(name);
+        } else {
+            throw utils::ModellingError(
+                fmt(_("Decision: resource `%1%' already defined")) % name);
+        }
+    }
+
+    /**
+     * @brief a resource is defined by a id(string) an class(string),
+     * This operator can be used to use many classes for a single
+     * resource
+     * @param type the class of a resource
+     * @param name the name of the resource
+     */
+    void addResources(const std::string& type, const std::string& name)
+    {
+        if (not resourceTypeExist(name)) {
+            mResources[name].insert(name);
+            mPlan.activities().setResourceAvailable(name);
+        }
+
+        std::string resource = type + "&" + name;
+        if (not resourceTypeExist(resource)) {
+            mResources[type].insert(name);
+            mPlan.activities().setResourceAvailable(name);
+        } else {
+            throw utils::ModellingError(
+                fmt(_("Decision: resource `%1%' already defined")) % resource);
+        }
+    }
+
+    /**
+     * @brief check if a resource exist
+     * @param type a combination of classes separated by '&',
+     * for example "farmWorker & skilledWorker"
+     */
+    bool resourceTypeExist(const std::string& type) const
+    {
+        size_t n = std::count(type.begin(), type.end(), '&');
+        if ( n == 0 ) {
+            return mResources.find(type) != mResources.end();
+        } else {
+            std::vector<std::string> strs;
+            boost::split(strs, type , boost::is_any_of("&"));
+
+            Resources::const_iterator its = mResources.find(strs[0]);
+
+            if ( its == mResources.end() ) {
+                return false;
+            }
+
+            std::vector< std::string > result (its->second.begin(),
+                                               its->second.end());
+            std::vector< std::string > buffer;
+            for (unsigned i = 1; i < strs.size(); i++) {
+                buffer.clear();
+                its = mResources.find(strs[i]);
+                std::set_intersection(result.begin(), result.end(),
+                                      its->second.begin(), its->second.end(),
+                                      std::back_inserter(buffer));
+                if (buffer.empty()) {
+                    return false;
+                }
+                swap(result, buffer);
+            }
+            return true;
+        }
+    }
+
+    /**
+     * @brief get the resource satisfying the combination of classes
+     * @param type a combination of classes separated by '&',
+     * for example "farmWorker & skilledWorker"
+     */
     ResourceSolution getResources (const std::string& type) const
     {
         ResourceSolution resources;
-        ResourcesConstIteratorPair pit;
 
-        pit = mResources.equal_range(type);
-        for (ResourcesConstIterator it = pit.first; it != pit.second; ++it)
-        {
-            resources.push_back((*it).second);
+        size_t n = std::count(type.begin(), type.end(), '&');
+        if ( n == 0 ) {
+            Resources::const_iterator pit;
+
+            pit = mResources.find(type);
+
+            resources = std::vector< std::string > (pit->second.begin(),
+                                                    pit->second.end());
+
+        } else {
+            std::vector<std::string> strs;
+            boost::split(strs, type , boost::is_any_of("&"));
+            Resources::const_iterator its = mResources.find(strs[0]);
+            std::vector< std::string > result(its->second.begin(),
+                                              its->second.end());
+            std::vector< std::string > buffer;
+            for (unsigned i = 1; i < strs.size(); i++) {
+                buffer.clear();
+                its = mResources.find(strs[i]);
+                std::set_intersection(result.begin(), result.end(),
+                                      its->second.begin(), its->second.end(),
+                                      std::back_inserter(buffer));
+                if (buffer.empty()) {
+                    return resources;
+                }
+                swap(result, buffer);
+            }
+            resources = result;
         }
         return resources;
     }
 
+    /**
+     * @brief get the the number of resources
+     * satisfying the combination of classes
+     * @param type a combination of classes separated by '&',
+     * for example "farmWorker & skilledWorker"
+     */
+    int getResourceQuantity (const std::string& type) const
+    {
+        return getResources(type).size();
+    }
 
-    ResourcesExtended extendResources(const std::string& resources) const;
+    void addRes(const std::string& name, const ResFct& res)
+    { ress().add(name, res); }
 
     /**
      * @brief Add a fac into the facts tables.
@@ -252,6 +408,17 @@ public:
     void addPortFact(const std::string& name, const PortFact& fact)
     { portfacts().add(name, fact); }
 
+    std::string applyRes(const std::string& funcname,
+                         const std::string& activityname,
+                         const Activity& activity)
+    {
+        if  (ress().find(funcname) != ress().end()) {
+            return ress()[funcname](activityname, activity);
+        } else {
+            return "";
+        }
+    }
+
     void applyFact(const std::string& name, const value::Value& value)
     {
         if  (facts().find(name) == facts().end()) {
@@ -260,7 +427,6 @@ public:
             facts()[name](value);
         }
     }
-
 
     Rule& addRule(const std::string& name)
     { return mPlan.rules().add(name); }
@@ -448,6 +614,9 @@ public:
     void clearLatestActivitiesLists()
     { mPlan.activities().clearLatestActivitiesLists(); }
 
+    const RessTable& ress() const
+    { return mRessTable; }
+
     /**
      * @brief Get the table of available facts.
      * @return Table of available facts.
@@ -486,6 +655,9 @@ public:
     const OutputFunctions& outputFunctions() const
     { return mOutFunctions; }
 
+    RessTable& ress()
+    { return mRessTable; }
+
     /**
      * @brief Get the table of available facts.
      * @return Table of available facts.
@@ -523,6 +695,18 @@ public:
      */
     UpdateFunctions& updateFunctions()
     { return mUpdateFunctions; }
+
+    template < typename X >
+        AddRess < X > addRess(X obj)
+        {
+            return AddRess < X >(obj);
+        }
+
+    template < typename X >
+        r < X > R(const std::string& name, X func)
+        {
+            return r < X >(name, func);
+        }
 
     template < typename X >
         AddFacts < X > addFacts(X obj)
@@ -637,8 +821,10 @@ private:
 
     Library mLibrary; /**< The plan library. It stocks all plans available for
                         this decision knowledge base. */
+    bool mResourcesCheck;
 
     Resources mResources;
+    RessTable mRessTable;
     FactsTable mFactsTable;
     PortFactsTable mPortFactsTable;
     PredicatesTable mPredicatesTable;
@@ -651,6 +837,13 @@ private:
 };
 
 template < typename X, typename F >
+AddRess < X > operator+=(AddRess < X > add, r < F > pred)
+{
+    add.kb->ress().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
+    return add;
+}
+
+template < typename X, typename F >
 AddFacts < X > operator+=(AddFacts < X > add, f < F > pred)
 {
     add.kb->facts().add(pred.name, boost::bind(pred.func, add.kb, _1));
@@ -661,6 +854,13 @@ template < typename X, typename PF >
 AddPortFacts < X > operator+=(AddPortFacts < X > add, f < PF > pred)
 {
     add.kb->portfacts().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
+    return add;
+}
+
+template < typename X, typename F >
+AddRess < X > operator,(AddRess < X > add, f < F > pred)
+{
+    add.kb->ress().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
     return add;
 }
 

@@ -48,7 +48,7 @@ typedef utils::Block::Reals UBR;
 using boost::lexical_cast;
 
 Plan::Plan(KnowledgeBase& kb, const std::string& buffer)
-    : mKb(kb)
+    : mKb(kb), mActivities(kb)
 {
     try {
         std::istringstream in(buffer);
@@ -60,7 +60,7 @@ Plan::Plan(KnowledgeBase& kb, const std::string& buffer)
 }
 
 Plan::Plan(KnowledgeBase& kb, std::istream& stream)
-    : mKb(kb)
+    : mKb(kb), mActivities(kb)
 {
     try {
         utils::Parser parser(stream);
@@ -199,7 +199,8 @@ struct AssignActivityDoubleParameter
 
 void __fill_predicate(const utils::Block::BlocksResult& root,
                       Predicates& predicates,
-                      const PredicatesTable& table)
+                      const PredicatesTable& table,
+                      const devs::Time& loadTime)
 {
     for (UBB::const_iterator it = root.first; it != root.second; ++it) {
         const utils::Block& block = it->second;
@@ -245,6 +246,10 @@ void __fill_predicate(const utils::Block::BlocksResult& root,
                      it != params.end(); ++it)
                     TraceModel(vle::fmt("    - %1%") % it->first);
 
+                if (params.exist("planTimeStamp")) {
+                    params.resetDouble("planTimeStamp", loadTime);
+                }
+
                 predicates.add(id.first->second, fctit->second, params);
             }
         } else {
@@ -269,7 +274,7 @@ void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
 
     for (it = mainpredicates.first; it != mainpredicates.second; ++it)
         __fill_predicate(it->second.blocks.equal_range("predicate"),
-                         mPredicates, mKb.predicates());
+                         mPredicates, mKb.predicates(), loadTime);
 
     for (it = mainrules.first; it != mainrules.second; ++it) {
         utils::Block::BlocksResult rules;
@@ -407,17 +412,36 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                  it != params.end(); ++it)
                 TraceModel(vle::fmt("    - %1%") % it->first);
 
-            try {
-                std::string resources = act.params().getString("resources");
-                act.addResources(mKb.extendResources(resources));
-            } catch(const std::exception& e) {
+            std::string resources;
+            std::string resourceFunc;
+            if (act.params().exist("resourceFunc")) {
+                resourceFunc = act.params().getString("resourceFunc");
             }
-
-            try {
+            if (not resourceFunc.empty()) {
+                resources = mKb.applyRes(resourceFunc,
+                                         id.first->second + suffixe, act);
+            }
+            if (not resources.empty()) {
+                act.getParams().addString("resources", resources);
+                act.getParams().sort();
+                act.freeRessources();
+            }
+            if (act.params().exist("priority")) {
                 double loadedPriority = act.params().getDouble("priority");
                 act.getParams().resetDouble("priority", loadedPriority + addPriority);
                 act.setPriority(loadedPriority + addPriority);
-            } catch(const std::exception& e) {
+            }
+            if (act.params().exist("neverfail")) {
+                double neverfail = act.params().getDouble("neverfail");
+                if (neverfail == 1) {
+                    act.neverFail();
+                }
+            }
+            if (act.params().exist("neverfailifpcvalid")) {
+                double neverfail = act.params().getDouble("neverfailifpcvalid");
+                if (neverfail == 1) {
+                    act.neverFailIfPCValid();
+                }
             }
         }
     }
@@ -609,7 +633,7 @@ Plan::DateResult Plan::getDate(const std::string& dateName,
                     utils::DateTime::toJulianDayNumber(
                         firstNonLeapYear + "-" + month + "-" + day));
                 int daysOfFullYears = 365 * lexical_cast<int>(year);
-
+std::cout << "daysOfirstNon+m+d>" << daysOfLastYear << "<"<< std::endl;
                 return DateResult(true, devs::Time(daysOfLastYear + daysOfFullYears));
 
             }

@@ -27,12 +27,17 @@
 
 
 #include <vle/extension/decision/Activities.hpp>
+#include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/Exception.hpp>
+#include <vle/utils/Trace.hpp>
 #include <vle/utils/i18n.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <numeric>
 #include <iostream>
 #include <algorithm>
 
+using boost::lexical_cast;
 
 namespace vle { namespace extension { namespace decision {
 
@@ -412,6 +417,148 @@ struct compareByPriority {
                 j->second.getPriority());}
 } byPriority;
 
+ResourceSolution Activities::firstResources(const std::string& resources) const
+{
+    ResourceSolution solution;
+
+    std::vector<std::string> resourcesAlt;
+
+    boost::split(resourcesAlt, resources, boost::is_any_of("|"));
+
+    for (unsigned i=0; i < resourcesAlt.size(); i++) {
+
+        boost::trim(resourcesAlt[i]);
+
+        std::vector<std::string> strs;
+
+        boost::split(strs, resourcesAlt[i], boost::is_any_of("+"));
+
+        for (uint j = 0; j < strs.size(); j++) {
+            boost::trim(strs[j]);
+            std::string toEx = strs[j];
+            size_t n = std::count(toEx.begin(), toEx.end(), '.');
+            if ( n !=0 ) {
+                if ( n > 1 ) {
+                    throw utils::ArgError(fmt(
+   _("Decision: resource syntax error, only single dot allowed: ")) % strs[j]);
+                } else {
+                    std::size_t pos = toEx.find(".");
+                    std::string resQ = toEx.substr(0, pos);
+                    boost::trim(resQ);
+                    std::string resI = toEx.substr(pos + 1);
+                    boost::trim(resI);
+                    int iterResQ = lexical_cast<int>(resI);
+                    if (iterResQ < 2) {
+                        throw utils::ArgError(fmt(
+   _("Decision: resource syntax error, resource quantity < 2:  '%1%'")) %  toEx);
+                    }
+                    strs.at(j) = resQ;
+                    for (int k = 1; k < iterResQ; k++) {
+                        strs.insert(strs.begin() + j, resQ);
+                    }
+                }
+            }
+        }
+
+        std::vector<std::string> strsUniq = strs;
+        std::vector<std::string>::iterator it,jt;
+        std::sort(strsUniq.begin(), strsUniq.end());
+        it = std::unique (strsUniq.begin(), strsUniq.end());
+        strsUniq.resize(std::distance(strsUniq.begin(),it));
+
+        bool notSatisfiable = false;
+        for (jt = strsUniq.begin(); jt != strsUniq.end(); jt++) {
+            if (count(strs.begin(), strs.end(), *jt) > mKb.getResourceQuantity(*jt)){
+                if (mKb.resourcesCheck()) {
+                    throw utils::ArgError(fmt(
+            _("Decision: resource syntax error, more ressources wanted than available: '%1%'")) % *jt);
+                } else {
+                    notSatisfiable = true;
+                    TraceAlways(fmt(
+            _("Decision: resource syntax error, more ressources wanted than available: '%1%'")) % *jt);
+                }
+            }
+        }
+
+        if (notSatisfiable){
+            continue;
+        }
+
+        std::vector< std::vector< std::string > > resourceSet;
+        std::vector< std::vector< std::string >::const_iterator > resourceSetIter;
+
+        for (uint j=0; j < strs.size(); j++) {
+            boost::trim(strs[j]);
+            resourceSet.push_back(mKb.getResources(strs[j]));
+        }
+
+        for (uint j=0; j < strs.size(); j++) {
+            resourceSetIter.push_back(resourceSet[j].begin());
+        }
+
+        bool explorationEnd = false;
+
+        for (uint j = 0; j < strs.size(); j++) {
+            if (resourceSetIter[j] == resourceSet[j].end()) {
+                explorationEnd = true;
+                break;
+            }
+        }
+
+        while (not explorationEnd) {
+
+            ResourceAvailability localA = mResourceAvailability;
+
+            for (uint j=0; j < strs.size(); j++) {
+
+                while (not (resourceSetIter[j] == resourceSet[j].end()) and
+                       not localA.at(*resourceSetIter[j]))
+                {
+                    localA[*resourceSetIter[j]] = false;
+                    resourceSetIter[j]++;
+                }
+
+                if (not (resourceSetIter[j] == resourceSet[j].end())) {
+                    localA[*resourceSetIter[j]] = false;
+                }
+
+                if (resourceSetIter[j] == resourceSet[j].end()){
+                    break;
+                }
+            }
+
+            bool solutionFound = true;
+            for (uint j = 0; j < strs.size(); j++) {
+
+                if (not (resourceSetIter[j] == resourceSet[j].end()) and
+                    solutionFound == true) {
+                    solutionFound = true;
+                } else {
+                    solutionFound = false;
+                    break;
+                }
+            }
+
+            if (solutionFound) {
+                for (uint j = 0; j < strs.size(); j++) {
+                    solution.push_back(*resourceSetIter[j]);
+                }
+                return solution;
+            }
+
+            explorationEnd = false;
+
+            for (uint j = 0; j < strs.size(); j++) {
+                if (resourceSetIter[j] == resourceSet[j].end()) {
+                    explorationEnd = true;
+                    break;
+                }
+            }
+        }
+    }
+    return solution;
+}
+
 void Activities::assignResources(result_t& activities)
 {
     std::random_shuffle(activities.begin(), activities.end());
@@ -420,18 +567,23 @@ void Activities::assignResources(result_t& activities)
 
     for (result_t::iterator activity = activities.begin();
          activity != activities.end(); ++activity) {
-        ResourcesExtended resources = (*activity)->second.getResources();
-        for (ResourcesExtended::const_iterator it = resources.begin();
-             it != resources.end(); it++) {
-            if (areRessourcesAvailable(*it)) {
-                getRessources((*activity)->first, *it);
-                (*activity)->second.takeRessources();
-                break;
-            }
+
+        ResourceSolution solution;
+        std::string resC;
+        if ((*activity)->second.params().exist("resources")) {
+            resC = (*activity)->second.params().getString("resources");
+            solution = firstResources(resC);
         }
+
+        if (not solution.empty()) {
+            getRessources((*activity)->first, solution);
+            (*activity)->second.takeRessources();
+        }
+
         if (not (*activity)->second.hasRessources()) {
             if ((*activity)->second.params().exist("priority")) {
-                double priority = (*activity)->second.getPriority() + 1;
+                double priority = (*activity)->second.getPriority() +
+                    mPriorityIncrement;
                 (*activity)->second.setPriority(priority);
             }
         }
@@ -546,10 +698,35 @@ Activities::processWaitState(iterator activity,
         update.first = false;
         break;
     case PrecedenceConstraint::Failed:
-        activity->second.fail(time);
-        m_failedAct.push_back(activity);
-        m_latestFailedAct.push_back(activity);
-        update.first = true;
+        if (activity->second.isNeverFailIfPCValid()) {
+            PrecedenceConstraint::Result newstatebis;
+            newstatebis.first = PrecedenceConstraint::Valid;
+            newstatebis.second = devs::infinity;
+            stateFromGraph(activity, newstatebis, time);
+            std::cout << newstatebis.first << "-----"<< std::endl;
+            if (not (newstatebis.first == PrecedenceConstraint::Failed) &&
+                not (newstatebis.first == PrecedenceConstraint::Wait)) {
+                activity->second.start(time);
+                m_startedAct.push_back(activity);
+                m_latestStartedAct.push_back(activity);
+                update.first = true;
+            } else {
+                activity->second.fail(time);
+                m_failedAct.push_back(activity);
+                m_latestFailedAct.push_back(activity);
+                update.first = true;
+            }
+        } else if (activity->second.isNeverFail()) {
+            activity->second.start(time);
+            m_startedAct.push_back(activity);
+            m_latestStartedAct.push_back(activity);
+            update.first = true;
+        } else {
+            activity->second.fail(time);
+            m_failedAct.push_back(activity);
+            m_latestFailedAct.push_back(activity);
+            update.first = true;
+        }
         break;
     }
 
@@ -591,10 +768,17 @@ Activities::processFFState(iterator activity,
     switch (newstate.first) {
     case PrecedenceConstraint::Valid:
     case PrecedenceConstraint::Inapplicable:
-        activity->second.end(time);
-        m_endedAct.push_back(activity);
-        m_latestEndedAct.push_back(activity);
-        update.first = true;
+        if (activity->second.isBeforeFinishTimeConstraint(time)) {
+            activity->second.fail(time);
+            m_failedAct.push_back(activity);
+            m_latestFailedAct.push_back(activity);
+            update.first = true;
+        } else {
+            activity->second.end(time);
+            m_endedAct.push_back(activity);
+            m_latestEndedAct.push_back(activity);
+            update.first = true;
+        }
         break;
     case PrecedenceConstraint::Wait:
         m_ffAct.push_back(activity);
@@ -622,10 +806,14 @@ Activities::processFailedState(iterator activity,
 
 Activities::Result
 Activities::processEndedState(iterator activity,
-                              const devs::Time& /* time */)
+                              const devs::Time& time)
 {
     Result update = std::make_pair(false, devs::infinity);
-    m_endedAct.push_back(activity);
+    if (activity->second.isBeforeFinishTimeConstraint(time)) {
+        m_failedAct.push_back(activity);
+    } else {
+        m_endedAct.push_back(activity);
+    }
     return update;
 }
 
@@ -640,62 +828,77 @@ PrecedenceConstraint::Result Activities::updateState(iterator activity,
         newstate.first = PrecedenceConstraint::Wait;
     } else if (activity->second.isAfterTimeConstraint(time)) {
         newstate.first = PrecedenceConstraint::Failed;
+    } else if (activity->second.state() == Activity::WAIT &&
+               activity->second.isAfterStartTimeConstraint(time)) {
+        newstate.first = PrecedenceConstraint::Failed;
     } else {
-        PrecedencesGraph::findIn in = m_graph.findPrecedenceIn(activity);
-        PrecedencesGraph::iteratorIn it;
-
-        if (activity->second.waitAllFsBeforeStart()) {
-            it = in.first;
-            while (newstate.first == PrecedenceConstraint::Valid and
-                   it != in.second) {
-                PrecedenceConstraint::Result r = it->isValid(time);
-
-                switch (r.first) {
-                case PrecedenceConstraint::Wait:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Failed:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Valid:
-                case PrecedenceConstraint::Inapplicable:
-                    newstate.first = PrecedenceConstraint::Valid;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                }
-                ++it;
-            }
-        } else {
-            it = in.first;
-            while (it != in.second and
-                   newstate.first != PrecedenceConstraint::Valid) {
-                PrecedenceConstraint::Result r = it->isValid(time);
-
-                switch (r.first) {
-                case PrecedenceConstraint::Wait:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Failed:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Valid:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                case PrecedenceConstraint::Inapplicable:
-                    newstate.first = r.first;
-                    newstate.second = std::min(newstate.second, r.second);
-                    break;
-                }
-                ++it;
-            }
-        }
+        stateFromGraph(activity, newstate, time);
     }
     return newstate;
 }
+
+void
+Activities::stateFromGraph(iterator activity, PrecedenceConstraint::Result& newstate,
+                           const devs::Time& time)
+{
+    PrecedencesGraph::findIn in = m_graph.findPrecedenceIn(activity);
+    PrecedencesGraph::iteratorIn it;
+
+    if (activity->second.waitAllFsBeforeStart()) {
+        it = in.first;
+        while (newstate.first == PrecedenceConstraint::Valid and
+               it != in.second) {
+            PrecedenceConstraint::Result r = it->isValid(time);
+
+            switch (r.first) {
+            case PrecedenceConstraint::Wait:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Failed:
+                if (activity->second.isNeverFail()) {
+                    newstate.first = PrecedenceConstraint::Wait;
+                } else {
+                    newstate.first = r.first;
+                }
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Valid:
+            case PrecedenceConstraint::Inapplicable:
+                newstate.first = PrecedenceConstraint::Valid;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            }
+            ++it;
+        }
+    } else {
+        it = in.first;
+        while (it != in.second and
+               newstate.first != PrecedenceConstraint::Valid) {
+            PrecedenceConstraint::Result r = it->isValid(time);
+
+            switch (r.first) {
+            case PrecedenceConstraint::Wait:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Failed:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Valid:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            case PrecedenceConstraint::Inapplicable:
+                newstate.first = r.first;
+                newstate.second = std::min(newstate.second, r.second);
+                break;
+            }
+            ++it;
+        }
+    }
+}
+
 
 }}} // namespace vle model decision
