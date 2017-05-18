@@ -56,7 +56,8 @@ public:
     void out(const vle::devs::Time& /*time*/, vle::devs::ExternalEventList& output) const
     {
         output.emplace_back("fsa");
-        value::Map& map = output.back().addMap();
+        value::Map& map = output.back().addMap();//add a test with a map in
+                                                 //input of a DiscreteTimeDyn
         map.addString("name","fsa");
         map.addDouble("value",1.0);
     }

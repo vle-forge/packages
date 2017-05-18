@@ -270,7 +270,7 @@ DiscreteTimeDyn::handleExtEvt(const vle::devs::Time& t,
 
 void
 DiscreteTimeDyn::handleExtVar(const vle::devs::Time& t,
-        const std::string& port, const vle::value::Map& attrs)
+        const std::string& port, const vle::value::Value& attrs)
 {
      mpimpl->handleExtVar(t, port, attrs);
 }

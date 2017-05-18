@@ -272,19 +272,17 @@ struct Pimpl
    void
    processOut(const vle::devs::Time& t, DEVS_TransitionType /*trans*/);
 
-    void
+   void
    updateGuards(const vle::devs::Time& t,
            DEVS_TransitionType /*trans*/);
 
-    void
+   void
    handleExtEvt(const vle::devs::Time& t,
            const vle::devs::ExternalEventList& ext);
 
-    void
-    handleExtVar(const vle::devs::Time& t,
-           const std::string& port, const vle::value::Map& attrs);
-
-
+   void
+   handleExtVar(const vle::devs::Time& t,
+           const std::string& port, const value::Value& attrs);
 
 };
 

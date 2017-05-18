@@ -61,18 +61,14 @@ public:
     {
 
         output.emplace_back("g");
-        value::Map& map = output.back().addMap();
-        map.addString("name","g");
-        map.addDouble("value",10);
+        output.back().addDouble(10);
     }
 
     void out2(const vle::devs::Time& /*time*/ , vle::devs::ExternalEventList& output) const
     {
 
         output.emplace_back("g");
-        value::Map& map = output.back().addMap();
-        map.addString("name","g");
-        map.addDouble("value",0);
+        output.back().addDouble(0);
     }
 
 };

@@ -324,8 +324,19 @@ void
 VarMono::update(const vle::devs::Time& t,
         const vle::value::Value& val)
 {
-
-    this->update(t,val.toDouble().value());
+    switch (val.getType()) {
+    case value::Value::DOUBLE:
+        this->update(t,val.toDouble().value());
+        break;
+    case value::Value::MAP:
+        //compatibility with old behavior: deprecated
+        this->update(t,val.toMap().getDouble("value"));
+        break;
+    default:
+        throw vle::utils::ModellingError(vu::format("[%s] bad value type as "
+                "input of vle discrete time model",
+                tvp->get_model_name().c_str()));
+    }
 }
 
 

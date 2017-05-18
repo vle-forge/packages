@@ -148,7 +148,7 @@ public:
      * @param attr, a map of attributes
      */
     virtual void handleExtVar(const vle::devs::Time& t,
-            const std::string& port, const vle::value::Map& attrs);
+            const std::string& port, const vle::value::Value& attrs);
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
     ////////////////////

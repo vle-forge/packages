@@ -21,52 +21,64 @@
  */
 /*
  * @@tagdynamic@@
- * @@tagdepends: vle.extension.fsa @@endtagdepends
  */
 
-#include <vle/extension/fsa/Statechart.hpp>
 #include <iostream>
+#include <vle/devs/Dynamics.hpp>
 
 namespace vle {
 namespace discrete_time {
 namespace test {
 
-namespace ve = vle::extension;
-namespace vf = vle::extension::fsa;
-
-
-enum State { A, B };
-
-class Perturb7 : public vf::Statechart
+class Perturb7 : public devs::Dynamics
 {
 public:
-    Perturb7(const vle::devs::DynamicsInit& init, const vle::devs::InitEventList& events) :
-        vf::Statechart(init, events), a(0)
+    Perturb7(const devs::DynamicsInit& model,
+        const devs::InitEventList& events):
+         devs::Dynamics(model,events), a(0),
+         last_wake_up_time(0), next_output_time(0)
     {
-        states(this) << A;
-        transition(this, A, A) << after(5.)
-                                   << send(&Perturb7::out);
-        state(this, A) << eventInState("a", &Perturb7::a_in);
-        initialState(A);
     }
 
-    virtual ~Perturb7() { }
+    ~Perturb7()
+    {
+    }
 
-    void out(const vle::devs::Time&  /*time*/, vle::devs::ExternalEventList& output) const
+    virtual devs::Time init(devs::Time time) override
+    {
+        internalTransition(time);
+        return timeAdvance();
+    }
+
+    devs::Time timeAdvance() const override
+    {
+        return next_output_time - last_wake_up_time;
+    }
+
+    void internalTransition(devs::Time time)
+    {
+        last_wake_up_time = time;
+        next_output_time = time+5.0;
+    }
+
+    void externalTransition(const devs::ExternalEventList& event,
+                                    devs::Time time) override
+    {
+        last_wake_up_time = time;
+        a = event.begin()->attributes()->toDouble().value();
+    }
+
+
+    void output(vle::devs::Time /*time*/,
+        vle::devs::ExternalEventList& output) const override
     {
         output.emplace_back("a");
-        value::Map& map = output.back().addMap();
-        map.addString("name","a");
-        map.addDouble("value",a+3);
+        output.back().addDouble(a+3);
     }
-
-    void a_in(const vle::devs::Time&  /*time*/,
-            const vle::devs::ExternalEvent&  event )
-    {
-        a = event.getMap().getDouble("value");
-    }
-
     double a;
+    double last_wake_up_time;
+    double next_output_time;
+
 };
 
 }}} // namespaces

@@ -243,36 +243,32 @@ Pimpl::outputVar(const vle::vpz::AtomicModel& model, const vle::devs::Time& time
         }
         if (model.existOutputPort(var_name) &&
                 devs_options.shouldOutput(this->currentTimeStep, var_name)) {
-            value::Map* outputVal = new value::Map();
+            std::shared_ptr<value::Value> outputVal;
             if (devs_options.shouldOutputNil(v->lastUpdateTime(),
                     time, var_name)) {
-                outputVal->addNull("value");
+                outputVal.reset(new value::Null());
             } else {
                 switch (v->getType()) {
                 case MONO:{
                     VarMono* vmono = static_cast < VarMono* >(v);
-                    outputVal->addDouble("value", vmono->getVal(time,0));
+                    outputVal.reset(new value::Double(vmono->getVal(time,0)));
                     break;
                 } case MULTI: {
                     VarMulti* vmulti = static_cast < VarMulti* >(v);
-                    vle::value::Tuple* extTuple =
-                            new vle::value::Tuple(vmulti->dim);
-                    vle::value::Tuple::iterator itb =
-                            extTuple->value().begin();
+                    outputVal.reset(new value::Tuple(vmulti->dim));
+                    value::Tuple::iterator itb =
+                            outputVal->toTuple().value().begin();
                     vle::value::Tuple::iterator ite =
-                            extTuple->value().end();
+                            outputVal->toTuple().value().end();
                     std::vector<double>::const_iterator itval =
                             vmulti->getVal(time,0).begin();
                     for (; itb!=ite; itb++, itval++) {
                         *itb = *itval;
                     }
-                    outputVal->add("value", std::unique_ptr<vle::value::Value>(
-                            extTuple));
                     break;
                 } case VALUE_VLE: {
                     VarValue* vval = static_cast < VarValue* >(v);
-                    outputVal->add("value", std::unique_ptr<vle::value::Value>(
-                            vval->getVal(time,0).clone()));
+                    outputVal.reset(vval->getVal(time,0).clone().release());
                     break;
                 }}
             }
@@ -900,20 +896,18 @@ Pimpl::handleExtEvt(const vle::devs::Time& t,
     vle::devs::ExternalEventList::const_iterator ite = ext.end();
     for (; itb != ite; itb++) {
         if (itb->getPortName() == "dyn_init") {
-            if (devs_options.dyn_allow
-                    and itb->attributes()->toMap().exist("value")) {
-                devs_options.configDynOptions(
-                        itb->attributes()->toMap().getMap("value"));
+            if (devs_options.dyn_allow and itb->attributes()->isMap()) {
+                devs_options.configDynOptions(itb->attributes()->toMap());
             }
         } else {
-            handleExtVar(t, itb->getPortName(), itb->attributes()->toMap());
+            handleExtVar(t, itb->getPortName(), *(itb->attributes()));
         }
     }
 }
 
 void
 Pimpl::handleExtVar(const vle::devs::Time& t,
-        const std::string& port, const vle::value::Map& attrs)
+        const std::string& port, const value::Value& attrs)
 {
     Variables::iterator it = tvp.getVariables().find(port);
     if(it == tvp.getVariables().end()){
@@ -924,10 +918,7 @@ Pimpl::handleExtVar(const vle::devs::Time& t,
     }
 
     VarInterface* var = it->second;
-    if (attrs.exist("value")) {
-        const vle::value::Value& varValue = *attrs.get("value");
-        var->update(t,varValue);
-    }
+    var->update(t,attrs);
 }
 
 DEVS_TransitionGuards::DEVS_TransitionGuards():
