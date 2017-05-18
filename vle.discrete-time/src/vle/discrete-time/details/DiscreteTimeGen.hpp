@@ -219,6 +219,8 @@ struct Pimpl
     void error_no_sync(const std::string& v, bool val);
     void bags_to_eat(unsigned int val);
     void global_output_nils(bool val);
+
+    double time_step() const;
     unsigned int dim(const Vect& v) const;
     bool firstCompute() const;
     DEVS_Options& getOptions();

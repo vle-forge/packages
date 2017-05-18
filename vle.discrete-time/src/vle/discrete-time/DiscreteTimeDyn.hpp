@@ -74,6 +74,7 @@ public:
     //User API miscelenaous
     /////////////////////////////
 
+    double time_step() const;
     unsigned int dim(const Vect&) const;
     bool firstCompute() const;
     DEVS_Options& getOptions();

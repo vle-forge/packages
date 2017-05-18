@@ -201,6 +201,12 @@ Pimpl::global_output_nils(bool val)
     devs_options.setGlobalOutputNils(val);
 }
 
+double
+Pimpl::time_step() const
+{
+    return devs_options.dt;
+}
+
 unsigned int
 Pimpl::dim(const Vect& v) const
 {

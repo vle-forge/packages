@@ -120,6 +120,12 @@ DiscreteTimeDyn::global_output_nils(bool val)
     mpimpl->global_output_nils(val);
 }
 
+double
+DiscreteTimeDyn::time_step() const
+{
+    return mpimpl->time_step();
+}
+
 
 unsigned int
 DiscreteTimeDyn::dim(const Vect& v) const
