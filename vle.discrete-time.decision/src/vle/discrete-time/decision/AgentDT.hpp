@@ -53,7 +53,7 @@ public:
     virtual void compute(const vle::devs::Time& t);
 
     void outputVar(const vle::devs::Time& time,
-            vle::devs::ExternalEventList& output) const;
+            vle::devs::ExternalEventList& output);
 
     void handleExtEvt(const vle::devs::Time& t,
                 const vle::devs::ExternalEventList& ext);
@@ -63,7 +63,8 @@ public:
             const vle::devs::ObservationEvent& event) const;
 
     vle::value::Map mdefaultValues;
-
+    int begin_date;
+    int current_date;
 };
 
 }}} // namespace vle ext decision

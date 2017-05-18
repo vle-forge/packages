@@ -25,6 +25,7 @@
 #include <vle/discrete-time/decision/AgentDT.hpp>
 #include <vle/value/String.hpp>
 #include <vle/utils/Tools.hpp>
+#include <vle/utils/DateTime.hpp>
 #include <cassert>
 #include <sstream>
 #include <iomanip>
@@ -35,11 +36,23 @@ namespace decision {
 
 AgentDT::AgentDT(const devs::DynamicsInit& mdl,
       const devs::InitEventList& events)
-    : DiscreteTimeDyn(mdl, events), mdefaultValues()
+    : DiscreteTimeDyn(mdl, events), KnowledgeBase(context()),
+      mdefaultValues(), begin_date(), current_date()
 {
+    if (!(events.exist("begin_date") &&
+          events.get("begin_date")->isString())) {
+        throw vle::utils::FileError(
+            vle::utils::format("[%s] begin_date condition missing",
+                               getModelName().c_str()));
+        }
+    begin_date = vle::utils::DateTime::toJulianDayNumber(
+        events.getString("begin_date"));
+    current_date = begin_date;
+
     if (! events.exist("output_nil")) {
         global_output_nils(true);
     }
+
     vle::devs::InitEventList::const_iterator itb = events.begin();
     vle::devs::InitEventList::const_iterator ite = events.end();
     std::string prefix;
@@ -75,13 +88,15 @@ AgentDT::~AgentDT()
 void
 AgentDT::compute(const vle::devs::Time& t)
 {
+    current_date = begin_date + t;
+
     KnowledgeBase::processChanges(t);
     Variables&  vars = getVariables();
     Variables::const_iterator itb = vars.begin();
     Variables::const_iterator ite = vars.end();
 
     for (; itb !=ite; itb++) {
-        if ((itb->second->lastUpdateTime() < t)
+        if ((itb->second->lastUpdateTime() < current_date)
                 && (mdefaultValues.exist(itb->first))) {
             switch (itb->second->getType()) {
             case MONO: {
@@ -104,8 +119,9 @@ AgentDT::compute(const vle::devs::Time& t)
 
 void
 AgentDT::outputVar(const vle::devs::Time& time,
-        vle::devs::ExternalEventList& output) const
+        vle::devs::ExternalEventList& output)
 {
+    current_date = begin_date + time;
     {
         const ActivityList& lst = latestStartedActivities();
         ActivityList::const_iterator it = lst.begin();
@@ -141,6 +157,7 @@ void
 AgentDT::handleExtEvt(const vle::devs::Time& t,
             const vle::devs::ExternalEventList& ext)
 {
+    current_date = begin_date + t;
 
     for (devs::ExternalEventList::const_iterator it = ext.begin();
          it != ext.end(); ++it) {
@@ -153,9 +170,9 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
             const std::string& order(atts.getString("value"));
 
             if (order == "done") {
-                KnowledgeBase::setActivityDone(activity, t);
+                KnowledgeBase::setActivityDone(activity, current_date);
             } else if (order == "fail") {
-                KnowledgeBase::setActivityFailed(activity, t);
+                KnowledgeBase::setActivityFailed(activity, current_date);
             } else {
                 throw utils::ModellingError(
                     vle::utils::format("Decision: unknown order `%s'",
@@ -179,6 +196,8 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
 std::unique_ptr<vle::value::Value>
 AgentDT::observation(const devs::ObservationEvent& event) const
 {
+    using vle::extension::decision::operator<<;
+
     const std::string port = event.getPortName();
     if (port == "KnowledgeBase") {
         std::stringstream out;
@@ -196,14 +215,26 @@ AgentDT::observation(const devs::ObservationEvent& event) const
         std::stringstream out;
         out << act.state();
         return std::unique_ptr<vle::value::Value>(new value::String(out.str()));
-    } else if ((port.compare(0, 6, "Rules_") == 0) and port.size() > 6) {
-        std::string rule(port, 6, std::string::npos);
-        const vdec::Rule& ru(rules().get(rule));
-        return std::unique_ptr<vle::value::Value>(
-                new value::Boolean(ru.isAvailable()));
+    } else if ((port.compare(0, 16, "Activity(state)_") == 0) and port.size() > 16) {
+        std::string activity(port, 16, std::string::npos);
+        if (activities().exist(activity)) {
+            const  vdec::Activity& act(activities().get(activity)->second);
+            std::stringstream out;
+            out << act.state();
+            return std::unique_ptr<vle::value::Value>(
+                new value::String(out.str()));
+        }
+    } else if ((port.compare(0, 20, "Activity(resources)_") == 0) and port.size() > 20) {
+        std::string activity(port, 20, std::string::npos);
+        if (activities().exist(activity)) {
+            std::stringstream out;
+            vdec::ActivitiesResourcesConstIteratorPair act = activities().resources(activity);
+            out << act;
+            return std::unique_ptr<vle::value::Value>(
+                new value::String(out.str()));
+        }
     }
     return DiscreteTimeDyn::observation(event);
 }
 
 }}} // namespace vle ext decision
-
