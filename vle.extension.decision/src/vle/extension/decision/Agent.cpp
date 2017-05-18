@@ -133,9 +133,10 @@ void Agent::externalTransition(
     for (devs::ExternalEventList::const_iterator it = events.begin();
          it != events.end(); ++it) {
         const std::string& port(it->getPortName());
-        const value::Map& atts = it->attributes()->toMap();
+
 
         if (port == "ack") {
+            const value::Map& atts = it->attributes()->toMap();
             const std::string& activity(atts.getString("name"));
             const std::string& order(atts.getString("value"));
 
@@ -149,21 +150,26 @@ void Agent::externalTransition(
                             order.c_str()));
             }
         } else {
-            value::Map::const_iterator jt = atts.value().find("value");
-            if (jt == atts.end()) {
-                jt = atts.value().find("init");
-            }
+            if (it->attributes()->isMap()) {
+                const value::Map& atts = it->attributes()->toMap();
+                value::Map::const_iterator jt = atts.value().find("value");
+                if (jt == atts.end()) {
+                    jt = atts.value().find("init");
+                }
 
-            if (jt == atts.end() or not jt->second) {
-                throw utils::ModellingError(
-                    "Decision: no value in this message");
-            }
+                if (jt == atts.end() or not jt->second) {
+                    throw utils::ModellingError(
+                            "Decision: no value in this message");
+                }
 
-            if (mPortMode) {
-                applyFact(port, *jt->second);
+                if (mPortMode) {
+                    applyFact(port, *jt->second);
+                } else {
+                    const std::string& fact(atts.getString("name"));
+                    applyFact(fact, *jt->second);
+                }
             } else {
-                const std::string& fact(atts.getString("name"));
-                applyFact(fact, *jt->second);
+                applyFact(port, *it->attributes());
             }
         }
     }
