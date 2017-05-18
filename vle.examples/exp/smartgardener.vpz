@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE vle_project PUBLIC '-//VLE TEAM//DTD Strict//EN' 'http://www.vle-project.org/vle-1.3.0.dtd'>
-<vle_project version="0.1" date="2013-Mar-11 16:34:02" author="Ronan Trépos">
+<vle_project date="2013-Mar-11 16:34:02" author="Ronan Trépos" version="0.1">
 <structures>
-<model height="531" width="1504" type="coupled" y="0" name="smartgardener" x="0">
+<model y="0" height="531" x="0" width="1504" name="smartgardener" type="coupled">
 <submodels>
-<model height="75" observables="obs_Decision_smartgardener" conditions="condDecisionPlan_smartgardener" dynamics="dynSmartgardener" width="100" type="atomic" y="20" name="Smartgardener" x="66">
+<model y="20" height="75" x="66" observables="obs_Decision_smartgardener" width="100" conditions="condDecisionPlan_smartgardener" dynamics="dynSmartgardener" name="Smartgardener" type="atomic">
 <in>
  <port name="ack"/>
  <port name="x"/>
@@ -15,7 +15,7 @@
  <port name="y"/>
 </out>
 </model>
-<model height="60" width="100" type="coupled" y="190" name="bio" x="213">
+<model y="190" height="60" x="213" width="100" name="bio" type="coupled">
      <in>
       <port name="x"/>
       <port name="y"/>
@@ -25,7 +25,7 @@
       <port name="y"/>
      </out>
      <submodels>
-      <model height="60" observables="obs_DTE_ladybird" conditions="cInit,cLadybird,cond_params" dynamics="dynLadybird" width="100" type="atomic" y="76" name="Ladybird" x="145">
+      <model y="76" height="60" x="145" observables="obs_DTE_ladybird" width="100" conditions="cInit,cLadybird,cond_params" dynamics="dynLadybird" name="Ladybird" type="atomic">
        <in>
         <port name="y"/>
         <port name="x"/>
@@ -34,7 +34,7 @@
         <port name="y"/>
        </out>
       </model>
-      <model height="60" observables="obs_DE_plantlouse" conditions="cPlantlouse,cInit,cond_params" dynamics="dynPlantlouse" width="100" type="atomic" y="178" name="Plantlouse" x="243">
+      <model y="178" height="60" x="243" observables="obs_DE_plantlouse" width="100" conditions="cPlantlouse,cInit,cond_params" dynamics="dynPlantlouse" name="Plantlouse" type="atomic">
        <in>
         <port name="x"/>
         <port name="y"/>
@@ -101,10 +101,10 @@
 </model>
 </structures>
 <dynamics>
-<dynamic package="vle.examples" library="DifferenceEquationAdaptor" name="dynDi"/>
-<dynamic package="vle.examples" library="Ladybird" name="dynLadybird"/>
-<dynamic package="vle.examples" library="Plantlouse" name="dynPlantlouse"/>
-<dynamic package="vle.examples" library="Smartgardener" name="dynSmartgardener"/>
+
+<dynamic library="Ladybird" name="dynLadybird" package="vle.examples"/>
+<dynamic library="Plantlouse" name="dynPlantlouse" package="vle.examples"/>
+<dynamic library="Smartgardener" name="dynSmartgardener" package="vle.examples"/>
 </dynamics>
 <experiment name="smartgardener">
 <conditions>
@@ -180,7 +180,7 @@
   </conditions>
 <views>
 <outputs>
-<output package="vle.output" format="local" plugin="storage" location="" name="view">
+<output format="local" location="" name="view" package="vle.output" plugin="storage">
 <map>
       <key name="inc_columns">
        <integer>10</integer>
@@ -228,7 +228,7 @@
 </observable>
 
 </observables>
-<view output="view" timestep="0.200000000000000" type="timed" name="view"/>
+<view output="view" timestep="0.200000000000000" name="view" type="timed"/>
 
 </views>
 </experiment>

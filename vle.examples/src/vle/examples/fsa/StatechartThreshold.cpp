@@ -98,7 +98,7 @@ public:
 
     void in(const vd::Time& /* time */, const vd::ExternalEvent& event)
     {
-        Y = event.attributes()->toMap().getDouble("value");
+        Y = event.attributes()->toDouble().value();
     }
 
     bool c1(const vd::Time& /* time */)
