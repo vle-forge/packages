@@ -49,14 +49,18 @@ void Base::copyExternalEventAttrs(
     vle::devs::ExternalEvent& tofill) const
 {
     if (event.attributes()) {
-        vle::value::Map::const_iterator it = event.getMap().begin();
-        if (tofill.attributes() == nullptr) {
-            tofill.addMap();
-        }
+        if (event.attributes()->isMap()) {
+            vle::value::Map::const_iterator it = event.getMap().begin();
+            if (tofill.attributes() == nullptr) {
+                tofill.addMap();
+            }
 
-        while (it != event.getMap().end()) {
-            tofill.attributes()->toMap().add(it->first, it->second->clone());
-            ++it;
+            while (it != event.getMap().end()) {
+                tofill.attributes()->toMap().add(it->first, it->second->clone());
+                ++it;
+            }
+        } else {
+            tofill.attributes().reset(event.attributes()->clone().release());
         }
     }
 }
