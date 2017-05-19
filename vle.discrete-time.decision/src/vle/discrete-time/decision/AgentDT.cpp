@@ -90,7 +90,7 @@ AgentDT::compute(const vle::devs::Time& t)
 {
     current_date = begin_date + t;
 
-    KnowledgeBase::processChanges(t);
+    KnowledgeBase::processChanges(current_date);
     Variables&  vars = getVariables();
     Variables::const_iterator itb = vars.begin();
     Variables::const_iterator ite = vars.end();
