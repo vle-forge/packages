@@ -118,8 +118,9 @@ AgentDT::compute(const vle::devs::Time& t)
 }
 
 void
-AgentDT::outputVar(const vle::devs::Time& time,
-        vle::devs::ExternalEventList& output)
+AgentDT::outputVar(const vle::vpz::AtomicModel& model,
+                   const vle::devs::Time& time,
+                   vle::devs::ExternalEventList& output)
 {
     current_date = begin_date + time;
     {
@@ -150,7 +151,7 @@ AgentDT::outputVar(const vle::devs::Time& time,
             (*it)->second.output((*it)->first, output);
         }
     }
-    DiscreteTimeDyn::outputVar(time, output);
+    DiscreteTimeDyn::outputVar(model, time, output);
 }
 
 void

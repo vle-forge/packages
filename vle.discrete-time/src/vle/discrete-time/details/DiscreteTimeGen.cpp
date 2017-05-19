@@ -20,7 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include <vle/value/Tuple.hpp>
 #include <vle/value/Null.hpp>
 #include <vle/value/Set.hpp>
@@ -584,7 +583,7 @@ Pimpl::externalTransition(const vle::devs::ExternalEventList& event,
         const vle::devs::Time& t)
 {
     processOut(t, EXTERNAL);
-    handleExtEvt(t, event);
+    devs_atom->handleExtEvt(t, event);
     updateGuards(t, EXTERNAL);
 
     switch (devs_state) {
@@ -631,7 +630,7 @@ Pimpl::confluentTransitions(const vle::devs::Time& t,
         const vle::devs::ExternalEventList& event)
 {
     processOut(t, CONFLUENT);
-    handleExtEvt(t, event);
+    devs_atom->handleExtEvt(t, event);
     updateGuards(t, CONFLUENT);
 
     switch (devs_state) {
@@ -701,7 +700,7 @@ Pimpl::output(const vle::vpz::AtomicModel& model,
     case WAIT_BAGS:
         break;
     case COMPUTE:
-        outputVar(model, time, output);
+        devs_atom->outputVar(model, time, output);
         break;
     case DYN_UPDATE:
         break;

@@ -153,6 +153,9 @@ public:
     ////////////////////
     //Internal
     ////////////////////
+    virtual void outputVar(const vle::vpz::AtomicModel& model,
+                           const vle::devs::Time& time,
+                           vle::devs::ExternalEventList& output);
     virtual void outputVar(const vle::devs::Time& time,
             vle::devs::ExternalEventList& output) const;
     void updateGuardAllSynchronized(const vle::devs::Time& t);

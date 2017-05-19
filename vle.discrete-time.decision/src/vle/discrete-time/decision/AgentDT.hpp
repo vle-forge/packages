@@ -46,21 +46,19 @@ public:
 
     virtual ~AgentDT();
 
-    //AgentDT functions
-    const devs::Time& currentTime() const;
-
     //DicreteTimeDyn functions overload
-    virtual void compute(const vle::devs::Time& t);
+    virtual void compute(const vle::devs::Time& t) override;
 
-    void outputVar(const vle::devs::Time& time,
-            vle::devs::ExternalEventList& output);
+    void outputVar(const vle::vpz::AtomicModel& model,
+                   const vle::devs::Time& time,
+                   vle::devs::ExternalEventList& output) override;
 
     void handleExtEvt(const vle::devs::Time& t,
-                const vle::devs::ExternalEventList& ext);
+                const vle::devs::ExternalEventList& ext) override;
 
     //Dynamics functions overload
     std::unique_ptr<vle::value::Value> observation(
-            const vle::devs::ObservationEvent& event) const;
+            const vle::devs::ObservationEvent& event) const override;
 
     vle::value::Map mdefaultValues;
     int begin_date;

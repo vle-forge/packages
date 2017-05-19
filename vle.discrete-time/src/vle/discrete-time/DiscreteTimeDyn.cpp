@@ -139,7 +139,15 @@ DiscreteTimeDyn::getOptions()
     return mpimpl->getOptions();
 }
 
- void
+void
+DiscreteTimeDyn::outputVar(const vle::vpz::AtomicModel& model,
+                           const vle::devs::Time& time,
+                           vle::devs::ExternalEventList& output)
+{
+    mpimpl->outputVar(model, time, output);
+}
+
+void
 DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
         vle::devs::ExternalEventList& output) const
 {

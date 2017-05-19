@@ -40,6 +40,11 @@ public:
     }
     virtual ~ComputeInterface(){}
     virtual void compute(const vle::devs::Time& t) = 0;
+    virtual void handleExtEvt(const vle::devs::Time& t,
+                              const vle::devs::ExternalEventList& ext) = 0;
+    virtual void outputVar(const vle::vpz::AtomicModel& model,
+                           const vle::devs::Time& time,
+                           vle::devs::ExternalEventList& output) = 0;
     virtual vle::devs::Dynamics* toDynamics() = 0;
 };
 
