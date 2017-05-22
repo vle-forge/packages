@@ -360,6 +360,10 @@ public:
 
             pit = mResources.find(type);
 
+            if (pit == mResources.end()) {
+                return {};
+            }
+
             resources = std::vector< std::string > (pit->second.begin(),
                                                     pit->second.end());
 

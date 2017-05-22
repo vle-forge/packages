@@ -437,7 +437,9 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
             if (not resources.empty()) {
                 act.getParams().addString("resources", resources);
                 act.getParams().sort();
-                act.freeRessources();
+            }
+            if (act.params().exist("resources")) {
+                 act.freeRessources();
             }
             if (act.params().exist("priority")) {
                 double loadedPriority = act.params().getDouble("priority");
