@@ -69,23 +69,49 @@ public:
         return init_size;
     }
 
-    inline void setSize(unsigned int s)
-    {
-        if (mstats.size() == s) {
-            return;
-        }
-        mstats.clear();
-        for (unsigned int i=0; i<s; i++){
-            mstats.push_back(AccuMono(accu));
-        }
-    }
+
 
     inline unsigned int size() const
     {
         return mstats.size();
     }
 
-    void insertAccuStat(const AccuMulti& a, AccuStat s)
+    inline void setSize(unsigned int s)
+    {
+        if (mstats.size() == s) {
+            return;
+        }
+
+        double quantile = 0.5;
+        double at_index = 0;
+        if (mstats.size() > 0) {
+            quantile = mstats[0].defaultQuantile();
+            at_index = mstats[0].defaultAtIntex();
+        }
+
+        mstats.clear();
+        for (unsigned int i=0; i<s; i++){
+            mstats.emplace_back(accu);
+            AccuMono& s = mstats[i];
+            s.setDefaultQuantile(quantile);
+            s.setDefaultAtIndex(at_index);
+        }
+    }
+
+    inline void setDefaultQuantile(double quantile)
+    {
+        for (AccuMono& a : mstats){
+            a.setDefaultQuantile(quantile);
+        }
+    }
+    inline void setDefaultAtIndex(unsigned at_index)
+    {
+        for (AccuMono& a : mstats){
+            a.setDefaultAtIndex(at_index);
+        }
+    }
+
+    void insertAccuStat(AccuMulti& a, AccuStat s)
     {
         if (a.size() != size()) {
             throw vle::utils::ArgError(" [accu_multi] error size ");
@@ -124,7 +150,7 @@ public:
      * @param res[out], tuple filled with stat of all Accu
      * @param s, the stat to use
      */
-    void fillStat(vle::value::Tuple& res, AccuStat s) const
+    void fillStat(vle::value::Tuple& res, AccuStat s)
     {
         res.value().resize(mstats.size());
         for (unsigned int i = 0; i < res.size(); i++) {
@@ -138,7 +164,7 @@ public:
      * @param col[in], index of the colume of res to fill
      * @param s[in], the stat to use
      */
-    void fillStat(vle::value::Table& res, unsigned int col, AccuStat s) const
+    void fillStat(vle::value::Table& res, unsigned int col, AccuStat s)
     {
         for (unsigned int i = 0; i < mstats.size(); i++) {
             res(col, i) = mstats[i].getStat(s);

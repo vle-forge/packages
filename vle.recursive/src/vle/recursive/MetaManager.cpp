@@ -355,7 +355,7 @@ VleReplicate::values(const wrapper_init& init)
 }
 
 std::string
-VleReplicate::getName()
+VleReplicate::getName() const
 {
     std::string ret = cond;
     ret.append(".");
@@ -418,30 +418,34 @@ DelegateOut::integrateReplicate(VleOutput& vleout, vle::value::Matrix& outMat)
 
 AccuMulti&
 DelegateOut::getAccu(std::map<int, std::unique_ptr<AccuMulti>>& accus,
-        unsigned int index, AccuStat s)
+        unsigned int index, const VleOutput& vleout)
 {
     std::map<int, std::unique_ptr<AccuMulti>>::iterator itf =
             accus.find(index);
     if (itf != accus.end()) {
         return *(itf->second);
     }
-    std::unique_ptr<AccuMulti> ptr(new AccuMulti(s));
+    std::unique_ptr<AccuMulti> ptr(new AccuMulti(
+            vleout.replicateAggregationType));
     AccuMulti& ref = *ptr;
+    ref.setDefaultQuantile(vleout.replicateAggregationQuantile);
     accus.insert(std::make_pair(index, std::move(ptr)));
     return ref;
 }
 
 AccuMono&
 DelegateOut::getAccu(std::map<int, std::unique_ptr<AccuMono>>& accus,
-        unsigned int index, AccuStat s)
+        unsigned int index, const VleOutput& vleout)
 {
     std::map<int, std::unique_ptr<AccuMono>>::iterator itf =
             accus.find(index);
     if (itf != accus.end()) {
         return *(itf->second);
     }
-    std::unique_ptr<AccuMono> ptr(new AccuMono(s));
+    std::unique_ptr<AccuMono> ptr(new AccuMono(
+            vleout.replicateAggregationType));
     AccuMono& ref = *ptr;
+    ref.setDefaultQuantile(vleout.replicateAggregationQuantile);
     accus.insert(std::make_pair(index, std::move(ptr)));
     return ref;
 }
@@ -463,7 +467,7 @@ DelOutStd::insertReplicate(
         minputAccu->insert(intVal->toDouble().value());
     } else {
         AccuMono& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
-                vleOut.replicateAggregationType);
+                vleOut);
         accuRepl.insert(intVal->toDouble().value());
         //test if aggregating replicates is finished
         if (accuRepl.count() == vleOut.nbReplicates) {
@@ -518,7 +522,7 @@ DelOutIntAggrALL::insertReplicate(
         nbInputsFilled++;
     } else {
         AccuMulti& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
-                vleOut.replicateAggregationType);
+                vleOut);
         accuRepl.insertColumn(outMat, vleOut.colIndex);
         if (accuRepl.count() == vleOut.nbReplicates) {
             accuRepl.fillStat(minputAccu->toTable(),
@@ -549,7 +553,7 @@ DelOutIntALL::insertReplicate(
         minputAccu->insertColumn(outMat, vleOut.colIndex);
     } else {
         AccuMulti& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
-                vleOut.replicateAggregationType);
+                vleOut);
         accuRepl.insertColumn(outMat, vleOut.colIndex);
         if (accuRepl.count() == vleOut.nbReplicates) {
             minputAccu->insertAccuStat(accuRepl,
@@ -595,7 +599,7 @@ DelOutAggrALL::insertReplicate(
         nbInputsFilled++;
     } else {
         AccuMono& accuRepl = DelegateOut::getAccu(mreplicateAccu, currInput,
-                vleOut.replicateAggregationType);
+                vleOut);
         accuRepl.insert(intVal->toDouble().value());
         if (accuRepl.count() == vleOut.nbReplicates) {
             minputAccu->toTable().get(currInput, 0)=
@@ -617,7 +621,8 @@ VleOutput::VleOutput() :
    id(), view(), absolutePort(), colIndex(-1), shared(true),
    integrationType(LAST), replicateAggregationType(S_mean),
    inputAggregationType(S_at), nbInputs(0), nbReplicates(0), delegate(nullptr),
-   mse_times(nullptr), mse_observations(nullptr)
+   mse_times(nullptr), mse_observations(nullptr),
+   replicateAggregationQuantile(0.5)
 {
 }
 
@@ -626,7 +631,8 @@ VleOutput::VleOutput(const std::string& _id,
    id(_id), view(), absolutePort(),  colIndex(-1), shared(true),
    integrationType(LAST), replicateAggregationType(S_mean),
    inputAggregationType(S_at), nbInputs(0), nbReplicates(0), delegate(nullptr),
-   mse_times(nullptr), mse_observations(nullptr)
+   mse_times(nullptr), mse_observations(nullptr),
+   replicateAggregationQuantile(0.5)
 {
     std::string tmp;
     if (val.isString()) {
@@ -646,6 +652,14 @@ VleOutput::VleOutput(const std::string& _id,
             tmp = m.getString("aggregation_replicate");
             if (tmp == "mean") {
                 replicateAggregationType = S_mean;
+            } else if (tmp == "quantile"){
+                replicateAggregationType = S_quantile;
+                if (m.exist("replicate_quantile")) {
+                    replicateAggregationQuantile = m.getDouble(
+                            "replicate_quantile");
+                }
+            } else if (tmp == "variance"){
+                replicateAggregationType = S_variance;
             } else {
                 error = true;
             }
@@ -790,7 +804,7 @@ VleOutput::insertReplicate(value::Matrix& outMat, unsigned int currInput,
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
         mConfigParallelNbSlots(2), mrand(), mPropagate(), mInputs(),
-        mReplicate(nullptr), mOutputs(),
+        mReplicates(), mOutputs(),
         mWorkingDir(utils::Path::temp_directory_path().string()),
         mCtx(utils::make_context())
 {
@@ -802,7 +816,7 @@ MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
 MetaManager::MetaManager(utils::ContextPtr ctx): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
         mConfigParallelNbSlots(2), mrand(), mPropagate(), mInputs(),
-        mReplicate(nullptr), mOutputs(),
+        mReplicates(), mOutputs(),
         mWorkingDir(utils::Path::temp_directory_path().string()),
         mCtx(ctx)
 {
@@ -836,10 +850,10 @@ MetaManager::inputsSize() const
 unsigned int
 MetaManager::replicasSize() const
 {
-    if (not mReplicate) {
+    if (mReplicates.size() == 0) {
         return 1;
     }
-    return mReplicate->nbValues;
+    return mReplicates[0]->nbValues;
 }
 
 //write kth element of exp (a Set or a Tuple) as xml into out
@@ -879,12 +893,11 @@ MetaManager::produceCvleInFile(const wrapper_init& init,
     //write content
     std::string curr_cond = "";
     bool has_simulation_engine = false;
-    bool replicate_written = false;
+    std::set<std::string> conds_seen;
     for (unsigned int i = 0; i < inputsSize(); i++) {
         for (unsigned int j = 0; j < replicasSize(); j++) {
             curr_cond = "";
             has_simulation_engine = false;
-            replicate_written = false;
             inFile << "<?xml version='1.0' encoding='UTF-8'?>"
                     "<vle_project date=\"\" version=\"1.0\" author=\"cvle\">"
                     "<experiment name=\"cvle_exp\"><conditions>";
@@ -904,26 +917,32 @@ MetaManager::produceCvleInFile(const wrapper_init& init,
                 produceXml(tmp_input.values(init), i, inFile, err);
                 inFile << "</port>";
                 //write replicate if the same cond name
-                if (mReplicate and not replicate_written
-                        and mReplicate->cond == curr_cond) {
-                    inFile << "<port name =\"" << mReplicate->port << "\">";
-                    produceXml(mReplicate->values(init), j, inFile, err);
-                    inFile << "</port>";
-                    replicate_written = true;
+                for (unsigned int k=0; k<mReplicates.size(); k++) {
+                    VleReplicate& tmp_repl = *mReplicates[k];
+                    if (tmp_repl.cond == curr_cond) {
+                        inFile << "<port name =\"" << tmp_repl.port << "\">";
+                        produceXml(tmp_repl.values(init), j, inFile, err);
+                        inFile << "</port>";
+
+                    }
                 }
                 if ((int) in == ((int) mInputs.size())-1) {
                     inFile << "</condition>";
                 }
+                conds_seen.emplace(curr_cond);
             }
-            //write replicate if not already written
-            if (mReplicate and not replicate_written) {
-                has_simulation_engine = has_simulation_engine or
-                        (mReplicate->cond == "simulation_engine");
-                inFile << "<condition name =\"" << mReplicate->cond << "\">";
-                inFile << "<port name =\"" << mReplicate->port << "\">";
-                produceXml(mReplicate->values(init), j, inFile, err);
-                inFile << "</port>";
-                inFile << "</condition>";
+            //write replicates if not already written
+            for (unsigned int k=0; k<mReplicates.size(); k++) {
+                VleReplicate& tmp_repl = *mReplicates[k];
+                if (conds_seen.find(tmp_repl.cond) == conds_seen.end()) {
+                    has_simulation_engine = has_simulation_engine or
+                            (tmp_repl.cond == "simulation_engine");
+                    inFile << "<condition name =\"" << tmp_repl.cond << "\">";
+                    inFile << "<port name =\"" << tmp_repl.port << "\">";
+                    produceXml(tmp_repl.values(init), j, inFile, err);
+                    inFile << "</port>";
+                    inFile << "</condition>";
+                }
             }
             //write _cvle_cond
             inFile << "<condition name =\"_cvle_cond\">";
@@ -1023,15 +1042,7 @@ MetaManager::run(wrapper_init& init,
                         in_cond, in_port, val, mrand));
             } else if (MetaManager::parseInput(conf, in_cond, in_port,
                     "replicate_")){
-                if (not mReplicate == 0) {
-                    err.code = -1;
-                    err.message = vle::utils::format(
-                            "[MetaManager] : the replica is already defined "
-                            "with '%s'", mReplicate->getName().c_str());
-                    clear();
-                    return nullptr;
-                }
-                mReplicate.reset(new VleReplicate(in_cond, in_port,
+                mReplicates.emplace_back(new VleReplicate(in_cond, in_port,
                         val, mrand));
             } else if (MetaManager::parseOutput(conf, out_id)){
                 mOutputs.emplace_back(new VleOutput(out_id, val));
@@ -1049,34 +1060,37 @@ MetaManager::run(wrapper_init& init,
         return nullptr;
     }
 
-    //check
-    unsigned int initSize = 0;
+    //check Inputs
+    unsigned int inputSize = 0;
     for (unsigned int i = 0; i< mInputs.size(); i++) {
         const VleInput& vleIn = *mInputs[i];
-        //check size which has to be consistent
-        if (initSize == 0 and vleIn.nbValues > 1) {
-            initSize = vleIn.nbValues;
+        //check input size which has to be consistent
+        if (inputSize == 0 and vleIn.nbValues > 1) {
+            inputSize = vleIn.nbValues;
         } else {
-            if (vleIn.nbValues > 1 and initSize > 0
-                    and initSize != vleIn.nbValues) {
+            if (vleIn.nbValues > 1 and inputSize > 0
+                    and inputSize != vleIn.nbValues) {
                 err.code = -1;
                 err.message = utils::format(
                         "[MetaManager]: error in input values: wrong number"
                         " of values 1st input has %u values,  input %s has %u "
-                        "values", initSize, vleIn.getName().c_str(),
+                        "values", inputSize, vleIn.getName().c_str(),
                         vleIn.nbValues);
                 clear();
                 return nullptr;
             }
         }
         //check if already exist in replicate or propagate
-        if (mReplicate and (mReplicate->getName() == vleIn.getName())) {
-            err.code = -1;
-            err.message = utils::format(
-                    "[MetaManager]: error input '%s' is also the replicate",
-                    vleIn.getName().c_str());
-            clear();
-            return nullptr;
+        for (unsigned int j=0; j<mReplicates.size(); j++) {
+            const VleReplicate& vleRepl = *mReplicates[j];
+            if (vleRepl.getName() == vleIn.getName()) {
+                err.code = -1;
+                err.message = utils::format(
+                        "[MetaManager]: error input '%s' is also a replicate",
+                        vleIn.getName().c_str());
+                clear();
+                return nullptr;
+            }
         }
         for (unsigned int j=0; j<mPropagate.size(); j++) {
             const VlePropagate& vleProp = *mPropagate[j];
@@ -1090,6 +1104,40 @@ MetaManager::run(wrapper_init& init,
             }
         }
     }
+    //check Replicates
+    unsigned int replSize = 0;
+    for (unsigned int j=0; j<mReplicates.size(); j++) {
+        const VleReplicate& vleRepl = *mReplicates[j];
+        //check repl size which has to be consistent
+        if (replSize == 0 and vleRepl.nbValues > 1) {
+            replSize = vleRepl.nbValues;
+        } else {
+            if (vleRepl.nbValues > 1 and replSize > 0
+                    and replSize != vleRepl.nbValues) {
+                err.code = -1;
+                err.message = utils::format(
+                        "[MetaManager]: error in replicate values: wrong number"
+                        " of values 1st replicate has %u values, replicate %s "
+                        "has %u values", replSize, vleRepl.getName().c_str(),
+                        vleRepl.nbValues);
+                clear();
+                return nullptr;
+            }
+        }
+        //check if already exist in replicate or propagate
+        for (unsigned int j=0; j<mPropagate.size(); j++) {
+            const VlePropagate& vleProp = *mPropagate[j];
+            if (vleProp.getName() == vleRepl.getName()) {
+                err.code = -1;
+                err.message = utils::format(
+                        "[MetaManager]: error replicate '%s' is also a "
+                        "propagate", vleRepl.getName().c_str());
+                clear();
+                return nullptr;
+            }
+        }
+    }
+
     //check nb slots
     if (mConfigParallelNbSlots < 2 and mConfigParallelType == CVLE) {
         err.code = -1;
@@ -1383,6 +1431,11 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
     unsigned int inputSize = inputsSize();
     unsigned int repSize = replicasSize();
 
+    mCtx->log(6, "", __LINE__, "",
+            "[vle.recursive] simulation cvle (%d slots) "
+            "nb simus: %u \n", mConfigParallelNbSlots,
+            (repSize*inputSize));
+
     //save vpz
     vu::Package pkg(mCtx, "vle.recursive");//TODO should be saved outside
     utils::Path vleRecPath(pkg.getExpDir(vu::PKG_BINARY));
@@ -1623,19 +1676,20 @@ MetaManager::post_inputs(vpz::Vpz& model, const wrapper_init& init)
 {
     vpz::Conditions& conds = model.project().experiment().conditions();
     //post replicas
-    if (mReplicate) {
-        vpz::Condition& condRep = conds.get(mReplicate->cond);
-        condRep.clearValueOfPort(mReplicate->port);
+    for (unsigned int i=0; i < mReplicates.size(); i++) {
+        VleReplicate& tmp_repl = *mReplicates[i];
+        vpz::Condition& condRep = conds.get(tmp_repl.cond);
+        condRep.clearValueOfPort(tmp_repl.port);
         for (unsigned int i=0; i < inputsSize(); i++) {
             for (unsigned int k=0; k < replicasSize(); k++) {
-                const value::Value& exp = mReplicate->values(init);
+                const value::Value& exp = tmp_repl.values(init);
                 switch(exp.getType()) {
                 case value::Value::SET:
-                    condRep.addValueToPort(mReplicate->port,
+                    condRep.addValueToPort(tmp_repl.port,
                             exp.toSet().get(k)->clone());
                     break;
                 case value::Value::TUPLE:
-                    condRep.addValueToPort(mReplicate->port,
+                    condRep.addValueToPort(tmp_repl.port,
                             value::Double::create(exp.toTuple().at(k)));
                     break;
                 default:
@@ -1657,14 +1711,9 @@ MetaManager::post_inputs(vpz::Vpz& model, const wrapper_init& init)
             const value::Tuple& tmp_val_tuple = exp.toTuple();
             for (unsigned j=0; j < tmp_val_tuple.size(); j++) {//TODO maxExpe
                 double tmp_j = tmp_val_tuple[j];
-                if (not mReplicate) {
+                for (unsigned int k=0; k < replicasSize(); k++) {
                     cond.addValueToPort(tmp_input.port,
                             value::Double::create(tmp_j));
-                } else {
-                    for (unsigned int k=0; k < replicasSize(); k++) {
-                        cond.addValueToPort(tmp_input.port,
-                                value::Double::create(tmp_j));
-                    }
                 }
             }
             break;
@@ -1672,13 +1721,9 @@ MetaManager::post_inputs(vpz::Vpz& model, const wrapper_init& init)
             const value::Set& tmp_val_set =exp.toSet();
             for (unsigned j=0; j < tmp_val_set.size(); j++) {//TODO maxExpe
                 const value::Value& tmp_j = *tmp_val_set.get(j);
-                if (not mReplicate) {
-                    cond.addValueToPort(tmp_input.port,tmp_j.clone());
-                } else {
-                    for (unsigned int k=0; k < replicasSize(); k++) {
-                        cond.addValueToPort(tmp_input.port,
-                                tmp_j.clone());
-                    }
+                for (unsigned int k=0; k < replicasSize(); k++) {
+                    cond.addValueToPort(tmp_input.port,
+                            tmp_j.clone());
                 }
             }
             break;
@@ -1772,7 +1817,7 @@ MetaManager::clear()
 {
     mPropagate.clear();
     mInputs.clear();
-    mReplicate.reset(nullptr);
+    mReplicates.clear();
     mOutputs.clear();
     mOutputValues.clear();
 }

@@ -495,11 +495,15 @@ vle.recursive.configReplicate = function(rvle_handle=NULL, replicate=NULL, value
 #' @param path, a string of the form  'viewname/pathOfTheAtomicModel.ObsPort'
 #' that identifies the column to get from the simulation of the embedded
 #' simulator
+#' @param integration, amongst 'last', 'max', 'mse' or 'all' (default = 'last')
+#' @param aggregation_replicate, amongst 'mean', 'quantile' (default = 'mean')
+#' @param aggregation_input, amongst 'mean', 'max' or 'all' (default = 'all')
+#' @param mse_times, times of observations (required only if 
+#' integration='mse')
 #' @param mse_observations, list of observations (required only if 
-#' integration="mse")
-#' @param mse_times, times of observations
-#' @param integration, amongst "last", "max", "mse" or "all"
-#' @param aggregation_input, amongst "mean", "quantile", "max" or "all"
+#' integration='mse')
+#' @param replicate_quantile, real: quantile order (required only if 
+#' aggregation_replicate='quantile')
 #' 
 #' @return NULL
 #' 
@@ -514,8 +518,8 @@ vle.recursive.configReplicate = function(rvle_handle=NULL, replicate=NULL, value
 #' #TODO
 #' 
 vle.recursive.configOutput = function(rvle_handle=NULL, id=NULL, path=NULL, 
-        mse_observations=NULL, mse_times=NULL, integration="all", 
-        aggregation_input="all")
+        integration=NULL, aggregation_replicate=NULL, aggregation_input=NULL, 
+        mse_times=NULL, mse_observations=NULL, replicate_quantile=NULL)
 {
     if (! vle.recursive.check(rvle_handle)) {
         stop("[vle.recursive] Error: rvle_handle is malformed");
@@ -524,26 +528,39 @@ vle.recursive.configOutput = function(rvle_handle=NULL, id=NULL, path=NULL,
 
     outputPort = paste("output", sep="_", id);
     listPorts = rvle.listConditionPorts(rvle_handle, "cond");
-    if (sum(listPorts == outputPort) == 0) {
-        rvle.addPort(rvle_handle, "cond", outputPort);
+    #remove existing output port
+    if (sum(listPorts == outputPort) != 0) {
+       rvle.removePort(rvle_handle, "cond", outputPort);
     }
-    
-    config = NULL;
-    if (integration == "mse") {
-        
-        config = list(id=id, path=path, integration=integration, 
-                aggregation_input=aggregation_input, mse_times = mse_times,
-                mse_observations = mse_observations);
-    } else {
-        
-        config = list(id=id, path=path, integration=integration, 
-                aggregation_input=aggregation_input);   
+    rvle.addPort(rvle_handle, "cond", outputPort);
+
+    if (is.null(id) || is.null(path)) {
+       stop("[vle.recursive.configOutput] missing 'id' or 'path'");
+       return;
+    }
+    config = list(id=id, path=path);
+    if (! is.null(integration)) {
+      if (integration == "mse") {
+	config = c(config, list(integration=integration, 
+            mse_times = mse_times, mse_observations = mse_observations));
+      } else {
+        config = c(config, list(integration=integration));
+      }
+    }
+    if (! is.null(aggregation_replicate)) {
+       if (aggregation_replicate == "quantile") {
+	config = c(config, list(aggregation_replicate=aggregation_replicate, 
+            replicate_quantile = replicate_quantile));
+      } else {
+        config = c(config, list(aggregation_replicate=aggregation_replicate));
+      }
+    }
+    if (! is.null(aggregation_input)) {
+      config = c(config, list(aggregation_input=aggregation_input));
     }
     class(config) <- "VleMAP";
     rvle.setValueCondition(rvle_handle, cond="cond", port=outputPort, 
             config);
-#    rvle.addObservablePort(rvle_handle, "obs", id)
-#    rvle.attachView(rvle_handle, "view", "obs", id)
 }
 
 #'
@@ -826,7 +843,7 @@ vle.recursive.setSimulations = function(rvle_handle=NULL, sim=NULL, output_vars=
      output_path =  output_vars[[var]];
      if (!(var == "id" && output_path == "id")) {
        vle.recursive.configOutput(rvle_handle=rvle_handle, id=var,
-                                path=output_path);
+                                path=output_path, integration='all');
      }
   }
 }

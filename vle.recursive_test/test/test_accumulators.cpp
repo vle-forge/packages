@@ -49,21 +49,24 @@ void test_accumulators()
         EnsuresApproximatelyEqual(acc.moment2(), 18.85143,10e-4);
         EnsuresApproximatelyEqual(acc.stdDeviation(), 2.268627,10e-4);
         EnsuresApproximatelyEqual(acc.variance(), 5.146667,10e-4);
-
     }
     {
         vr::AccuMono acc(vr::QUANTILE);
         acc.insert(1);
+        EnsuresApproximatelyEqual(acc.quantile(0.0), 1,10e-4);
+        EnsuresApproximatelyEqual(acc.quantile(1.0), 1,10e-4);
         acc.insert(5);
         acc.insert(4);
         acc.insert(3.6);
         EnsuresApproximatelyEqual(acc.mean(),3.4,10e-4);
         EnsuresApproximatelyEqual(acc.squareSum(),54.96,10e-4);
+        EnsuresApproximatelyEqual(acc.quantile(0.25), 2.95,10e-4);
         acc.insert(8);
         acc.insert(3);
         acc.insert(2);
         EnsuresApproximatelyEqual(acc.mean(),3.8,10e-4);
         EnsuresApproximatelyEqual(acc.squareSum(),131.96,10e-4);
+        EnsuresApproximatelyEqual(acc.quantile(0.75), 4.5,10e-4);
     }
 }
 

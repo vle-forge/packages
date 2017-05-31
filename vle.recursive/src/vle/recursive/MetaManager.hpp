@@ -218,7 +218,7 @@ struct VleReplicate
      */
     const vle::value::Value& values(const wrapper_init& init);
 
-    std::string getName();
+    std::string getName() const;
 
     std::string cond;
     std::string port;
@@ -251,11 +251,11 @@ public:
             vle::value::Matrix& outMat);
 
     static AccuMulti& getAccu(std::map<int, std::unique_ptr<AccuMulti>>& accu,
-            unsigned int index, AccuStat s);
+            unsigned int index, const VleOutput& vleout);
 
 
     static AccuMono& getAccu(std::map<int, std::unique_ptr<AccuMono>>& accu,
-            unsigned int index, AccuStat s);
+            unsigned int index, const VleOutput& vleout);
 
 
     VleOutput& vleOut;
@@ -387,9 +387,11 @@ public:
     unsigned int nbInputs;
     unsigned int nbReplicates;
     std::unique_ptr<DelegateOut> delegate;
-    //optionnal for integration == MSE only
+    //optional for integration == MSE only
     std::unique_ptr<vle::value::Tuple> mse_times;
     std::unique_ptr<vle::value::Tuple> mse_observations;
+    //optionnal for aggregate_replicate = "quantile"
+    double replicateAggregationQuantile;
 };
 
 struct VleOutputSorter
@@ -417,7 +419,7 @@ private:
     utils::Rand mrand;
     std::vector<std::unique_ptr<VlePropagate>> mPropagate;
     std::vector<std::unique_ptr<VleInput>> mInputs;
-    std::unique_ptr<VleReplicate> mReplicate;
+    std::vector<std::unique_ptr<VleReplicate>> mReplicates;
     std::vector<std::unique_ptr<VleOutput>> mOutputs;//view * port
     std::vector<std::unique_ptr<value::Value>>
       mOutputValues;//values are Tuple or Set

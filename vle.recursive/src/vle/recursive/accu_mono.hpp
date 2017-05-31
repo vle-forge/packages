@@ -21,10 +21,11 @@
 
 #include <algorithm>
 #include <vector>
-#include <math.h>
-#include <functional>
 #include <numeric>
 #include <limits>
+#include <memory>
+#include <math.h>
+
 
 #include <vle/utils/Exception.hpp>
 
@@ -39,7 +40,7 @@ enum AccuType
     STANDARD, //computes mean, std, var, min, max
     MEAN,     //compute mean only
     QUANTILE,  //compute quantiles
-    ORDERED   //keep order: can acces to specific value
+    ORDERED   //keep order: can access to specific value
 };
 
 /**
@@ -107,7 +108,7 @@ public:
         accu(STANDARD),  msum(0), mcount(0), msquareSum(0),
         mmin(std::numeric_limits<double>::max()),
         mmax(std::numeric_limits<double>::min()),
-        msorted(false), mvalues(0)
+        msorted(false), mvalues(nullptr), mquantile(0.5), mat(0)
     {
     }
 
@@ -119,10 +120,10 @@ public:
         accu(type), msum(0), mcount(0), msquareSum(0),
         mmin(std::numeric_limits<double>::max()),
         mmax(std::numeric_limits<double>::min()),
-        msorted(false), mvalues(0)
+        msorted(false), mvalues(nullptr), mquantile(0.5), mat(0)
     {
         if (accu == ORDERED or accu == QUANTILE) {
-            mvalues = new std::vector<double>();
+            mvalues.reset(new std::vector<double>());
         }
         if (accu == QUANTILE) {
             msorted = true;
@@ -138,11 +139,11 @@ public:
         accu(), msum(0), mcount(0), msquareSum(0),
         mmin(std::numeric_limits<double>::max()),
         mmax(std::numeric_limits<double>::min()),
-        msorted(false), mvalues(0)
+        msorted(false), mvalues(nullptr), mquantile(0.5), mat(0)
     {
         accu = AccuMono::storageTypeForStat(s);
         if (accu == ORDERED or accu == QUANTILE) {
-            mvalues = new std::vector<double>();
+            mvalues.reset(new std::vector<double>());
         }
         if (accu == QUANTILE) {
             msorted = true;
@@ -156,18 +157,60 @@ public:
     AccuMono(const AccuMono& acc):
         accu(acc.accu), msum(acc.msum), mcount(acc.mcount),
         msquareSum(acc.msquareSum), mmin(acc.mmin),  mmax(acc.mmax),
-        msorted(acc.msorted), mvalues(0)
+        msorted(acc.msorted), mvalues(nullptr), mquantile(0.5), mat(0)
     {
         if (acc.mvalues) {
-            mvalues = new std::vector<double>(acc.mvalues->begin(),
-                    acc.mvalues->end());
+            mvalues.reset(new std::vector<double>(acc.mvalues->begin(),
+                    acc.mvalues->end()));
         }
     }
 
+    /**
+     * @brief destructor
+     */
     ~AccuMono()
     {
-        delete mvalues;
     }
+
+    /**
+     * @brief set default quantile for 'quantile' stat
+     * @param quantile
+     */
+    inline void setDefaultQuantile(double quantile)
+    {
+        mquantile = quantile;
+    }
+
+
+    /**
+     * @brief get the default quantile value
+     * @return the default quantile value
+     */
+    inline double defaultQuantile() const
+    {
+        return mquantile;
+    }
+
+
+    /**
+     * @brief set default index for 'at' stat
+     * @param at_index
+     */
+    inline void setDefaultAtIndex(unsigned int at_index)
+    {
+        mat = at_index;
+    }
+
+
+    /**
+     * @brief get the default at index for 'at' stat
+     * @return the default at index
+     */
+    inline double defaultAtIntex() const
+    {
+        return mat;
+    }
+
     /**
      * @brief Inserts a real into the accumulator
      * @param v the real value
@@ -412,9 +455,9 @@ public:
     }
 
     /**
-     * @brief acces to a specific value
+     * @brief access to a specific value
      * @param i, the index of value
-     * @return the minimal value
+     * @return the i-th inserted value
      */
     inline double at(unsigned int i) const
     {
@@ -429,6 +472,15 @@ public:
             break;
         }
         return 0;
+    }
+
+    /**
+     * @brief access to a specific value
+     * @return the mat-th inserted value
+     */
+    inline double at() const
+    {
+        return at(mat);
     }
 
     /**
@@ -458,11 +510,18 @@ public:
         }}
         return 0;
     }
-
+    /**
+     * @brief Quantile value extractor (weigthed average method)
+     * @returns the quantile value of order mquantile
+     */
+    inline double quantile()
+    {
+        return quantile(mquantile);
+    }
     /**
      * @brief generic function to get a specified stat
      */
-    inline double getStat(AccuStat s) const
+    inline double getStat(AccuStat s)
     {
         switch(s){
         case S_mean:
@@ -484,7 +543,7 @@ public:
             return squareSum();
             break;
         case S_count:
-            throw vle::utils::ArgError(" [accu_mono] not available ");
+            return count();
             break;
         case S_sum:
             return sum();
@@ -496,10 +555,10 @@ public:
             return max();
             break;
         case S_at:
-            throw vle::utils::ArgError(" [accu_mono] not available ");
+            return at();
             break;
         case S_quantile:
-            throw vle::utils::ArgError(" [accu_mono] not available ");
+            return quantile();
             break;
         }
         return std::numeric_limits<double>::min();
@@ -514,23 +573,23 @@ public:
         mmin = std::numeric_limits<double>::max();
         mmax = std::numeric_limits<double>::min();
         msorted = false;
-        delete mvalues;
-        mvalues = 0;
+        mvalues.reset(nullptr);
     }
 
 protected:
-
-    double quantileOnSortedVect(const std::vector<double>& vals, double qOrder)
+    //Type 7 of continuous quantile estimation (see R quantile doc)
+    double quantileOnSortedVect(const std::vector<double>& x, double p)
     {
+
         double quantile = 0;
-        if (qOrder == 1.0) {
-            quantile = vals[vals.size() - 1];
+        unsigned int n = x.size();
+        if (quantile == 1.0) {
+            quantile = x[n - 1];
         } else {
-            double rang_quantile = (vals.size() - 1) * qOrder;
-            int ent_rang = floor(rang_quantile);
-            double frac_rang = rang_quantile - ent_rang;
-            quantile = vals[ent_rang] + frac_rang *
-                    (vals[ent_rang + 1] - vals[ent_rang]);
+            double m = 1-p;
+            unsigned int j = floor(n*p + m);
+            double g = n*p+1-p-j;
+            quantile = (1-g)*x[j-1]  + g*x[j];
         }
         return quantile;
     }
@@ -541,9 +600,10 @@ protected:
     double msquareSum;
     double mmin;
     double mmax;
-    bool msorted;
-    std::vector<double>* mvalues;
-
+    bool msorted;//true if the vector of values is sorted
+    std::unique_ptr<std::vector<double>> mvalues;
+    double mquantile; //default value of quantile for stat 'quantile'
+    unsigned int mat;//default value of index for stat 'at'
 };
 
 }} //namespaces
