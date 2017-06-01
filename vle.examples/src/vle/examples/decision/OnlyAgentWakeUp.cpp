@@ -47,12 +47,15 @@ public:
     OnlyAgentWakeUp(const vd::DynamicsInit& mdl, const vd::InitEventList& evts)
         : vmd::Agent(mdl, evts), mWakeup(false)
     {
-        addFact("wakeup", std::bind(&OnlyAgentWakeUp::wakeup, this, _1));
+        addFact("wakeup", std::bind(&OnlyAgentWakeUp::wakeup, this,
+                                    std::placeholders::_1));
 
         vmd::Activity& a = addActivity("A", 1.0, 100.0);
 
         a.addOutputFunction(std::bind(
-                &OnlyAgentWakeUp::aout, this, _1, _2, _3));
+                &OnlyAgentWakeUp::aout, this,
+                std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
 
         vmd::Rule& r = addRule("r1");
         r.add(std::bind(&OnlyAgentWakeUp::isWakeup, this));
@@ -61,7 +64,9 @@ public:
 
         vmd::Activity& b = addActivity("B", 6.0, 100.0);
         b.addOutputFunction(std::bind(
-                &OnlyAgentWakeUp::aout, this, _1, _2, _3));
+                &OnlyAgentWakeUp::aout, this,
+                std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
     }
 
     virtual ~OnlyAgentWakeUp()

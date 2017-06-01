@@ -50,26 +50,30 @@ public:
     {
         vmd::Activity& a = addActivity("A", 0, devs::infinity);
         a.addOutputFunction(
-            std::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
-                        _3));
+            std::bind(&OnlyAgentPrecedenceConstraint::aout, this,
+                      std::placeholders::_1, std::placeholders::_2,
+                      std::placeholders::_3));
 
         vmd::Activity& b = addActivity("B", devs::negativeInfinity,
                                        devs::infinity);
         b.addOutputFunction(
-            std::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
-                        _3));
+            std::bind(&OnlyAgentPrecedenceConstraint::aout, this,
+                      std::placeholders::_1, std::placeholders::_2,
+                      std::placeholders::_3));
 
         vmd::Activity& c = addActivity("C", devs::negativeInfinity,
                                        devs::infinity);
         c.addOutputFunction(
-            std::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
-                        _3));
+            std::bind(&OnlyAgentPrecedenceConstraint::aout, this,
+                      std::placeholders::_1, std::placeholders::_2,
+                      std::placeholders::_3));
 
         vmd::Activity& d = addActivity("D", devs::negativeInfinity,
                                        devs::infinity);
         d.addOutputFunction(
-            std::bind(&OnlyAgentPrecedenceConstraint::aout, this, _1, _2,
-                        _3));
+            std::bind(&OnlyAgentPrecedenceConstraint::aout, this,
+                      std::placeholders::_1, std::placeholders::_2,
+                      std::placeholders::_3));
 
         addStartToStartConstraint("A", "B", 1.0, devs::infinity);
         addStartToStartConstraint("B", "C", 1.0, devs::infinity);

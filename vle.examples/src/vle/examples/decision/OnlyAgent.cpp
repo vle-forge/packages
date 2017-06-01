@@ -48,23 +48,32 @@ public:
         : vmd::Agent(mdl, evts), mStart(false)
     {
         addActivity("A", 0.0, 100.0).addOutputFunction(std::bind(
-            &OnlyAgent::aout, this, _1, _2, _3));
+            &OnlyAgent::aout, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
         addActivity("B", 0.5, 100.0).addOutputFunction(std::bind(
-            &OnlyAgent::aout, this, _1, _2, _3));
+            &OnlyAgent::aout, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
         addActivity("C", 0.6, 100.0).addOutputFunction(std::bind(
-            &OnlyAgent::aout, this, _1, _2, _3));
+            &OnlyAgent::aout, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
         addActivity("D", 0.9, 100.0).addOutputFunction(std::bind(
-            &OnlyAgent::aout, this, _1, _2, _3));
+            &OnlyAgent::aout, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
         addActivity("E", 1.1, 100.0).addOutputFunction(std::bind(
-            &OnlyAgent::aout, this, _1, _2, _3));
+            &OnlyAgent::aout, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
         addActivity("F", 1.9, 100.0).addOutputFunction(std::bind(
-            &OnlyAgent::aout, this, _1, _2, _3));
+            &OnlyAgent::aout, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
         addActivity("G", 1.95, 100.0).addOutputFunction(std::bind(
-            &OnlyAgent::aout, this, _1, _2, _3));
+            &OnlyAgent::aout, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
         addActivity("H", 2.1, 100.0).addOutputFunction(std::bind(
-            &OnlyAgent::aout, this, _1, _2, _3));
+            &OnlyAgent::aout, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
         addActivity("I", 9.9, 100.0).addOutputFunction(std::bind(
-            &OnlyAgent::aout, this, _1, _2, _3));
+            &OnlyAgent::aout, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3));
     }
 
     virtual ~OnlyAgent()
