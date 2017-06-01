@@ -349,7 +349,7 @@ getSuffixName(int n) const {
  */
 bool
 GPred(const std::string& activity,
-      const std::string& rule,
+      const std::string& /* rule */,
       const ved::PredicateParameters& param) const {
 
     std::string op;
@@ -472,18 +472,18 @@ GPred(const std::string& activity,
 }
 
 bool
-pSecondDayOfYear(const std::string& activity,
-                     const std::string& rule,
-                     const ved::PredicateParameters& param) const
+pSecondDayOfYear(const std::string& /*activity*/,
+                 const std::string& /*rule*/,
+                 const ved::PredicateParameters& /*param*/) const
 {
 
     return vu::DateTime::dayOfYear(current_date) == 2u;
 }
 
 bool
-pForceFirstLoad(const std::string& activity,
-                const std::string& rule,
-                const ved::PredicateParameters& param) const
+pForceFirstLoad(const std::string& /*activity*/,
+                const std::string& /*rule*/,
+                const ved::PredicateParameters& /*param*/) const
 {
     return vu::DateTime::dayOfYear(current_date) >= 2u && firstLoad;
 }
@@ -516,7 +516,6 @@ ack_plan(const std::string&activityname,
         mCounter[activityPrefix] = 1;
     }
 
-    int counter = mCounter.find(activityPrefix)->second;
     suffixRetourNum = getSuffixName(mCounter[activityPrefix]);
 
     ved::Activity& a = addActivity(activityPrefix + "#" + suffixRetourNum);
@@ -537,7 +536,7 @@ ack_plan(const std::string&activityname,
     a.addRule("rSecondDayOfYear", KnowledgeBase::rules().get("rSecondDayOfYear"));
 }
 
-void loadPlan(const std::string& name,
+    void loadPlan(const std::string& /*name*/,
               const ved::Activity& activity)
 {
     firstLoad = false;
