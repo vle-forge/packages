@@ -1,6 +1,6 @@
 predicates { #Predicates list
 	predicate {
-		id = "harvesting_1_toto";
+		id = "harvesting_1";
 		type = "GPred";
 		parameter {
 			_opLeftType = "Var";
@@ -14,8 +14,8 @@ predicates { #Predicates list
 
 rules { # liste des règles
 	rule {
-		id = "harvestingR_1_toto";
-		predicates = "harvesting_1_toto";
+		id = "harvestingR_1";
+		predicates = "harvesting_1";
        }
 }
 
@@ -38,7 +38,7 @@ activities { # liste des activites
          minstart = "+0-03-19";
          maxfinish = "+0-08-30";
       }
-      rules = "harvestingR_1_toto";
+      rules = "harvestingR_1";
       output = "GOut";
       parameter {
          _out_ST = -2;

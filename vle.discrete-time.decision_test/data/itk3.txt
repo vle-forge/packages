@@ -1,6 +1,6 @@
 predicates { #Predicates list
 	predicate {
-		id = "harvesting_1_tutu";
+		id = "harvesting_1";
 		type = "GPred";
 		parameter {
 			_opLeftType = "Var";
@@ -11,7 +11,7 @@ predicates { #Predicates list
 		}
 	}
 	predicate {
-		id = "harvesting_2_tutu";
+		id = "harvesting_2";
 		type = "GPred";
 		parameter {
 			_opLeftType = "Var@";
@@ -25,12 +25,12 @@ predicates { #Predicates list
 
 rules { # liste des règles
 	rule {
-		id = "harvestingR_1_tutu";
-		predicates = "harvesting_1_tutu";
+		id = "harvestingR_1";
+		predicates = "harvesting_1";
        }
        	rule {
-		id = "harvestingR_2_tutu";
-		predicates = "harvesting_2_tutu";
+		id = "harvestingR_2";
+		predicates = "harvesting_2";
        }
 }
 
@@ -53,7 +53,7 @@ activities { # liste des activites
          minstart = "+0-03-19";
          maxfinish = "+0-08-30";
       }
-      rules = "harvestingR_1_tutu", "harvestingR_2_tutu";
+      rules = "harvestingR_1", "harvestingR_2";
       output = "GOut";
       parameter {
       	 resources = "Nice+Big";

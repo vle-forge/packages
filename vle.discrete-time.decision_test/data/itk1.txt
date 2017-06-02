@@ -1,6 +1,6 @@
 predicates { #Predicates list
 	predicate {
-		id = "harvesting_1_titi";
+		id = "harvesting_1";
 		type = "GPred";
 		parameter {
 			_opLeftType = "Var";
@@ -15,7 +15,7 @@ predicates { #Predicates list
 rules { # liste des règles
        	rule {
 		id = "harvestingR_1";
-		predicates = "harvesting_1_titi";
+		predicates = "harvesting_1";
        }
 }
 
