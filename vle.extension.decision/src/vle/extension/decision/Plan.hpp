@@ -123,7 +123,7 @@ private:
     void fill(const utils::Block& root, const devs::Time& loadTime,
               const std::string suffixe, double addPriority);
     void fillRules(const utils::Block::BlocksResult& rules,
-            const devs::Time& loadTime);
+                   const devs::Time& loadTime,const std::string suffixe);
     void fillActivities(const utils::Block::BlocksResult& activities,
                         const devs::Time& loadTime);
     void fillActivities(const utils::Block::BlocksResult& activities,

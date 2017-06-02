@@ -208,7 +208,8 @@ void __fill_predicate(utils::ContextPtr ctx,
                       const utils::Block::BlocksResult& root,
                       Predicates& predicates,
                       const PredicatesTable& table,
-                      const devs::Time& loadTime)
+                      const devs::Time& loadTime,
+                      const std::string suffixe)
 {
     for (UBB::const_iterator it = root.first; it != root.second; ++it) {
         const utils::Block& block = it->second;
@@ -217,7 +218,7 @@ void __fill_predicate(utils::ContextPtr ctx,
         if (id.first == id.second)
             throw utils::ArgError("Decision: predicate needs id");
 
-        if (not predicates.exist(id.first->second)) {
+        if (not predicates.exist(id.first->second + suffixe)) {
             UB::StringsResult type = block.strings.equal_range("type");
             if (type.first == type.second)
                 throw utils::ArgError("Decision: predicate needs type");
@@ -231,9 +232,9 @@ void __fill_predicate(utils::ContextPtr ctx,
             utils::Block::BlocksResult parameters = block.blocks.equal_range("parameter");
             if (parameters.first == parameters.second) {
                 Trace(ctx, 6, "predicate %s added",
-                      (id.first->second).c_str());
+                      (id.first->second + suffixe).c_str());
 
-                predicates.add(id.first->second, fctit->second);
+                predicates.add(id.first->second + suffixe, fctit->second);
             } else {
                 PredicateParameters params;
 
@@ -248,7 +249,7 @@ void __fill_predicate(utils::ContextPtr ctx,
                 params.sort();
 
                 Trace(ctx, 6, "Predicate %s added with parameters:",
-                      (id.first->second).c_str());
+                      (id.first->second + suffixe).c_str());
 
 
                 for (PredicateParameters::const_iterator it = params.begin();
@@ -260,11 +261,11 @@ void __fill_predicate(utils::ContextPtr ctx,
                     params.resetDouble("planTimeStamp", loadTime);
                 }
 
-                predicates.add(id.first->second, fctit->second, params);
+                predicates.add(id.first->second + suffixe, fctit->second, params);
             }
         } else {
             Trace(ctx, 4, "Predicate %s already exists, we forget the new",
-                  (id.first->second).c_str());
+                  (id.first->second + suffixe).c_str());
         }
     }
 }
@@ -284,12 +285,12 @@ void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
 
     for (it = mainpredicates.first; it != mainpredicates.second; ++it)
         __fill_predicate(ctx, it->second.blocks.equal_range("predicate"),
-                         mPredicates, mKb.predicates(), loadTime);
+                         mPredicates, mKb.predicates(), loadTime, suffixe);
 
     for (it = mainrules.first; it != mainrules.second; ++it) {
         utils::Block::BlocksResult rules;
         rules = it->second.blocks.equal_range("rule");
-        fillRules(rules, loadTime);
+        fillRules(rules, loadTime, suffixe);
     }
 
     for (it = mainactivities.first; it != mainactivities.second; ++it) {
@@ -305,7 +306,8 @@ void Plan::fill(const utils::Block& root, const devs::Time& loadTime,
     }
 }
 
-void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
+void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&,
+                     const std::string suffixe)
 {
     for (UBB::const_iterator it = rules.first; it != rules.second; ++it) {
         const utils::Block& block = it->second;
@@ -314,18 +316,18 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
         if (id.first == id.second)
             throw utils::ArgError("Decision: rule needs id");
 
-        if (not mRules.exist(id.first->second))  {
-            Rule& rule = mRules.add(id.first->second);
+        if (not mRules.exist(id.first->second + suffixe))  {
+            Rule& rule = mRules.add(id.first->second + suffixe);
 
             UB::StringsResult preds = block.strings.equal_range("predicates");
             for (UB::Strings::const_iterator jt = preds.first;
                  jt != preds.second; ++jt) {
 
                 // Trying to found a parametred parameter in this plan.
-                Predicates::const_iterator p = mPredicates.find(jt->second);
+                Predicates::const_iterator p = mPredicates.find(jt->second + suffixe);
                 if (p != mPredicates.end()) {
                     Trace(ctx, 6, "rule %s adds predicate %s",
-                          (id.first->second).c_str(),
+                          (id.first->second + suffixe).c_str(),
                           (jt->second).c_str());
 
                     rule.add(&*p);
@@ -338,7 +340,7 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
                             vle::utils::format("Decision: unknown predicate function %s", (jt->second).c_str()));
 
                     Trace(ctx, 6, "rule %s adds old predicate (c++ function) %s",
-                          (id.first->second).c_str(),
+                          (id.first->second + suffixe).c_str(),
                           (jt->second).c_str());
 
                     rule.add(p2->second);
@@ -346,7 +348,7 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&)
             }
         } else {
             Trace(ctx, 4, "Rule %s already exists, we forget the new",
-                  (id.first->second).c_str());
+                  (id.first->second + suffixe).c_str());
 
         }
     }
@@ -375,7 +377,7 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
 
         UB::StringsResult rules = block.strings.equal_range("rules");
         for (UBS::const_iterator jt = rules.first; jt != rules.second; ++jt) {
-            act.addRule(jt->second, mRules.get(jt->second));
+            act.addRule(jt->second + suffixe, mRules.get(jt->second + suffixe));
         }
 
         UB::StringsResult ack = block.strings.equal_range("ack");
