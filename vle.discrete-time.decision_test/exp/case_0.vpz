@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <vle_project date="" author="Gauthier Quesnel" version="1.0">
  <structures>
-   <model y="0" width="300" type="coupled" height="300" name="top" x="0">
+   <model name="top" x="0" y="0" width="300" height="300" type="coupled">
    <in/>
    <out/>
   <submodels>
-    <model conditions="condMeteo" y="266" width="50" observables="obsMeteo" type="atomic" height="50" name="Meteo" x="50" dynamics="dynMeteo">
+    <model observables="obsMeteo" name="Meteo" dynamics="dynMeteo" x="50" y="266" width="50" height="50" type="atomic" conditions="condMeteo">
      <in/>
      <out>
       <port name="TN"/>
@@ -13,7 +13,7 @@
       <port name="RG"/>
      </out>
     </model>
-    <model conditions="condP1" y="14" width="50" observables="obsWwdmDt" type="atomic" height="50" name="p1" x="469" dynamics="dynCrop">
+    <model observables="obsWwdmDt" name="p1" dynamics="dynCrop" x="469" y="14" width="50" height="50" type="atomic" conditions="condP1">
      <in>
       <port name="Tmin"/>
       <port name="Tmax"/>
@@ -37,7 +37,7 @@
       <port name="PAR"/>
      </out>
     </model>
-    <model conditions="condP2" y="317" width="50" observables="obsWwdmDt" type="atomic" height="50" name="p2" x="469" dynamics="dynCrop">
+    <model observables="obsWwdmDt" name="p2" dynamics="dynCrop" x="469" y="317" width="50" height="50" type="atomic" conditions="condP2">
      <in>
       <port name="Tmin"/>
       <port name="Tmax"/>
@@ -61,7 +61,7 @@
       <port name="PAR"/>
      </out>
     </model>
-   <model conditions="condFarmer,simulation_engine" y="247" width="50" observables="obsFarmer" type="atomic" height="50" name="Farmer" x="206" dynamics="dynFarmer">
+   <model observables="obsFarmer" name="Farmer" dynamics="dynFarmer" x="206" y="247" width="50" height="50" type="atomic" conditions="condFarmer,simulation_engine">
      <in>
       <port name="ack"/>
       <port name="TN"/>
@@ -81,79 +81,79 @@
    </submodels>
    <connections>
     <connection type="internal">
-     <origin port="out_plan" model="Farmer"/>
-     <destination port="ack" model="Farmer"/>
+     <origin model="Farmer" port="out_plan"/>
+     <destination model="Farmer" port="ack"/>
     </connection>
     <connection type="internal">
-     <origin port="ackOut" model="Farmer"/>
-     <destination port="ack" model="Farmer"/>
+     <origin model="Farmer" port="ackOut"/>
+     <destination model="Farmer" port="ack"/>
     </connection>
     <connection type="internal">
-     <origin port="TN" model="Meteo"/>
-     <destination port="TN" model="Farmer"/>
+     <origin model="Meteo" port="TN"/>
+     <destination model="Farmer" port="TN"/>
     </connection>
     <connection type="internal">
-     <origin port="TX" model="Meteo"/>
-     <destination port="TX" model="Farmer"/>
+     <origin model="Meteo" port="TX"/>
+     <destination model="Farmer" port="TX"/>
     </connection>
     <connection type="internal">
-     <origin port="LAI" model="p1"/>
-     <destination port="LAI@p1" model="Farmer"/>
+     <origin model="p1" port="LAI"/>
+     <destination model="Farmer" port="LAI@p1"/>
     </connection>
     <connection type="internal">
-     <origin port="LAI" model="p2"/>
-     <destination port="LAI@p2" model="Farmer"/>
+     <origin model="p2" port="LAI"/>
+     <destination model="Farmer" port="LAI@p2"/>
     </connection>
     <connection type="internal">
-     <origin port="ST@p1" model="Farmer"/>
-     <destination port="ST" model="p1"/>
+     <origin model="Farmer" port="ST@p1"/>
+     <destination model="p1" port="ST"/>
     </connection>
     <connection type="internal">
-     <origin port="Lmax@p1" model="Farmer"/>
-     <destination port="Lmax" model="p1"/>
+     <origin model="Farmer" port="Lmax@p1"/>
+     <destination model="p1" port="Lmax"/>
     </connection>
     <connection type="internal">
-     <origin port="ST@p2" model="Farmer"/>
-     <destination port="ST" model="p2"/>
+     <origin model="Farmer" port="ST@p2"/>
+     <destination model="p2" port="ST"/>
     </connection>
     <connection type="internal">
-     <origin port="Lmax@p2" model="Farmer"/>
-     <destination port="Lmax" model="p2"/>
+     <origin model="Farmer" port="Lmax@p2"/>
+     <destination model="p2" port="Lmax"/>
     </connection>
     <connection type="internal">
-     <origin port="TN" model="Meteo"/>
-     <destination port="Tmin" model="p1"/>
+     <origin model="Meteo" port="TN"/>
+     <destination model="p1" port="Tmin"/>
     </connection>
     <connection type="internal">
-     <origin port="TX" model="Meteo"/>
-     <destination port="Tmax" model="p1"/>
+     <origin model="Meteo" port="TX"/>
+     <destination model="p1" port="Tmax"/>
     </connection>
     <connection type="internal">
-     <origin port="RG" model="Meteo"/>
-     <destination port="RG" model="p1"/>
+     <origin model="Meteo" port="RG"/>
+     <destination model="p1" port="RG"/>
     </connection>
     <connection type="internal">
-     <origin port="TN" model="Meteo"/>
-     <destination port="Tmin" model="p2"/>
+     <origin model="Meteo" port="TN"/>
+     <destination model="p2" port="Tmin"/>
     </connection>
     <connection type="internal">
-     <origin port="TX" model="Meteo"/>
-     <destination port="Tmax" model="p2"/>
+     <origin model="Meteo" port="TX"/>
+     <destination model="p2" port="Tmax"/>
     </connection>
     <connection type="internal">
-     <origin port="RG" model="Meteo"/>
-     <destination port="RG" model="p2"/>
+     <origin model="Meteo" port="RG"/>
+     <destination model="p2" port="RG"/>
     </connection>
    </connections>
   </model>
  </structures>
  <dynamics>
- <dynamic package="vle.discrete-time.decision_test" name="dynMeteo" library="AMeteoReader"/>
-  <dynamic package="vle.discrete-time.decision_test" name="dynCrop" library="AwwdmDt"/>
+ <dynamic name="dynMeteo" library="AMeteoReader" package="vle.discrete-time.decision_test"/>
+  <dynamic name="dynCrop" library="AwwdmDt" package="vle.discrete-time.decision_test"/>
 
- <dynamic package="vle.discrete-time.decision" name="dynFarmer" library="agentDTG"/>
+ <dynamic name="dynFarmer" library="agentDTG" package="vle.discrete-time.decision"/>
  </dynamics>
- <experiment seed="123456789" name="test">
+ <experiment name="test" seed="123456789">
    <conditions>
     <condition name="simulation_engine">
      <port name="begin">
@@ -324,7 +324,7 @@
   </conditions>
   <views>
    <outputs>
-    <output format="local" location="" plugin="storage" package="vle.output" name="view">
+    <output plugin="storage" name="view" location="" format="local" package="vle.output">
      <map>
       <key name="columns">
        <integer>15</integer>
@@ -343,8 +343,27 @@
       </key>
      </map>
     </output>
+   <output plugin="file" name="ViewFile" location="" format="local" package="vle.output">
+     <map>
+      <key name="type">
+       <string>text</string>
+      </key>
+      <key name="flush-by-bag">
+       <boolean>0</boolean>
+      </key>
+      <key name="locale">
+       <string>C</string>
+      </key>
+      <key name="julian-day">
+       <boolean>0</boolean>
+      </key>
+      <key name="output">
+       <string>file</string>
+      </key>
+     </map>
+    </output>
    </outputs>
-   <view type="timed" name="view" timestep="1" output="view"/>
+   <view name="view" timestep="1" output="view" type="timed"/>
    <observables>
     <observable name="obsMeteo">
 
@@ -373,9 +392,11 @@
    <port name="RG"/>
    <port name="ST">
       <attachedview name="view"/>
+     <attachedview name="ViewFile"/>
      </port>
    <port name="LAI">
       <attachedview name="view"/>
+     <attachedview name="ViewFile"/>
      </port>
    <port name="U"/>
   <port name="Tr"/>
@@ -389,6 +410,7 @@
      </port>
     </observable>
    </observables>
+  <view name="ViewFile" output="ViewFile" timestep="1" type="timed"/>
   </views>
  </experiment>
 </vle_project>

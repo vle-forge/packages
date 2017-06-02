@@ -52,7 +52,7 @@ Tr.init_value((1 / B()) * std::log(1 + std::exp(A() * TI())));
 virtual ~wwdmDt()
 {}
 
-void compute(const vle::devs::Time& t)
+    void compute(const vle::devs::Time& /* t */)
 {
 PAR = 0.5 * 0.01 * RG();
 

@@ -4,5 +4,6 @@
  <condPlugins/>
  <outputGUIplugins>
   <outputGUIplugin view="view" GUIplugin="gvle.output/storage"/>
+ <outputGUIplugin view="View" GUIplugin="gvle.output/file"/>
  </outputGUIplugins>
 </vle_project_metadata>
