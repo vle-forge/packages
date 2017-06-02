@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pchabrier/DEVS/packages-2.0/vle.discrete-time.decision_test/test/test_package.cpp
+vle/utils/unit-test.hpp
+-
+
+/home/pchabrier/local/include/vle-2.0/vle/utils/unit-test.hpp
+iostream
+-
+cstdlib
+-
+cmath
+-
+

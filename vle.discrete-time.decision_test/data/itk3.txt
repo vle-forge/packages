@@ -1,0 +1,64 @@
+predicates { #Predicates list
+	predicate {
+		id = "harvesting_1_tutu";
+		type = "GPred";
+		parameter {
+			_opLeftType = "Var";
+			_opLeft ="TN";
+			_op =">";
+			_opRightType = "Val";
+			_opRight = 200.;
+		}
+	}
+	predicate {
+		id = "harvesting_2_tutu";
+		type = "GPred";
+		parameter {
+			_opLeftType = "Var@";
+			_opLeft ="LAI";
+			_op =">";
+			_opRightType = "Val";
+			_opRight = 5.;
+		}
+	}
+}
+
+rules { # liste des règles
+	rule {
+		id = "harvestingR_1_tutu";
+		predicates = "harvesting_1_tutu";
+       }
+       	rule {
+		id = "harvestingR_2_tutu";
+		predicates = "harvesting_2_tutu";
+       }
+}
+
+activities { # liste des activites
+   activity {
+      id = "Sowing";
+      temporal {
+         minstart = "+0-01-19";
+         maxfinish = "+0-02-30";
+      }
+      output = "GOut";
+      parameter {
+         _out_Lmax = 5.5;
+         _out_ST = -1;
+      }
+   }
+   activity {
+      id = "Harvesting";
+      temporal {
+         minstart = "+0-03-19";
+         maxfinish = "+0-08-30";
+      }
+      rules = "harvestingR_1_tutu", "harvestingR_2_tutu";
+      output = "GOut";
+      parameter {
+      	 resources = "Nice+Big";
+         _out_ST = -2;
+      }
+   }
+
+}

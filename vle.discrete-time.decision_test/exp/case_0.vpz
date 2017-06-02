@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project date="" author="Gauthier Quesnel" version="1.0">
+ <structures>
+   <model x="0" name="top" height="300" y="0" width="300" type="coupled">
+   <in/>
+   <out/>
+  <submodels>
+    <model x="91" name="atomic" height="50" dynamics="dyn_agroclim" conditions="cond_agroclim" y="72" width="50" observables="obs_agroclim" type="atomic">
+     <in/>
+     <out>
+      <port name="TN"/>
+      <port name="TX"/>
+      <port name="RG"/>
+     </out>
+    </model>
+    <model x="469" name="p1" height="50" conditions="condwwdmDt_1" dynamics="dynwwdmDt" y="14" width="50" type="atomic" observables="obswwdmDt">
+     <in>
+      <port name="Tmin"/>
+      <port name="Tmax"/>
+      <port name="RG"/>
+      <port name="Lmax"/>
+      <port name="ST"/>
+     </in>
+     <out>
+      <port name="Eb"/>
+      <port name="Eimax"/>
+      <port name="K"/>
+      <port name="Lmax"/>
+      <port name="A"/>
+      <port name="B"/>
+      <port name="TI"/>
+      <port name="ST"/>
+      <port name="LAI"/>
+      <port name="U"/>
+      <port name="Tr"/>
+      <port name="Tmean"/>
+      <port name="PAR"/>
+     </out>
+    </model>
+    <model x="469" name="p2" height="50" conditions="condwwdmDt_1_5" dynamics="dynwwdmDt_5" y="317" width="50" type="atomic" observables="obswwdmDt_5">
+     <in>
+      <port name="Tmin"/>
+      <port name="Tmax"/>
+      <port name="RG"/>
+      <port name="Lmax"/>
+      <port name="ST"/>
+     </in>
+     <out>
+      <port name="Eb"/>
+      <port name="Eimax"/>
+      <port name="K"/>
+      <port name="Lmax"/>
+      <port name="A"/>
+      <port name="B"/>
+      <port name="TI"/>
+      <port name="ST"/>
+      <port name="LAI"/>
+      <port name="U"/>
+      <port name="Tr"/>
+      <port name="Tmean"/>
+      <port name="PAR"/>
+     </out>
+    </model>
+   </submodels>
+   <connections/>
+  </model>
+ </structures>
+ <dynamics>
+ <dynamic name="dyn_agroclim" library="AMeteoReader" package="vle.discrete-time.decision_test"/>
+  <dynamic name="dynwwdmDt" library="wwdmDt" package="wwdmDt"/>
+  <dynamic name="dynwwdmDt_5" library="wwdmDt" package="wwdmDt"/>
+ </dynamics>
+ <experiment name="test" seed="123456789">
+   <conditions>
+    <condition name="simulation_engine">
+     <port name="begin">
+      <double>0.0</double>
+     </port>
+     <port name="duration">
+      <double>1000</double>
+     </port>"
+    </condition>
+   <condition name="cond_agroclim">
+      <port name="PkgName">
+	<string>vle.discrete-time.decision_test</string>
+      </port>
+      <port name="meteo_file">
+	<string>31035002.csv</string>
+      </port>
+      <port name="meteo_type">
+	<string>agroclim</string>
+      </port>
+    </condition>
+   <condition name="condwwdmDt_1">
+   <port name="time_step">
+    <double>1</double>
+   </port>
+  <port name="init_value_A">
+    <double>0.0065</double>
+   </port>
+   <port name="init_value_B">
+    <double>0.00205</double>
+   </port>
+   <port name="init_value_TI">
+    <double>900</double>
+   </port>
+   <port name="init_value_Eb">
+    <double>1.85</double>
+   </port>
+   <port name="init_value_Eimax">
+    <double>0.94</double>
+   </port>
+   <port name="init_value_K">
+    <double>0.7</double>
+   </port>
+   <port name="init_value_Lmax">
+    <double>7.5</double>
+   </port>
+
+  <port name="allow_update_ST">
+     <boolean>1</boolean>
+    </port>
+    <port name="init_value_ST">
+     <double>10000</double>
+    </port>
+   <port name="sync_ST">
+    <integer>0</integer>
+    </port>
+   </condition>
+   <condition name="condwwdmDt_1_5">
+   <port name="time_step">
+    <double>1</double>
+   </port>
+  <port name="init_value_A">
+    <double>0.0065</double>
+   </port>
+   <port name="init_value_B">
+    <double>0.00205</double>
+   </port>
+   <port name="init_value_TI">
+    <double>900</double>
+   </port>
+   <port name="init_value_Eb">
+    <double>1.85</double>
+   </port>
+   <port name="init_value_Eimax">
+    <double>0.94</double>
+   </port>
+   <port name="init_value_K">
+    <double>0.7</double>
+   </port>
+   <port name="init_value_Lmax">
+    <double>7.5</double>
+   </port>
+
+  <port name="allow_update_ST">
+     <boolean>1</boolean>
+    </port>
+    <port name="init_value_ST">
+     <double>10000</double>
+    </port>
+   <port name="sync_ST">
+    <integer>0</integer>
+    </port>
+   </condition>
+  </conditions>
+  <views>
+   <outputs>
+    <output name="view" format="local" plugin="storage" location="" package="vle.output">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
+   </outputs>
+   <view name="view" output="view" timestep="1" type="timed"/>
+   <observables>
+    <observable name="obs_agroclim">
+      
+      
+      
+    <port name="TN">
+      <attachedview name="view"/>
+     </port>
+     <port name="TX">
+      <attachedview name="view"/>
+     </port>
+     <port name="RG">
+      <attachedview name="view"/>
+     </port>
+    </observable>
+    <observable name="obswwdmDt">
+   <port name="Eb"/>
+   <port name="Eimax"/>
+   <port name="K"/>
+   <port name="Lmax"/>
+   <port name="A"/>
+   <port name="B"/>
+   <port name="TI"/>
+   <port name="Tmin"/>
+   <port name="Tmax"/>
+   <port name="RG"/>
+   <port name="ST">
+      <attachedview name="view"/>
+     </port>
+   <port name="LAI">
+      <attachedview name="view"/>
+     </port>
+   <port name="U"/>
+  <port name="Tr"/>
+   <port name="Tmean"/>
+   <port name="PAR"/>
+  </observable>
+    <observable name="obswwdmDt_5">
+   <port name="Eb"/>
+   <port name="Eimax"/>
+   <port name="K"/>
+   <port name="Lmax"/>
+   <port name="A"/>
+   <port name="B"/>
+   <port name="TI"/>
+   <port name="Tmin"/>
+   <port name="Tmax"/>
+   <port name="RG"/>
+   <port name="ST">
+      <attachedview name="view"/>
+     </port>
+   <port name="LAI">
+      <attachedview name="view"/>
+     </port>
+   <port name="U"/>
+  <port name="Tr"/>
+   <port name="Tmean"/>
+   <port name="PAR"/>
+  </observable>
+   </observables>
+  </views>
+ </experiment>
+</vle_project>
