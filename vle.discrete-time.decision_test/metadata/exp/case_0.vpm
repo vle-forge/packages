@@ -3,6 +3,6 @@
 <vle_project_metadata author="me" version="1.x">
  <condPlugins/>
  <outputGUIplugins>
-  <outputGUIplugin GUIplugin="gvle.output/storage" view="view"/>
+  <outputGUIplugin view="view" GUIplugin="gvle.output/storage"/>
  </outputGUIplugins>
 </vle_project_metadata>

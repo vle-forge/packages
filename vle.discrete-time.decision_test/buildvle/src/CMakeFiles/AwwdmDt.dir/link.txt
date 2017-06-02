@@ -1,1 +1,0 @@
-/usr/bin/g++-5 -fPIC  -Wall -Wextra -ggdb3 -std=c++14 -O2 -g -DNDEBUG  -shared  -o libAwwdmDt.so CMakeFiles/AwwdmDt.dir/AwwdmDt.cpp.o  -L/home/pchabrier/local/lib -Wl,-rpath,/home/pchabrier/local/lib: /home/pchabrier/.vle/pkgs-2.0/vle.discrete-time/lib/libvle-discrete-time-0.1.a -lvle-2.0 -lxml2 

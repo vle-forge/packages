@@ -1,1 +1,0 @@
-/usr/bin/g++-5 -fPIC  -Wall -Wextra -ggdb3 -std=c++14 -O2 -g -DNDEBUG  -shared  -o libSimple.so CMakeFiles/Simple.dir/Simple.cpp.o  -L/home/pchabrier/local/lib -Wl,-rpath,/home/pchabrier/local/lib: -lvle-2.0 -lxml2 
