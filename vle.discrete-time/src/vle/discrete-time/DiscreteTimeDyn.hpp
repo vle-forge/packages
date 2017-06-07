@@ -162,7 +162,7 @@ public:
      * @param attr, a map of attributes
      */
     void handleExtVar(const vle::devs::Time& t,
-            const std::string& port, const vle::value::Map& attrs);
+            const std::string& port, const vle::value::Value& attrs);
     void outputVar(const vle::devs::Time& time,
             vle::devs::ExternalEventList& output) const;
     void updateGuardAllSynchronized(const vle::devs::Time& t);

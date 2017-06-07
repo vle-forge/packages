@@ -40,13 +40,14 @@ AgentDT::AgentDT(const devs::DynamicsInit& mdl,
       mdefaultValues(), begin_date(), current_date()
 {
     if (!(events.exist("begin_date") &&
-          events.get("begin_date")->isString())) {
+            events.get("begin_date")->isString())) {
         throw vle::utils::FileError(
-            vle::utils::format("[%s] begin_date condition missing",
-                               getModelName().c_str()));
-        }
+                vle::utils::format("[%s] begin_date condition missing",
+                        getModelName().c_str()));
+    }
+
     begin_date = vle::utils::DateTime::toJulianDayNumber(
-        events.getString("begin_date"));
+            events.getString("begin_date"));
     current_date = begin_date;
 
     if (! events.exist("output_nil")) {
@@ -163,10 +164,9 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
     for (devs::ExternalEventList::const_iterator it = ext.begin();
          it != ext.end(); ++it) {
         const std::string& port(it->getPortName());
-        const value::Map& atts = it->attributes()->toMap();
 
         if (port == "ack") {
-
+            const value::Map& atts = it->attributes()->toMap();
             const std::string& activity(atts.getString("name"));
             const std::string& order(atts.getString("value"));
 
@@ -180,15 +180,14 @@ AgentDT::handleExtEvt(const vle::devs::Time& t,
                      order.c_str()));
             }
         } else {
-            DiscreteTimeDyn::handleExtVar(t, port, atts);
+            DiscreteTimeDyn::handleExtVar(t, port, *(it->attributes()));
         }
     }
     for (devs::ExternalEventList::const_iterator it = ext.begin();
              it != ext.end(); ++it) {
         const std::string& port(it->getPortName());
-        const value::Map& atts = it->attributes()->toMap();
         if (KnowledgeBase::facts().exist(port)) {
-            applyFact(port, *atts.get("value"));
+            applyFact(port, *it->attributes());
         }
     }
     //KnowledgeBase::processChanges(t);

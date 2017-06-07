@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<vle_project date="" author="Gauthier Quesnel" version="1.0">
+<vle_project author="Gauthier Quesnel" version="1.0" date="">
  <structures>
-   <model name="top" x="0" y="0" width="300" height="300" type="coupled">
+   <model width="300" type="coupled" x="0" height="300" y="0" name="top">
    <in/>
    <out/>
   <submodels>
-    <model observables="obsMeteo" name="Meteo" dynamics="dynMeteo" x="50" y="266" width="50" height="50" type="atomic" conditions="condMeteo">
+    <model dynamics="dynMeteo" width="50" type="atomic" conditions="condMeteo" x="50" height="50" y="266" observables="obsMeteo" name="Meteo">
      <in/>
      <out>
       <port name="TN"/>
@@ -13,7 +13,7 @@
       <port name="RG"/>
      </out>
     </model>
-    <model observables="obsWwdmDt" name="p1" dynamics="dynCrop" x="469" y="14" width="50" height="50" type="atomic" conditions="condP1">
+    <model dynamics="dynCrop" width="50" type="atomic" conditions="condP1" x="469" height="50" y="14" observables="obsWwdmDt" name="p1">
      <in>
       <port name="Tmin"/>
       <port name="Tmax"/>
@@ -37,7 +37,7 @@
       <port name="PAR"/>
      </out>
     </model>
-    <model observables="obsWwdmDt" name="p2" dynamics="dynCrop" x="469" y="317" width="50" height="50" type="atomic" conditions="condP2">
+    <model dynamics="dynCrop" width="50" type="atomic" conditions="condP2" x="469" height="50" y="317" observables="obsWwdmDt" name="p2">
      <in>
       <port name="Tmin"/>
       <port name="Tmax"/>
@@ -61,7 +61,7 @@
       <port name="PAR"/>
      </out>
     </model>
-   <model observables="obsFarmer" name="Farmer" dynamics="dynFarmer" x="206" y="247" width="50" height="50" type="atomic" conditions="condFarmer,simulation_engine">
+   <model dynamics="dynFarmer" width="50" type="atomic" conditions="condFarmer,simulation_engine" x="206" height="50" y="247" observables="obsFarmer" name="Farmer">
      <in>
       <port name="ack"/>
       <port name="TN"/>
@@ -148,12 +148,12 @@
   </model>
  </structures>
  <dynamics>
- <dynamic name="dynMeteo" library="AMeteoReader" package="vle.discrete-time.decision_test"/>
-  <dynamic name="dynCrop" library="AwwdmDt" package="vle.discrete-time.decision_test"/>
+ <dynamic package="vle.discrete-time.decision_test" library="AMeteoReader" name="dynMeteo"/>
+  <dynamic package="vle.discrete-time.decision_test" library="AwwdmDt" name="dynCrop"/>
 
- <dynamic name="dynFarmer" library="agentDTG" package="vle.discrete-time.decision"/>
+ <dynamic package="vle.discrete-time.decision" library="agentDTG" name="dynFarmer"/>
  </dynamics>
- <experiment name="test" seed="123456789">
+ <experiment seed="123456789" name="test">
    <conditions>
     <condition name="simulation_engine">
      <port name="begin">
@@ -324,7 +324,7 @@
   </conditions>
   <views>
    <outputs>
-    <output plugin="storage" name="view" location="" format="local" package="vle.output">
+    <output location="" format="local" package="vle.output" plugin="storage" name="view">
      <map>
       <key name="columns">
        <integer>15</integer>
@@ -343,7 +343,7 @@
       </key>
      </map>
     </output>
-   <output plugin="file" name="ViewFile" location="" format="local" package="vle.output">
+   <output location="" format="local" package="vle.output" plugin="file" name="ViewFile">
      <map>
       <key name="type">
        <string>text</string>
@@ -363,7 +363,7 @@
      </map>
     </output>
    </outputs>
-   <view name="view" timestep="1" output="view" type="timed"/>
+   <view type="timed" timestep="1" output="view" name="view"/>
    <observables>
     <observable name="obsMeteo">
 
@@ -410,7 +410,7 @@
      </port>
     </observable>
    </observables>
-  <view name="ViewFile" output="ViewFile" timestep="1" type="timed"/>
+  <view type="timed" timestep="1" output="ViewFile" name="ViewFile"/>
   </views>
  </experiment>
 </vle_project>
