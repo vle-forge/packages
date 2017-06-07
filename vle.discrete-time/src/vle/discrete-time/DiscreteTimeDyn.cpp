@@ -145,20 +145,6 @@ DiscreteTimeDyn::getOptions()
     return mpimpl->getOptions();
 }
 
-void
-DiscreteTimeDyn::outputVar(const vle::vpz::AtomicModel& model,
-                           const vle::devs::Time& time,
-                           vle::devs::ExternalEventList& output)
-{
-    mpimpl->outputVar(model, time, output);
-}
-
-void
-DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
-        vle::devs::ExternalEventList& output) const
-{
-     mpimpl->outputVar(getModel(), time, output);
-}
 
  void
 DiscreteTimeDyn::updateGuardAllSynchronized(const vle::devs::Time& t)
@@ -204,76 +190,92 @@ DiscreteTimeDyn::timeAdvance() const
     return mpimpl->timeAdvance();
 }
 
- void
+void
 DiscreteTimeDyn::internalTransition(vle::devs::Time t)
 {
      mpimpl->internalTransition(t);
 }
 
- void
+void
 DiscreteTimeDyn::externalTransition(
-    const vle::devs::ExternalEventList& event,
-    vle::devs::Time t)
+        const vle::devs::ExternalEventList& event,
+        vle::devs::Time t)
 {
-     mpimpl->externalTransition(event, t);
+    mpimpl->externalTransition(event, t);
 }
 
- void
+void
 DiscreteTimeDyn::confluentTransitions(
-    vle::devs::Time t,
-    const vle::devs::ExternalEventList& event)
+        vle::devs::Time t,
+        const vle::devs::ExternalEventList& event)
 {
-     mpimpl->confluentTransitions(t, event);
+    mpimpl->confluentTransitions(t, event);
 }
 
-
- void
+void
 DiscreteTimeDyn::output(vle::devs::Time time,
-                        vle::devs::ExternalEventList& output) const
+        vle::devs::ExternalEventList& output) const
 {
-     mpimpl->output(getModel(), time, output);
+    mpimpl->output(getModel(), time, output);
 }
 
 std::unique_ptr<vle::value::Value>
 DiscreteTimeDyn::observation(const vle::devs::ObservationEvent& event) const
 {
-     return mpimpl->observation(event);
+    return mpimpl->observation(event);
 }
 
 void
 DiscreteTimeDyn::processIn(const vle::devs::Time& t,
         DEVS_TransitionType trans)
 {
-     mpimpl->processIn( t, trans);
+    mpimpl->processIn( t, trans);
 }
 
 void
 DiscreteTimeDyn::processOut(const vle::devs::Time& t,
         DEVS_TransitionType trans)
 {
-     mpimpl->processOut(t, trans);
+    mpimpl->processOut(t, trans);
 }
 
 void
 DiscreteTimeDyn::updateGuards(const vle::devs::Time& t,
         DEVS_TransitionType trans)
 {
-     mpimpl->updateGuards(t, trans);
+    mpimpl->updateGuards(t, trans);
 }
 
 void
 DiscreteTimeDyn::handleExtEvt(const vle::devs::Time& t,
         const vle::devs::ExternalEventList& ext)
 {
-     mpimpl->handleExtEvt(t, ext);
+    mpimpl->handleExtEvt(t, ext);
+}
+
+void
+DiscreteTimeDyn::outputVar(const vle::vpz::AtomicModel& model,
+                           const vle::devs::Time& time,
+                           vle::devs::ExternalEventList& output)
+{
+    mpimpl->outputVar(model, time, output);
 }
 
 void
 DiscreteTimeDyn::handleExtVar(const vle::devs::Time& t,
         const std::string& port, const vle::value::Value& attrs)
 {
-     mpimpl->handleExtVar(t, port, attrs);
+    mpimpl->handleExtVar(t, port, attrs);
 }
+
+void
+DiscreteTimeDyn::outputVar(const vle::devs::Time& time,
+        vle::devs::ExternalEventList& output) const
+{
+    mpimpl->outputVar(getModel(), time, output);
+}
+
+
 
 
 }} // namespace

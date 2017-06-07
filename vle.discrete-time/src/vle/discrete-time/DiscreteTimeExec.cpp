@@ -138,12 +138,7 @@ DiscreteTimeExec::getOptions()
     return mpimpl->getOptions();
 }
 
- void
-DiscreteTimeExec::outputVar(const vle::devs::Time& time,
-        vle::devs::ExternalEventList& output) const
-{
-     mpimpl->outputVar(getModel(), time, output);
-}
+
 
  void
 DiscreteTimeExec::updateGuardAllSynchronized(const vle::devs::Time& t)
@@ -254,11 +249,25 @@ DiscreteTimeExec::handleExtEvt(const vle::devs::Time& t,
 }
 
 void
+DiscreteTimeExec::outputVar(const vle::vpz::AtomicModel& model,
+                           const vle::devs::Time& time,
+                           vle::devs::ExternalEventList& output)
+{
+    mpimpl->outputVar(model, time, output);
+}
+
+void
 DiscreteTimeExec::handleExtVar(const vle::devs::Time& t,
         const std::string& port, const vle::value::Map& attrs)
 {
      mpimpl->handleExtVar(t, port, attrs);
 }
 
+void
+DiscreteTimeExec::outputVar(const vle::devs::Time& time,
+       vle::devs::ExternalEventList& output) const
+{
+    mpimpl->outputVar(getModel(), time, output);
+}
 
 }} // namespace

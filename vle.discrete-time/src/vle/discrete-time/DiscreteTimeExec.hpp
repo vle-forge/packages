@@ -129,27 +129,36 @@ public:
     void updateGuards(const vle::devs::Time& t, DEVS_TransitionType trans);
 
     /**
-     * @brief Handles the list of external even
+     * @brief Handles the list of external event
      * @param t, the current time
      * @param ext, the list of external event
      */
     virtual void handleExtEvt(const vle::devs::Time& t,
-            const vle::devs::ExternalEventList& ext);
+            const vle::devs::ExternalEventList& ext) override;
 
+    /**
+     * @brief Outputs one state variable
+     * @param model, the atomic model for which output occurs
+     * @param time, the current time
+     * @param output, the list of outputs external event to fill
+     */
+    virtual void outputVar(const vle::vpz::AtomicModel& model,
+                           const vle::devs::Time& time,
+                           vle::devs::ExternalEventList& output) override;
+
+    /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
+    ////////////////////
+    //Internal
+    ////////////////////
     /**
      * @brief Handles one external even
      * @param t, the current time
      * @param port, the name of the port
      * @param attr, a map of attributes
      */
-    virtual void handleExtVar(const vle::devs::Time& t,
+    void handleExtVar(const vle::devs::Time& t,
             const std::string& port, const vle::value::Map& attrs);
-
-    /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
-    ////////////////////
-    //Internal
-    ////////////////////
-    virtual void outputVar(const vle::devs::Time& time,
+    void outputVar(const vle::devs::Time& time,
             vle::devs::ExternalEventList& output) const;
     void updateGuardAllSynchronized(const vle::devs::Time& t);
     void updateGuardHasSync(const vle::devs::Time& t);
