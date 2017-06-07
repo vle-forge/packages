@@ -29,7 +29,8 @@ vle.extension.cellqss vle.extension.decision
 vle.discrete-time.decision vle.reader vle.tester vle.recursive vle.ode
 vle.ode_test vle.extension.dsdevs vle.extension.fsa
 vle.extension.petrinet vle.examples ext.muparser ext.shapelib
-vle.reader_test vle.recursive_test vle.discrete-time_test vle.tester_test
+vle.reader_test vle.recursive_test vle.discrete-time_test 
+vle.discrete-time.decision_test vle.tester_test
 gvle.discrete-time"
 
 clean_package () {
