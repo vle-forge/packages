@@ -2,16 +2,14 @@ function(DeclareSimulator targetname name sources)
   include_directories(
     ${VLE_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
-    ../decision
+    ${CMAKE_CURRENT_SOURCE_DIR}/../decision
     ${vle.discrete-time_INCLUDE_DIRS}
     ${vle.extension.decision_INCLUDE_DIRS})
-
-  link_directories(${VLE_LIBRARY_DIRS} ../decision)
 
   add_library(${targetname} MODULE ${sources})
 
   target_link_libraries(${targetname}
-	libvle-discrete-time-decision-0.1.a
+	vle.discrete-time.decision
 	${VLE_LIBRARIES} ${vle.discrete-time_LIBRARIES}
 	${vle.extension.decision_LIBRARIES})
 
