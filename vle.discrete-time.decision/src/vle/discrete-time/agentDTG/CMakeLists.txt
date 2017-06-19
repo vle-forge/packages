@@ -6,6 +6,8 @@ function(DeclareSimulator targetname name sources)
     ${vle.discrete-time_INCLUDE_DIRS}
     ${vle.extension.decision_INCLUDE_DIRS})
 
+  link_directories(${VLE_LIBRARY_DIRS})
+
   add_library(${targetname} MODULE ${sources})
 
   target_link_libraries(${targetname}
