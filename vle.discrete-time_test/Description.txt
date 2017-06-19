@@ -1,7 +1,7 @@
 Package: vle.discrete-time_test
 Version: 0.1.0
 Depends: vle.output
-Build-Depends: vle.tester, vle.reader, vle.discrete-time, vle.extension.fsa, vle.extension.dsdevs, vle.discrete-time.decision
+Build-Depends: vle.tester, vle.reader, vle.discrete-time, vle.extension.fsa, vle.extension.dsdevs
 Conflicts:
 Maintainer: Ronan Trépos <ronan.trepos@toulouse.inra.fr>
 Description: Test package for vle.discrete-time
