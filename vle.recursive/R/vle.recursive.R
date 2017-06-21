@@ -14,6 +14,9 @@
 
 vle.recursive.dateToNum = function (dateStr)
 {
+  if (! is.character(dateStr)) {
+    return(NA);
+  } 
   return (as.numeric(as.Date(dateStr, format="%Y-%m-%d") + 2440588));
 }
 
@@ -55,7 +58,7 @@ vle.recursive.dateFromNum = function(dateNum)
 #' 
 #' @examples
 #' 
-#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz")
+#' f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
 #'  
 vle.recursive.init = function(pkg=NULL, file=NULL)
 {
@@ -724,6 +727,8 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
 {
   #read observations
   output_vars = vle.recursive.readObservationsHeader(file=file_obs);
+  output_vars_without_id = output_vars;
+  output_vars_without_id[["id"]] <- NULL;
   observations = vle.recursive.readObservations(file=file_obs, 
                    output_vars=output_vars, withWarnings=TRUE)
   #read simulations
@@ -735,8 +740,12 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
    id_sim = intersect(id, id_sim);
   }  
 
-  vle.recursive.setSimulations(rvle_handle=rvle_handle, sim=simulations, 
-        output_vars=output_vars,  id=id_sim, withWarnings=TRUE)
+  vle.recursive.setSimulations(rvle_handle=rvle_handle, sim=simulations,
+       id=id_sim, withWarnings=TRUE);
+  
+  vle.recursive.setOutputs(rvle_handle=rvle_handle,
+       output_vars=output_vars_without_id,
+       integration='all');
 
   sim_res = vle.recursive.simulate(rvle_handle=rvle_handle);
 
@@ -780,35 +789,108 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
   return(ret);
 }
 
+
 #'
-#' set parameters for multisimulations of vle models from a dataframe or csv file
+#' Performs a sensitivy analysis
+#'
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
+#' @param: file_as, either a filename of a csv file or a dataframe
+#'     column1 Param: gives the parameter (with form cond.port)
+#'     column2 Value: gives the default value 
+#'     column3 min: gives the minimal value (or NA) if it does not vary
+#'     column3 max: gives the maximal value (or NA) if it does not vary
+#' @param output_vars, list of named path eg c(LAI="view/Coupled:Atomic.port")
+#'     on which the sensitivity analysis is performed
+#' @param integration, type of integration for outputs (default 'last')
+#' @param r, number of replicate of the morris method
+#' 
+#' usage:
+#'  source("vle.recursive.R")
+#'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
+#'  
+#'
+vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_as=NULL,
+                   output_vars=NULL, integration=NULL, r=100)
+{
+  library(sensitivity)
+  as_bounds = read.table(file_as, sep=";", header=T, stringsAsFactors=F,
+          row.names=c("default", "min","max"));
+  as_bounds$parameter <- NULL;
+  bounds=NULL;
+  bounds_col_names=NULL;
+  bounds_row_names=c("min", "max");
+  #set propagate and define bounds
+  for (i in 2:ncol(as_bounds)) {
+    
+    if (is.na(as_bounds["min",i])) {
+      #define propagate
+      vle.recursive.configPropagate(rvle_handle=rvle_handle, 
+          propagate=names(as_bounds)[i], 
+          value=as_bounds["default",i]);
+    } else {
+      #define bound
+      bounds = cbind(bounds, c(as_bounds["min",i], as_bounds["max",i])); 
+      bounds_col_names = c(bounds_col_names, names(as_bounds)[i]);
+    }
+  }
+  bounds = as_bounds[, which(! is.na(as_bounds["min", ]))]
+  #convert date to int if required
+  for (i in colnames(bounds)){
+    if (! is.na(vle.recursive.dateToNum(bounds["default", i]))) {
+        bounds[, i] = as.integer(c(
+                        vle.recursive.dateToNum(bounds["default", i]),
+                        vle.recursive.dateToNum(bounds["min", i]),
+                        vle.recursive.dateToNum(bounds["max", i])))
+    }
+  }
+
+  #generate plan
+  morris_res = morris(model=NULL, 
+      factors = as.character(colnames(bounds)), 
+      r = r, design = list(type="oat", levels=5, grid.jump=2),
+      binf=as.numeric(bounds["min",]), bsup=as.numeric(bounds["max",]));
+
+  #config simulator with exp plan
+  for (i in 1:ncol(bounds)){
+     vle.recursive.configInput(rvle_handle=rvle_handle, 
+          input=colnames(bounds)[i], 
+          values=morris_res$X[,i]);
+  }
+  vle.recursive.setOutputs(rvle_handle=rvle_handle, output_vars=output_vars,
+       integration=integration);
+  res = vle.recursive.simulate(rvle_handle);
+  res_sensitivity = list();
+  for (i in names(output_vars)) {
+    morris_res_bis = morris_res;
+    tell(morris_res_bis, res[[i]][1,])
+    res_sensitivity[[i]] <- morris_res_bis
+  }
+  return(res_sensitivity)  
+}
+
+#'
+#' set parameters for multisimulations of vle models from a dataframe 
+#' or csv file
 #'
 #' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param: sim, either a filename of a csv file or a dataframe
-#' @param: output_vars, the variables to simulate: eg of the form 
-#'              c(LAI="view/AzodynWheat:PlantGrowthCereal.LAI")
 #' @param: id [optionnal], vector of int giving the simulations id to perform
-#' @param: withWarnings, if true, warning are given while reading data
+#' @param: withWarnings [optionnal], if true, warning are given while 
+#'                                   reading data
 #' @return: eg. a names list (names ar vars) of matrices 
 #'               of nb simu rows and time columns
 #' 
 #' usage:
-#'  source("azodyn.R")
-#'  
-#'  r = azodyn.multi(crop = "barley", 
-#'                   sim="../data/simu_barley.csv", 
-#'                   var = "QNEng");
-#'  write.csv2(r, file="/tmp/simuQNEng.csv", row.names=FALSE) 
-#'  
-#'  data = read.csv("../data/simu_barley.csv", sep =";", 
-#'                  skip=1, stringsAsFactors = FALSE)
-#'  r2 = azodyn.multi(crop = "barley", sim=data, var = "QNEng");
+#'  source("vle.recursive.R")
+#'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
+#'  vle.recursive.setSimulations(rvle_handle=f,, 
+#'                   sim="simu_file.csv"); 
+#'  r = vle.recursive.simulate(f)
 #'  
 #'
-vle.recursive.setSimulations = function(rvle_handle=NULL, sim=NULL, output_vars=NULL, 
+vle.recursive.setSimulations = function(rvle_handle=NULL, sim=NULL,
                                         id=NULL, withWarnings=TRUE)
 {
-  
   #read inputs
   inputs=NULL;
   if (is.character(sim)) {
@@ -818,7 +900,6 @@ vle.recursive.setSimulations = function(rvle_handle=NULL, sim=NULL, output_vars=
   }
 
   #keep only line to simulate
-  
   if (! is.null(id)) {
     if (! all(id %in% inputs$id)) {
        stop("[vle.recursive] requiring to simulate id that does not exist");
@@ -837,17 +918,56 @@ vle.recursive.setSimulations = function(rvle_handle=NULL, sim=NULL, output_vars=
        }
      }
   }
-  
-  #config output
-  for (var in names(output_vars)) {
-     output_path =  output_vars[[var]];
-     if (!(var == "id" && output_path == "id")) {
-       vle.recursive.configOutput(rvle_handle=rvle_handle, id=var,
-                                path=output_path, integration='all');
-     }
-  }
 }
 
+
+#'
+#' Set outputs for simulation
+#' 
+#' @export
+#' 
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
+#' @param output_vars, a list of named characher eg. c(LAI="view/Coupled:atomic.port)
+#'        each one identifies an output, names are output ids and content are paths
+#' @param integration, list of integrations type amongst 'last', 'max'
+#'        or 'all' (default = 'last') of size length(output_vars)
+#' @param aggregation_input, list of aggregation types amongst 'mean', 'max' 
+#'        or 'all' (default = 'all') of size length(output_vars)
+#' 
+#' @return NULL
+#' 
+#' @author Ronan Trépos MIA-T, INRA
+#' 
+#' @note
+#' 
+#' all configurations cannot be given with this function (aggregation_replicate, mse,
+#' quantile)
+#' 
+#' @examples
+#' 
+#' #TODO
+#' 
+vle.recursive.setOutputs = function(rvle_handle=NULL, output_vars=NULL,  
+        integration=NULL, aggregation_input=NULL)
+{
+   if (is.null(integration)) {
+     integration = rep('last', length(output_vars));
+   } else if (length(integration) == 1) {
+     integration = rep(integration, length(output_vars));
+   }
+   if (is.null(aggregation_input)) {
+     aggregation_input = rep('all', length(output_vars));
+   } else if (length(aggregation_input) == 1) {
+     aggregation_input = rep(aggregation_input, length(output_vars));
+   }
+   i = 0;
+   for (var in names(output_vars)) {
+     i = i+1;
+     vle.recursive.configOutput(rvle_handle=rvle_handle, id=var,
+       path=output_vars[[var]], integration=integration[i], 
+       	aggregation_input=aggregation_input[i]);
+   } 
+}
 
 
 #'
@@ -910,7 +1030,8 @@ vle.recursive.readObservationsHeader = function(file=NULL)
   if (length(toremove) > 0) {
     obss = obss[,-toremove];
   }
-  return(as.list(obss))
+  obss = as.list(obss);
+  return(obss)
 }
 
 #'
