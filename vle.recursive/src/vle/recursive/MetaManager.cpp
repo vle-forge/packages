@@ -733,6 +733,33 @@ VleOutput::parsePath(const std::string& path)
     }
 }
 
+bool
+VleOutput::extractAtomPathAndPort(std::string& atomPath, std::string& port)
+{
+    std::vector<std::string> splvec;
+    MetaManager::split(splvec, absolutePort, '.');
+    if (splvec.size() != 2) {
+        atomPath.clear();
+        port.clear();
+        return false;
+    }
+    atomPath.assign(splvec[0]);
+    port.assign(splvec[1]);
+    splvec.clear();
+    MetaManager::split(splvec, atomPath, ':');
+    if (splvec.size() < 2) {
+        atomPath.clear();
+        port.clear();
+        return false;
+    }
+    atomPath.assign(splvec[1]);
+    for (unsigned int i=2; i<splvec.size(); i++) {
+        atomPath.append(":");
+        atomPath.append(splvec[i]);
+    }
+    return true;
+}
+
 std::unique_ptr<value::Value>
 VleOutput::insertReplicate(value::Map& result, unsigned int currInput,
         unsigned int nbInputs, unsigned int nbReplicates)
@@ -1172,7 +1199,7 @@ MetaManager::readResultFile(const std::string& filePath, value::Matrix& mat)
 }
 
 std::unique_ptr<vpz::Vpz>
-MetaManager::init_embedded_model(const wrapper_init& init)
+MetaManager::init_embedded_model(const wrapper_init& init, manager::Error& err)
 {
     vle::utils::Package pkg(mCtx, mIdPackage);
     std::string vpzFile = pkg.getExpFile(mIdVpz, vle::utils::PKG_BINARY);
@@ -1180,7 +1207,32 @@ MetaManager::init_embedded_model(const wrapper_init& init)
     std::unique_ptr<vpz::Vpz> model(new vpz::Vpz(vpzFile));
     model->project().experiment().setCombination("linear");
 
-    VleAPIfacilities::changeAllPlugin(*model, "dummy");
+    {//remove useless views, observables and observables ports.
+        vle::vpz::BaseModel* baseModel = model->project().model().node();
+        std::set<std::string> viewsToKeep;
+        std::set<std::string> obsAndPortTokeep;//of the form obs,port
+        std::string atomPath;
+        std::string obsPort;
+
+        for (auto& o : mOutputs) {
+            viewsToKeep.insert(o->view);
+            if (not o->extractAtomPathAndPort(atomPath, obsPort)) {
+                err.code = -1;
+                err.message = utils::format(
+                        "[vle.recursive]: error in analysis of output '%s/%s'",
+                        o->view.c_str(), o->absolutePort.c_str());
+                clear();
+                return nullptr;
+            }
+            vle::vpz::AtomicModel* atomMod = baseModel->findModelFromPath(
+                    atomPath)->toAtomic();
+            obsPort = atomMod->observables() + "," + obsPort;
+            obsAndPortTokeep.insert(obsPort);
+        }
+        VleAPIfacilities::keepOnly(*model, viewsToKeep, obsAndPortTokeep);
+
+
+    }
     std::vector<std::unique_ptr<VleOutput>>::const_iterator itb =
             mOutputs.begin();
     std::vector<std::unique_ptr<VleOutput>>::const_iterator ite =
@@ -1216,7 +1268,10 @@ MetaManager::init_results()
 std::unique_ptr<value::Map>
 MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
 {
-    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init);
+    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init, err);
+    if (err.code) {
+        return nullptr;
+    }
     std::unique_ptr<value::Map> results = init_results();
 
     unsigned int inputSize = inputsSize();
@@ -1278,7 +1333,10 @@ MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
 std::unique_ptr<value::Map>
 MetaManager::run_with_mvle(const wrapper_init& init, manager::Error& err)
 {
-    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init);
+    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init, err);
+    if (err.code) {
+        return nullptr;
+    }
     std::unique_ptr<value::Map> results = init_results();
 
     unsigned int inputSize = inputsSize();
@@ -1425,7 +1483,10 @@ MetaManager::run_with_mvle(const wrapper_init& init, manager::Error& err)
 std::unique_ptr<value::Map>
 MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
 {
-    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init);
+    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init, err);
+    if (err.code) {
+        return nullptr;
+    }
     std::unique_ptr<value::Map> results = init_results();
 
     unsigned int inputSize = inputsSize();

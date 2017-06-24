@@ -349,6 +349,19 @@ public:
     }
 
     /**
+     * @brief extract atom path and port from absolutePort
+     * @param[out] atomPath, the model path into the hierarchy
+     * @param[out] port, observable port of the output
+     * @return true if extraction is ok
+     *
+     * @example
+     *  if absolutePort is 'Coupled:Atomic.Port' then
+     *  atomPath = 'Atomic'
+     *  port = 'Port'
+     */
+    bool extractAtomPathAndPort(std::string& atomPath, std::string& port);
+
+    /**
      * @brief insert a replicate from a map of views
      * @param result, one simulation result (map of views)
      * @param currInput, current input index
@@ -378,7 +391,7 @@ public:
 
     std::string id;
     std::string view;
-    std::string absolutePort;
+    std::string absolutePort;//of the form Coupled:Atomic.Port
     int colIndex;
     bool shared;
     INTEGRATION_TYPE integrationType;
@@ -534,7 +547,8 @@ private:
 
 
 
-    std::unique_ptr<vpz::Vpz> init_embedded_model(const wrapper_init& init);
+    std::unique_ptr<vpz::Vpz> init_embedded_model(const wrapper_init& init,
+            manager::Error& err);
 
     std::unique_ptr<value::Map> init_results();
 
