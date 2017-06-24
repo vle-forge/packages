@@ -164,7 +164,7 @@ vle.recursive.getEmbedded = function(rvle_handle=NULL, input=1, replicate=1)
                 econdPort = strsplit(port, split="input_")[[1]][2]
                 econd = strsplit(econdPort, split="\\.")[[1]][1]
                 eport = strsplit(econdPort, split="\\.")[[1]][2]
-                valSet =  rvle.getConditionPortValues(f, cond, port);
+                valSet =  rvle.getConditionPortValues(rvle_handle, cond, port);
                 if ((class(valSet) == "VleSET")||(class(valSet) == "VleTUPLE")) {
                    rvle.setValueCondition(ftmp, econd, eport,valSet[[input]]);
                 }     
@@ -172,7 +172,7 @@ vle.recursive.getEmbedded = function(rvle_handle=NULL, input=1, replicate=1)
                 econdPort = strsplit(port, split="replicate_")[[1]][2]
                 econd = strsplit(econdPort, split="\\.")[[1]][1]
                 eport = strsplit(econdPort, split="\\.")[[1]][2]
-                valSet =  rvle.getConditionPortValues(f, cond, port);
+                valSet =  rvle.getConditionPortValues(rvle_handle, cond, port);
                 if ((class(valSet) == "VleSET")||(class(valSet) == "VleTUPLE")) {
                    rvle.setValueCondition(ftmp, econd, eport,valSet[[replicate]]);
                 }  
