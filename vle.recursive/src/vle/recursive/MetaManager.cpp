@@ -998,21 +998,12 @@ MetaManager::run(wrapper_init& init,
         tmp.assign(init.getString("config_parallel_type", status));
         if (tmp == "threads") {
             mConfigParallelType = THREADS;
-        } else if (tmp == "mvle") {
-            mConfigParallelType = MVLE;
-            if (! init.exist("working_dir", status)) {
-                err.code = -1;
-                err.message = "[MetaManager] error for "
-                        "mvle config, missing 'working_dir' parameter";
-                return nullptr;
-            }
-            mWorkingDir.assign(init.getString("working_dir", status));
         } else if (tmp == "cvle") {
             mConfigParallelType = CVLE;
             if (! init.exist("working_dir", status)) {
                 err.code = -1;
                 err.message = "[MetaManager] error for "
-                        "mvle config, missing 'working_dir' parameter";
+                        "cvle config, missing 'working_dir' parameter";
                 return nullptr;
             }
             mWorkingDir.assign(init.getString("working_dir", status));
@@ -1180,9 +1171,6 @@ MetaManager::run(wrapper_init& init,
     case THREADS: {
         return run_with_threads(init, err);
         break;
-    } case MVLE: {
-        return run_with_mvle(init, err);
-        break;
     } case CVLE: {
         return run_with_cvle(init, err);
         break;
@@ -1243,9 +1231,6 @@ MetaManager::init_embedded_model(const wrapper_init& init, manager::Error& err)
         case THREADS:
         case CVLE: {
             VleAPIfacilities::changePlugin(*model, (*itb)->view, "storage");
-            break;
-        } case MVLE: {
-            VleAPIfacilities::changePlugin(*model, (*itb)->view, "file");
             break;
         }}
     }
@@ -1331,156 +1316,6 @@ MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
 }
 
 std::unique_ptr<value::Map>
-MetaManager::run_with_mvle(const wrapper_init& init, manager::Error& err)
-{
-    std::unique_ptr<vpz::Vpz> model = init_embedded_model(init, err);
-    if (err.code) {
-        return nullptr;
-    }
-    std::unique_ptr<value::Map> results = init_results();
-
-    unsigned int inputSize = inputsSize();
-    unsigned int repSize = replicasSize();
-    unsigned int outputSize =  mOutputs.size();
-
-    post_inputs(*model, init);
-
-    vu::Package pkg(mCtx, "vle.recursive");//TODO should be saved outside
-    std::string tempvpzPath = pkg.getExpDir(vu::PKG_BINARY);
-    tempvpzPath.append("/temp_gen_MPI.vpz");
-    model->write(tempvpzPath);
-    vu::Spawn mspawn(mCtx);
-    std::string exe = mCtx->findProgram("mpirun").string();
-
-    std::vector < std::string > argv;
-    //use mpi_warn_nf_forgk since mvle launches simulation with fork
-    argv.push_back("--mca");
-    argv.push_back("mpi_warn_on_fork");
-    argv.push_back("0");
-    //        //set more log for mpirun
-    //        argv.push_back("--mca");
-    //        argv.push_back("ras_gridengine_verbose");
-    //        argv.push_back("1");
-    //        argv.push_back("--mca");
-    //        argv.push_back("plm_gridengine_verbose");
-    //        argv.push_back("1");
-    //        argv.push_back("--mca");
-    //        argv.push_back("ras_gridengine_show_jobid");
-    //        argv.push_back("1");
-    //        argv.push_back("--mca");
-    //        argv.push_back("plm_gridengine_debug");
-    //        argv.push_back("1");
-
-    argv.push_back("-np");
-    std::stringstream ss;
-    {
-        ss << mConfigParallelNbSlots;
-        argv.push_back(ss.str());
-    }
-    argv.push_back("mvle");
-    argv.push_back("-P");//TODO should be simulated outside the rr package
-    argv.push_back("vle.recursive");
-    argv.push_back("temp_gen_MPI.vpz");
-
-    //log before run
-    if (mCtx->get_log_priority() >= 7) {
-        mCtx->log(7, "", __LINE__, "",
-                "[vle.recursive] simulation mvle %d \n",
-                mConfigParallelNbSlots);
-        std::string messageDbg ="";
-        for (const auto& s : argv ) {
-            messageDbg += " ";
-            messageDbg += s;
-        }
-        messageDbg += "\n";
-        mCtx->log(1, "", __LINE__, "",
-                "[vle.recursive] launching in dir %s: %s %s",
-                mWorkingDir.c_str(), exe.c_str(), messageDbg.c_str());
-    }
-
-    bool started = mspawn.start(exe, mWorkingDir, argv);
-    if (not started) {
-        err.code = -1;
-        err.message = vle::utils::format(
-                "[MetaManager] Failed to start `%s'", exe.c_str());
-        model.reset(nullptr);
-        results.reset(nullptr);
-        clear();
-        return nullptr;
-    }
-    bool is_success = true;
-    std::string message, output, error;
-    while (not mspawn.isfinish()) {
-        if (mspawn.get(&output, &error)) {
-            if (not error.empty() and message.empty()){
-                //TODO info such as Context are written into error.
-                //                    is_success = false;
-                //                    message.assign(error);
-            }
-            output.clear();
-            error.clear();
-            std::this_thread::sleep_for(std::chrono::microseconds(200));
-        } else {
-            break;
-        }
-    }
-    mspawn.wait();
-    if (! is_success) {
-        err.code = -1;
-        err.message = "[MetaManager] ";
-        err.message += message;
-        model.reset(nullptr);
-        results.reset(nullptr);
-        clear();
-        return nullptr;
-    }
-    mspawn.status(&message, &is_success);
-
-    if (! is_success) {
-        //TODO with mpi_warn_on_fork=0, the forks can lead to an error.
-        //            err.code = -1;
-        //            err.message = "[MetaManager] ";
-        //            err.message += vle::utils::format("Error launching `%s' : %s ",
-        //                    exe.c_str(), message.c_str());
-        //            model.reset(nullptr);
-        //            results.reset(nullptr);
-        //            clear();
-        //            return nullptr;
-    }
-
-    std::unique_ptr<value::Value> aggrValue;
-    for (unsigned int out =0; out < outputSize; out++) {
-        VleOutput& outId = *mOutputs[out];
-        for (unsigned int i = 0; i < inputSize*repSize; i+= repSize) {
-            for (unsigned int j = 0; j < repSize; j++) {
-                std::string vleResultFilePath = mWorkingDir;
-                vleResultFilePath.append(model->project().experiment().name());
-                vleResultFilePath.append("-");
-                vleResultFilePath.append(std::to_string(i+j));
-                vleResultFilePath.append("_");
-                vleResultFilePath.append(outId.view);
-                vleResultFilePath.append(".dat");
-                value::Matrix mat;
-                readResultFile(vleResultFilePath, mat);
-                aggrValue = std::move(outId.insertReplicate(mat, i/repSize,
-                        inputSize, repSize));
-                if (mRemoveSimulationFiles and out == (outputSize-1)) {
-                    utils::Path torm(vleResultFilePath.c_str());
-                    torm.remove();
-                }
-            }
-        }
-        results->set(outId.id, std::move(aggrValue));
-    }
-
-    mCtx->log(7, "", __LINE__, "",
-            "[vle.recursive] aggregation finished \n");
-
-    return results;
-}
-
-
-std::unique_ptr<value::Map>
 MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
 {
     std::unique_ptr<vpz::Vpz> model = init_embedded_model(init, err);
@@ -1529,6 +1364,24 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
     argv.push_back(toString(
             (int(inputSize*repSize)/int(mConfigParallelNbSlots-1))+1));
     argv.push_back("--withoutspawn");
+    ////use mpi_warn_nf_forgk since cvle launches simulation with fork
+    //// if whithspawn (?)
+    //argv.push_back("--mca");
+    //argv.push_back("mpi_warn_on_fork");
+    //argv.push_back("0");
+    ////set more log for mpirun
+    //argv.push_back("--mca");
+    //argv.push_back("ras_gridengine_verbose");
+    //argv.push_back("1");
+    //argv.push_back("--mca");
+    //argv.push_back("plm_gridengine_verbose");
+    //argv.push_back("1");
+    //argv.push_back("--mca");
+    //argv.push_back("ras_gridengine_show_jobid");
+    //argv.push_back("1");
+    //argv.push_back("--mca");
+    //argv.push_back("plm_gridengine_debug");
+    //argv.push_back("1");
     argv.push_back("--package");//TODO required by cvle but unused
     argv.push_back("vle.recursive");//TODO required by cvle but unused
     argv.push_back(tempVpzFile);

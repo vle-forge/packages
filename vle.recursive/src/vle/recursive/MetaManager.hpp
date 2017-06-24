@@ -51,7 +51,7 @@
 namespace vle {
 namespace recursive {
 
-enum CONFIG_PARALLEL_TYPE {THREADS, MVLE, CVLE,  SINGLE};
+enum CONFIG_PARALLEL_TYPE {THREADS, CVLE,  SINGLE};
 enum INTEGRATION_TYPE {LAST, MAX, MSE, ALL};
 
 /**
@@ -436,7 +436,7 @@ private:
     std::vector<std::unique_ptr<VleOutput>> mOutputs;//view * port
     std::vector<std::unique_ptr<value::Value>>
       mOutputValues;//values are Tuple or Set
-    std::string mWorkingDir; //only for mvle
+    std::string mWorkingDir; //only for cvle
     utils::ContextPtr mCtx;
 
 public:
@@ -552,11 +552,7 @@ private:
 
     std::unique_ptr<value::Map> init_results();
 
-
     std::unique_ptr<value::Map> run_with_threads(
-            const wrapper_init& init, manager::Error& err);
-
-    std::unique_ptr<value::Map> run_with_mvle(
             const wrapper_init& init, manager::Error& err);
 
     std::unique_ptr<value::Map> run_with_cvle(
