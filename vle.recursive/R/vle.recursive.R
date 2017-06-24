@@ -700,13 +700,13 @@ vle.recursive.simulate = function(rvle_handle=NULL, withSpawn=1)
                      "pkgs-2.0/vle.recursive/exp/test_error.vpz"); 
     rvle.save(rvle_handle, savedVpz);
     print(paste("[vle.recursive] Error:", res));
+    stop(paste("see saved vpz:", savedVpz));
     rvlelog = paste(Sys.getenv("VLE_HOME"),sep="/", "rvle.log");
-    print(paste("[vle.recursive] rvle log file date: ", 
-                        file.info(rvlelog)$mtime));
     if (file.exists(rvlelog)) {
+      print(paste("[vle.recursive] rvle log file date: ", 
+                        file.info(rvlelog)$mtime));
       cat(readLines(rvlelog),sep="\n")
     }
-    stop(paste("see saved vpz:", savedVpz));
   }
   class(res) = "vle.recursive.simulate";
   return (res)
