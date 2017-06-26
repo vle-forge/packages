@@ -18,6 +18,7 @@
  */
 
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 #include <sstream>
 #include <cmath>
@@ -894,7 +895,8 @@ produceXml(const value::Value& exp, unsigned int k, std::ostream& out,
         return true;
         break;
     case value::Value::TUPLE:
-        out << "<double>" << exp.toTuple().at(k) <<"</double>";
+        out << std::setprecision(std::numeric_limits<double>::digits10)
+            << "<double>" << exp.toTuple().at(k) <<"</double>";
         return true;
         break;
     default:
