@@ -72,7 +72,7 @@ vle.recursive.init = function(pkg=NULL, file=NULL)
 }
 
 #'
-#' init the embedded simulator
+#' check the rvle_handle
 #' 
 #' @export
 #' 
@@ -116,6 +116,32 @@ vle.recursive.check = function(rvle_handle=NULL, all=FALSE)
         return (FALSE);
     }
     return (TRUE);
+}
+
+#'
+#' check a name is of  the form cond.port
+#' 
+#' @export
+#' 
+#' @param name, any char
+#'   
+#' @return TRUE if the name ifs of the form cond.port
+#' 
+#' @author Ronan Trépos MIA-T, INRA
+#' 
+#' @note
+#' 
+#' @examples
+#' TODO
+#'
+vle.recursive.checkCondPortName = function(name=NULL) 
+{
+  resPlit = strsplit(name, split="\\.")[[1]];
+  if (length(resPlit) != 2) {
+     stop(paste("[vle.recursive] Error: cond.port malformed", name));
+     return (FALSE);
+  }
+  return (TRUE)
 }
 
 
@@ -324,6 +350,7 @@ vle.recursive.configPropagate = function(rvle_handle=NULL, propagate=NULL,
       stop("[vle.recursive] Error: rvle_handle is malformed");
       return (NULL);
   }
+  vle.recursive.checkCondPortName(propagate)
   inputPort = paste("propagate", sep="_", propagate);
   
   listPorts = rvle.listConditionPorts(rvle_handle, "cond");
@@ -389,6 +416,7 @@ vle.recursive.configInput = function(rvle_handle=NULL, input=NULL, values=NULL)
       stop("[vle.recursive] Error: rvle_handle is malformed");
       return (NULL);
   }
+  vle.recursive.checkCondPortName(input)
   inputPort = paste("input", sep="_", input);
   
   listPorts = rvle.listConditionPorts(rvle_handle, "cond");
@@ -452,6 +480,7 @@ vle.recursive.configReplicate = function(rvle_handle=NULL, replicate=NULL, value
       stop("[vle.recursive] Error: rvle_handle is malformed");
       return (NULL);
   }
+  vle.recursive.checkCondPortName(replicate)
   inputPort = paste("replicate", sep="_", replicate);
   listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == inputPort) ==0) {
