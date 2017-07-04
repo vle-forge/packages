@@ -737,27 +737,34 @@ VleOutput::parsePath(const std::string& path)
 bool
 VleOutput::extractAtomPathAndPort(std::string& atomPath, std::string& port)
 {
-    std::vector<std::string> splvec;
-    MetaManager::split(splvec, absolutePort, '.');
-    if (splvec.size() != 2) {
+    std::vector<std::string> tokens;
+    utils::tokenize(absolutePort, tokens, ".", false);
+    if (tokens.size() != 2) {
         atomPath.clear();
         port.clear();
         return false;
     }
-    atomPath.assign(splvec[0]);
-    port.assign(splvec[1]);
-    splvec.clear();
-    MetaManager::split(splvec, atomPath, ':');
-    if (splvec.size() < 2) {
+    atomPath.assign(tokens[0]);
+    port.assign(tokens[1]);
+    tokens.clear();
+    utils::tokenize(atomPath, tokens, ":", false);
+    if (tokens.size() != 2) {
         atomPath.clear();
         port.clear();
         return false;
     }
-    atomPath.assign(splvec[1]);
-    for (unsigned int i=2; i<splvec.size(); i++) {
-        atomPath.append(":");
-        atomPath.append(splvec[i]);
+    atomPath.assign(tokens[0]);
+    std::string atomName = tokens[1];
+    tokens.clear();
+    utils::tokenize(atomPath, tokens, ",", false);
+    atomPath.clear();
+    for (unsigned int i=1; i<tokens.size(); i++) {
+        //note: first cpled model is removed in order
+        //to use BaseModel::findModelFromPath
+        atomPath.append(tokens[i]);
+        atomPath.append(",");
     }
+    atomPath.append(atomName);
     return true;
 }
 
