@@ -723,11 +723,11 @@ VleOutput::~VleOutput()
 bool
 VleOutput::parsePath(const std::string& path)
 {
-    std::vector<std::string> splvec;
-    MetaManager::split(splvec, path, '/');
-    if (splvec.size() == 2) {
-        view.assign(splvec[0]);
-        absolutePort.assign(splvec[1]);
+    std::vector<std::string> tokens;
+    utils::tokenize(path, tokens, "/", false);
+    if (tokens.size() == 2) {
+        view.assign(tokens[0]);
+        absolutePort.assign(tokens[1]);
         return true;
     } else {
         return false;
@@ -1657,17 +1657,6 @@ MetaManager::post_inputs(vpz::Vpz& model, const wrapper_init& init)
     }
 }
 
-void
-MetaManager::split(std::vector<std::string>& elems, const std::string &s,
-        char delim)
-{
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-}
-
 bool
 MetaManager::parseInput(const std::string& conf,
         std::string& cond, std::string& port,
@@ -1684,13 +1673,13 @@ MetaManager::parseInput(const std::string& conf,
     } else {
         varname.assign(conf);
     }
-    std::vector <std::string> splvec;
-    MetaManager::split(splvec, varname, '.');
-    if (splvec.size() != 2) {
+    std::vector <std::string> tokens;
+    utils::tokenize(varname, tokens, ".", false);
+    if (tokens.size() != 2) {
         return false;
     }
-    cond.assign(splvec[0]);
-    port.assign(splvec[1]);
+    cond.assign(tokens[0]);
+    port.assign(tokens[1]);
     return not cond.empty() and not port.empty();
 }
 

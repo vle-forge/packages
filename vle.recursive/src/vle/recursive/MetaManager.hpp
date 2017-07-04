@@ -485,12 +485,6 @@ public:
         return run(init_rec, err);
     }
 
-
-
-    //split a string with a char
-    static void split(std::vector<std::string>& elems,
-            const std::string &s, char delim);
-
     /**
      * @brief Parse a string of the type that should identify an input, eg. :
      *   input_cond.port

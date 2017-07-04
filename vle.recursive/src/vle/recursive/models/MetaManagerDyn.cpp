@@ -185,23 +185,23 @@ public:
                     !portName.compare(0, prefix.size(), prefix)) {
                 indexes.assign(portName.substr(prefix.size(),
                         portName.size()));
-                std::vector<std::string>  spl;
-                MetaManager::split(spl, indexes, '_');
-                if (spl.size() == 0){
+                std::vector<std::string>  tokens;
+                utils::tokenize(indexes, tokens, "_", false);
+                if (tokens.size() == 0){
                     return nullptr;
                 }
 
-                std::string outputName(spl[0]);
+                std::string outputName(tokens[0]);
                 if (not mresults->exist(outputName)) {
                     return nullptr;
                 }
                 const vle::value::Value& r = *mresults->get(outputName);
-                if (spl.size() == 1) {
+                if (tokens.size() == 1) {
                     //look for output_Y
                     return r.clone();
-                } else if (spl.size() == 2) {
+                } else if (tokens.size() == 2) {
                     //look for output_Y_i
-                    unsigned int col = std::stoi(spl[1]);
+                    unsigned int col = std::stoi(tokens[1]);
                     if (r.isTable()) {
                         const vle::value::Table& rt = r.toTable();
                         if (rt.width() <= col) {
