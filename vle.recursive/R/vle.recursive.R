@@ -1118,16 +1118,45 @@ vle.recursive.readObservations = function(file=NULL, output_vars=NULL, withWarni
 #'
 #' Generic function for plot
 #' 
-#'  @param: obj, an R object from compareSimObs
-#'  @param: output_vars, 
-#'  @param: obj, a
-
+#'  @param: obj, an R object of type compareSimObs or vle.recursive.simulate
+#'  @param: output_vars, list of output_vars
+#'  @param: id, ids to plots (for compareSimObs only)
+#'  @param: seq, sequence of simulation to plot (for vle.recursive.simulate only)
 #' 
-vle.recursive.plot = function(obj=NULL, output_vars=NULL,  id=NULL) 
+vle.recursive.plot = function(obj=NULL, output_vars=NULL, id=NULL, seq=NULL) 
 {
    library(gridExtra)
    library(grid)
    library(ggplot2)
+   library(reshape2)
+   
+   #try to simulate results of vle.recursive.simulate
+   if (class(obj) == "vle.recursive.simulate"){
+     if (is.null(output_vars)) {
+       stop("[vle.recursive] output_vars should be given ");
+     }
+     if (! is.null(id)) {
+       stop("[vle.recursive] id should not be given ");
+     }
+     gpAll = NULL;
+     i = 1;
+     for (var in output_vars) {
+       sel = 1:ncol(obj[[var]]);
+       
+       if (! is.null(seq)) {
+         sel = seq;
+       }
+       gp = ggplot(data=melt(t(obj[[var]][,sel])), 
+            aes(x=Var2, group=Var1, y=value)) + geom_line()+
+            labs(x="time", y=var); 
+       gpAll[[i]] = gp;
+       i = i+1;
+     }
+     do.call(grid.arrange, gpAll);
+     return (invisible(NULL))
+   }
+   
+   #try to plot compareSimObs
    if (! is.list(obj)) {
      stop("[vle.recursive] obj is not recognized ");
    }
@@ -1165,12 +1194,12 @@ vle.recursive.plot = function(obj=NULL, output_vars=NULL,  id=NULL)
      for (var in vars) {
         df = data.frame(obs=obj$obsValues[[var]], sim=obj$simValues[[var]], 
                         id=obj$id_rmse)
-         gp = ggplot(data=subset(subset(df, !is.na(obs)), !is.na(sim)), 
+        gp = ggplot(data=subset(subset(df, !is.na(obs)), !is.na(sim)), 
                  aes(x=obs, y=sim, label=id))+geom_text() +
                  geom_abline(intercept = 0, slope = 1) +
                  labs(x=paste("obs", var), y=paste("sim", var));
-         gpAll[[i]] = gp;
-         i = i+1;
+        gpAll[[i]] = gp;
+        i = i+1;
      }
      do.call(grid.arrange, gpAll);
      return (invisible(NULL))
