@@ -387,6 +387,13 @@ DelegateOut::integrateReplicate(VleOutput& vleout, vle::value::Matrix& outMat)
         }
         return value::Double::create(max);
         break;
+    } case SUM: {
+        double sum = 0;
+        for (unsigned int i=1; i < outMat.rows(); i++) {
+            sum += outMat.getDouble(vleout.colIndex, i);
+        }
+        return value::Double::create(sum);
+        break;
     } case LAST: {
         if (vleout.shared) {
             const std::unique_ptr<value::Value>& res =
@@ -686,6 +693,8 @@ VleOutput::VleOutput(const std::string& _id,
                     integrationType = LAST;
                 } else if(tmp == "max") {
                     integrationType = MAX;
+                } else if(tmp == "sum") {
+                    integrationType = SUM;
                 } else if(tmp == "mse") {
                     integrationType = MSE;
                 } else if(tmp == "all") {

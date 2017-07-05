@@ -52,7 +52,7 @@ namespace vle {
 namespace recursive {
 
 enum CONFIG_PARALLEL_TYPE {THREADS, CVLE,  SINGLE};
-enum INTEGRATION_TYPE {LAST, MAX, MSE, ALL};
+enum INTEGRATION_TYPE {LAST, MAX, SUM, MSE, ALL};
 
 /**
  * @brief wrapper to an devs::InitEventList and value::Map
