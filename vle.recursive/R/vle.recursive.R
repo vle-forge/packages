@@ -1,4 +1,3 @@
-
 #'
 #' transform a date in julian day
 #' 
@@ -12,7 +11,7 @@
 #' 
 #' @note
 
-vle.recursive.dateToNum = function (dateStr)
+vle.recursive.dateToNum = function(dateStr)
 {
   if (! is.character(dateStr)) {
     return(NA);
@@ -267,6 +266,51 @@ vle.recursive.getValue = function(rvle_handle=NULL, id=NULL)
   return (rvle.getConditionPortValues(ftmp, econd, eport));
 }
 
+#'
+#' Get available outputs in embedded simulator
+#' 
+#' @export
+#' 
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
+#' 
+#' @return list of type c(Port="view/Coupled:Atom.Port", ..)
+#' 
+#' @author Ronan Trépos MIA-T, INRA
+#' 
+#' @note
+#' 
+#' Simulation is required
+#' 
+#' @examples
+#' 
+#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz")
+#' outputsAvail = vle.recursive.getAvailOutputs(f);
+#'  
+vle.recursive.getAvailOutputs = function(rvle_handle=NULL)
+{
+  if (! vle.recursive.check(rvle_handle)) {
+      stop("[vle.recursive] Error: rvle_handle is malformed");
+      return (NULL);
+  }
+  ff = vle.recursive.getEmbedded(rvle_handle);
+  for (v in rvle.listViews(ff)) {
+    rvle.setOutputPlugin(ff, viewname=v, plugin="vle.output/storage");
+  }
+  res = rvle.run(ff);
+  outs = NULL
+  ports = NULL
+  for (v in names(res)) {
+    for (absPort in names(res[[v]])) {
+      if (absPort != "time") {
+        port = strsplit(absPort, split="\\.")[[1]][2];
+        ports =c(ports, port);
+        outs = c(outs, paste(sep="/",v, absPort));
+      }
+    }
+  }
+  names(outs)=ports;
+  return (as.list(outs));
+}
 
 #'
 #' show the content of the embedding simulator
@@ -596,6 +640,61 @@ vle.recursive.configOutput = function(rvle_handle=NULL, id=NULL, path=NULL,
 }
 
 #'
+#' Set outputs for simulation
+#' 
+#' @export
+#' 
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
+#' @param output_vars, a list of named characher eg. 
+#'          c(portname="view/Coupled:atomic.port)
+#'        each one identifies an output, names are output ids and content are paths
+#' @param integration, list of integrations type amongst 'last', 'max'
+#'        or 'all' (default = 'last') of size length(output_vars)
+#' @param aggregation_input, list of aggregation types amongst 'mean', 'max' 
+#'        or 'all' (default = 'all') of size length(output_vars)
+#' 
+#' @return NULL
+#' 
+#' @author Ronan Trépos MIA-T, INRA
+#' 
+#' @note
+#' 
+#' all configurations cannot be given with this function (aggregation_replicate, mse,
+#' quantile)
+#' 
+#' @examples
+#' 
+#' #TODO
+#' 
+vle.recursive.configOutputs = function(rvle_handle=NULL, output_vars=NULL,  
+        integration=NULL, aggregation_input=NULL)
+{
+  if (sum(duplicated(names(output_vars))) > 0){
+    stop(paste(sep="", "[vle.recursive] Error: duplicated output:'",
+               names(output_vars)[which(duplicated(names(output_vars))[1])],
+               "'"));
+    return (NULL);
+  }
+  if (is.null(integration)) {
+   integration = rep('last', length(output_vars));
+  } else if (length(integration) == 1) {
+    integration = rep(integration, length(output_vars));
+  }
+  if (is.null(aggregation_input)) {
+    aggregation_input = rep('all', length(output_vars));
+  } else if (length(aggregation_input) == 1) {
+    aggregation_input = rep(aggregation_input, length(output_vars));
+  }
+  i = 0;
+  for (var in names(output_vars)) {
+    i = i+1;
+    vle.recursive.configOutput(rvle_handle=rvle_handle, id=var,
+      path=output_vars[[var]], integration=integration[i], 
+      	aggregation_input=aggregation_input[i]);
+  } 
+}
+
+#'
 #' config the type of simulations
 #' 
 #' @export
@@ -741,6 +840,231 @@ vle.recursive.simulate = function(rvle_handle=NULL, withSpawn=1)
   return (res)
 }
 
+
+#'
+#' Parses an experiment configuration file
+#'
+#' @param file_expe, either a filename or a dataframe providing bounds on
+#'        inputs. Columns are of type 'cond.port', lines are 'default', 
+#'        'min' and 'max'.
+#' @param rvle_handle [optionnal], a rvle handle built with
+#'        vle.recursive.init, default values are used to initialize the model
+#' @param typeReturn [default:'all'], either 'all' or 'bounds'
+#'        it defines the obect to return
+#' @param skip [default:0], skip parameter of read.table
+#' @return either:
+#'    - the bounds min max of the experiment if typeReturn == 'bounds'
+#'    - the all dataframe (with default values) if typeReturn == 'all'
+#'
+#' usage:
+#'  source("vle.recursive.R")
+#'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
+#'  vle.recursvice(file_expe="myexperiment.csv", rvle_handle=f)
+#'  
+#'
+vle.recursive.parseExpe = function(file_expe=NULL, rvle_handle=NULL,
+ typeReturn='all', skip=0)
+{
+  if (is.character(file_expe)) {
+    file_expe = read.table(file_expe, sep=";", header=T, stringsAsFactors=F,
+          skip=skip, row.names=c("default", "min","max"));
+  }
+  expe = file_expe;
+  expe$parameter <- NULL;
+  bounds=NULL;
+  bounds_col_names=NULL;
+  #set propagate and define bounds
+  for (i in 1:ncol(expe)) {
+    #convert date to int if required
+    if (! is.na(vle.recursive.dateToNum(expe["default", i]))) {
+      if (is.na(expe["min",i])) {
+        expe[, i] = as.numeric(c(
+             vle.recursive.dateToNum(expe["default", i]), NA, NA));
+      } else {    
+        expe[, i] = as.numeric(c(
+             vle.recursive.dateToNum(expe["default", i]), 
+             vle.recursive.dateToNum(expe["min", i]),
+             vle.recursive.dateToNum(expe["max", i])));
+      }
+    }
+    #define propagate
+    if (! is.null(rvle_handle)) {
+      vle.recursive.configPropagate(rvle_handle=rvle_handle, 
+             propagate=names(expe)[i], 
+             value=expe["default",i]);
+    }
+    if (! is.na(expe["min",i])) {
+      inputName = names(expe)[i];
+      #define bound
+      bounds = cbind(bounds, c(expe["min",i], expe["max",i])); 
+      bounds_col_names = c(bounds_col_names, inputName);
+    }
+  }
+  bounds = data.frame(bounds, row.names=c("min", "max"));
+  colnames(bounds) <- bounds_col_names
+  if (typeReturn == 'all') {
+    return (file_expe);
+  } else {
+    return (bounds);
+  }
+}
+
+#'
+#' Parses a simulation file
+#'
+#' @param file_sim, either a filename or a dataframe providing bounds on
+#'        inputs. Columns are of type 'cond.port', lines are 'default', 
+#'        'min' and 'max'.
+#' @param rvle_handle [optionnal], a rvle handle built with
+#'        vle.recursive.init, input values are used to initialize the model
+#' @param withWarnings [default:TRUE], gives warnings if true
+#' @param skip [default:1], skip parameter of read.table
+#' @return the dataframe of intputs
+#'
+#' usage:
+#'
+#'  source("vle.recursive.R")
+#'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
+#'  vle.recursive.parseSim(file_sim="mysimulations.csv", rvle_handle=f)
+#'  
+#'
+vle.recursive.parseSim = function(file_sim=NULL, rvle_handle=NULL, id=NULL,
+  withWarnings=TRUE, skip=1)
+{
+  #read inputs
+  if (is.character(file_sim)) {
+    file_sim = read.table(file_sim, sep=";", skip=skip, header=TRUE, 
+            stringsAsFactors = FALSE); 
+  }
+  inputs = file_sim
+
+  #remove useless columns
+  headerNames = names(inputs)
+  for (n in headerNames) {
+    if (substring(n,1,1) == "X") { #remove it
+      inputs[[n]] <- NULL;
+    } else if (all(is.na(inputs[[n]]))){
+      inputs[[n]] <- NULL;
+      if (withWarnings) {
+        warning(paste("Problem in simulation data: Na in all column", n, 
+                      ", column is removed"));  
+      }
+    } else if (sum(is.na(inputs[[n]])) > 1) {
+      if (withWarnings) {
+        strId = paste(which(is.na(inputs[[n]])), collapse=",");
+        warning(paste("Problem  in simulation data: Na in column", n,
+                      ", missing lines are removed id=", 
+                      strId));
+      }
+      inputs = inputs[!is.na(inputs[[n]]), ];
+    }
+  }
+
+  #keep only line to simulate
+  if (! is.null(id)) {
+    if (! all(id %in% inputs$id) & withWarnings) {
+       warnings("[vle.recursive] requiring to simulate id that does not exist");
+    }
+    inputs = inputs[which(is.element(inputs$id, id)),];
+  }
+
+  #config inputs to simulate
+  if (! is.null(rvle_handle)) {
+    for (input in names(inputs)) {
+      if (input != "id") {
+        if (nrow(inputs) > 1) {
+          vle.recursive.configInput(rvle_handle=rvle_handle, 
+                               input=input, values=inputs[[input]]); 
+        } else {
+          vle.recursive.configPropagate(rvle_handle=rvle_handle, 
+                               propagate=input, value=inputs[[input]]); 
+        }
+      }
+    }
+  }
+  return(inputs)
+}
+
+
+
+#'
+#' Parses an observation file
+#'
+#' @export
+#' 
+#' @param: file_obs,  filename of observations
+#' @param rvle_handle [optionnal], a rvle handle built with
+#'        vle.recursive.init, input values are used to initialize the model
+#' @param typeReturn [default:'all'], 'all' or 'header'
+#' @param withWarnings [default:TRUE], gives warnings if true
+#' @param skip [default:1], skip parameter of read.table
+#' 
+#' @return either 
+#'   - a list of named characher eg. c(VAR="view/Coupled:atomic.port)
+#'  each one identifies an output if typeReturn == 'header'
+#'   - a dataframe of observations if typeReturn == 'all'
+#' 
+vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, 
+  typeReturn='all', withWarnings=TRUE, skip=1)
+{
+  #reader header
+  obss_header = read.table(file_obs, sep=";", skip=skip, header=TRUE, nrow=1,
+            stringsAsFactors = FALSE);
+
+  #remove 'X\\..*'
+  toremove = grep ("X\\.", names(obss_header));
+  #remove 'X'
+  toremove = c(toremove, which(names(obss_header) == "X"));
+  if (length(toremove) > 0) {
+    obss_header = obss_header[,-toremove];
+  }
+  obss_header = as.list(obss_header);
+  header = obss_header;
+  header[["id"]] <- NULL;
+
+  #read content
+  obss = read.table(file_obs, sep=";", skip=2+skip, header=FALSE, 
+            stringsAsFactors = FALSE);
+  if (length(toremove) > 0) {
+    obss = obss[,-toremove];
+  }
+  colnames(obss) <- names(obss_header);
+  
+  #remove useless columns and lines of obss
+  for (n in names(obss_header)) {
+    if (all(is.na(obss[[n]]))){
+      obss[[n]] <- NULL;
+      if (withWarnings){
+          warnings(paste("remove column because all are NA:", n))
+      }
+    }
+  }
+  toremove = NULL;
+  for (r in 1:nrow(obss)) {
+      if (all(is.na(obss[r,]))) {
+          toremove = c(toremove, r);
+          if (withWarnings){
+            warnings(paste("remove row because all are NA:", r))
+          }
+      }
+  }
+  if (! is.null(toremove)) {
+      obss = obss[-toremove,];    
+  }
+
+  #config output
+  if (! is.null(rvle_handle)) {
+
+    vle.recursive.configOutputs(rvle_handle=rvle_handle,
+       output_vars=header, integration='all');
+  }
+  if (typeReturn == 'all') {
+    return (obss);
+  } else {
+    return (header);
+  }
+}
+
 #'
 #' Compute RMSE between simulations and obs
 #' 
@@ -751,32 +1075,24 @@ vle.recursive.simulate = function(rvle_handle=NULL, withSpawn=1)
 #'  @param: typeReturn,  either 'all' or 'rmse'
 #'  @return: a complex structure
 #' 
+
 vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=NULL, 
                                      id=NULL, typeReturn="all")
 {
   #read observations
-  output_vars = vle.recursive.readObservationsHeader(file=file_obs);
-  output_vars_without_id = output_vars;
-  output_vars_without_id[["id"]] <- NULL;
-  observations = vle.recursive.readObservations(file=file_obs, 
-                   output_vars=output_vars, withWarnings=TRUE)
-  #read simulations
-  simulations =  vle.recursive.readSimulations(file=file_sim, 
-                         withWarnings=TRUE)
-  
-  id_sim = intersect(observations$id, simulations$id)
-  if (! is.null(id)) {
-   id_sim = intersect(id, id_sim);
-  }  
+  observations = vle.recursive.parseObs(file_obs=file_obs, rvle_handle=rvle_handle, 
+                                        withWarnings=TRUE)
 
-  vle.recursive.setSimulations(rvle_handle=rvle_handle, sim=simulations,
-       id=id_sim, withWarnings=TRUE);
-  
-  vle.recursive.setOutputs(rvle_handle=rvle_handle,
-       output_vars=output_vars_without_id,
-       integration='all');
+  #read simulations
+  id_sim = unique(observations$id);
+  if (! is.null(id)) {
+    id_sim = intersect(id,observations$id);
+  }
+  simulations =  vle.recursive.parseSim(file_sim=file_sim, 
+                     rvle_handle=rvle_handle, id=id_sim, withWarnings=TRUE)
 
   sim_res = vle.recursive.simulate(rvle_handle=rvle_handle);
+
 
   #recover simulations and observations
   obsValues = list();
@@ -784,10 +1100,10 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
   id_rmse = NULL;
   obs_dates = NULL;
 
-  for (i in 1:length(id_sim)) {
-    idI = id_sim[i]; 
-
+  for (i in 1:length(simulations$id)) {
+    idI = simulations$id[i]; 
     obsi = observations[which(observations$id == idI),];
+
     for (o in 1:nrow(obsi)) {
        dateo = obsi[o, "date"];
        indDateInSim = which(vle.recursive.dateFromNum(sim_res$date[,i]) == dateo)
@@ -811,7 +1127,7 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
   if (typeReturn == 'rmse') {
     ret = list(id_rmse=id_rmse, obsValues=obsValues, simValues=simValues);
   } else {
-    ret = list(id_rmse=id_rmse, id_sim=id_sim, obs_dates=obs_dates, obsValues=obsValues,
+    ret = list(id_rmse=id_rmse, id_sim=simulations$id, obs_dates=obs_dates, obsValues=obsValues,
                simValues=simValues, sim_res = sim_res);
   }
   
@@ -823,11 +1139,7 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
 #' Performs a sensitivy analysis
 #'
 #' @param rvle_handle, a rvle handle built with vle.recursive.init
-#' @param: file_as, either a filename of a csv file or a dataframe
-#'     column1 Param: gives the parameter (with form cond.port)
-#'     column2 Value: gives the default value 
-#'     column3 min: gives the minimal value (or NA) if it does not vary
-#'     column3 max: gives the maximal value (or NA) if it does not vary
+#' @param file_expe, a file_expe parameter of vle.recursive.parseExpe
 #' @param output_vars, list of named path eg c(LAI="view/Coupled:Atomic.port")
 #'     on which the sensitivity analysis is performed
 #' @param integration, type of integration for outputs (default 'last')
@@ -838,41 +1150,11 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
 #'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
 #'  
 #'
-vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_as=NULL,
+vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
                    output_vars=NULL, integration=NULL, r=100)
 {
   library(sensitivity)
-  as_bounds = read.table(file_as, sep=";", header=T, stringsAsFactors=F,
-          row.names=c("default", "min","max"));
-  as_bounds$parameter <- NULL;
-  bounds=NULL;
-  bounds_col_names=NULL;
-  bounds_row_names=c("min", "max");
-  #set propagate and define bounds
-  for (i in 2:ncol(as_bounds)) {
-    
-    if (is.na(as_bounds["min",i])) {
-      #define propagate
-      vle.recursive.configPropagate(rvle_handle=rvle_handle, 
-          propagate=names(as_bounds)[i], 
-          value=as_bounds["default",i]);
-    } else {
-      #define bound
-      bounds = cbind(bounds, c(as_bounds["min",i], as_bounds["max",i])); 
-      bounds_col_names = c(bounds_col_names, names(as_bounds)[i]);
-    }
-  }
-  bounds = as_bounds[, which(! is.na(as_bounds["min", ]))]
-  #convert date to int if required
-  for (i in colnames(bounds)){
-    if (! is.na(vle.recursive.dateToNum(bounds["default", i]))) {
-        bounds[, i] = as.integer(c(
-                        vle.recursive.dateToNum(bounds["default", i]),
-                        vle.recursive.dateToNum(bounds["min", i]),
-                        vle.recursive.dateToNum(bounds["max", i])))
-    }
-  }
-
+  bounds = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
   #generate plan
   morris_res = morris(model=NULL, 
       factors = as.character(colnames(bounds)), 
@@ -885,7 +1167,7 @@ vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_as=NULL,
           input=colnames(bounds)[i], 
           values=morris_res$X[,i]);
   }
-  vle.recursive.setOutputs(rvle_handle=rvle_handle, output_vars=output_vars,
+  vle.recursive.configOutputs(rvle_handle=rvle_handle, output_vars=output_vars,
        integration=integration);
   res = vle.recursive.simulate(rvle_handle);
   res_sensitivity = list();
@@ -896,224 +1178,6 @@ vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_as=NULL,
   }
   return(res_sensitivity)  
 }
-
-#'
-#' set parameters for multisimulations of vle models from a dataframe 
-#' or csv file
-#'
-#' @param rvle_handle, a rvle handle built with vle.recursive.init
-#' @param: sim, either a filename of a csv file or a dataframe
-#' @param: id [optionnal], vector of int giving the simulations id to perform
-#' @param: withWarnings [optionnal], if true, warning are given while 
-#'                                   reading data
-#' @return: eg. a names list (names ar vars) of matrices 
-#'               of nb simu rows and time columns
-#' 
-#' usage:
-#'  source("vle.recursive.R")
-#'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
-#'  vle.recursive.setSimulations(rvle_handle=f,, 
-#'                   sim="simu_file.csv"); 
-#'  r = vle.recursive.simulate(f)
-#'  
-#'
-vle.recursive.setSimulations = function(rvle_handle=NULL, sim=NULL,
-                                        id=NULL, withWarnings=TRUE)
-{
-  #read inputs
-  inputs=NULL;
-  if (is.character(sim)) {
-    inputs = vle.recursive.readSimulations(sim, withWarnings=withWarnings);
-  } else {
-    inputs = sim;
-  }
-
-  #keep only line to simulate
-  if (! is.null(id)) {
-    if (! all(id %in% inputs$id)) {
-       stop("[vle.recursive] requiring to simulate id that does not exist");
-    }
-    inputs = inputs[match(id,inputs$id),];
-  }
-  #config inputs
-  for (input in names(inputs)) {
-     if (input != "id") {
-       if (nrow(inputs) > 1) {
-         vle.recursive.configInput(rvle_handle=rvle_handle, 
-                               input=input, values=inputs[[input]]); 
-       } else {
-         vle.recursive.configPropagate(rvle_handle=rvle_handle, 
-                               propagate=input, value=inputs[[input]]); 
-       }
-     }
-  }
-}
-
-
-#'
-#' Set outputs for simulation
-#' 
-#' @export
-#' 
-#' @param rvle_handle, a rvle handle built with vle.recursive.init
-#' @param output_vars, a list of named characher eg. c(LAI="view/Coupled:atomic.port)
-#'        each one identifies an output, names are output ids and content are paths
-#' @param integration, list of integrations type amongst 'last', 'max'
-#'        or 'all' (default = 'last') of size length(output_vars)
-#' @param aggregation_input, list of aggregation types amongst 'mean', 'max' 
-#'        or 'all' (default = 'all') of size length(output_vars)
-#' 
-#' @return NULL
-#' 
-#' @author Ronan Trépos MIA-T, INRA
-#' 
-#' @note
-#' 
-#' all configurations cannot be given with this function (aggregation_replicate, mse,
-#' quantile)
-#' 
-#' @examples
-#' 
-#' #TODO
-#' 
-vle.recursive.setOutputs = function(rvle_handle=NULL, output_vars=NULL,  
-        integration=NULL, aggregation_input=NULL)
-{
-   if (is.null(integration)) {
-     integration = rep('last', length(output_vars));
-   } else if (length(integration) == 1) {
-     integration = rep(integration, length(output_vars));
-   }
-   if (is.null(aggregation_input)) {
-     aggregation_input = rep('all', length(output_vars));
-   } else if (length(aggregation_input) == 1) {
-     aggregation_input = rep(aggregation_input, length(output_vars));
-   }
-   i = 0;
-   for (var in names(output_vars)) {
-     i = i+1;
-     vle.recursive.configOutput(rvle_handle=rvle_handle, id=var,
-       path=output_vars[[var]], integration=integration[i], 
-       	aggregation_input=aggregation_input[i]);
-   } 
-}
-
-
-#'
-#' Reading of the simulation file if necessary and pretraitement of data
-#' 
-#'  @param: file, a filename of input combinations
-#'  @param: keepID, if true the 'id' column is kept
-#'  @param: withWarnings, if true warnings are given on missing data
-#'  @return: a data.frame of simulations to perform
-#' 
-vle.recursive.readSimulations = function(file=NULL, keepID=TRUE, withWarnings=TRUE)
-{
-  #read inputs
-  inputs = read.table(file, sep=";", skip=1, header=TRUE, 
-            stringsAsFactors = FALSE);
-  #remove useless columns
-  headerNames = names(inputs)
-  for (n in headerNames) {
-    if (substring(n,1,1) == "X") { #remove it
-      inputs[[n]] <- NULL;
-    } else if ((n == "id") && ! keepID){
-      inputs[[n]] <- NULL;
-    } else if (all(is.na(inputs[[n]]))){
-      inputs[[n]] <- NULL;
-      if (withWarnings) {
-        warning(paste("Problem in simulation data: Na in all column", n, 
-                      ", column is removed"));  
-      }
-    } else if (sum(is.na(inputs[[n]])) > 1) {
-      if (withWarnings) {
-        warning(paste("Problem  in simulation data: Na in column", n,
-                      ", missing lines are removed"));
-      }
-      inputs = inputs[!is.na(inputs[[n]]), ];
-    }
-  }
-  return(inputs)
-}
-
-
-#'
-#' Reading of the observations file looking for output headers
-#'
-#' @export
-#' 
-#' @param: file,  filename of observations
-#' 
-#' @return a list of named characher eg. c(LAI="view/Coupled:atomic.port)
-#'  each one identifies an output
-#' 
-vle.recursive.readObservationsHeader = function(file=NULL)
-{
-  obss = read.table(file, sep=";", skip=1, header=TRUE, nrow=1,
-            stringsAsFactors = FALSE);
-
-  #remove 'X\\..*'
-  toremove = grep ("X\\.", names(obss));
-  #remove 'X'
-  toremove = c(toremove, which(names(obss) == "X"));
-  if (length(toremove) > 0) {
-    obss = obss[,-toremove];
-  }
-  obss = as.list(obss);
-  return(obss)
-}
-
-#'
-#' Reading of the observations file if necessary and pretraitement of data
-#' 
-#'  @param:file,  filename of observations
-#'  @param output_vars, the output variables as computed by readObservationsHeader
-#'  @param withWarnings, if true, send warnings when missing data
-#'  @return: a data.frame of observations
-#' 
-vle.recursive.readObservations = function(file=NULL, output_vars=NULL, withWarnings=TRUE)
-{
-  
-  header = read.table(file, sep=";", skip=1, nrow=1, header=FALSE, 
-            stringsAsFactors = FALSE);
-  tokeep = !is.na(header)
-  header = header[tokeep]
-
-  if ((length(header) != length(names(output_vars))) || 
-      (!all.equal(header, names(output_vars)))) {
-    stop("[vle.recursive] In observations file output_vars does not match file header");
-  }
-
-  obss = read.table(file, sep=";", skip=3, header=FALSE, 
-            stringsAsFactors = FALSE);
-
-  obss = as.data.frame(obss[, tokeep])
-  colnames(obss) <- header;
-
-  #remove useless columns and lines of obss
-  for (n in header) {
-    if (all(is.na(obss[[n]]))){
-      obss[[n]] <- NULL;
-      if (withWarnings){
-          warnings(paste("remove column because all are NA:", n))
-      }
-    }
-  }
-  toremove = NULL;
-  for (r in 1:nrow(obss)) {
-      if (all(is.na(obss[r,]))) {
-          toremove = c(toremove, r);
-          if (withWarnings){
-            warnings(paste("remove row because all are NA:", r))
-          }
-      }
-  }
-  if (! is.null(toremove)) {
-      obss = obss[-toremove,];    
-  }
-  return(obss)
-}
-
 
 #'
 #' Generic function for plot
