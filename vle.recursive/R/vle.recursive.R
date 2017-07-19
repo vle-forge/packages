@@ -1144,6 +1144,7 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
 #'     on which the sensitivity analysis is performed
 #' @param integration, type of integration for outputs (default 'last')
 #' @param r, number of replicate of the morris method
+#' @param levels, number levels of the morris method
 #' 
 #' usage:
 #'  source("vle.recursive.R")
@@ -1151,14 +1152,16 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
 #'  
 #'
 vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
-                   output_vars=NULL, integration=NULL, r=100)
+                   output_vars=NULL, integration=NULL, r=100, levels=5)
 {
   library(sensitivity)
   bounds = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
   #generate plan
   morris_res = morris(model=NULL, 
       factors = as.character(colnames(bounds)), 
-      r = r, design = list(type="oat", levels=5, grid.jump=2),
+      scale=TRUE, #warning!! this is required, see if one could directly
+                  #simulate into [0;1]
+      r = r, design = list(type="oat", levels=5, grid.jump=as.integer(levels/2)),
       binf=as.numeric(bounds["min",]), bsup=as.numeric(bounds["max",]));
 
   #config simulator with exp plan
@@ -1178,6 +1181,60 @@ vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
   }
   return(res_sensitivity)  
 }
+
+#'
+#' Performs simulation of a LHS
+#'
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
+#' @param file_expe, a file_expe parameter of vle.recursive.parseExpe
+#' @param output_vars, list of named path eg c(LAI="view/Coupled:Atomic.port")
+#'     for which the the simulation is performed
+#' @param integration, type of integration for outputs (default 'last')
+#' @param n, number of points to generate in LHS
+#' @param typeReturn [default:'all'], either 'all' or 'y'
+#'        it defines the obect to return
+#' 
+#' usage:
+#'  source("vle.recursive.R")
+#'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
+#'  
+#'
+vle.recursive.lhs = function(rvle_handle=rvle_handle, file_expe=NULL,
+                   output_vars=NULL, integration=NULL, n=100, typeReturn='all')
+{
+  library(lhs)
+  bounds = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
+  #generate plan
+  lhs_plan = randomLHS(n=n, k=ncol(bounds));
+
+  #config simulator with exp plan
+  for (i in 1:ncol(bounds)){
+     pname = colnames(bounds)[i];
+     vle.recursive.configInput(rvle_handle=rvle_handle, 
+          input=pname, 
+          values= bounds["min",pname] + 
+                  lhs_plan[,i]*(bounds["max",pname]-bounds["min",pname]));
+  }
+  vle.recursive.configOutputs(rvle_handle=rvle_handle, output_vars=output_vars,
+       integration=integration);
+  res = vle.recursive.simulate(rvle_handle);
+  
+  #build input dataframe
+  if (typeReturn == 'all') {
+    X = NULL;
+    for (i in 1:ncol(bounds)){
+      pname = colnames(bounds)[i];
+      X = cbind(X, bounds["min",pname] + 
+                  lhs_plan[,i]*(bounds["max",pname]-bounds["min",pname]));
+    }
+    colnames(X) <- colnames(bounds);
+    return(list(X=X, y=res));
+  } else {
+    return(res) 
+  }
+}
+
+
 
 #'
 #' Generic function for plot
