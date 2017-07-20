@@ -1143,8 +1143,10 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
 #' @param output_vars, list of named path eg c(LAI="view/Coupled:Atomic.port")
 #'     on which the sensitivity analysis is performed
 #' @param integration, type of integration for outputs (default 'last')
+#' @param method, either 'morris' or 'fast99' or 'sobolEff'
 #' @param r, number of replicate of the morris method
 #' @param levels, number levels of the morris method
+#' @param n, sample size of fast99 method or sobolEff
 #' 
 #' usage:
 #'  source("vle.recursive.R")
@@ -1152,32 +1154,59 @@ vle.recursive.compareSimObs=function(rvle_handle=NULL, file_sim=NULL, file_obs=N
 #'  
 #'
 vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
-                   output_vars=NULL, integration=NULL, r=100, levels=5)
+                   output_vars=NULL, integration=NULL, method='morris', 
+                   r=100, levels=5, n=100)
 {
   library(sensitivity)
   bounds = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
   #generate plan
-  morris_res = morris(model=NULL, 
+  sensi_plan = NULL;
+  if (method == 'morris') {
+    sensi_plan = morris(model=NULL, 
       factors = as.character(colnames(bounds)), 
       scale=TRUE, #warning!! this is required, see if one could directly
                   #simulate into [0;1]
       r = r, design = list(type="oat", levels=levels, grid.jump=1),
       binf=as.numeric(bounds["min",]), bsup=as.numeric(bounds["max",]));
+  } else if (method == 'fast99'){
+    bounds_f = NULL
+    for (i in 1:ncol(bounds)) {
+      bounds_f[[i]] = list(min=bounds["min",i], max=bounds["max",i])
+    }
+
+    sensi_plan = fast99(model = NULL, factors=names(bounds), n=n, q="qunif",
+                       q.arg = bounds_f);
+    if (sum(is.na(sensi_plan$omega)) > 1){
+     stop("[vle.recursive] Error: fast99 not enough sims (?)");
+    }
+  } else if (method == 'sobolEff'){
+    X1 = matrix(runif(ncol(bounds) * n), nrow = n);
+    X2 = matrix(runif(ncol(bounds) * n), nrow = n);
+    for (i in 1:ncol(bounds)) {
+      X1[,i] = bounds["min",i] + X1[,i] * (bounds["max",i]- bounds["min",i]);
+      X2[,i] = bounds["min",i] + X2[,i] * (bounds["max",i]- bounds["min",i]);
+    }
+    X1 = as.data.frame(X1);
+    X2 = as.data.frame(X2);
+    colnames(X1) <- colnames(bounds);
+    colnames(X2) <- colnames(bounds);
+    sensi_plan = sobolEff(model = NULL, X1=X1, X2=X2);
+  }
 
   #config simulator with exp plan
   for (i in 1:ncol(bounds)){
      vle.recursive.configInput(rvle_handle=rvle_handle, 
           input=colnames(bounds)[i], 
-          values=morris_res$X[,i]);
+          values=sensi_plan$X[,i]);
   }
   vle.recursive.configOutputs(rvle_handle=rvle_handle, output_vars=output_vars,
        integration=integration);
   res = vle.recursive.simulate(rvle_handle);
   res_sensitivity = list();
   for (i in names(output_vars)) {
-    morris_res_bis = morris_res;
-    tell(morris_res_bis, res[[i]][1,])
-    res_sensitivity[[i]] <- morris_res_bis
+    sensi_plan_bis = sensi_plan;
+    tell(sensi_plan_bis, res[[i]][1,])
+    res_sensitivity[[i]] <- sensi_plan_bis
   }
   return(res_sensitivity)  
 }
