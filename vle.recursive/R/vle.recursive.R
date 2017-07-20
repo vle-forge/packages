@@ -1161,7 +1161,7 @@ vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
       factors = as.character(colnames(bounds)), 
       scale=TRUE, #warning!! this is required, see if one could directly
                   #simulate into [0;1]
-      r = r, design = list(type="oat", levels=5, grid.jump=as.integer(levels/2)),
+      r = r, design = list(type="oat", levels=levels, grid.jump=1),
       binf=as.numeric(bounds["min",]), bsup=as.numeric(bounds["max",]));
 
   #config simulator with exp plan
