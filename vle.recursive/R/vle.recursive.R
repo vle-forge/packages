@@ -1270,10 +1270,9 @@ vle.recursive.lhs = function(rvle_handle=rvle_handle, file_expe=NULL,
 #' 
 #'  @param: obj, an R object of type compareSimObs or vle.recursive.simulate
 #'  @param: output_vars, list of output_vars
-#'  @param: id, ids to plots (for compareSimObs only)
-#'  @param: seq, sequence of simulation to plot (for vle.recursive.simulate only)
+#'  @param: id, ids to plots
 #' 
-vle.recursive.plot = function(obj=NULL, output_vars=NULL, id=NULL, seq=NULL) 
+vle.recursive.plot = function(obj=NULL, output_vars=NULL, id=NULL) 
 {
    library(gridExtra)
    library(grid)
@@ -1285,16 +1284,12 @@ vle.recursive.plot = function(obj=NULL, output_vars=NULL, id=NULL, seq=NULL)
      if (is.null(output_vars)) {
        stop("[vle.recursive] output_vars should be given ");
      }
-     if (! is.null(id)) {
-       stop("[vle.recursive] id should not be given ");
-     }
      gpAll = NULL;
      i = 1;
      for (var in output_vars) {
        sel = 1:ncol(obj[[var]]);
-       
-       if (! is.null(seq)) {
-         sel = seq;
+       if (! is.null(id)) {
+         sel = id;
        }
        gp = ggplot(data=melt(t(obj[[var]][,sel])), 
             aes(x=Var2, group=Var1, y=value)) + geom_line()+
