@@ -182,16 +182,17 @@ VarInterface::initHistoryVar(const std::string& varName,
                             new VarUpdate(t-h*tvp->getDelta(), tuple.at(h)));
                 }
             } else if (itVar->init_value->isDouble()) {
-                unsigned int historySize=1;
-                for (unsigned int h = 0; h < historySize ; h++) {
-                    itVar->history.push_front(
-                            new VarUpdate(t-h * tvp->getDelta(),
-                                    itVar->init_value->toDouble().value()));
-                }
+                itVar->history.push_front(
+                        new VarUpdate(t,
+                                itVar->init_value->toDouble().value()));
+            } else if (itVar->init_value->isInteger()) {
+                itVar->history.push_front(
+                        new VarUpdate(t, (double)
+                                itVar->init_value->toInteger().value()));
             } else {
                 throw vle::utils::ModellingError(
                         vu::format("[%s] Error initialisation of variable '%s'"
-                                " (expect Tuple or Double)\n",
+                                " (expect Tuple, Double or Integer)\n",
                                 tvp->get_model_name().c_str(), varName.c_str()));
             }
         } else {
