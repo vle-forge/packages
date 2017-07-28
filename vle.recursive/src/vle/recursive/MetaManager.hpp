@@ -533,13 +533,68 @@ private:
     void produceCvleInFile(const wrapper_init& init, const std::string& inPath,
             manager::Error& err);
 
+    /**
+     * @brief read header of an id in cvle output file
+     *
+     * @param outFile, ifsream of the cvle output file
+     * @param line, last line read (to avoid new allocation)
+     * @param tokens, last token split (to avoid new allocation)
+     * @param[out] inputId, id of the input
+     * @param[out] inputRepl, id of the replicate
+     *
+     * @return true if header has been correctly parsed, false otherwise
+     *
+     * @note example of lines to read:
+     *
+     *  id_10_2
+     *
+     */
+    bool readCvleIdHeader(std::ifstream& outFile,
+                std::string& line, std::vector <std::string>& tokens,
+                int& inputId, int& inputRepl);
+
+    /**
+     * @brief read header of a view in cvle output file
+     *
+     * @param outFile, ifsream of the cvle output file
+     * @param line, last line read (to avoid new allocation)
+     * @param tokens, last token split (to avoid new allocation)
+     * @param[out] viewName, the name of the view read or empty
+     * if an error occurred
+     *
+     * @note example of lines to read:
+     *
+     * @return true if header has been correctly parsed, false otherwise
+     *
+     *  view:viewNoise
+     *
+     */
+    bool readCvleViewHeader(std::ifstream& outFile,
+            std::string& line, std::vector <std::string>& tokens,
+            std::string& viewName);
+
+    /**
+     * @brief read a matrix form the clve output file
+     *
+     * @param outFile, ifsream of the cvle output file
+     * @param line, last line read (to avoid new allocation)
+     * @param tokens, last token split (to avoid new allocation)
+     * @param nb_rows, insight of the number of rows into the matrix
+     *
+     * @return the matrix filled with read values
+     *
+     * @note example of lines to read:
+     *
+     * time ExBohachevsky:ExBohachevsky.y_noise
+     * 0.000000000000000e+00 2.094757619176503e+02
+     * 1.000000000000000e+00 2.094757619176503e+02
+     * 2.000000000000000e+00 2.094757619176503e+02
+     */
+    std::unique_ptr<vv::Matrix> readCvleMatrix(std::ifstream& outFile,
+            std::string& line, std::vector <std::string>& tokens,
+            unsigned int nb_rows);
+
     std::unique_ptr<value::Map> run(wrapper_init& init, manager::Error& err);
-
-    //file the matrix with the result of one simulation
-    void readResultFile(const std::string& filePath, value::Matrix&);
-
-
-
 
     std::unique_ptr<vpz::Vpz> init_embedded_model(const wrapper_init& init,
             manager::Error& err);

@@ -1005,6 +1005,118 @@ MetaManager::produceCvleInFile(const wrapper_init& init,
 }
 
 
+bool
+MetaManager::readCvleIdHeader(std::ifstream& outFile,
+            std::string& line, std::vector <std::string>& tokens,
+            int& inputId, int& inputRepl)
+{
+    //read empty lines at the beginning
+    if (outFile.eof()) {
+        return false;
+    }
+    std::streampos stream_place = outFile.tellg();
+    std::getline(outFile, line);
+    while(line.empty()) {
+        if (outFile.eof()) {
+            return false;
+        }
+        stream_place = outFile.tellg();
+        std::getline(outFile, line);
+    }
+
+    //split id_10_2
+    tokens.clear();
+    utils::tokenize(line, tokens, "_", false);
+    if (tokens.size() != 3 or tokens[0] != "id") {
+        outFile.seekg(stream_place);
+        return false;
+    } else {
+        inputId = std::stoi(tokens[1]);
+        inputRepl = std::stoi(tokens[2]);
+        return true;
+    }
+}
+
+bool
+MetaManager::readCvleViewHeader(std::ifstream& outFile,
+        std::string& line, std::vector <std::string>& tokens,
+        std::string& viewName)
+{
+    //read empty lines at the beginning
+    if (outFile.eof()) {
+        return false;
+    }
+    std::streampos stream_place = outFile.tellg();
+    std::getline(outFile, line);
+    while(line.empty()) {
+        if (outFile.eof()) {
+            return false;
+        }
+        stream_place = outFile.tellg();
+        std::getline(outFile, line);
+    }
+
+    //split view:viewNoise
+    tokens.clear();
+    utils::tokenize(line, tokens, ":", false);
+    if (tokens.size() != 2 or tokens[0] != "view") {
+        outFile.seekg(stream_place);
+        return false;
+    } else {
+        viewName.assign(tokens[1]);
+        return true;
+    }
+}
+
+std::unique_ptr<vv::Matrix>
+MetaManager::readCvleMatrix(std::ifstream& outFile, std::string& line,
+        std::vector <std::string>& tokens, unsigned int nb_rows)
+{
+    std::unique_ptr<vv::Matrix> viewMatrix(nullptr);
+
+    //read empty lines at the beginning
+    std::streampos stream_place = outFile.tellg();
+    std::getline(outFile, line);
+    while(line.empty()) {
+        stream_place = outFile.tellg();
+        std::getline(outFile, line);
+    }
+
+    //fill matrix header
+    tokens.clear();
+    utils::tokenize(line, tokens, " ", true);
+    unsigned int nbCols = tokens.size();
+    viewMatrix.reset(new value::Matrix(nbCols,1,nbCols, nb_rows));
+    for (unsigned int c=0; c<nbCols; c++){
+        viewMatrix->set(c,0,value::String::create(tokens[c]));
+    }
+
+    //read content
+    while(true){
+        stream_place = outFile.tellg();
+        std::getline(outFile,line);
+        tokens.clear();
+        utils::tokenize(line, tokens, " ", true);
+        if (tokens.size() != nbCols) {
+            outFile.seekg(stream_place);
+            break;
+        }
+        viewMatrix->addRow();
+        for (unsigned int c=0; c<nbCols; c++){
+            if (c == 0 and tokens[c] == "inf") {
+                viewMatrix->set(c,viewMatrix->rows()-1,
+                        value::Double::create(
+                                std::numeric_limits<double>::max()));
+            } else {
+                viewMatrix->set(c,viewMatrix->rows()-1,
+                        value::Double::create(
+                                std::stod(tokens[c])));
+            }
+        }
+    }
+    return viewMatrix;
+}
+
 std::unique_ptr<value::Map>
 MetaManager::run(wrapper_init& init,
         manager::Error& err)
@@ -1194,14 +1306,6 @@ MetaManager::run(wrapper_init& init,
         break;
     }}
     return nullptr;
-}
-
-
-void
-MetaManager::readResultFile(const std::string& filePath, value::Matrix& mat)
-{
-    reader::VleResultsTextReader tfr(filePath);
-    tfr.readFile(mat);
 }
 
 std::unique_ptr<vpz::Vpz>
@@ -1474,83 +1578,37 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
     std::string line;
 
     int inputId = -1;
+    int inputRepl = -1;
     std::string viewName;
     std::map<std::string, int> insightsViewRows;
     std::unique_ptr<value::Matrix> viewMatrix;
 
     std::vector <std::string> tokens;
-    bool finishMatrixLine = true;
-    bool finishViews = true;
+    bool finishViews = false;
     bool finishIds = false;
+    unsigned int nbSimus = 0;
     while(not finishIds){
         //read id_1_0
-        if (not finishViews) {
-            finishViews = true;
-            if (not std::getline(outFile,line)) {//read empty line
-                break;
-            }
-        } else {
-            std::getline(outFile,line);
-        }
-        tokens.clear();
-        utils::tokenize(line, tokens, "_", false);
-        if (tokens.size() != 3 or tokens[0] != "id") {
+        if (not readCvleIdHeader(outFile, line, tokens, inputId, inputRepl)) {
             finishIds = true;
             break;
         }
-        inputId = std::stoi(tokens[1]);
-        //inputRepl = std::stoi(tokens[2]);
         finishViews = false;
         while(not finishViews){
             //read view:viewName
-            if (not finishMatrixLine) {
-                finishMatrixLine = true;
-            } else {
-                std::getline(outFile,line);
-            }
-            tokens.clear();
-            utils::tokenize(line, tokens, ":", false);
-            if (tokens.size() != 2 or tokens[0] != "view") {
+            if (not readCvleViewHeader(outFile, line, tokens, viewName)) {
+                finishViews= true;
                 break;
             }
-            viewName.assign(tokens[1]);
-            //read view header and instantiate matrix view
-            std::getline(outFile,line);
-            tokens.clear();
-            utils::tokenize(line, tokens, " ", true);
-            unsigned int nbCols = tokens.size();
+            //get/set insight of the number of rows
             bool getInsight = (insightsViewRows.find(viewName) !=
                     insightsViewRows.end());
             if (not getInsight) {
                 insightsViewRows.insert(std::make_pair(viewName,100));
             }
             int rows = insightsViewRows[viewName];
-            viewMatrix.reset(new value::Matrix(nbCols,1,nbCols, rows));
-            for (unsigned int c=0; c<nbCols; c++){
-                viewMatrix->set(c,0,value::String::create(tokens[c]));
-            }
-
-            finishMatrixLine = false;
-            while(not finishMatrixLine){
-                std::getline(outFile,line);
-                tokens.clear();
-                utils::tokenize(line, tokens, " ", true);
-                if (tokens.size() != nbCols) {
-                    break;
-                }
-                viewMatrix->addRow();
-                for (unsigned int c=0; c<nbCols; c++){
-                    if (c == 0 and tokens[c] == "inf") {
-                        viewMatrix->set(c,viewMatrix->rows()-1,
-                                value::Double::create(
-                                        std::numeric_limits<double>::max()));
-                    } else {
-                        viewMatrix->set(c,viewMatrix->rows()-1,
-                                value::Double::create(
-                                        std::stod(tokens[c])));
-                    }
-                }
-            }
+            //read matrix of values
+            viewMatrix = std::move(readCvleMatrix(outFile, line, tokens, rows));
             if (not getInsight) {
                 insightsViewRows[viewName] = viewMatrix->rows();
             }
@@ -1574,13 +1632,34 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
                 }
             }
         }
+        nbSimus ++;
     }
+    if (nbSimus != inputSize*repSize) {
+        err.code = -1;
+        err.message = "[vle.recursive] ";
+        err.message += vle::utils::format("Error in simu id=%d, repl=%d ",
+                inputId, inputRepl);
+        std::string prefix_id = "id_";
+        bool stop = false;
+        while (not stop) {
+            std::getline(outFile, line);
+            if (line.substr(0, prefix_id.size()) == prefix_id) {
+                stop = true;
+            } else {
+                err.message +=  line+" ";
+            }
+            stop = stop or outFile.eof();
+        }
+        model.reset(nullptr);
+        results.reset(nullptr);
+        clear();
+    }
+    outFile.close();
     if (mRemoveSimulationFiles) {
         tempOutCsv.remove();
         tempInCsv.remove();
         tempVpzPath.remove();
     }
-
     return results;
 }
 

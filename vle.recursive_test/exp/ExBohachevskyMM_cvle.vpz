@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<vle_project author="Ronan Trépos" date="2015-Jun-15 16:13:07" version="1.3.0">
+<vle_project version="1.3.0" date="2015-Jun-15 16:13:07" author="Ronan Trépos">
  <structures>
-<model y="0" height="376" type="coupled" name="ExBohachevskyMM_cvle" width="482" x="0">
+<model width="482" height="376" y="0" x="0" name="ExBohachevskyMM_cvle" type="coupled">
 <submodels>
-<model y="33" dynamics="metaManagerDyn" height="30" observables="obs" type="atomic" name="ExBohachevskyMM" width="100" x="42" conditions="cond,simulation_engine">
+<model observables="obs" conditions="cond,simulation_engine" dynamics="metaManagerDyn" width="100" height="30" y="33" x="42" name="ExBohachevskyMM" type="atomic">
 </model>
 </submodels>
 <connections>
@@ -11,7 +11,7 @@
 </model>
 </structures>
  <dynamics>
-<dynamic name="metaManagerDyn" library="MetaManagerDyn" package="vle.recursive"/>
+<dynamic library="MetaManagerDyn" package="vle.recursive" name="metaManagerDyn"/>
 </dynamics>
  <experiment combination="linear" name="ExBohachevskyMM_cvle">
 <conditions>
@@ -33,11 +33,11 @@
     </port>
  <port name="output_ynoise">
 <map>
+      <key name="path">
+       <string>viewNoise/ExBohachevsky:ExBohachevsky.y_noise</string>
+      </key>
       <key name="integration">
        <string>max</string>
-      </key>
-      <key name="path">
-       <string>view/ExBohachevsky:ExBohachevsky.y_noise</string>
       </key>
      </map>
     </port>
@@ -69,6 +69,9 @@
 <port name="config_parallel_rm_files">
      <boolean>1</boolean>
     </port>
+   <port name="expe_log">
+     <integer>7</integer>
+    </port>
    </condition>
 <condition name="simulation_engine">
  <port name="begin">
@@ -81,7 +84,7 @@
 </conditions>
 <views>
 <outputs>
-<output plugin="file" location="" format="local" name="view" package="vle.output"/>
+<output format="local" plugin="file" package="vle.output" location="" name="view"/>
 
 </outputs>
 <observables>
@@ -91,23 +94,26 @@
 </port>
 
 <port name="output_ynoise_0">
- <attachedview name="view"/>
-</port>
+ 
+<attachedview name="view"/>
+     </port>
 
 <port name="output_y_1">
- <attachedview name="view"/>
-</port>
+ 
+<attachedview name="view"/>
+     </port>
 
 <port name="output_ynoise_1">
- <attachedview name="view"/>
-</port>
+ 
+<attachedview name="view"/>
+     </port>
 
 
 
 </observable>
 
 </observables>
-<view type="timed" timestep="1.000000000000000" output="view" name="view"/>
+<view timestep="1.000000000000000" output="view" name="view" type="timed"/>
 
 </views>
 </experiment>
