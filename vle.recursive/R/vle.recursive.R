@@ -179,13 +179,13 @@ vle.recursive.getEmbedded = function(rvle_handle=NULL, input=1, replicate=1)
             file=rvle.getConditionPortValues(rvle_handle, "cond", "vpz"));
     for (cond in rvle.listConditions(rvle_handle)) {
         for (port in rvle.listConditionPorts(rvle_handle, cond)) {
-            if (startsWith(port, "propagate_")) {
+            if (substring(port, 1, nchar("propagate_")) == "propagate_") {
                 econdPort = strsplit(port, split="propagate_")[[1]][2]
                 econd = strsplit(econdPort, split="\\.")[[1]][1]
                 eport = strsplit(econdPort, split="\\.")[[1]][2]
                 rvle.setValueCondition(ftmp, econd, eport,
                         rvle.getConditionPortValues(rvle_handle, cond, port));
-            } else if (startsWith(port, "input_")) {
+            } else if (substring(port, 1, nchar("input_")) == "input_") {
                 econdPort = strsplit(port, split="input_")[[1]][2]
                 econd = strsplit(econdPort, split="\\.")[[1]][1]
                 eport = strsplit(econdPort, split="\\.")[[1]][2]
@@ -193,7 +193,7 @@ vle.recursive.getEmbedded = function(rvle_handle=NULL, input=1, replicate=1)
                 if ((class(valSet) == "VleSET")||(class(valSet) == "VleTUPLE")) {
                    rvle.setValueCondition(ftmp, econd, eport,valSet[[input]]);
                 }     
-            } else if (startsWith(port, "replicate_")) {
+            } else if (substring(port, 1, nchar("replicate_")) == "replicate_") {
                 econdPort = strsplit(port, split="replicate_")[[1]][2]
                 econd = strsplit(econdPort, split="\\.")[[1]][1]
                 eport = strsplit(econdPort, split="\\.")[[1]][2]
