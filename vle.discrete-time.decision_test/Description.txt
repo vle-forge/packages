@@ -1,7 +1,7 @@
 Package: MyProject
 Version: 0.1.0
 Depends:
-Build-Depends:  vle.tester, vle.discrete-time, vle.reader,vle.discrete-time, vle.extension.decision, vle.discrete-time.decision
+Build-Depends: vle.reader,vle.tester,vle.discrete-time,vle.extension.decision,vle.discrete-time.decision
 Conflicts:
 Maintainer: Gauthier Quesnel <quesnel@users.sourceforge.net>
 Description: Still in progress

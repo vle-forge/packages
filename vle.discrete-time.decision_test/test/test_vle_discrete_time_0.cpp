@@ -30,4 +30,4 @@
  */
 
 #include <vle/tester/package_tester.hpp>
-VLE_UTILS_TEST("vle.discrete-time.decision_test","tests_file.txt");
+VLE_UTILS_TEST("vle.discrete-time.decision_test","tests_file_0.txt");

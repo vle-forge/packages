@@ -19,14 +19,15 @@ namespace vle {
 namespace discrete_time {
 namespace wwdmDt {
 
-class wwdmDt : public DiscreteTimeDyn
+class wwdmDtbis : public DiscreteTimeDyn
 {
 public:
-wwdmDt(
+wwdmDtbis(
     const vd::DynamicsInit& init,
     const vd::InitEventList& evts)
         : DiscreteTimeDyn(init, evts)
 {
+    SemRec.init(this, "SemRec", evts);
     Eb.init(this, "Eb", evts);
     Eimax.init(this, "Eimax", evts);
     K.init(this, "K", evts);
@@ -49,7 +50,7 @@ Tr.init_value((1 / B()) * std::log(1 + std::exp(A() * TI())));
 
 }
 
-virtual ~wwdmDt()
+virtual ~wwdmDtbis()
 {}
 
     void compute(const vle::devs::Time& /* t */)
@@ -58,21 +59,19 @@ PAR = 0.5 * 0.01 * RG();
 
 Tmean = std::max(0.0, (Tmin() + Tmax()) / 2);
 
-if (ST() == -1) {
-ST = Tmean();
-} else if (ST() == -2) {
-ST = 10000;
-} else {
+if (SemRec() == 0) {
+ST = 0;
+LAI = 0;
+} else if (SemRec() == 1) {
 ST = ST() + Tmean();
-}
-
 LAI = std::max(0.0, Lmax() * ((1 / (1 + std::exp(-A() * (ST() - TI())))) -
                                 std::exp(B() * (ST() - Tr()))));
+}
 
 U = U(-1) + Eb() * Eimax() * (1 - std::exp(-K() * LAI())) * PAR();
 
 }
-
+    Var SemRec; 
     Var Eb;
     Var Eimax;
     Var K;
@@ -96,4 +95,4 @@ U = U(-1) + Eb() * Eimax() * (1 - std::exp(-K() * LAI())) * PAR();
 } // namespace discrete_time
 } // namespace vle
 
-DECLARE_DYNAMICS(vle::discrete_time::wwdmDt::wwdmDt)
+DECLARE_DYNAMICS(vle::discrete_time::wwdmDt::wwdmDtbis)

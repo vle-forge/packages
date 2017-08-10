@@ -124,6 +124,9 @@ AgentDTG(const vd::DynamicsInit& mdl, const vd::InitEventList& evts) :
 
     addOutputFunctions(this) +=
         O("GOut", &AgentDTG::GOut);
+
+    addUpdateFunctions(this) +=
+        U("GUpdate", &AgentDTG::GUpdate);
 }
 
 virtual ~AgentDTG() {}
@@ -652,6 +655,43 @@ GOut(const std::string& name,
         map.addString("name", name);
         map.addString("activity", name);
         map.addString("value", "done");
+    }
+}
+
+void
+GUpdate(const std::string& name,
+        const ved::Activity& activity) {
+
+    std::string locationName = getLocationName(name);
+    std::string portSuffix;
+    std::string statePrefix;
+
+    if (locationName.empty()) {
+        portSuffix = {};
+    } else {
+        portSuffix = "@" + locationName;
+    }
+    if (activity.isInStartedState()) {
+        statePrefix = "Started";
+    } else if (activity.isInDoneState()) {
+        statePrefix = "Done";
+    }
+
+    if (activity.isInStartedState() || activity.isInDoneState()) {
+
+        ved::ActivityParameters::const_iterator it;
+        for (it = activity.params().begin(); it != activity.params().end(); it++) {
+            std::string paramName = getParamName(it->first);
+
+            if (paramName.compare(0,9 + statePrefix.size() ,"_update_" + statePrefix + "_") == 0) {
+                std::string variableName =  paramName.substr(9 + statePrefix.size()) + portSuffix;
+                double variableValue =  activity.params().getDouble(it->first);
+                Variables::const_iterator itv =
+                    getVariables().find(variableName);
+                VarMono* v = (VarMono*) itv->second;
+                v->update(current_date - begin_date, variableValue);
+            }
+        }
     }
 }
 

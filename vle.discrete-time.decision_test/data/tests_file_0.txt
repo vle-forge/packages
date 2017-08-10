@@ -1,8 +1,8 @@
 vle.discrete-time.decision_test case_0.vpz view "top:p1.LAI" 5 10e-5 0
-vle.discrete-time.decision_test case_0.vpz view "top:p1.LAI" 151 10e-5 6.88152
+vle.discrete-time.decision_test case_0.vpz view "top:p1.LAI" 152 10e-5 6.87582
 vle.discrete-time.decision_test case_0.vpz view "top:p1.LAI" 160 10e-5 0
 vle.discrete-time.decision_test case_0.vpz view "top:p1.LAI" 890 10e-5 0
 vle.discrete-time.decision_test case_0.vpz view "top:p2.LAI" 5 10e-5 0
-vle.discrete-time.decision_test case_0.vpz view "top:p2.LAI" 144 10e-5 5.02134
+vle.discrete-time.decision_test case_0.vpz view "top:p2.LAI" 143 10e-5 5.01250
 vle.discrete-time.decision_test case_0.vpz view "top:p2.LAI" 160 10e-5 0
-vle.discrete-time.decision_test case_0.vpz view "top:p2.LAI" 890 10e-5 5.88677
+vle.discrete-time.decision_test case_0.vpz view "top:p2.LAI" 891 10e-5 5.87294
