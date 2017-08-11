@@ -68,8 +68,6 @@
       <port name="TX"/>
       <port name="LAI@p1"/>
       <port name="LAI@p2"/>
-     <port name="SemRec@p1"/>
-      <port name="SemRec@p2"/>
      </in>
      <out>
       <port name="Lmax@p1"/>
@@ -323,6 +321,15 @@
       </key>
      </map>
 </port>
+   <port name="dyn_denys">
+     <set>
+      <string>ack</string>
+      <string>ackOut</string>
+      <string>Lmax@p1</string>
+      <string>Lmax@p2</string>
+      <string>out_plan</string>
+     </set>
+    </port>
    </condition>
   </conditions>
   <views>

@@ -29,7 +29,7 @@
 #include <vle/devs/Dynamics.hpp>
 #include <vle/discrete-time/TemporalValues.hpp>
 #include <vle/discrete-time/details/ComputeInterface.hpp>
-
+#include <vle/value/Set.hpp>
 
 namespace vle {
 namespace discrete_time {
@@ -90,6 +90,8 @@ struct  DEVS_Options
     typedef std::map <std::string, vle::value::Set> ForcingEvents;
     //for a given variable: tells if updates are allowed
     typedef std::map <std::string, bool> AllowUpdates;
+    //to deny ports if dyn_allow
+    typedef std::set <std::string> DenysType;
 
     unsigned int bags_to_eat;
     double dt;
@@ -98,6 +100,7 @@ struct  DEVS_Options
     OutputNils outputNils;
     ForcingEvents* forcingEvents;
     AllowUpdates* allowUpdates;
+    DenysType denys;
 
     vle::value::Integer* outputPeriodsGlobal;
     vle::value::Boolean* outputNilsGlobal;
@@ -134,6 +137,8 @@ struct  DEVS_Options
     bool
     shouldOutputNil(double lastUpdateTime, double currentTime,
             const std::string& varname) const;
+    bool
+    denyDynAllow(const std::string& varname) const;
 
     std::unique_ptr<vle::value::Value>
     getForcingEvent(double currentTime, bool beforeCompute,
@@ -142,6 +147,14 @@ struct  DEVS_Options
     template <class InitializationMap>
     void configDynOptions(const InitializationMap& events)
     {
+        if (events.exist("dyn_denys")) {
+            const vle::value::Set& denyvs = events.getSet("dyn_denys");
+            vle::value::Set::const_iterator isb = denyvs.begin();
+            vle::value::Set::const_iterator ise = denyvs.end();
+            for (; isb != ise; isb++) {
+                denys.insert((*isb)->toString().value());
+            }
+        }
         if (events.exist("dyn_type")) {
             std::string dyn_type =  events.getString("dyn_type");
             if (dyn_type == "Var") {

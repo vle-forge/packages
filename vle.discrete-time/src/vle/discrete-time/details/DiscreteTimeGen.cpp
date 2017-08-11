@@ -435,9 +435,19 @@ Pimpl::initializeFromInitEventList(
             }
             devs_options.addForcingEvents(tvp.get_model_name(),
                     *itb->second, var_name);
+        } else if (!prefix.assign("dyn_allow_").empty() and
+                   !event_name.compare(0, prefix.size(), prefix)) {
+            var_name.assign(event_name.substr(prefix.size(),
+                                              event_name.size()));
+            if (itb->second->toBoolean().value()) {
+                devs_options.denys.erase(var_name);
+            } else {
+                devs_options.denys.insert(var_name);
+            }
         }
     }
 }
+
 
 void
 Pimpl::updateDynState(const vle::devs::Time& t)
@@ -447,15 +457,34 @@ Pimpl::updateDynState(const vle::devs::Time& t)
     std::vector<std::string> toAdd;
 
     devs::Dynamics* dyn = devs_atom->toDynamics();
-    vle::vpz::ConnectionList::const_iterator itb =
+    {
+        vle::vpz::ConnectionList::const_iterator itb =
             dyn->getModel().getInputPortList().begin();
-    vle::vpz::ConnectionList::const_iterator ite =
+        vle::vpz::ConnectionList::const_iterator ite =
             dyn->getModel().getInputPortList().end();
 
-    //add variables
-    for (; itb != ite; itb++) {
-        if (itb->first != "dyn_init" and current_vars.find(itb->first) == ive) {
-            toAdd.push_back(itb->first);
+        //add variables
+        for (; itb != ite; itb++) {
+            if (itb->first != "dyn_init" and current_vars.find(itb->first) == ive) {
+                if (not devs_options.denyDynAllow(itb->first)) {
+                    toAdd.push_back(itb->first);
+                }
+            }
+        }
+    }
+    {
+        vle::vpz::ConnectionList::const_iterator itb =
+            dyn->getModel().getOutputPortList().begin();
+        vle::vpz::ConnectionList::const_iterator ite =
+            dyn->getModel().getOutputPortList().end();
+
+        //add variables
+        for (; itb != ite; itb++) {
+            if (itb->first != "dyn_init" and current_vars.find(itb->first) == ive) {
+                if (not devs_options.denyDynAllow(itb->first)) {
+                    toAdd.push_back(itb->first);
+                }
+            }
         }
     }
     for (std::vector<std::string>::const_iterator avb = toAdd.begin();
@@ -1026,6 +1055,17 @@ DEVS_Options::shouldOutputNil(double lastUpdateTime,
     if (!(lastUpdateTime < currentTime)) return false;
     OutputNils::const_iterator itf = outputNils.find(varname);
     return (itf != outputNils.end() && itf->second);
+}
+
+bool
+DEVS_Options::denyDynAllow(const std::string& varname) const
+{
+    DenysType::iterator itf = denys.find(varname);
+    if (itf == denys.end()) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 std::unique_ptr<vle::value::Value>
