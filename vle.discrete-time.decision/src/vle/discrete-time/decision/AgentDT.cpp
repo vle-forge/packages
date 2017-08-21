@@ -91,7 +91,10 @@ AgentDT::compute(const vle::devs::Time& t)
 {
     current_date = begin_date + t;
 
-    KnowledgeBase::processChanges(current_date);
+    KnowledgeBase::clearLatestActivitiesLists();
+
+    KnowledgeBase::Result mNextChangeTime = KnowledgeBase::processChanges(current_date);
+
     Variables&  vars = getVariables();
     Variables::const_iterator itb = vars.begin();
     Variables::const_iterator ite = vars.end();
@@ -124,6 +127,14 @@ AgentDT::outputVar(const vle::vpz::AtomicModel& model,
                    vle::devs::ExternalEventList& output)
 {
     current_date = begin_date + time;
+
+    {
+        const ActivityList& lst = latestWaitedActivities();
+        ActivityList::const_iterator it = lst.begin();
+        for (; it != lst.end(); ++it) {
+            (*it)->second.output((*it)->first, output);
+        }
+    }
     {
         const ActivityList& lst = latestStartedActivities();
         ActivityList::const_iterator it = lst.begin();
@@ -142,6 +153,7 @@ AgentDT::outputVar(const vle::vpz::AtomicModel& model,
         const ActivityList& lst = latestDoneActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
+            std::cout << " " << (*it)->first;
             (*it)->second.output((*it)->first, output);
         }
     }
@@ -152,6 +164,7 @@ AgentDT::outputVar(const vle::vpz::AtomicModel& model,
             (*it)->second.output((*it)->first, output);
         }
     }
+
     DiscreteTimeDyn::outputVar(model, time, output);
 }
 

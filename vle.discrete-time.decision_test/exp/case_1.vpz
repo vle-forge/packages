@@ -72,7 +72,6 @@
      <out>
       <port name="Lmax@p1"/>
       <port name="ackOut"/>
-      <port name="out_plan"/>
       <port name="Lmax@p2"/>
       <port name="SemRec@p1"/>
       <port name="SemRec@p2"/>
@@ -80,10 +79,6 @@
     </model>
    </submodels>
    <connections>
-    <connection type="internal">
-     <origin model="Farmer" port="out_plan"/>
-     <destination model="Farmer" port="ack"/>
-    </connection>
     <connection type="internal">
      <origin model="Farmer" port="ackOut"/>
      <destination model="Farmer" port="ack"/>

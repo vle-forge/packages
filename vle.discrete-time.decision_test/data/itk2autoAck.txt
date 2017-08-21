@@ -1,0 +1,49 @@
+predicates { #Predicates list
+	predicate {
+		id = "harvesting_1";
+		type = "GPred";
+		parameter {
+			_opLeftType = "Var";
+			_opLeft ="TN";
+			_op =">";
+			_opRightType = "Val";
+			_opRight = 16.;
+		}
+	}
+}
+
+rules { # liste des règles
+	rule {
+		id = "harvestingR_1";
+		predicates = "harvesting_1";
+       }
+}
+
+activities { # liste des activites
+   activity {
+      id = "Sowing";
+      temporal {
+         minstart = "+0-01-19";
+         maxfinish = "+0-02-30";
+      }
+      output = "GOut";
+      update = "GUpdate"; 
+      parameter {
+         _out_Lmax = 7.5;
+         _out_ST = -1;
+      }
+   }
+   activity {
+      id = "Harvesting";
+      temporal {
+         minstart = "+0-03-19";
+         maxfinish = "+0-08-30";
+      }
+      rules = "harvestingR_1";
+      output = "GOut";
+      update = "GUpdate"; 
+      parameter {
+         _out_ST = -2;
+      }
+   }
+}

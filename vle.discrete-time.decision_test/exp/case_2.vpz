@@ -63,7 +63,6 @@
     </model>
    <model observables="obsFarmer" conditions="condFarmer,simulation_engine" dynamics="dynFarmer" width="50" height="50" x="196" y="335" name="Farmer" type="atomic">
      <in>
-      <port name="ack"/>
       <port name="TN"/>
       <port name="TX"/>
       <port name="LAI@p1"/>
@@ -72,17 +71,12 @@
      <out>
       <port name="ST@p1"/>
       <port name="Lmax@p1"/>
-      <port name="ackOut"/>
       <port name="ST@p2"/>
       <port name="Lmax@p2"/>
      </out>
     </model>
    </submodels>
    <connections>
-    <connection type="internal">
-     <origin model="Farmer" port="ackOut"/>
-     <destination model="Farmer" port="ack"/>
-    </connection>
     <connection type="internal">
      <origin model="Meteo" port="TN"/>
      <destination model="Farmer" port="TN"/>
@@ -148,7 +142,7 @@
 
  <dynamic library="agentDTG" package="vle.discrete-time.decision" name="dynFarmer"/>
  </dynamics>
- <experiment name="test_0" seed="123456789">
+ <experiment name="test_2" seed="123456789">
    <conditions>
     <condition name="simulation_engine">
      <port name="begin">
@@ -159,6 +153,9 @@
      </port>"
     <port name="begin_date">
      <string>"2000-1-3"</string>
+    </port>
+   <port name="autoAck">
+     <boolean>1</boolean>
     </port>
    </condition>
    <condition name="condMeteo">
@@ -248,12 +245,8 @@
     <port name="dyn_allow">
      <boolean>1</boolean>
     </port>
-   <port name="sync_dummyIN">
-     <integer>1</integer>
-    </port>
-   <port name="output_nil_ST">
-     <boolean>1</boolean>
-    </port>
+   
+   
 
 
    <port name="PlansLocation">
@@ -284,15 +277,15 @@
         <integer>3</integer>
         <set>
          <integer>1</integer>
-         <string>itk2</string>
+         <string>itk2autoAck</string>
         </set>
         <set>
          <integer>2</integer>
-         <string>itk1</string>
+         <string>itk1autoAck</string>
         </set>
         <set>
          <integer>3</integer>
-         <string>itk3</string>
+         <string>itk3autoAck</string>
         </set>
        </set>
       </key>
@@ -301,15 +294,15 @@
         <integer>3</integer>
         <set>
          <integer>1</integer>
-         <string>itk3</string>
+         <string>itk3autoAck</string>
         </set>
         <set>
          <integer>2</integer>
-         <string>itk2</string>
+         <string>itk2autoAck</string>
         </set>
         <set>
          <integer>3</integer>
-         <string>itk1</string>
+         <string>itk1autoAck</string>
         </set>
        </set>
       </key>
@@ -317,9 +310,6 @@
 </port>
    <port name="dyn_denys">
      <set>
-      <string>ackOut</string>
-      <string>out_plan</string>
-      <string>ack</string>
       <string>ST@p1</string>
       <string>ST@p2</string>
       <string>Lmax@p1</string>
@@ -414,8 +404,8 @@
      <port name="KnowledgeBase">
 
      </port>
-    
-     
+
+
     </observable>
    </observables>
   <view timestep="1" output="ViewFile" name="ViewFile" type="timed"/>
