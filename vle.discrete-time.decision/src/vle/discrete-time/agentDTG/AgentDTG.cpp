@@ -217,6 +217,10 @@ getCurrentYear() const
 std::string
 getLocationName(const std::string activity) const
 {
+    std::size_t found = activity.find("@");
+    if (found == std::string::npos) {
+        return {};
+    }
     strings_t lst;
     boost::split(lst, activity, boost::is_any_of("@:"));
     if (lst.size() <= 1) {
@@ -570,7 +574,12 @@ ack_plan(const std::string&activityname,
                 int counter = mPlanPerLocationCounter.find(it->first)->second++;
                 std::stringstream ss;
                 ss << boost::format("%1$02d") % counter;
-                std::string suf = "@" + it->first + ":" + ss.str();
+                std::string suf;
+                if (it->first == "") {
+                    suf = ":" + ss.str();
+                } else {
+                    suf = "@" + it->first + ":" + ss.str();
+                }
 
                 KnowledgeBase::plan().fill(fileStream, current_date, suf);
             }
