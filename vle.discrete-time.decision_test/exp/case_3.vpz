@@ -138,7 +138,7 @@
  </structures>
  <dynamics>
  <dynamic library="AMeteoReader" package="vle.discrete-time.decision_test" name="dynMeteo"/>
-  <dynamic library="AwwdmDt" package="vle.discrete-time.decision_test" name="dynCrop"/>
+  
 
  <dynamic library="agentDTG" package="vle.discrete-time.decision" name="dynFarmer"/>
  <dynamic library="BwwdmDt" package="vle.discrete-time.decision_test" name="dynCropbis"/>
@@ -406,19 +406,22 @@
    <port name="PAR"/>
   <port name="SemRec">
 
+     <attachedview name="view"/>
      </port>
     </observable>
 
    <observable name="obsFarmer">
-     <port name="KnowledgeBase">
-
-     </port>
+     
 
 
 
 
     <port name="SemRec@p1">
 
+     <attachedview name="view"/>
+     </port>
+    <port name="SemRec@p2">
+      <attachedview name="view"/>
      </port>
     </observable>
    </observables>

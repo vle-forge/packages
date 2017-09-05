@@ -43,7 +43,7 @@ activities { # liste des activites
       output = "GOut";
       update = "GUpdate";
       parameter {
-              _update_Done_SemRec = 0.0;
+              _update_Done_SemRec = 2.0;
 
       }
    }

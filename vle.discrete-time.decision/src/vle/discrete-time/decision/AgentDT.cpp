@@ -128,42 +128,57 @@ AgentDT::outputVar(const vle::vpz::AtomicModel& model,
 {
     current_date = begin_date + time;
 
+    struct classcomp {
+        bool operator() (ActivityList::const_iterator lhs,
+                         ActivityList::const_iterator rhs) const
+        {return (*lhs)->first < (*rhs)->first;}
+    };
+
+    std::set <ActivityList::const_iterator, classcomp> outputList;
     {
         const ActivityList& lst = latestWaitedActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
-            (*it)->second.output((*it)->first, output);
+            outputList.insert(it);
         }
     }
     {
         const ActivityList& lst = latestStartedActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
-            (*it)->second.output((*it)->first, output);
+            outputList.insert(it);
+
         }
     }
     {
         const ActivityList& lst = latestFailedActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
-            (*it)->second.output((*it)->first, output);
+            outputList.insert(it);
         }
     }
     {
         const ActivityList& lst = latestDoneActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
-            std::cout << " " << (*it)->first;
-            (*it)->second.output((*it)->first, output);
+            outputList.insert(it);
+
         }
     }
     {
         const ActivityList& lst = latestEndedActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
-            (*it)->second.output((*it)->first, output);
+            outputList.insert(it);
         }
     }
+
+    std::set <ActivityList::const_iterator, classcomp>::const_iterator it =
+        outputList.begin();
+    for (; it != outputList.end(); ++it) {
+        (*(*it))->second.output((*(*it))->first, output);
+    }
+
 
     DiscreteTimeDyn::outputVar(model, time, output);
 }

@@ -144,7 +144,7 @@
  </structures>
  <dynamics>
  <dynamic library="AMeteoReader" package="vle.discrete-time.decision_test" name="dynMeteo"/>
-  <dynamic library="AwwdmDt" package="vle.discrete-time.decision_test" name="dynCrop"/>
+  
 
  <dynamic library="agentDTG" package="vle.discrete-time.decision" name="dynFarmer"/>
  <dynamic library="BwwdmDt" package="vle.discrete-time.decision_test" name="dynCropbis"/>

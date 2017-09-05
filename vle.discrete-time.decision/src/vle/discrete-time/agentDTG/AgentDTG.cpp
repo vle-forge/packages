@@ -655,6 +655,7 @@ GOut(const std::string& name,
      const ved::Activity& activity,
      vd::ExternalEventList& output) {
 
+
     std::stringstream out;
     out << activity.state();
 
@@ -727,20 +728,110 @@ GUpdate(const std::string& name,
 
     if (activity.isInStartedState() || activity.isInDoneState()) {
 
+        int varToReset = 0;
+
         ved::ActivityParameters::const_iterator it;
         for (it = activity.params().begin(); it != activity.params().end(); it++) {
             std::string paramName = getParamName(it->first);
 
             if (paramName.compare(0,9 + statePrefix.size() ,"_update_" + statePrefix + "_") == 0) {
+                varToReset++;
                 std::string variableName =  paramName.substr(9 + statePrefix.size()) + portSuffix;
                 double variableValue =  activity.params().getDouble(it->first);
                 Variables::const_iterator itv =
                     getVariables().find(variableName);
                 VarMono* v = (VarMono*) itv->second;
-                v->update(current_date - begin_date, variableValue);
+                v->allow_update = true;
+                std::size_t found = name.find("_reset_");
+                if (found != std::string::npos) {
+                    v->update(current_date - begin_date, v->getDefaultInit());
+                } else {
+                    v->update(current_date - begin_date, variableValue);
+                }
+            }
+        }
+
+        std::size_t found = name.find("_reset_");
+        if (found != std::string::npos && activity.isInStartedState()) {
+            setActivityDone(name, current_date);
+            processChanges(current_date);
+            return;
+        }
+
+        // very experimental
+        // rajouter un filtre pour ne pas faire de reset pour rien
+        if (autoAck &&  activity.isInDoneState() && varToReset != 0 && found == std::string::npos) {
+            ved::Activity& a =
+                addActivity(name + "_reset_");
+            a.initStartRangeFinishRange(current_date + .1,
+                                        vd::infinity,
+                                        vd::negativeInfinity,
+                                        current_date + 1);
+            a.addOutputFunction(
+                boost::bind(&AgentDTG::GOut,
+                            this, _1, _2, _3));
+            a.addUpdateFunction(
+                boost::bind(&AgentDTG::GUpdate,
+                            this, _1, _2));
+            a.addParams(activity.params());
+        }
+
+        if (((activity.isInStartedState() and autoAck) ||
+            (activity.isInDoneState() and not autoAck))
+            && activity.params().exist("maxIter")){
+            std::string suffixRetourNum;
+            std::string activityPrefix = getPrefixName(name);
+            mCounter[activityPrefix]++;
+            int counter;
+            if (mCounter.find(activityPrefix) != mCounter.end()) {
+                counter = mCounter.find(activityPrefix)->second;
+            } else {
+                mCounter[activityPrefix] = counter = 0;
+            }
+            int maxIter = activity.params().getDouble("maxIter");
+            double timeLag = 1;
+            if (activity.params().exist("timeLag")) {
+                timeLag = activity.params().getDouble("timeLag");
+            }
+            if (timeLag < 1) {
+                timeLag = 1;
+
+            }
+            suffixRetourNum = getSuffixName(mCounter[activityPrefix]);
+            if (maxIter == 0 || counter < maxIter){
+                ved::Activity& a =
+                    addActivity(activityPrefix + "#" + suffixRetourNum);
+
+                double minstart;
+                if (timeLag == 0.0) {
+                    minstart = activity.minstart();
+                } else {
+                    minstart = current_date + timeLag;
+                }
+
+
+                a.initStartRangeFinishRange(minstart,
+                                            vd::infinity,
+                                            vd::negativeInfinity,
+                                            activity.maxfinish());
+                a.addOutputFunction(
+                    boost::bind(&AgentDTG::GOut,
+                                this, _1, _2, _3));
+                a.addUpdateFunction(
+                    boost::bind(&AgentDTG::GUpdate,
+                                this, _1, _2));
+                for (ved::Rules::const_iterator it = activity.getRules().begin();
+                     it !=  activity.getRules().end(); ++it) {
+                    a.addRule(it->first, it->second);
+                }
+                a.addParams(activity.params());
+                // if (a.params().exist("priority")){
+                //     a.setPriority(a.Params().getDouble("priority"));
+                // }
             }
         }
     }
+
     if (activity.isInStartedState() and autoAck) {
         setActivityDone(name, current_date);
         processChanges(current_date);

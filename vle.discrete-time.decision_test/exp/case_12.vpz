@@ -1,0 +1,187 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" date="" author="Patrick Chabrier">
+ <structures>
+   <model width="300" height="300" x="0" y="0" name="top" type="coupled">
+   <in/>
+   <out/>
+   <submodels>
+    <model observables="obs_agroclim" conditions="cond_agroclim" width="50" dynamics="dyn_agroclim" height="50" y="119" x="50" name="Weather station" type="atomic">
+     <in/>
+     <out>
+      <port name="RR"/>
+     </out>
+    </model>
+   <model observables="obsFarmer" conditions="condFarmer,simulation_engine" dynamics="dynFarmer" width="50" height="50" x="240" y="118" name="Farmer" type="atomic">
+     <in>
+      <port name="Rain"/>
+     </in>
+     <out>
+      <port name="inlet"/>
+     </out>
+    </model>
+    <model observables="obsTank" conditions="simulation_engine,condTank" width="57" dynamics="dynTank" height="50" y="118" x="424" name="Tank" type="atomic">
+     <in>
+      <port name="inletIN"/>
+     </in>
+     <out/>
+    </model>
+   </submodels>
+   <connections>
+    <connection type="internal">
+     <origin model="Weather station" port="RR"/>
+     <destination model="Farmer" port="Rain"/>
+    </connection>
+    <connection type="internal">
+     <origin model="Farmer" port="inlet"/>
+     <destination model="Tank" port="inletIN"/>
+    </connection>
+   </connections>
+  </model>
+ </structures>
+ <dynamics>
+ 
+  
+
+ 
+ 
+ <dynamic library="AMeteoReader" package="vle.discrete-time.decision_test" name="dyn_agroclim"/>
+ <dynamic library="agentDTG" package="vle.discrete-time.decision" name="dynFarmer"/>
+  <dynamic library="AnotherTank" package="vle.discrete-time.decision_test" name="dynTank"/>
+ </dynamics>
+ <experiment name="case_5" seed="123456789">
+   <conditions>
+    <condition name="simulation_engine">
+     <port name="begin">
+      <double>0.0</double>
+     </port>
+     <port name="duration">
+      <double>40</double>
+     </port>"
+    
+   
+   <port name="begin_date">
+     <string>2008-1-1</string>
+    </port>
+   </condition>
+   
+   
+   
+  
+  <condition name="cond_agroclim">
+      <port name="PkgName">
+	<string>vle.discrete-time.decision_test</string>
+      </port>
+      <port name="meteo_file">
+	<string>agroclim.csv</string>
+      </port>
+      <port name="meteo_type">
+	<string>agroclim</string>
+      </port>
+    </condition>
+  <condition name="condFarmer">
+    <port name="dyn_allow">
+     <boolean>1</boolean>
+    </port>
+   
+   
+
+
+   <port name="PlansLocation">
+     <string>vle.discrete-time.decision_test</string>
+    </port>
+   
+    <port name="Rotation">
+<map>
+      <key name="">
+       <set>
+        <integer>1</integer>
+        <set>
+         <integer>1</integer>
+         <string>itkTankIter_6</string>
+        </set>
+       </set>
+      </key>
+     </map>
+</port>
+   
+   <port name="autoAck">
+     <boolean>1</boolean>
+    </port>
+   
+   <port name="dyn_sync">
+     <boolean>1</boolean>
+    </port>
+    <port name="dyn_sync_out">
+     <boolean>0</boolean>
+    </port>
+   </condition>
+  <condition name="condTank">
+    
+    
+   
+   <port name="sync_inletIN">
+     <integer>1</integer>
+    </port>
+   </condition>
+  </conditions>
+  <views>
+   <outputs>
+    <output format="local" plugin="storage" package="vle.output" location="" name="view">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
+   
+   </outputs>
+   <view timestep="1" output="view" name="view" type="timed"/>
+   <observables>
+    
+    
+
+   
+   <observable name="obs_agroclim">
+      
+      
+      
+    <port name="RR">
+      <attachedview name="view"/>
+     </port>
+    </observable>
+   <observable name="obsFarmer">
+     
+
+
+    <port name="inlet">
+      <attachedview name="view"/>
+     </port>
+    <port name="Rain">
+      <attachedview name="view"/>
+     </port>
+    </observable>
+    <observable name="obsTank">
+     <port name="storageVAR">
+      <attachedview name="view"/>
+     </port>
+     <port name="inletIN">
+      <attachedview name="view"/>
+     </port>
+    </observable>
+   </observables>
+  
+  </views>
+ </experiment>
+</vle_project>

@@ -59,7 +59,7 @@ activities { # liste des activites
       update = "GUpdate";
       parameter {
       	 resources = "Nice+Big";
-        _update_Done_SemRec = 0.0;
+        _update_Done_SemRec = 2.0;
       }
    }
 
