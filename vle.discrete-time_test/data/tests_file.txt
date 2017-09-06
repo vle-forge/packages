@@ -196,3 +196,4 @@ vle.discrete-time_test DTexec.vpz view "DTexec:A_3.a" 6 10e-5 2
 vle.discrete-time_test DTexec.vpz view "DTexec:A_4.a" 6 10e-5 1
 vle.discrete-time_test DTexec.vpz view "DTexec:A_5.a" 6 10e-5 0
 vle.discrete-time_test denysDynAllow.vpz view "model1:GenericSum.Sum" 11 10e-5 669
+vle.discrete-time_test outSyncDynAllow.vpz view "model1:GenericSum.Sum" 11 10e-5 669

@@ -1,0 +1,218 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" date="2014-Apr-17 12:48:05" author="Ronan Trépos">
+ <structures>
+<model width="1504" height="501" x="0" y="0" name="model1" type="coupled">
+<submodels>
+<model observables="obsA1" conditions="cond_time_step" width="100" dynamics="dynA1" height="45" x="77" y="76" name="A1" type="atomic">
+<out>
+ <port name="a"/>
+</out>
+</model>
+<model observables="obsB1" conditions="cond_time_step,condB1,cond_init_b" width="100" dynamics="dynB1" height="45" x="291" y="107" name="B1" type="atomic">
+<in>
+ <port name="a"/>
+</in>
+<out>
+ <port name="b"/>
+</out>
+</model>
+<model observables="obsC1" conditions="cond_time_step,condC1,cond_init_b" width="100" dynamics="dynC1" height="45" x="468" y="107" name="C1" type="atomic">
+<in>
+ <port name="b"/>
+</in>
+<out>
+ <port name="c"/>
+</out>
+</model>
+<model observables="obsD1dyn" conditions="cond_time_step,condD1dyn" width="100" dynamics="dynD1dyn" height="60" x="608" y="296" name="D1dyn" type="atomic">
+<in>
+ <port name="a"/>
+ <port name="c"/>
+</in>
+<out>
+ <port name="d"/>
+</out>
+</model>
+<model observables="obsSum" conditions="cond_sum,cond_time_step" width="100" dynamics="dynGenericSum" height="90" x="822" y="176" name="GenericSum" type="atomic">
+<in>
+ <port name="a"/>
+ <port name="b"/>
+ <port name="c"/>
+ <port name="d"/>
+<port name="f"/>
+     </in>
+<out>
+ <port name="Sum"/>
+<port name="d"/>
+      <port name="e"/>
+     </out>
+</model>
+</submodels>
+<connections>
+<connection type="internal">
+ <origin port="a" model="A1"/>
+ <destination port="a" model="GenericSum"/>
+</connection>
+<connection type="internal">
+ <origin port="a" model="A1"/>
+ <destination port="a" model="D1dyn"/>
+</connection>
+<connection type="internal">
+ <origin port="a" model="A1"/>
+ <destination port="a" model="B1"/>
+</connection>
+<connection type="internal">
+ <origin port="b" model="B1"/>
+ <destination port="b" model="C1"/>
+</connection>
+<connection type="internal">
+ <origin port="b" model="B1"/>
+ <destination port="b" model="GenericSum"/>
+</connection>
+<connection type="internal">
+ <origin port="c" model="C1"/>
+ <destination port="c" model="GenericSum"/>
+</connection>
+<connection type="internal">
+ <origin port="c" model="C1"/>
+ <destination port="c" model="D1dyn"/>
+</connection>
+<connection type="internal">
+ <origin port="d" model="D1dyn"/>
+ <destination port="d" model="GenericSum"/>
+</connection>
+</connections>
+</model>
+</structures>
+ <dynamics>
+<dynamic library="A1" package="vle.discrete-time_test" name="dynA1"/>
+<dynamic library="B1" package="vle.discrete-time_test" name="dynB1"/>
+<dynamic library="C1" package="vle.discrete-time_test" name="dynC1"/>
+<dynamic library="D1dyn" package="vle.discrete-time_test" name="dynD1dyn"/>
+<dynamic library="GenericSum" package="vle.discrete-time" name="dynGenericSum"/>
+</dynamics>
+ <experiment duration="1,1" combination="linear" name="model1">
+<conditions>
+<condition name="simulation_engine">
+<port name="begin">
+<double>0.0</double>
+</port>
+<port name="duration">
+<double>1.1</double>
+</port>
+</condition>
+<condition name="condB1">
+ <port name="send_at_init">
+<boolean>false</boolean>
+</port>
+ <port name="sync_a">
+<integer>1</integer>
+</port>
+</condition>
+<condition name="condC1">
+ <port name="init_value_c">
+<double>1.000000000000000</double>
+</port>
+</condition>
+<condition name="condD1dyn">
+ <port name="dyn_init_value">
+<double>1.000000000000000</double>
+</port>
+ 
+ 
+<port name="dyn_allow">
+<boolean>true</boolean>
+</port>
+    <port name="dyn_sync">
+     <boolean>1</boolean>
+    </port>
+    <port name="dyn_sync_out">
+     <boolean>0</boolean>
+    </port>
+   </condition>
+<condition name="cond_init_b">
+ <port name="init_value_b">
+<double>-3.000000000000000</double>
+</port>
+</condition>
+<condition name="cond_sum">
+ <port name="dyn_allow">
+<boolean>true</boolean>
+</port>
+ <port name="dyn_sync">
+<integer>1</integer>
+</port>
+<port name="dyn_denys">
+     <set>
+      <string>e</string>
+      <string>f</string>
+      <string>a</string>
+     </set>
+    </port>
+   <port name="dyn_allow_a">
+     <boolean>1</boolean>
+    </port>
+   </condition>
+<condition name="cond_time_step">
+ <port name="time_step">
+<double>0.100000000000000</double>
+</port>
+</condition>
+</conditions>
+<views>
+<outputs>
+
+
+<output format="local" plugin="console" package="vle.output" name="view" location=""/>
+
+</outputs>
+<observables>
+<observable name="obsA1">
+<port name="a">
+ <attachedview name="view"/>
+ 
+</port>
+
+</observable>
+
+<observable name="obsB1">
+<port name="b">
+ <attachedview name="view"/>
+ 
+</port>
+
+</observable>
+
+<observable name="obsC1">
+<port name="c">
+ <attachedview name="view"/>
+ 
+</port>
+
+</observable>
+
+<observable name="obsD1dyn">
+
+
+
+     <port name="d">
+      <attachedview name="view"/>
+     </port>
+    </observable>
+
+<observable name="obsSum">
+<port name="Sum">
+ 
+ <attachedview name="view"/>
+</port>
+
+</observable>
+
+</observables>
+
+
+<view timestep="0.100000000000000" name="view" output="view" type="timed"/>
+
+</views>
+</experiment>
+</vle_project>
