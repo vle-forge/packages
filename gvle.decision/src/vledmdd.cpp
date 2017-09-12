@@ -1418,6 +1418,8 @@ vleDmDD::addActivityToDoc(const QString& actName, QPointF pos)
     el.setAttribute("y", pos.y());
     el.setAttribute("minstart", "");
     el.setAttribute("maxfinish", "");
+    el.setAttribute("maxiter", "1");
+    el.setAttribute("timeLag", "1");
     xElem = mDocDm->createElement("outputParams");
     el.appendChild(xElem);
     xElem = mDocDm->createElement("rulesAssigment");
@@ -1452,6 +1454,43 @@ vleDmDD::setPositionToActivity(const QString& actName, QPointF pos,
     }
 }
 
+void
+vleDmDD::setMaxIter(const QString& actName, const int maxIter,
+                    bool snap)
+{
+    if (not existActToDoc(actName)) {
+        return;
+    }
+
+    QDomNode act = nodeAct(actName);
+    if (snap) {
+          undoStackDm->snapshot(act);
+    }
+
+    DomFunctions::setAttributeValue(act, "maxiter",  QString::number(maxIter));
+    if (snap) {
+        emit modified(PREDICATE);
+    }
+}
+
+void
+vleDmDD::setTimeLag(const QString& actName, const int timeLag,
+                    bool snap)
+{
+    if (not existActToDoc(actName)) {
+        return;
+    }
+
+    QDomNode act = nodeAct(actName);
+    if (snap) {
+          undoStackDm->snapshot(act);
+    }
+
+    DomFunctions::setAttributeValue(act, "timelag", QString::number(timeLag));
+    if (snap) {
+        emit modified(PREDICATE);
+    }
+}
 void
 vleDmDD::setMinStart(const QString& actName, const QString& min,
                      bool snap)
@@ -1499,7 +1538,29 @@ vleDmDD::isRelativeDate(const QString& actName)
         getMaxFinish(actName)[0] == '+';
 }
 
+int
+vleDmDD::getTimeLag(const QString& actName)
+{
+    if (not existActToDoc(actName)) {
+        return {};
+    }
 
+    QDomNode act = nodeAct(actName);
+
+    return DomFunctions::attributeValue(act, "timelag").toInt();
+}
+
+int
+vleDmDD::getMaxIter(const QString& actName)
+{
+    if (not existActToDoc(actName)) {
+        return {};
+    }
+
+    QDomNode act = nodeAct(actName);
+
+    return DomFunctions::attributeValue(act, "maxiter").toInt();
+}
 QString
 vleDmDD::getMinStart(const QString& actName)
 {
@@ -1911,8 +1972,9 @@ vleDmDD::getData()
                 actListElem += ";\n";
             }
             // parameter
+            int maxIter = getMaxIter(name);
             QDomNodeList params = outParActFromDoc(name);
-            if (params.length() != 0) {
+            if (params.length() != 0 or not (maxIter == 1)) {
                 actListElem =  actListElem + "      parameter {\n";
                 for (int i = 0; i < params.length(); i++) {
                     QDomNode variable = params.item(i);
@@ -1920,6 +1982,13 @@ vleDmDD::getData()
                     QString value = variable.attributes().namedItem("value").nodeValue();
                     actListElem =  actListElem +
                         esp16 + "_out_" + name.toStdString() + " = " + value.toStdString() + ";\n";
+                }
+                int timeLag = getTimeLag(name);
+                if (not (maxIter == 1)) {
+                    actListElem =  actListElem +
+                        esp16 + "maxIter = " + QString::number(maxIter).toStdString() + ";\n";
+                    actListElem =  actListElem +
+                        esp16 + "timeLag = " + QString::number(timeLag).toStdString() + ";\n";
                 }
                 actListElem =  actListElem + "      }";
             }

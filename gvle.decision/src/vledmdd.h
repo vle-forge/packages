@@ -225,6 +225,11 @@ public:
 
     bool isRelativeDate(const QString& actName);
 
+    void setMaxIter(const QString& actName, const int maxIter,
+		    bool snap=true);
+
+    void setTimeLag(const QString& actName, const int timeLag,
+		    bool snap=true);
     /**
      * @brief set minStart to activity
      * @param actName is the name of the activity
@@ -233,6 +238,11 @@ public:
      */
     void setMinStart(const QString& actName, const QString& min,
 		     bool snap=true);
+
+    int getMaxIter(const QString& actName);
+
+    int getTimeLag(const QString& actName);
+
     QString getMinStart(const QString& actName);
 
     /**
