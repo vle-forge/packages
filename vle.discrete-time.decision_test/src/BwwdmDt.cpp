@@ -27,6 +27,7 @@ wwdmDtbis(
     const vd::InitEventList& evts)
         : DiscreteTimeDyn(init, evts)
 {
+    SemRecVar.init(this, "SemRecVar", evts);
     SemRec.init(this, "SemRec", evts);
     Eb.init(this, "Eb", evts);
     Eimax.init(this, "Eimax", evts);
@@ -59,19 +60,26 @@ PAR = 0.5 * 0.01 * RG();
 
 Tmean = std::max(0.0, (Tmin() + Tmax()) / 2);
 
-if (SemRec() == 0) {
-ST = 0;
-LAI = 0;
+if (SemRec() == 2) {
+    SemRecVar = 0;
 } else if (SemRec() == 1) {
-ST = ST() + Tmean();
-LAI = std::max(0.0, Lmax() * ((1 / (1 + std::exp(-A() * (ST() - TI())))) -
-                                std::exp(B() * (ST() - Tr()))));
+    SemRecVar = 1;
+}
+
+if (SemRecVar() == 0) {
+    ST = 0;
+    LAI = 0;
+} else if (SemRecVar() == 1) {
+    ST = ST() + Tmean();
+    LAI = std::max(0.0, Lmax() * ((1 / (1 + std::exp(-A() * (ST() - TI())))) -
+                                  std::exp(B() * (ST() - Tr()))));
 }
 
 U = U(-1) + Eb() * Eimax() * (1 - std::exp(-K() * LAI())) * PAR();
 
 }
-    Var SemRec; 
+    Var SemRecVar;
+    Var SemRec;
     Var Eb;
     Var Eimax;
     Var K;

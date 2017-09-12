@@ -454,7 +454,7 @@ Pimpl::updateDynState(const vle::devs::Time& t)
 {
     Variables& current_vars = tvp.getVariables();
     Variables::const_iterator ive = current_vars.end();
-    std::vector<std::string> toAdd;
+    std::vector<std::pair<std::string, bool>> toAdd;
 
     devs::Dynamics* dyn = devs_atom->toDynamics();
     {
@@ -467,7 +467,7 @@ Pimpl::updateDynState(const vle::devs::Time& t)
         for (; itb != ite; itb++) {
             if (itb->first != "dyn_init" and current_vars.find(itb->first) == ive) {
                 if (not devs_options.denyDynAllow(itb->first)) {
-                    toAdd.push_back(itb->first);
+                    toAdd.push_back(std::make_pair(itb->first, devs_options.dyn_sync));
                 }
             }
         }
@@ -482,14 +482,17 @@ Pimpl::updateDynState(const vle::devs::Time& t)
         for (; itb != ite; itb++) {
             if (itb->first != "dyn_init" and current_vars.find(itb->first) == ive) {
                 if (not devs_options.denyDynAllow(itb->first)) {
-                    toAdd.push_back(itb->first);
+                    toAdd.push_back(std::make_pair(itb->first,
+                                                   devs_options.dyn_sync and
+                                                   devs_options.dyn_sync_out));
                 }
             }
         }
     }
-    for (std::vector<std::string>::const_iterator avb = toAdd.begin();
+    for (std::vector<std::pair<std::string, bool>>::const_iterator avb = toAdd.begin();
          avb != toAdd.end(); avb++) {
-        const std::string& vname = *avb;
+        const std::string& vname = (*avb).first;
+        bool sync = (*avb).second;
 
         VarInterface* v = 0;
         switch (devs_options.dyn_type) {
@@ -504,7 +507,7 @@ Pimpl::updateDynState(const vle::devs::Time& t)
             break;
         }
         devs_options.syncs.insert(std::make_pair(vname,
-                devs_options.dyn_sync));
+                                                 sync));
         v->init_value = devs_options.dyn_init_value->clone();
 
         current_vars.insert(std::make_pair(vname, v));
@@ -961,8 +964,8 @@ DEVS_Options::DEVS_Options():
         bags_to_eat(0), dt(1.0), syncs(), outputPeriods(), outputNils(),
         forcingEvents(0), allowUpdates(0), outputPeriodsGlobal(0),
         outputNilsGlobal(0), snapshot_before(false), snapshot_after(false),
-        dyn_allow(false), dyn_type(MONO), dyn_sync(0), dyn_init_value(),
-        dyn_dim(2)
+        dyn_allow(false), dyn_type(MONO), dyn_sync(0), dyn_sync_out(true),
+        dyn_init_value(), dyn_dim(2)
 {
 }
 

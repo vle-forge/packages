@@ -45,7 +45,7 @@ activities { # liste des activites
       update = "GUpdate";
       parameter {
          _out_Lmax = 5.5;
-         _update_Started_SemRec = 1.0;
+         _update_Done_SemRec = 1.0;
       }
    }
    activity {

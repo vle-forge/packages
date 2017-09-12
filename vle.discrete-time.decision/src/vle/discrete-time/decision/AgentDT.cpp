@@ -91,7 +91,10 @@ AgentDT::compute(const vle::devs::Time& t)
 {
     current_date = begin_date + t;
 
-    KnowledgeBase::processChanges(current_date);
+    KnowledgeBase::clearLatestActivitiesLists();
+
+    KnowledgeBase::Result mNextChangeTime = KnowledgeBase::processChanges(current_date);
+
     Variables&  vars = getVariables();
     Variables::const_iterator itb = vars.begin();
     Variables::const_iterator ite = vars.end();
@@ -124,34 +127,59 @@ AgentDT::outputVar(const vle::vpz::AtomicModel& model,
                    vle::devs::ExternalEventList& output)
 {
     current_date = begin_date + time;
+
+    struct classcomp {
+        bool operator() (ActivityList::const_iterator lhs,
+                         ActivityList::const_iterator rhs) const
+        {return (*lhs)->first < (*rhs)->first;}
+    };
+
+    std::set <ActivityList::const_iterator, classcomp> outputList;
+    {
+        const ActivityList& lst = latestWaitedActivities();
+        ActivityList::const_iterator it = lst.begin();
+        for (; it != lst.end(); ++it) {
+            outputList.insert(it);
+        }
+    }
     {
         const ActivityList& lst = latestStartedActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
-            (*it)->second.output((*it)->first, output);
+            outputList.insert(it);
+
         }
     }
     {
         const ActivityList& lst = latestFailedActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
-            (*it)->second.output((*it)->first, output);
+            outputList.insert(it);
         }
     }
     {
         const ActivityList& lst = latestDoneActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
-            (*it)->second.output((*it)->first, output);
+            outputList.insert(it);
+
         }
     }
     {
         const ActivityList& lst = latestEndedActivities();
         ActivityList::const_iterator it = lst.begin();
         for (; it != lst.end(); ++it) {
-            (*it)->second.output((*it)->first, output);
+            outputList.insert(it);
         }
     }
+
+    std::set <ActivityList::const_iterator, classcomp>::const_iterator it =
+        outputList.begin();
+    for (; it != outputList.end(); ++it) {
+        (*(*it))->second.output((*(*it))->first, output);
+    }
+
+
     DiscreteTimeDyn::outputVar(model, time, output);
 }
 

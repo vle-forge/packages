@@ -13,13 +13,13 @@
       <port name="RG"/>
      </out>
     </model>
-    <model observables="obsWwdmDt" conditions="condP1" dynamics="dynCrop" width="50" height="50" x="469" y="14" name="p1" type="atomic">
+    <model observables="obsWwdmDt" conditions="condP1" dynamics="dynCropbis" width="50" height="50" x="469" y="14" name="p1" type="atomic">
      <in>
       <port name="Tmin"/>
       <port name="Tmax"/>
       <port name="RG"/>
       <port name="Lmax"/>
-      <port name="ST"/>
+      <port name="SemRec"/>
      </in>
      <out>
       <port name="Eb"/>
@@ -37,13 +37,13 @@
       <port name="PAR"/>
      </out>
     </model>
-    <model observables="obsWwdmDt" conditions="condP2" dynamics="dynCrop" width="50" height="50" x="469" y="317" name="p2" type="atomic">
+    <model observables="obsWwdmDt" conditions="condP2" dynamics="dynCropbis" width="50" height="50" x="469" y="317" name="p2" type="atomic">
      <in>
       <port name="Tmin"/>
       <port name="Tmax"/>
       <port name="RG"/>
       <port name="Lmax"/>
-      <port name="ST"/>
+      <port name="SemRec"/>
      </in>
      <out>
       <port name="Eb"/>
@@ -63,26 +63,20 @@
     </model>
    <model observables="obsFarmer" conditions="condFarmer,simulation_engine" dynamics="dynFarmer" width="50" height="50" x="196" y="335" name="Farmer" type="atomic">
      <in>
-      <port name="ack"/>
       <port name="TN"/>
       <port name="TX"/>
       <port name="LAI@p1"/>
       <port name="LAI@p2"/>
      </in>
      <out>
-      <port name="ST@p1"/>
       <port name="Lmax@p1"/>
-      <port name="ackOut"/>
-      <port name="ST@p2"/>
       <port name="Lmax@p2"/>
+      <port name="SemRec@p1"/>
+      <port name="SemRec@p2"/>
      </out>
     </model>
    </submodels>
    <connections>
-    <connection type="internal">
-     <origin model="Farmer" port="ackOut"/>
-     <destination model="Farmer" port="ack"/>
-    </connection>
     <connection type="internal">
      <origin model="Meteo" port="TN"/>
      <destination model="Farmer" port="TN"/>
@@ -100,16 +94,8 @@
      <destination model="Farmer" port="LAI@p2"/>
     </connection>
     <connection type="internal">
-     <origin model="Farmer" port="ST@p1"/>
-     <destination model="p1" port="ST"/>
-    </connection>
-    <connection type="internal">
      <origin model="Farmer" port="Lmax@p1"/>
      <destination model="p1" port="Lmax"/>
-    </connection>
-    <connection type="internal">
-     <origin model="Farmer" port="ST@p2"/>
-     <destination model="p2" port="ST"/>
     </connection>
     <connection type="internal">
      <origin model="Farmer" port="Lmax@p2"/>
@@ -139,16 +125,25 @@
      <origin model="Meteo" port="RG"/>
      <destination model="p2" port="RG"/>
     </connection>
+    <connection type="internal">
+     <origin model="Farmer" port="SemRec@p2"/>
+     <destination model="p2" port="SemRec"/>
+    </connection>
+    <connection type="internal">
+     <origin model="Farmer" port="SemRec@p1"/>
+     <destination model="p1" port="SemRec"/>
+    </connection>
    </connections>
   </model>
  </structures>
  <dynamics>
  <dynamic library="AMeteoReader" package="vle.discrete-time.decision_test" name="dynMeteo"/>
-  <dynamic library="AwwdmDt" package="vle.discrete-time.decision_test" name="dynCrop"/>
+  
 
  <dynamic library="agentDTG" package="vle.discrete-time.decision" name="dynFarmer"/>
+ <dynamic library="BwwdmDt" package="vle.discrete-time.decision_test" name="dynCropbis"/>
  </dynamics>
- <experiment name="test_0" seed="123456789">
+ <experiment name="test_3" seed="123456789">
    <conditions>
     <condition name="simulation_engine">
      <port name="begin">
@@ -159,6 +154,9 @@
      </port>"
     <port name="begin_date">
      <string>"2000-1-3"</string>
+    </port>
+   <port name="autoAck">
+     <boolean>1</boolean>
     </port>
    </condition>
    <condition name="condMeteo">
@@ -279,37 +277,37 @@
     </port>
     <port name="Rotation">
 <map>
-      <key name="p1">
-       <set>
-        <integer>3</integer>
-        <set>
-         <integer>1</integer>
-         <string>itk2</string>
-        </set>
-        <set>
-         <integer>2</integer>
-         <string>itk1</string>
-        </set>
-        <set>
-         <integer>3</integer>
-         <string>itk3</string>
-        </set>
-       </set>
-      </key>
       <key name="p2">
        <set>
         <integer>3</integer>
         <set>
          <integer>1</integer>
-         <string>itk3</string>
+         <string>itk3bisautoAck</string>
         </set>
         <set>
          <integer>2</integer>
-         <string>itk2</string>
+         <string>itk2bisautoAck</string>
         </set>
         <set>
          <integer>3</integer>
-         <string>itk1</string>
+         <string>itk1bisautoAck</string>
+        </set>
+       </set>
+      </key>
+      <key name="p1">
+       <set>
+        <integer>3</integer>
+        <set>
+         <integer>1</integer>
+         <string>itk2bisautoAck</string>
+        </set>
+        <set>
+         <integer>2</integer>
+         <string>itk1bisautoAck</string>
+        </set>
+        <set>
+         <integer>3</integer>
+         <string>itk3bisautoAck</string>
         </set>
        </set>
       </key>
@@ -317,13 +315,11 @@
 </port>
    <port name="dyn_denys">
      <set>
-      <string>ackOut</string>
-      <string>out_plan</string>
       <string>ack</string>
-      <string>ST@p1</string>
-      <string>ST@p2</string>
+      <string>ackOut</string>
       <string>Lmax@p1</string>
       <string>Lmax@p2</string>
+      <string>out_plan</string>
      </set>
     </port>
    </condition>
@@ -408,14 +404,25 @@
   <port name="Tr"/>
    <port name="Tmean"/>
    <port name="PAR"/>
-  </observable>
+  <port name="SemRec">
+
+     <attachedview name="view"/>
+     </port>
+    </observable>
 
    <observable name="obsFarmer">
-     <port name="KnowledgeBase">
-
-     </port>
-    
      
+
+
+
+
+    <port name="SemRec@p1">
+
+     <attachedview name="view"/>
+     </port>
+    <port name="SemRec@p2">
+      <attachedview name="view"/>
+     </port>
     </observable>
    </observables>
   <view timestep="1" output="ViewFile" name="ViewFile" type="timed"/>

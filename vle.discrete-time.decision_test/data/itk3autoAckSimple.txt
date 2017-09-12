@@ -14,7 +14,7 @@ predicates { #Predicates list
 		id = "harvesting_2";
 		type = "GPred";
 		parameter {
-			_opLeftType = "Var@";
+			_opLeftType = "Var";
 			_opLeft ="LAI";
 			_op =">";
 			_opRightType = "Val";
@@ -45,7 +45,7 @@ activities { # liste des activites
       update = "GUpdate";
       parameter {
          _out_Lmax = 5.5;
-         _update_Started_SemRec = 1.0;
+         _out_ST = -1;
       }
    }
    activity {
@@ -59,7 +59,7 @@ activities { # liste des activites
       update = "GUpdate";
       parameter {
       	 resources = "Nice+Big";
-        _update_Done_SemRec = 2.0;
+         _out_ST = -2;
       }
    }
 

@@ -109,6 +109,7 @@ struct  DEVS_Options
     bool dyn_allow;
     VAR_TYPE dyn_type;
     unsigned int dyn_sync;
+    bool dyn_sync_out;
     std::unique_ptr<vle::value::Value> dyn_init_value;
     unsigned int dyn_dim;
 
@@ -174,6 +175,11 @@ struct  DEVS_Options
                 dyn_sync = events.getInt("dyn_sync");
             } else {
                 dyn_sync = (unsigned int) events.getBoolean("dyn_sync");
+            }
+        }
+        if (events.exist("dyn_sync_out")) {
+            if (events.get("dyn_sync_out")->isBoolean()) {
+                dyn_sync_out = events.getBoolean("dyn_sync_out");
             }
         }
         dyn_init_value.reset();

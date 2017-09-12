@@ -1,0 +1,35 @@
+predicates { #Predicates list
+   predicate {
+      id = "fillP";
+      type = "GPred";
+		parameter {
+			_opLeftType = "Var";
+			_opLeft ="Rain";
+			_op =">";
+			_opRightType = "Val";
+			_opRight = 3.;
+		}
+	}
+}
+
+rules { # liste des règles
+       	rule {
+		id = "fillR";
+		predicates = "fillP";
+       }
+}
+
+activities { # liste des activites
+   activity {
+      id = "Filling";
+      rules = "fillR";
+      output = "GOut";
+      update = "GUpdate";
+      parameter {
+         _update_Started_inlet = 3.;
+         _update_Done_inlet = 0.;
+	 maxIter = 4.;
+	 timeLag = 3.;
+      }
+   }
+}
