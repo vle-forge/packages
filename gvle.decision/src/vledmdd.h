@@ -203,6 +203,8 @@ public:
     QDomNode nodePreds() const;
     QDomNode nodePred(const QString& predName) const;
 
+    QDomNode nodeObs() const;
+
     QDomNodeList activitiesFromDoc();
 
     /**

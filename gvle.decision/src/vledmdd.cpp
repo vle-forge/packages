@@ -273,6 +273,9 @@ vleDmDD::xCreateDom()
             QDomElement vale = mDocDm->createElement("set");
             port.appendChild(vale);
         }
+
+        vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Knowledgebase");
+        vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Activities");
     }
 }
 
@@ -1148,14 +1151,19 @@ vleDmDD::setPredicateRightValue(const QString& predicateName,
         if (singleVarUsage(orv)){
             vleDomStatic::renamePortToInNode(nodeIn(), orv,
                                              rv, 0);
+            vleDomStatic::renameObservablePort(nodeObs(), orv, rv, 0);
+
         } else {
             vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), rv, 0);
+            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), rv, 0);
+
         }
     }
 
     if (type == "Val") {
         if (singleVarUsage(orv)){
             vleDomStatic::rmPortToInNode(nodeIn(), orv);
+            vleDomStatic::rmObservablePort(nodeObs(), orv);
         }
     }
 
@@ -1187,14 +1195,18 @@ vleDmDD::setPredicateLeftValue(const QString& predicateName,
         if (singleVarUsage(olv)){
             vleDomStatic::renamePortToInNode(nodeIn(), olv,
                                              lv, 0);
+            vleDomStatic::renameObservablePort(nodeObs(), olv,
+                                               lv, 0);
         } else {
             vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), lv, 0);
+            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), lv, 0);
         }
     }
 
     if (type == "Val") {
         if (singleVarUsage(olv)){
             vleDomStatic::rmPortToInNode(nodeIn(), olv);
+            vleDomStatic::rmObservablePort(nodeObs(), olv);
         }
     }
 
@@ -1236,7 +1248,7 @@ vleDmDD::addPredicateToDoc(const QString& predicateName)
 
     //add Port
     vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), "variableName", 0);
-
+    vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "variableName", 0);
     emit modified(OTHER);
 }
 
@@ -1324,6 +1336,7 @@ vleDmDD::rmPredicateToDoc(const QString& predName)
         if (type == "Var") {
             if (singleVarUsage(varName)) {
                 vleDomStatic::rmPortToInNode(nodeIn(), varName);
+                vleDomStatic::rmObservablePort(nodeObs(), varName);
             }
         }
     }
@@ -1334,6 +1347,7 @@ vleDmDD::rmPredicateToDoc(const QString& predName)
         if (type == "Var") {
             if (singleVarUsage(varName)) {
                 vleDomStatic::rmPortToInNode(nodeIn(), varName);
+                vleDomStatic::rmObservablePort(nodeObs(), varName);
             }
         }
     }
@@ -1426,10 +1440,18 @@ vleDmDD::addActivityToDoc(const QString& actName, QPointF pos)
     el.appendChild(xElem);
     actsNode.appendChild(el);
 
-    //add observable
-    //vleDomStatic::addObservablePort(*mDocSm, nodeObs(), compName);
+    vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Activity_" + actName);
+    vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Activity(state)_" + actName);
+    vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Activity(ressources)_" + actName);
 
     emit modified(OTHER);
+}
+
+QDomNode
+vleDmDD::nodeObs() const
+{
+    QDomNode obsNode = mDocDm->elementsByTagName("observable").item(0);
+    return obsNode;
 }
 
 void
@@ -1618,6 +1640,13 @@ vleDmDD::renameActivityToDoc(const QString& oldName,
 
     DomFunctions::setAttributeValue(act, "name", newName);
 
+    vleDomStatic::renameObservablePort(nodeObs(), "Activity_" + oldName,
+                                       "Activity_" + newName, 0);
+    vleDomStatic::renameObservablePort(nodeObs(), "Activity(state)_" + oldName,
+                                       "Activity(state)_" + newName, 0);
+    vleDomStatic::renameObservablePort(nodeObs(), "Activity(ressources)_" + oldName,
+                                        "Activity(ressources)_" + newName, 0);
+
     emit modified(RENAME);
 }
 
@@ -1649,6 +1678,10 @@ vleDmDD::rmActivityToDoc(const QString& actName)
     QDomNode actssNode = nodeActs();
     QDomNode actNode = nodeAct(actName);
     actssNode.removeChild(actNode);
+
+    vleDomStatic::rmObservablePort(nodeObs(), "Activity_" + actName);
+    vleDomStatic::rmObservablePort(nodeObs(), "Activity(state)_" + actName);
+    vleDomStatic::rmObservablePort(nodeObs(), "Activity(ressources)_" + actName);
 
     emit modified(RENAME);
 }
