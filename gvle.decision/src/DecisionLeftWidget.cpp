@@ -687,12 +687,37 @@ DecisionLeftWidget::DecisionLeftWidget(DecisionPanel* d):
                      SIGNAL(itemChanged(QTreeWidgetItem*, int)),
                      this,
                      SLOT(onItemChanged(QTreeWidgetItem*, int)));
+
+    QObject::connect(ui->DTOutput,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(onOutputsType()));
+
+    QObject::connect(ui->EOutput,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(onOutputsType()));
 }
 
 DecisionLeftWidget::~DecisionLeftWidget()
 {
     delete mScene;
     delete ui;
+}
+
+void
+DecisionLeftWidget::onOutputsType()
+{
+    QString outputType;
+    if (ui->DTOutput->isChecked()) {
+        outputType = "discrete-time";
+    } else {
+        outputType = "event";
+    }
+    if (outputType !=  decision->dataMetadata->getOutputsTypeToDoc()) {
+        decision->dataMetadata->setOutputsTypeToDoc(outputType);
+        emit decision->undoAvailable(true);
+    }
 }
 
 void
@@ -758,6 +783,18 @@ DecisionLeftWidget::onTablePredicatesMenu(const QPoint& pos)
 void
 DecisionLeftWidget::reload()
 {
+    bool oldBlock1 = ui->DTOutput->blockSignals(true);
+    bool oldBlock2 = ui->EOutput->blockSignals(true);
+    if (decision->dataMetadata->getOutputsTypeToDoc() == "discrete-time") {
+        ui->DTOutput->setChecked(true);
+        ui->EOutput->setChecked(false);
+    } else {
+        ui->DTOutput->setChecked(false);
+        ui->EOutput->setChecked(true);
+    }
+    ui->DTOutput->blockSignals(oldBlock1);
+    ui->EOutput->blockSignals(oldBlock2);
+
     reloadRules();
     reloadPredicates();
     mScene->reload();
