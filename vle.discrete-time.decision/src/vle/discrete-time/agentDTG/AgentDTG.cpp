@@ -478,6 +478,12 @@ GPred(const std::string& activity,
         }
     }
 
+    if (op == "!=") {
+        if (leftDouble){
+            return leftOpD != rightOpD;
+        }
+    }
+
     throw vle::utils::ModellingError(
         vle::utils::format("predicate GPred: unknown operator %s", op.c_str()));
 }

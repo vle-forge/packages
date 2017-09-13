@@ -899,6 +899,7 @@ DecisionLeftWidget::insertRowPred(int row, const QString& name)
          l.append("<=");
          l.append(">=");
          l.append("==");
+         l.append("!=");
          w->addItems(l);
          w->setCurrentIndex(w->findText(op));
          ui->tablePredicates->setCellWidget(row, col, w);
