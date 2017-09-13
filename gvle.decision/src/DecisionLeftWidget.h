@@ -260,6 +260,7 @@ signals:
 public slots:
    //when metadat is modified
    void onDmModified(int);
+   void onOutputsType();
    void onItemChanged(QTreeWidgetItem *item,
 		    int /*column*/);
    //tab Plan Diagramm, General, .. changed

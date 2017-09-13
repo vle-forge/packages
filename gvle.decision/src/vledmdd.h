@@ -95,6 +95,9 @@ public:
     void setDataPackageToDoc(const QString& pacName, bool snap);
     void setPackageToDoc(const QString& nm, bool snap);
 
+    void setOutputsTypeToDoc(const QString& outputType);
+    QString getOutputsTypeToDoc();
+
     QDomNodeList PrecedencesFromDoc();
 
     QString getPrecedenceType(const QString& firstName,
@@ -336,6 +339,7 @@ public:
     QSet<QString> activityNames();
     QSet<QString> rulesNames();
     QSet<QString> predicatesNamesRule(QString ruleName);
+    QSet<QString> outputParamNames();
 
     void save();
     void providePlan();

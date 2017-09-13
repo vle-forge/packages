@@ -69,7 +69,10 @@ vleDomDmDD::getXQuery(QDomNode node)
         (name == "observable") or
         (name == "condition") or
         (name == "in") or
-        (name == "out")) {
+        (name == "out") or
+        (name == "outputParam") or
+        (name == "activity") or
+        (name == "definition")) {
         return getXQuery(node.parentNode())+"/"+name;
     }
     //element identified by attribute name
@@ -123,7 +126,7 @@ vleDomDmDD::getNodeFromXQuery(const QString& query,
 
     //handle recursion with uniq node
     if ((curr == "dataModel") or
-        (curr == "datPlugin") or
+        (curr == "dataPlugin") or
         (curr == "activities") or
         (curr == "predicates") or
         (curr == "rules") or
@@ -132,7 +135,10 @@ vleDomDmDD::getNodeFromXQuery(const QString& query,
         (curr == "observable") or
         (curr == "condition") or
         (curr == "in") or
-        (curr == "out")) {
+        (curr == "out") or
+        (curr == "outputParams") or
+        (curr == "definition") or
+        (curr == "activity")) {
         return getNodeFromXQuery(rest, DomFunctions::obtainChild(d, curr, mDoc));
     }
 
@@ -273,6 +279,11 @@ vleDmDD::xCreateDom()
             QDomElement vale = mDocDm->createElement("set");
             port.appendChild(vale);
         }
+        {
+            QDomNode dataModelNode =
+                mDocDm->elementsByTagName("dataModel").item(0);
+            dataModelNode.toElement().setAttribute("outputsType", "discrete-time");
+        }
 
         vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Knowledgebase");
         vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Activities");
@@ -295,9 +306,11 @@ vleDmDD::addOutParActToDoc(const QString& actName, const QString& outParName)
         return;
     }
 
+    QDomNode rootNode = mDocDm->documentElement();
+
     QDomNode outParsNode = nodeOutParsAct(actName);
 
-    undoStackDm->snapshot(outParsNode);
+    undoStackDm->snapshot(rootNode);
 
     //add Param
     QDomElement el = mDocDm->createElement("outputParam");
@@ -308,23 +321,28 @@ vleDmDD::addOutParActToDoc(const QString& actName, const QString& outParName)
     //add Port
     vleDomStatic::addPortToOutNode(*mDocDm, nodeOut(), outParName, 0);
 
-    //add deny
 
-    QDomNode condNode = nodeCond();
-    vle::value::Map tofill;
-    tofill.add("dyn_denys", vle::value::Set::create());
-    QDomNode port = nodeCondPort("dyn_denys");
-    QDomNode init_value = port.firstChildElement();
-    std::unique_ptr<vle::value::Value> ddValue;
-    ddValue = vleDomStatic::buildValue(init_value, false);
-    const vle::value::Set& denys = ddValue->toSet();
-    vle::value::Set::const_iterator idb = denys.begin();
-    vle::value::Set::const_iterator ide = denys.end();
-    for (; idb != ide; idb++) {
-        tofill["dyn_denys"]->toSet().add(vle::value::String::create((*idb)->toString().value()));
+    if (not (getOutputsTypeToDoc() == "discrete-time")) {
+        //add deny
+        QDomNode condNode = nodeCond();
+        vle::value::Map tofill;
+        tofill.add("dyn_denys", vle::value::Set::create());
+        QDomNode port = nodeCondPort("dyn_denys");
+        QDomNode init_value = port.firstChildElement();
+        std::unique_ptr<vle::value::Value> ddValue;
+        ddValue = vleDomStatic::buildValue(init_value, false);
+        const vle::value::Set& denys = ddValue->toSet();
+        vle::value::Set::const_iterator idb = denys.begin();
+        vle::value::Set::const_iterator ide = denys.end();
+        for (; idb != ide; idb++) {
+            tofill["dyn_denys"]->toSet().add(vle::value::String::create((*idb)->toString().value()));
+        }
+        tofill["dyn_denys"]->toSet().add(vle::value::String::create(outParName.toStdString()));
+        vleDomStatic::fillConditionWithMap(*mDocDm, condNode, tofill);
+    } else {
+        vleDomStatic::addObservablePort(*mDocDm, nodeObs(), outParName, 0);
     }
-    tofill["dyn_denys"]->toSet().add(vle::value::String::create(outParName.toStdString()));
-    vleDomStatic::fillConditionWithMap(*mDocDm, condNode, tofill);
+
 
     emit modified(OUTPUTS);
 }
@@ -389,33 +407,38 @@ vleDmDD::renameOutParActToDoc(const QString& actName,
     undoStackDm->snapshot(rootNode);
 
     //manage deny
+    if (not (getOutputsTypeToDoc() == "discrete-time")) {
 
-    QDomNode condNode = nodeCond();
-    vle::value::Map tofill;
-    tofill.add("dyn_denys", vle::value::Set::create());
-    QDomNode port = nodeCondPort("dyn_denys");
-    QDomNode init_value = port.firstChildElement();
-    std::unique_ptr<vle::value::Value> ddValue;
-    ddValue = vleDomStatic::buildValue(init_value, false);
-    const vle::value::Set& denys = ddValue->toSet();
-    vle::value::Set::const_iterator idb = denys.begin();
-    vle::value::Set::const_iterator ide = denys.end();
-    for (; idb != ide; idb++) {
-        if (singleOutUsage(oldOutParName) and not outUsed(newOutParName) and
-            (*idb)->toString().value() == oldOutParName.toStdString()) {
-            tofill["dyn_denys"]->toSet().add(vle::value::String::create(newOutParName.toStdString()));
-        } else if (not singleOutUsage(oldOutParName) and
-                   (*idb)->toString().value() == oldOutParName.toStdString()) {
-            tofill["dyn_denys"]->toSet().add(vle::value::String::create((*idb)->toString().value()));
-        } else if ((*idb)->toString().value() != oldOutParName.toStdString()) {
-            tofill["dyn_denys"]->toSet().add(vle::value::String::create((*idb)->toString().value()));
+        QDomNode condNode = nodeCond();
+        vle::value::Map tofill;
+        tofill.add("dyn_denys", vle::value::Set::create());
+        QDomNode port = nodeCondPort("dyn_denys");
+        QDomNode init_value = port.firstChildElement();
+        std::unique_ptr<vle::value::Value> ddValue;
+        ddValue = vleDomStatic::buildValue(init_value, false);
+        const vle::value::Set& denys = ddValue->toSet();
+        vle::value::Set::const_iterator idb = denys.begin();
+        vle::value::Set::const_iterator ide = denys.end();
+        for (; idb != ide; idb++) {
+            if (singleOutUsage(oldOutParName) and not outUsed(newOutParName) and
+                (*idb)->toString().value() == oldOutParName.toStdString()) {
+                tofill["dyn_denys"]->toSet().add(vle::value::String::create(newOutParName.toStdString()));
+            } else if (not singleOutUsage(oldOutParName) and
+                       (*idb)->toString().value() == oldOutParName.toStdString()) {
+                tofill["dyn_denys"]->toSet().add(vle::value::String::create((*idb)->toString().value()));
+            } else if ((*idb)->toString().value() != oldOutParName.toStdString()) {
+                tofill["dyn_denys"]->toSet().add(vle::value::String::create((*idb)->toString().value()));
+            }
         }
-    }
-    if (not singleOutUsage(oldOutParName) and not outUsed(newOutParName)) {
-        tofill["dyn_denys"]->toSet().add(vle::value::String::create(newOutParName.toStdString()));
+        if (not singleOutUsage(oldOutParName) and not outUsed(newOutParName)) {
+            tofill["dyn_denys"]->toSet().add(vle::value::String::create(newOutParName.toStdString()));
+        }
+
+        vleDomStatic::fillConditionWithMap(*mDocDm, condNode, tofill);
+    } else {
+        vleDomStatic::renameObservablePort(nodeObs(), oldOutParName, newOutParName, 0);
     }
 
-    vleDomStatic::fillConditionWithMap(*mDocDm, condNode, tofill);
 
     // manage port
 
@@ -532,23 +555,27 @@ vleDmDD::rmOutputParActToDoc(const QString& actName, const QString& outParName)
     vleDomStatic::rmPortToOutNode(nodeOut(), outParName, 0);
 
     //manage deny
+    if (not (getOutputsTypeToDoc() == "discrete-time")) {
 
-    QDomNode condNode = nodeCond();
-    vle::value::Map tofill;
-    tofill.add("dyn_denys", vle::value::Set::create());
-    QDomNode port = nodeCondPort("dyn_denys");
-    QDomNode init_value = port.firstChildElement();
-    std::unique_ptr<vle::value::Value> ddValue;
-    ddValue = vleDomStatic::buildValue(init_value, false);
-    const vle::value::Set& denys = ddValue->toSet();
-    vle::value::Set::const_iterator idb = denys.begin();
-    vle::value::Set::const_iterator ide = denys.end();
-    for (; idb != ide; idb++) {
-        if ((*idb)->toString().value() != outParName.toStdString()) {
-            tofill["dyn_denys"]->toSet().add(vle::value::String::create((*idb)->toString().value()));
+        QDomNode condNode = nodeCond();
+        vle::value::Map tofill;
+        tofill.add("dyn_denys", vle::value::Set::create());
+        QDomNode port = nodeCondPort("dyn_denys");
+        QDomNode init_value = port.firstChildElement();
+        std::unique_ptr<vle::value::Value> ddValue;
+        ddValue = vleDomStatic::buildValue(init_value, false);
+        const vle::value::Set& denys = ddValue->toSet();
+        vle::value::Set::const_iterator idb = denys.begin();
+        vle::value::Set::const_iterator ide = denys.end();
+        for (; idb != ide; idb++) {
+            if ((*idb)->toString().value() != outParName.toStdString()) {
+                tofill["dyn_denys"]->toSet().add(vle::value::String::create((*idb)->toString().value()));
+            }
         }
+        vleDomStatic::fillConditionWithMap(*mDocDm, condNode, tofill);
+    } else {
+        vleDomStatic::rmObservablePort(nodeObs(), outParName, 0);
     }
-    vleDomStatic::fillConditionWithMap(*mDocDm, condNode, tofill);
 
     emit modified(OUTPUTS);
 }
@@ -1699,6 +1726,19 @@ vleDmDD::activityNames()
 }
 
 QSet<QString>
+vleDmDD::outputParamNames()
+{
+    QSet<QString> names;
+    QDomNodeList outParList = nodeActs().toElement().elementsByTagName("outputParam");
+    for (int j = 0; j < outParList.length(); j++) {
+        QDomNode oPA = outParList.item(j);
+        names.insert(oPA.attributes().namedItem("name").nodeValue());
+    }
+
+    return names;
+}
+
+QSet<QString>
 vleDmDD::rulesNames()
 {
     return DomFunctions::childNames(nodeRules(), "rule");
@@ -1760,6 +1800,50 @@ vleDmDD::setPluginNameToDoc(const QString& plugName, bool snap)
     if (snap) {
         emit modified(OTHER);
     }
+}
+
+void
+vleDmDD::setOutputsTypeToDoc(const QString& outputType)
+{
+    QDomNode rootNode = mDocDm->documentElement();
+
+    QDomNode dataModelNode =
+        mDocDm->elementsByTagName("dataModel").item(0);
+
+    undoStackDm->snapshot(rootNode);
+
+    if (outputType == "discrete-time") {
+        vleDomStatic::rmPortFromCond(nodeCond(), "dyn_denys");
+        QSet<QString> outputParams = outputParamNames();
+        QSet<QString>::iterator itb = outputParams.begin();
+        QSet<QString>::iterator ite = outputParams.end();
+        for (; itb != ite; itb++) {
+            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), (*itb), 0);
+        }
+    } else {
+        vle::value::Map tofill;
+        tofill.add("dyn_denys", vle::value::Set::create());
+        QSet<QString> outputParams = outputParamNames();
+        QSet<QString>::iterator itb = outputParams.begin();
+        QSet<QString>::iterator ite = outputParams.end();
+        for (; itb != ite; itb++) {
+            tofill["dyn_denys"]->toSet().add(vle::value::String::create((*itb).toStdString()));
+             vleDomStatic::rmObservablePort(nodeObs(), (*itb));
+        }
+        vleDomStatic::fillConditionWithMap(*mDocDm, nodeCond(), tofill);
+    }
+
+    dataModelNode.toElement().setAttribute("outputsType", outputType);
+
+    emit modified(OTHER);
+}
+
+QString
+vleDmDD::getOutputsTypeToDoc()
+{
+    QDomNode dataModelNode =
+        mDocDm->elementsByTagName("dataModel").item(0);
+    return dataModelNode.attributes().namedItem("outputsType").nodeValue();
 }
 
 void
@@ -1955,7 +2039,7 @@ vleDmDD::getData()
             if (getMinStart(name) != "" ||
                 getMaxFinish(name) != "") {
                 actListElem =  actListElem + "      temporal {\n";
-                if (getMinStart(name) != "" ) {
+                if (getMinStart(name) != "" && getMinStart(name) != "+") {
                     if (not isRelativeDate(name)) {
                         long numDate =
                             vle::utils::DateTime::toJulianDayNumber(getMinStart(name).toStdString());
@@ -1969,7 +2053,7 @@ vleDmDD::getData()
                             getMinStart(name).toStdString() + "\";\n";
                     }
                 }
-                if  ( getMaxFinish(name) != "" ) {
+                if  ( getMaxFinish(name) != "" && getMaxFinish(name) != "+") {
                     if (not isRelativeDate(name)) {
                         long numDate =
                             vle::utils::DateTime::toJulianDayNumber(getMaxFinish(name).toStdString());
@@ -1979,7 +2063,7 @@ vleDmDD::getData()
                             getMaxFinish(name).toStdString() + "\n";
                     } else {
                         actListElem =  actListElem +
-                            esp16 + "minstart = \"" +
+                            esp16 + "maxfinish = \"" +
                             getMaxFinish(name).toStdString() + "\";\n";
                     }
                 }
@@ -2007,6 +2091,12 @@ vleDmDD::getData()
             // parameter
             int maxIter = getMaxIter(name);
             QDomNodeList params = outParActFromDoc(name);
+            QString paramPrefix;
+            if (getOutputsTypeToDoc() == "discrete-time") {
+                paramPrefix = "_update_Done_";
+            } else {
+                paramPrefix = "_out_";
+            }
             if (params.length() != 0 or not (maxIter == 1)) {
                 actListElem =  actListElem + "      parameter {\n";
                 for (int i = 0; i < params.length(); i++) {
@@ -2014,7 +2104,7 @@ vleDmDD::getData()
                     QString name = variable.attributes().namedItem("name").nodeValue();
                     QString value = variable.attributes().namedItem("value").nodeValue();
                     actListElem =  actListElem +
-                        esp16 + "_out_" + name.toStdString() + " = " + value.toStdString() + ";\n";
+                        esp16 + paramPrefix.toStdString() + name.toStdString() + " = " + value.toStdString() + ";\n";
                 }
                 int timeLag = getTimeLag(name);
                 if (not (maxIter == 1)) {
