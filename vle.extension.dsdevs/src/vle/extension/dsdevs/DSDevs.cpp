@@ -47,7 +47,6 @@ DSDevs::DSDevs(const devs::ExecutiveInit& model,
                const devs::InitEventList& events)
     : devs::Executive(model, events), m_state(IDLE), m_response(false)
 {
-    assert(model.model().getParent());
 }
 
 devs::Time DSDevs::init(devs::Time /* time */)
