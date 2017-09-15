@@ -30,7 +30,7 @@
 #define VLE_EXT_DECISION_RESS_HPP 1
 
 #include <vle/value/Value.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -39,7 +39,7 @@ namespace vle { namespace extension { namespace decision {
  * string from an activity.
  */
 
-typedef boost::function < std::string (const std::string&,
+typedef std::function < std::string (const std::string&,
                                        const Activity&) > ResFct;
 
 }}} // namespace vle model decision

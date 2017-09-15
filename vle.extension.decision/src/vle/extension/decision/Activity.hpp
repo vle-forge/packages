@@ -33,8 +33,6 @@
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/devs/ExternalEventList.hpp>
 #include <vle/devs/Time.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <boost/variant.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>

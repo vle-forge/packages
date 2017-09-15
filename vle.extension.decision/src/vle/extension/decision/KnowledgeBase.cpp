@@ -28,14 +28,10 @@
 
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/utils/Tools.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <algorithm>
 #include <cassert>
-#include <boost/lexical_cast.hpp>
 #include <iostream>
 
-using boost::lexical_cast;
 
 namespace vle { namespace extension { namespace decision {
 

@@ -1,9 +1,8 @@
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS} ${TEMPVAL_INCLUDE_DIRS}
+ ${TEMPVAL_INCLUDE_DIRS}
   ${vle.discrete-time_INCLUDE_DIRS} ${vle.extension.decision_INCLUDE_DIRS} 
   ${CMAKE_BINARY_DIR}/src)
 
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 ADD_LIBRARY(vle.discrete-time.decision STATIC AgentDT.cpp AgentDT.hpp)
 

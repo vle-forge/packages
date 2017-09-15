@@ -117,10 +117,10 @@ struct NeighbourStateDeleter
 
 ////TODO
 //        std::for_each(value.second.begin(), value.second.end(),
-//                      boost::bind(
+//                      std::bind(
 //                          boost::checked_deleter < value::Value >(),
-//                          boost::bind(
-//                              &map_t::value_type::second, _1)));
+//                          std::bind(
+//                              &map_t::value_type::second, std::placeholders::_1)));
     }
 };
 
@@ -133,10 +133,10 @@ CellDevs::~CellDevs()
                   NeighbourStateDeleter());
 ////TODO
 //    std::for_each(m_parameters.begin(), m_parameters.end(),
-//                  boost::bind(
+//                  std::bind(
 //                      boost::checked_deleter < value::Value >(),
-//                      boost::bind(
-//                          &Parameters_t::value_type::second, _1)));
+//                      std::bind(
+//                          &Parameters_t::value_type::second, std::placeholders::_1)));
 }
 
 Time const & CellDevs::getSigma() const

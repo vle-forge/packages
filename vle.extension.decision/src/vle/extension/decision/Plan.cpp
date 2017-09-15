@@ -32,8 +32,6 @@
 #include <vle/utils/Tools.hpp>
 #include <vle/devs/Dynamics.hpp>
 #include <vle/utils/DateTime.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -45,7 +43,6 @@ typedef utils::Block::Blocks UBB;
 typedef utils::Block::Strings UBS;
 typedef utils::Block::Reals UBR;
 
-using boost::lexical_cast;
 
 Plan::Plan(utils::ContextPtr ctxp, KnowledgeBase& kb, const std::string& buffer)
     : ctx(ctxp), mKb(kb), mActivities(ctxp, kb)
@@ -629,7 +626,7 @@ Plan::DateResult Plan::getDate(const std::string& dateName,
             std::string relativeDate = dateString.first->second.substr(1);
             std::vector< std::string > explosedDate;
 
-            boost::split(explosedDate, relativeDate, boost::is_any_of("-") );
+            utils::tokenize(relativeDate, explosedDate, "-", true);
 
             std::string year = explosedDate[0];
             std::string month = explosedDate[1];
@@ -637,8 +634,8 @@ Plan::DateResult Plan::getDate(const std::string& dateName,
 
             if (utils::DateTime::isValidYear(loadTime)) {
 
-                year = lexical_cast<std::string>(
-                    lexical_cast<int>(year) +
+                year = utils::to(
+                    std::stoi(year) +
                     utils::DateTime::year(loadTime));
 
                 return DateResult(true, devs::Time(
@@ -650,7 +647,7 @@ Plan::DateResult Plan::getDate(const std::string& dateName,
                 int daysOfLastYear = utils::DateTime::dayOfYear(
                     utils::DateTime::toJulianDayNumber(
                         firstNonLeapYear + "-" + month + "-" + day));
-                int daysOfFullYears = 365 * lexical_cast<int>(year);
+                int daysOfFullYears = 365 * std::stoi(year);
 std::cout << "daysOfirstNon+m+d>" << daysOfLastYear << "<"<< std::endl;
                 return DateResult(true, devs::Time(daysOfLastYear + daysOfFullYears));
 

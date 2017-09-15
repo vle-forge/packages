@@ -49,7 +49,7 @@ public:
         : vmd::KnowledgeBase(ctxp)
     {
         vmd::Rule& r1 = addRule("Rule false");
-        r1.add(boost::bind(&vmd::ex::Maxstart::isAlwaysFalse, this));
+        r1.add(std::bind(&vmd::ex::Maxstart::isAlwaysFalse, this));
 
         vmd::Activity& a = addActivity("A");
         a.initStartRangeFinishRange(0.0, 1.0, 2.0, 3.0);

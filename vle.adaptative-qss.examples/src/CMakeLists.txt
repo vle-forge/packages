@@ -1,7 +1,6 @@
 function(DeclareOutput targetname name sources)
   include_directories(
-    ${VLE_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS})
+    ${VLE_INCLUDE_DIRS})
 
   link_directories(${VLE_LIBRARY_DIRS})
 
@@ -21,8 +20,7 @@ endfunction()
 
 function(DeclareSimulator targetname name sources)
   include_directories(
-    ${VLE_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS})
+    ${VLE_INCLUDE_DIRS})
 
   link_directories(${VLE_LIBRARY_DIRS})
 
