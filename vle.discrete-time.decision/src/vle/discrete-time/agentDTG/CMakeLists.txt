@@ -1,7 +1,6 @@
 function(DeclareSimulator targetname name sources)
   include_directories(
     ${VLE_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../decision
     ${vle.discrete-time_INCLUDE_DIRS}
     ${vle.extension.decision_INCLUDE_DIRS})

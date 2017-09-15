@@ -176,13 +176,13 @@ struct PredicateHash
 {
     std::size_t operator()(const Predicate& predicate) const
     {
-        boost::hash <std::string> hasher;
+        std::hash <std::string> hasher;
         return hasher(predicate.name());
     }
 
     std::size_t operator()(const std::string& predicate) const
     {
-        boost::hash <std::string> hasher;
+        std::hash <std::string> hasher;
         return hasher(predicate);
     }
 };

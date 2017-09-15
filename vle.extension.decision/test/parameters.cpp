@@ -50,7 +50,7 @@ public:
         addRess(this) +=
             R("computeResource", &KnowledgeBase::resFunc);
 
-        addPortFact("today", boost::bind(&vmd::ex::KnowledgeBase::date, this, _1, _2));
+        addPortFact("today", std::bind(&vmd::ex::KnowledgeBase::date, this, std::placeholders::_1, std::placeholders::_2));
 
         addPredicates(this) +=
             P("predUsingPlanTimeStamp", &KnowledgeBase::predUsingPlanTimeStamp);

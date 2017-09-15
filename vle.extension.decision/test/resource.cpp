@@ -28,7 +28,6 @@
 #include <vle/utils/unit-test.hpp>
 #include <iostream>
 #include <iterator>
-#include <boost/lexical_cast.hpp>
 #include <vle/vle.hpp>
 #include <vle/value/Double.hpp>
 #include <vle/utils/Context.hpp>
@@ -137,8 +136,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
         Resourcetest_4(vle::utils::ContextPtr ctxp)
             : vmd::KnowledgeBase(ctxp)
         {
-            addRes("resFunc_1",  boost::bind(&Resourcetest_4::resFunc_1, this, _1, _2));
-            addRes("resFunc_2", boost::bind(&Resourcetest_4::resFunc_2, this, _1, _2));
+            addRes("resFunc_1",  std::bind(&Resourcetest_4::resFunc_1, this, std::placeholders::_1, std::placeholders::_2));
+            addRes("resFunc_2", std::bind(&Resourcetest_4::resFunc_2, this, std::placeholders::_1, std::placeholders::_2));
 
             vmd::Activity& A = addActivity("A", 1.0, 10.0);
             vmd::Activity& B = addActivity("B", 1.0, 10.0);
@@ -186,25 +185,25 @@ namespace vle { namespace extension { namespace decision { namespace ex {
             vmd::Activity& D = addActivity("D", 1.0, 10.0);
 
             for (int i = 1; i<= 13; i++){
-                std::string female = "ff1"+ boost::lexical_cast<std::string>(i) ;
+                std::string female = "ff1"+ vle::utils::to(i) ;
                 addResources("farmA",female);
                 addResources("female",female);
             }
 
             for (int i = 1; i<= 13; i++){
-                std::string male = "mf1"+boost::lexical_cast<std::string>(i) ;
+                std::string male = "mf1"+vle::utils::to(i) ;
                 addResources("farmA",male);
                 addResources("male",male);
             }
 
             for (int i = 1; i<= 25; i++){
-                std::string female = "ff2"+boost::lexical_cast<std::string>(i) ;
+                std::string female = "ff2"+vle::utils::to(i) ;
                 addResources("farmB",female);
                 addResources("female",female);
             }
 
             for (int i = 1; i<= 13; i++){
-                std::string male = "mf2"+boost::lexical_cast<std::string>(i) ;
+                std::string male = "mf2"+vle::utils::to(i) ;
                 addResources("farmB",male);
                 addResources("male",male);
             }
@@ -220,14 +219,14 @@ namespace vle { namespace extension { namespace decision { namespace ex {
             addResources("farmB","tf21");
 
             for (int i = 1; i<= 300; i++){
-                std::string female = "fv"+boost::lexical_cast<std::string>(i) ;
+                std::string female = "fv"+vle::utils::to(i) ;
                 addResources("farmA",female);
                 addResources("farmB",female);
                 addResources("female",female);
             }
 
             for (int i = 1; i<= 300; i++){
-                std::string male = "mv"+boost::lexical_cast<std::string>(i) ;
+                std::string male = "mv"+vle::utils::to(i) ;
                 addResources("farmA",male);
                 addResources("farmB",male);
                 addResources("male",male);

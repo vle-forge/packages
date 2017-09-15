@@ -31,14 +31,32 @@
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/Tools.hpp>
 #include <vle/devs/Dynamics.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <numeric>
 #include <algorithm>
 
-using boost::lexical_cast;
 
 namespace vle { namespace extension { namespace decision {
+
+//https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+// trim from start (in place)
+static inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+            std::not1(std::ptr_fun<int, int>(std::isspace))));
+}
+
+// trim from end (in place)
+static inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(),
+            std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+}
+
+// trim from both ends (in place)
+static inline void trim(std::string &s) {
+    ltrim(s);
+    rtrim(s);
+}
+
+
 
 Activity& Activities::add(const std::string& name, const Activity& act,
                           const Activity::OutFct& out,
@@ -422,18 +440,18 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
 
     std::vector<std::string> resourcesAlt;
 
-    boost::split(resourcesAlt, resources, boost::is_any_of("|"));
+    vle::utils::tokenize(resources, resourcesAlt, "|", true);
 
     for (unsigned i=0; i < resourcesAlt.size(); i++) {
 
-        boost::trim(resourcesAlt[i]);
+        trim(resourcesAlt[i]);
 
         std::vector<std::string> strs;
 
-        boost::split(strs, resourcesAlt[i], boost::is_any_of("+"));
+        vle::utils::tokenize(resourcesAlt[i], strs, "+", true);
 
         for (uint j = 0; j < strs.size(); j++) {
-            boost::trim(strs[j]);
+            trim(strs[j]);
             std::string toEx = strs[j];
             size_t n = std::count(toEx.begin(), toEx.end(), '.');
             if ( n !=0 ) {
@@ -443,10 +461,10 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
                 } else {
                     std::size_t pos = toEx.find(".");
                     std::string resQ = toEx.substr(0, pos);
-                    boost::trim(resQ);
+                    trim(resQ);
                     std::string resI = toEx.substr(pos + 1);
-                    boost::trim(resI);
-                    int iterResQ = lexical_cast<int>(resI);
+                    trim(resI);
+                    int iterResQ = std::stoi(resI);
                     if (iterResQ < 2) {
                         throw utils::ArgError(
                             vle::utils::format("Decision: resource syntax error, resource quantity < 2:  '%s'", toEx.c_str()));
@@ -486,7 +504,7 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
         std::vector< std::vector< std::string >::const_iterator > resourceSetIter;
 
         for (uint j=0; j < strs.size(); j++) {
-            boost::trim(strs[j]);
+            trim(strs[j]);
             resourceSet.push_back(mKb.getResources(strs[j]));
         }
 

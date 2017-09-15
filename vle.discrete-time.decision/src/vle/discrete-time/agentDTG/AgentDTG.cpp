@@ -28,10 +28,7 @@
 #include <vle/value/Set.hpp>
 #include <vle/value/Map.hpp>
 
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
+#include <functional>
 
 #include <sstream>
 #include <numeric>
@@ -147,7 +144,7 @@ fillResources ()
         vv::Set ress = mResourceP->toMap().getSet(it->first);
         uint nbres = ress.getInt(0);
         for(uint i = 0; i < nbres; i++) {
-            std::string resId = (it->first) + boost::lexical_cast<std::string>(i) ;
+            std::string resId = (it->first) + vu::to(i) ;
             for(uint j = 1; j < ress.size(); j++) {
                     addResources(ress.getString(j), resId);
             }
@@ -168,25 +165,25 @@ init(vd::Time t)
     ved::Activity& a = addActivity("plan");
 
     a.addOutputFunction(
-        boost::bind(&AgentDTG::out_plan,
-                    this, _1, _2, _3));
+        std::bind(&AgentDTG::out_plan,
+                    this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     a.addAcknowledgeFunction(
-        boost::bind(&AgentDTG::ack_plan,
-                    this, _1, _2));
+        std::bind(&AgentDTG::ack_plan,
+                    this, std::placeholders::_1, std::placeholders::_2));
     a.addUpdateFunction(
-        boost::bind(&AgentDTG::loadPlan,
-                    this, _1, _2));
+        std::bind(&AgentDTG::loadPlan,
+                    this, std::placeholders::_1, std::placeholders::_2));
 
     ved::Rule& r1 = addRule("rSecondDayOfYear");
     ved::Rule& r2 = addRule("rForceFirstLoad");
 
     r1.add(
-        boost::bind(&AgentDTG::pSecondDayOfYear,
-                    this, _1, _2, _3));
+        std::bind(&AgentDTG::pSecondDayOfYear,
+                    this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
     r2.add(
-        boost::bind(&AgentDTG::pForceFirstLoad,
-                    this, _1, _2, _3));
+        std::bind(&AgentDTG::pForceFirstLoad,
+                    this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
     a.addRule("rSecondDayOfYear", r1);
     a.addRule("rForceFirstLoad", r2);
@@ -221,8 +218,8 @@ getLocationName(const std::string activity) const
     if (found == std::string::npos) {
         return {};
     }
-    strings_t lst;
-    boost::split(lst, activity, boost::is_any_of("@:"));
+    std::vector< std::string > lst;
+    vu::tokenize(activity, lst, "@:", true);
     if (lst.size() <= 1) {
         return {};
     } else {
@@ -239,8 +236,8 @@ getLocationName(const std::string activity) const
 std::string
 getPortName(const std::string activity) const
 {
-    strings_t lst;
-    boost::split(lst, activity, boost::is_any_of("#:"));
+    std::vector< std::string > lst;
+    vu::tokenize(activity, lst, "#:", true);
     if (lst.empty()) {
         return activity;
     } else {
@@ -302,8 +299,8 @@ getYearOfLocation(std::string location) const
  */
 std::string
 getPrefixName(const std::string activity) const {
-    strings_t lst;
-    boost::split(lst, activity, boost::is_any_of("#"));
+    std::vector< std::string > lst;
+    vu::tokenize(activity, lst, "#", true);
     if (lst.empty()) {
         return activity;
     } else {
@@ -320,8 +317,8 @@ getPrefixName(const std::string activity) const {
  */
 std::string
 getParamName(const std::string activity) const {
-    strings_t lst;
-    boost::split(lst, activity, boost::is_any_of("@"));
+    std::vector< std::string > lst;
+    vu::tokenize(activity, lst, "@", true);
     if (lst.empty()) {
         return activity;
     } else {
@@ -337,7 +334,7 @@ getParamName(const std::string activity) const {
 std::string
 getSuffixName(int n) const {
    std::stringstream ret("#");
-   ret << boost::format("%1$02d") % n;
+   ret << vu::format("%1$02d", n);
    return ret.str();
 }
 
@@ -542,14 +539,14 @@ ack_plan(const std::string&activityname,
                                 vd::negativeInfinity,
                                 activity.maxfinish());
     a.addOutputFunction(
-        boost::bind(&AgentDTG::out_plan,
-                    this, _1, _2, _3));
+        std::bind(&AgentDTG::out_plan,
+                    this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     a.addAcknowledgeFunction(
-        boost::bind(&AgentDTG::ack_plan,
-                    this, _1, _2));
+        std::bind(&AgentDTG::ack_plan,
+                    this, std::placeholders::_1, std::placeholders::_2));
     a.addUpdateFunction(
-        boost::bind(&AgentDTG::loadPlan,
-                    this, _1, _2));
+        std::bind(&AgentDTG::loadPlan,
+                    this, std::placeholders::_1, std::placeholders::_2));
     a.addRule("rSecondDayOfYear", KnowledgeBase::rules().get("rSecondDayOfYear"));
 }
 
@@ -579,7 +576,7 @@ ack_plan(const std::string&activityname,
 
                 int counter = mPlanPerLocationCounter.find(it->first)->second++;
                 std::stringstream ss;
-                ss << boost::format("%1$02d") % counter;
+                ss << vu::format("%1$02d", counter);
                 std::string suf;
                 if (it->first == "") {
                     suf = ":" + ss.str();
@@ -616,8 +613,8 @@ ack_plan(const std::string&activityname,
         //     boost::bind(&AgentDTG::ack_plan,
         //                 this, _1, _2));
         a.addUpdateFunction(
-            boost::bind(&AgentDTG::loadPlan,
-                        this, _1, _2));
+            std::bind(&AgentDTG::loadPlan,
+                        this, std::placeholders::_1, std::placeholders::_2));
         a.addRule("rSecondDayOfYear", KnowledgeBase::rules().get("rSecondDayOfYear"));
     }
 }
@@ -774,11 +771,11 @@ GUpdate(const std::string& name,
                                         vd::negativeInfinity,
                                         current_date + 1);
             a.addOutputFunction(
-                boost::bind(&AgentDTG::GOut,
-                            this, _1, _2, _3));
+                std::bind(&AgentDTG::GOut,
+                            this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
             a.addUpdateFunction(
-                boost::bind(&AgentDTG::GUpdate,
-                            this, _1, _2));
+                std::bind(&AgentDTG::GUpdate,
+                            this, std::placeholders::_1, std::placeholders::_2));
             a.addParams(activity.params());
         }
 
@@ -821,11 +818,11 @@ GUpdate(const std::string& name,
                                             vd::negativeInfinity,
                                             activity.maxfinish());
                 a.addOutputFunction(
-                    boost::bind(&AgentDTG::GOut,
-                                this, _1, _2, _3));
+                    std::bind(&AgentDTG::GOut,
+                                this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
                 a.addUpdateFunction(
-                    boost::bind(&AgentDTG::GUpdate,
-                                this, _1, _2));
+                    std::bind(&AgentDTG::GUpdate,
+                                this, std::placeholders::_1, std::placeholders::_2));
                 for (ved::Rules::const_iterator it = activity.getRules().begin();
                      it !=  activity.getRules().end(); ++it) {
                     a.addRule(it->first, it->second);

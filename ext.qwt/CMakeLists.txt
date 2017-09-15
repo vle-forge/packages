@@ -85,15 +85,6 @@ if (WITH_GVLE)
 endif ()
 
 ##
-## Find boost
-##
-
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREAD ON)
-find_package(Boost COMPONENTS unit_test_framework date_time thread
-  system filesystem)
-
-##
 ## Find Qt
 ##
 

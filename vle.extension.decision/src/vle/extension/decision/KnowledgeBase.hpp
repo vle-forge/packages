@@ -38,7 +38,6 @@
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/extension/decision/Table.hpp>
 #include <vle/extension/decision/Plan.hpp>
-#include <boost/algorithm/string.hpp>
 #include <iostream>
 
 namespace vle { namespace extension { namespace decision {
@@ -319,7 +318,7 @@ public:
             return mResources.find(type) != mResources.end();
         } else {
             std::vector<std::string> strs;
-            boost::split(strs, type , boost::is_any_of("&"));
+            vle::utils::tokenize(type, strs, "&", true);
 
             Resources::const_iterator its = mResources.find(strs[0]);
 
@@ -369,7 +368,7 @@ public:
 
         } else {
             std::vector<std::string> strs;
-            boost::split(strs, type , boost::is_any_of("&"));
+            vle::utils::tokenize(type, strs, "&", true);
             Resources::const_iterator its = mResources.find(strs[0]);
             std::vector< std::string > result(its->second.begin(),
                                               its->second.end());
@@ -846,7 +845,7 @@ private:
 template < typename X, typename F >
 AddRess < X > operator+=(AddRess < X > add, r < F > pred)
 {
-    add.kb->ress().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
+    add.kb->ress().add(pred.name, std::bind(pred.func, add.kb, std::placeholders::_1, std::placeholders::_2));
     return add;
 }
 
@@ -869,7 +868,7 @@ AddPortFacts < X > operator+=(AddPortFacts < X > add, f < PF > pred)
 template < typename X, typename F >
 AddRess < X > operator,(AddRess < X > add, f < F > pred)
 {
-    add.kb->ress().add(pred.name, boost::bind(pred.func, add.kb, _1, _2));
+    add.kb->ress().add(pred.name, std::bind(pred.func, add.kb, std::placeholders::_1, std::placeholders::_2));
     return add;
 }
 
