@@ -2224,8 +2224,6 @@ vleDmDD::getData()
             if (maxtl != "") {
                 precedenceListElem += "      maxtimelag = " + maxtl.toStdString() + ";\n";
             }
-
-            precedenceListElem += "   }\n";
             vleTpl.listSymbol().append("precedencesList", precedenceListElem);
         }
     } else {
