@@ -450,7 +450,7 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
 
         vle::utils::tokenize(resourcesAlt[i], strs, "+", true);
 
-        for (uint j = 0; j < strs.size(); j++) {
+        for (size_t j = 0; j < strs.size(); j++) {
             trim(strs[j]);
             std::string toEx = strs[j];
             size_t n = std::count(toEx.begin(), toEx.end(), '.');
@@ -503,18 +503,18 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
         std::vector< std::vector< std::string > > resourceSet;
         std::vector< std::vector< std::string >::const_iterator > resourceSetIter;
 
-        for (uint j=0; j < strs.size(); j++) {
+        for (size_t j=0; j < strs.size(); j++) {
             trim(strs[j]);
             resourceSet.push_back(mKb.getResources(strs[j]));
         }
 
-        for (uint j=0; j < strs.size(); j++) {
+        for (size_t j=0; j < strs.size(); j++) {
             resourceSetIter.push_back(resourceSet[j].begin());
         }
 
         bool explorationEnd = false;
 
-        for (uint j = 0; j < strs.size(); j++) {
+        for (size_t j = 0; j < strs.size(); j++) {
             if (resourceSetIter[j] == resourceSet[j].end()) {
                 explorationEnd = true;
                 break;
@@ -525,7 +525,7 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
 
             ResourceAvailability localA = mResourceAvailability;
 
-            for (uint j=0; j < strs.size(); j++) {
+            for (size_t j=0; j < strs.size(); j++) {
 
                 while (not (resourceSetIter[j] == resourceSet[j].end()) and
                        not localA.at(*resourceSetIter[j]))
@@ -544,7 +544,7 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
             }
 
             bool solutionFound = true;
-            for (uint j = 0; j < strs.size(); j++) {
+            for (size_t j = 0; j < strs.size(); j++) {
 
                 if (not (resourceSetIter[j] == resourceSet[j].end()) and
                     solutionFound == true) {
@@ -556,7 +556,7 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
             }
 
             if (solutionFound) {
-                for (uint j = 0; j < strs.size(); j++) {
+                for (size_t j = 0; j < strs.size(); j++) {
                     solution.push_back(*resourceSetIter[j]);
                 }
                 return solution;
@@ -564,7 +564,7 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
 
             explorationEnd = false;
 
-            for (uint j = 0; j < strs.size(); j++) {
+            for (size_t j = 0; j < strs.size(); j++) {
                 if (resourceSetIter[j] == resourceSet[j].end()) {
                     explorationEnd = true;
                     break;

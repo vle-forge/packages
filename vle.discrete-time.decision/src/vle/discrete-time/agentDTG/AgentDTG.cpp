@@ -142,10 +142,10 @@ fillResources ()
     vv::MapValue::const_iterator it;
     for (it = mResourceP->toMap().begin(); it != mResourceP->toMap().end(); it++) {
         vv::Set ress = mResourceP->toMap().getSet(it->first);
-        uint nbres = ress.getInt(0);
-        for(uint i = 0; i < nbres; i++) {
+        unsigned int nbres = ress.getInt(0);
+        for(unsigned int i = 0; i < nbres; i++) {
             std::string resId = (it->first) + vu::to(i) ;
-            for(uint j = 1; j < ress.size(); j++) {
+            for(size_t j = 1; j < ress.size(); j++) {
                     addResources(ress.getString(j), resId);
             }
         }
@@ -267,7 +267,7 @@ getPlansOfTheYear(std::string location) const
     strings_t plans;
     vv::Set rot = mRotationP->toMap().getSet(location);
     int yearOfLocation = getYearOfLocation(location);
-    for(uint i = 1; i < rot.size(); i++) {
+    for(size_t i = 1; i < rot.size(); i++) {
         int year = rot[i]->toSet().getInt(0);
         if (year == yearOfLocation) {
             plans.push_back(rot[i]->toSet().getString(1));
