@@ -841,8 +841,44 @@ GUpdate(const std::string& name,
     }
 }
 
-};
+std::string getShortDate(const vd::Time& time) const
+{
+    if (vu::DateTime::isValidYear(time)) {
+        std::string completeHumanDate = vu::DateTime::toJulianDay(time);
 
+        long dateNumber =  vu::DateTime::toJulianDayNumber(completeHumanDate);
+
+        return vu::DateTime::toJulianDayNumber(dateNumber);
+    } else {
+        return "";
+    }
+}
+
+std::unique_ptr<vle::value::Value>
+observation(const devs::ObservationEvent& event) const
+{
+    using vle::extension::decision::operator<<;
+    const std::string port = event.getPortName();
+    if (port == "Resume") {
+        std::stringstream out;
+        ved::Activities::const_iterator activity;
+        for (activity = activities().begin();
+             activity != activities().end(); ++activity) {
+            const ved::Activity& act(activity->second);
+            std::size_t found = activity->first.find("_reset_");
+            if (act.isInDoneState() && found == std::string::npos) {
+                out << activity->first  << ";"
+                    << getLocationName(activity->first) << ";"
+                    << getShortDate(act.startedDate()) << ";"
+                    << getShortDate(act.doneDate()) << std::endl;
+            }
+        }
+        return std::unique_ptr<vle::value::Value>(new value::String(out.str()));
+    }
+    return vdd::AgentDT::observation(event);
+}
+
+};
 
 }}} // namespaces
 
