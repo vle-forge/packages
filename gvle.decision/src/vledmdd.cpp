@@ -285,7 +285,8 @@ vleDmDD::xCreateDom()
             dataModelNode.toElement().setAttribute("outputsType", "discrete-time");
         }
 
-        vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Knowledgebase");
+        vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "KnowledgeBase");
+        vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Resume");
         vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Activities");
     }
 }
