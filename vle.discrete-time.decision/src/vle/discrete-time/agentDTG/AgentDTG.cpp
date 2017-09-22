@@ -167,9 +167,12 @@ init(vd::Time t)
     a.addOutputFunction(
         std::bind(&AgentDTG::out_plan,
                     this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-    a.addAcknowledgeFunction(
-        std::bind(&AgentDTG::ack_plan,
-                    this, std::placeholders::_1, std::placeholders::_2));
+    if (not autoAck) {
+        a.addAcknowledgeFunction(
+            std::bind(&AgentDTG::ack_plan,
+                      this, std::placeholders::_1, std::placeholders::_2));
+    }
+
     a.addUpdateFunction(
         std::bind(&AgentDTG::loadPlan,
                     this, std::placeholders::_1, std::placeholders::_2));
