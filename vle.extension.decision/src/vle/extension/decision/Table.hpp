@@ -32,7 +32,7 @@
 #include <vle/utils/Exception.hpp>
 #include <vle/utils/Tools.hpp>
 #include <string>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 namespace vle { namespace extension { namespace decision {
 
@@ -44,7 +44,7 @@ template < typename T >
 class Table
 {
 public:
-    typedef boost::unordered_map <std::string, T> container_type;
+    typedef std::unordered_map <std::string, T> container_type;
     typedef typename container_type::value_type value_type;
     typedef typename container_type::const_iterator const_iterator;
     typedef typename container_type::iterator iterator;

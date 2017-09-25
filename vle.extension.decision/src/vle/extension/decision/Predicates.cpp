@@ -28,150 +28,64 @@
 
 #include <vle/extension/decision/Predicates.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/variant/get.hpp>
 
 namespace vle { namespace extension { namespace decision {
 
-struct PredicateParametersFind
-{
-    bool operator()(const PredicateParameters::name_parameter_type& p,
-                    const std::string& str) const
-    {
-        return p.first < str;
-    }
-
-    bool operator()(const std::string& str,
-                    const PredicateParameters::name_parameter_type& p) const
-    {
-        return str < p.first;
-    }
-};
-
-struct  PredicateParametersFindToReset
-{
-    bool operator()(PredicateParameters::name_parameter_type& p,
-                    const std::string& str) const
-    {
-        return p.first < str;
-    }
-
-    bool operator()(const std::string& str,
-                    PredicateParameters::name_parameter_type& p) const
-    {
-        return str < p.first;
-    }
-};
-
-struct PredicateParametersCompare
-{
-    bool operator()(const PredicateParameters::name_parameter_type& a,
-                    const PredicateParameters::name_parameter_type& b) const
-    {
-        return a.first < b.first;
-    }
-};
-
-template <typename T>
-void addParam(PredicateParameters::container_type& p,
-              const std::string& name,
-              const T& param)
-{
-    p.push_back(
-        std::make_pair(name, param));
-}
-template <typename T>
-void resetParam(PredicateParameters::container_type& p,
-                const std::string& name,
-                const T& param)
-{
-    PredicateParameters::iterator it =
-        std::lower_bound(p.begin(),
-                         p.end(),
-                         name,
-                         PredicateParametersFindToReset());
-
-    if (it == p.end() or it->first != name)
-        throw vle::utils::ModellingError(
-            vle::utils::format("Decision fails to find parameter %s", name.c_str()));
-
-    it->second = param;
-}
-
-struct comp
-{
-    comp(const std::string& s) : _s(s) { }
-
-    bool operator()(const PredicateParameters::name_parameter_type& p)
-    {
-        return (p.first == _s);
-    }
-
-    std::string _s;
-};
-
 bool PredicateParameters::exist(const std::string& name) const
 {
-    return (std::find_if(m_lst.begin(), m_lst.end(), comp(name)) != m_lst.end());
-}
-
-
-template <typename T>
-T getParam(const PredicateParameters::container_type& p,
-           const std::string& name)
-{
-    PredicateParameters::const_iterator it =
-        std::lower_bound(p.begin(),
-                         p.end(),
-                         name,
-                         PredicateParametersFind());
-
-    if (it == p.end() or it->first != name)
-        throw vle::utils::ModellingError(
-             vle::utils::format("Decision fails to find parameter %s", name.c_str()));
-
-    const T* ret = boost::get <T>(&it->second);
-    if (ret)
-        return *ret;
-
-    throw vle::utils::ModellingError(
-        vle::utils::format("Decision fails to convert parameter %s", name.c_str()));
+    auto it = m_lst.find(name);
+    if (it == m_lst.cend())
+        return false;
+    return true;
 }
 
 void PredicateParameters::addDouble(const std::string& name, double param)
 {
-    addParam <double>(m_lst, name, param);
+     m_lst.insert(
+         std::make_pair(name, bx::parameter(param)));
 }
 
 void PredicateParameters::addString(const std::string& name,
                                     const std::string& param)
 {
-    addParam <std::string>(m_lst, name, param);
+    m_lst.insert(
+        std::make_pair(name, bx::parameter(param)));
 }
 
 void PredicateParameters::resetDouble(const std::string& name, double param)
 {
-    resetParam <double>(m_lst, name, param);
+    m_lst[name] = param;
 }
 
 void PredicateParameters::resetString(const std::string& name,
                                       const std::string& param)
 {
-    resetParam <std::string>(m_lst, name, param);
-}
-
-void PredicateParameters::sort()
-{
-    std::sort(m_lst.begin(), m_lst.end(), PredicateParametersCompare());
+    m_lst[name] = param;
 }
 
 double PredicateParameters::getDouble(const std::string& name) const
 {
-    return getParam <double>(m_lst, name);
+    auto it = m_lst.find(name);
+    if (it == m_lst.cend())
+        return 0.;
+
+    if (it->second.type == bx::parameter::tag::real)
+        return it->second.d;
+
+    return 0.;
 }
 
 std::string PredicateParameters::getString(const std::string& name) const
 {
-    return getParam <std::string>(m_lst, name);
+    auto it = m_lst.find(name);
+    if (it == m_lst.cend())
+        return {};
+
+    if (it->second.type == bx::parameter::tag::string)
+        return it->second.s;
+
+    return {};
+
 }
 
 }}} // namespace vle model decision
