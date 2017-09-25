@@ -33,41 +33,34 @@
 #include <vle/extension/decision/Rules.hpp>
 #include <vle/devs/ExternalEventList.hpp>
 #include <vle/devs/Time.hpp>
-#include <boost/variant.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <map>
 #include <ostream>
 #include <algorithm>
 #include <list>
+#include "Parameter.hpp"
 
-
+namespace bx = baryonyx;
 
 namespace vle { namespace extension { namespace decision {
 
 /**
  * @brief Defines parameter type for activities.
  */
-typedef boost::variant <double, std::string> ActivityParameterType;
 
 class ActivityParameters
 {
 public:
-    typedef std::pair <std::string, ActivityParameterType> name_parameter_type;
-    typedef std::vector <name_parameter_type> container_type;
+    typedef std::pair <std::string,  bx::parameter> name_parameter_type;
+    typedef std::unordered_map <std::string, bx::parameter> container_type;
     typedef container_type::const_iterator const_iterator;
     typedef container_type::iterator iterator;
     typedef container_type::size_type size_type;
 
     void addDouble(const std::string& name, double param);
     void addString(const std::string& name, const std::string& param);
-
-    /**
-     * Sort the container by string. After, you can use getDouble and
-     * getString functions.
-     */
-    void sort();
 
     /**
      * To check if the parameter does exist.
@@ -105,6 +98,7 @@ public:
      * the @e sort function.
      */
     std::string getString(const std::string& name) const;
+
     iterator begin() { return m_lst.begin(); }
     const_iterator begin() const { return m_lst.begin(); }
     iterator end() { return m_lst.end(); }

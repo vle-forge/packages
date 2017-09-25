@@ -32,144 +32,58 @@
 
 namespace vle { namespace extension { namespace decision {
 
-struct ActivityParametersFind
-{
-    bool operator()(const ActivityParameters::name_parameter_type& p,
-                    const std::string& str) const
-    {
-        return p.first < str;
-    }
-
-    bool operator()(const std::string& str,
-                    const ActivityParameters::name_parameter_type& p) const
-    {
-        return str < p.first;
-    }
-};
-
-struct ActivityParametersFindToReset
-{
-    bool operator()(ActivityParameters::name_parameter_type& p,
-                    const std::string& str) const
-    {
-        return p.first < str;
-    }
-
-    bool operator()(const std::string& str,
-                    ActivityParameters::name_parameter_type& p) const
-    {
-        return str < p.first;
-    }
-};
-
-struct ActivityParametersCompare
-{
-    bool operator()(const ActivityParameters::name_parameter_type& a,
-                    const ActivityParameters::name_parameter_type& b) const
-    {
-        return a.first < b.first;
-    }
-};
-
-template <typename T>
-void addParam(ActivityParameters::container_type& p,
-              const std::string& name,
-              const T& param)
-{
-    p.push_back(std::make_pair(name, param));
-}
-
-template <typename T>
-void resetParam(ActivityParameters::container_type& p,
-                const std::string& name,
-                const T& param)
-{
-    ActivityParameters::iterator it =
-        std::lower_bound(p.begin(),
-                         p.end(),
-                         name,
-                         ActivityParametersFindToReset());
-
-    if (it == p.end() or it->first != name)
-        throw vle::utils::ModellingError(
-            vle::utils::format("Decision fails to find parameter %s", name.c_str()));
-
-    it->second = param;
-}
-
-struct comp
-{
-    comp(const std::string& s) : _s(s) { }
-
-    bool operator()(const ActivityParameters::name_parameter_type& p)
-    {
-        return (p.first == _s);
-    }
-
-    std::string _s;
-};
-
 bool ActivityParameters::exist(const std::string& name) const
 {
-    return (std::find_if(m_lst.begin(), m_lst.end(), comp(name)) != m_lst.end());
-}
-
-
-template <typename T>
-T getParam(const ActivityParameters::container_type& p,
-           const std::string& name)
-{
-    ActivityParameters::const_iterator it =
-        std::lower_bound(p.begin(),
-                         p.end(),
-                         name,
-                         ActivityParametersFind());
-
-    if (it == p.end() or it->first != name)
-        throw vle::utils::ModellingError(
-            vle::utils::format("Decision fails to get parameter %s", name.c_str()));
-
-    const T* ret = boost::get <T>(&it->second);
-    if (ret)
-        return *ret;
-
-    throw vle::utils::ModellingError(
-        vle::utils::format("Decision fails to convert parameter %s", name.c_str()));
+    auto it = m_lst.find(name);
+    if (it == m_lst.cend())
+        return false;
+    return true;
 }
 
 void ActivityParameters::addDouble(const std::string& name, double param)
 {
-    addParam <double>(m_lst, name, param);
+    m_lst.insert(
+        std::make_pair(name, bx::parameter(param)));
 }
 
 void ActivityParameters::addString(const std::string& name, const std::string& param)
 {
-    addParam <std::string>(m_lst, name, param);
+    m_lst.insert(
+        std::make_pair(name, bx::parameter(param)));
 }
 
 void ActivityParameters::resetDouble(const std::string& name, double param)
 {
-    resetParam <double>(m_lst, name, param);
+    m_lst[name] = param;
 }
 
 void ActivityParameters::resetString(const std::string& name, const std::string& param)
 {
-    resetParam <std::string>(m_lst, name, param);
-}
-
-void ActivityParameters::sort()
-{
-    std::sort(m_lst.begin(), m_lst.end(), ActivityParametersCompare());
+    m_lst[name] = param;
 }
 
 double ActivityParameters::getDouble(const std::string& name) const
 {
-    return getParam <double>(m_lst, name);
+   auto it = m_lst.find(name);
+    if (it == m_lst.cend())
+        return 0.;
+
+    if (it->second.type == bx::parameter::tag::real)
+        return it->second.d;
+
+    return 0.;
 }
 
 std::string ActivityParameters::getString(const std::string& name) const
 {
-    return getParam <std::string>(m_lst, name);
+   auto it = m_lst.find(name);
+    if (it == m_lst.cend())
+        return {};
+
+    if (it->second.type == bx::parameter::tag::string)
+        return it->second.s;
+
+    return {};
 }
 
 bool Activity::validRules(const std::string& activity) const

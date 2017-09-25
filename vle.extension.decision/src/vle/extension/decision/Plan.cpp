@@ -243,8 +243,6 @@ void __fill_predicate(utils::ContextPtr ctx,
                               parameters.first->second.reals.end(),
                               AssignDoubleParameter(params));
 
-                params.sort();
-
                 Trace(ctx, 6, "Predicate %s added with parameters:",
                       (id.first->second + suffixe).c_str());
 
@@ -412,8 +410,6 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
                           parameters.first->second.reals.end(),
                           AssignActivityDoubleParameter(params));
 
-            params.sort();
-
             act.addParams(params);
 
             Trace(ctx, 6, "Activity %s added with parameters:",
@@ -435,7 +431,6 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
             }
             if (not resources.empty()) {
                 act.getParams().addString("resources", resources);
-                act.getParams().sort();
             }
             if (act.params().exist("resources")) {
                  act.freeRessources();

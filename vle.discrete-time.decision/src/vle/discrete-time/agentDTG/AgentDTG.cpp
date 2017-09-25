@@ -43,6 +43,7 @@ namespace vv = vle::value;
 namespace ved = vle::extension::decision;
 namespace vdd = vle::discrete_time::decision;
 namespace vu = vle::utils;
+namespace bx = baryonyx;
 
 namespace vle {
 namespace discrete_time {
@@ -609,12 +610,6 @@ ack_plan(const std::string&activityname,
                                     vd::infinity,
                                     vd::negativeInfinity,
                                     activity.maxfinish());
-        // a.addOutputFunction(
-        //     boost::bind(&AgentDTG::out_plan,
-        //                 this, _1, _2, _3));
-        // a.addAcknowledgeFunction(
-        //     boost::bind(&AgentDTG::ack_plan,
-        //                 this, _1, _2));
         a.addUpdateFunction(
             std::bind(&AgentDTG::loadPlan,
                         this, std::placeholders::_1, std::placeholders::_2));
@@ -685,7 +680,7 @@ GOut(const std::string& name,
             if (paramName.compare(0,5,"_out_") == 0) {
                 std::string variableName =  paramName.substr(5);
 
-                if (it->second.which() == 0) {
+                if (it->second.type == bx::parameter::tag::real) {
                     double variableValue =  activity.params().getDouble(it->first);
                     output.emplace_back(variableName + portSuffix);
                     vle::value::Map& map = output.back().addMap();

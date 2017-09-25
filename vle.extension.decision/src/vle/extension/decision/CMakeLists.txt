@@ -1,7 +1,7 @@
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${VLE_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}/src)
+  ${CMAKE_BINARY_DIR}/src)
 
-LINK_DIRECTORIES(${VLE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
+LINK_DIRECTORIES(${VLE_LIBRARY_DIRS})
 
 ADD_LIBRARY(decision STATIC Resources.hpp Activities.cpp
   Activities.hpp Activity.cpp Activity.hpp Agent.cpp Agent.hpp
@@ -9,7 +9,7 @@ ADD_LIBRARY(decision STATIC Resources.hpp Activities.cpp
   Library.hpp Plan.cpp Plan.hpp PrecedenceConstraint.cpp
   PrecedenceConstraint.hpp PrecedencesGraph.cpp PrecedencesGraph.hpp
   Predicates.cpp Predicates.hpp Rule.cpp Rule.hpp Rules.cpp Rules.hpp
-  Table.hpp Version.hpp Ress.hpp)
+  Table.hpp Version.hpp Ress.hpp Parameter.hpp)
 
 IF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
@@ -20,14 +20,15 @@ ENDIF("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
 SET_TARGET_PROPERTIES(decision PROPERTIES OUTPUT_NAME
   "decision-${MODEL_MAJOR}.${MODEL_MINOR}")
 
-TARGET_LINK_LIBRARIES(decision ${VLE_LIBRARIES} ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(decision ${VLE_LIBRARIES})
 
 INSTALL(TARGETS decision ARCHIVE DESTINATION lib)
 
 install(FILES Ress.hpp Resources.hpp Activities.hpp Activity.hpp
   Agent.hpp Facts.hpp KnowledgeBase.hpp Library.hpp Plan.hpp
   PrecedenceConstraint.hpp PrecedencesGraph.hpp Predicates.hpp
-  Rule.hpp Rules.hpp Table.hpp DESTINATION src/vle/extension/decision)
+  Rule.hpp Rules.hpp Table.hpp Parameter.hpp DESTINATION
+  src/vle/extension/decision)
 
 CONFIGURE_FILE(Version.hpp.in
   ${CMAKE_BINARY_DIR}/src/vle/extension/decision/Version.hpp)

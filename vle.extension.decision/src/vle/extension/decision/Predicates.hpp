@@ -33,36 +33,31 @@
 #include <vector>
 #include <vle/utils/Tools.hpp>
 #include <vle/utils/Exception.hpp>
-#include <boost/variant.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
 #include <map>
 #include <ostream>
+#include <unordered_set>
+#include <unordered_map>
+#include "Parameter.hpp"
+
+namespace bx = baryonyx;
 
 namespace vle { namespace extension { namespace decision {
 
 /**
  * @brief Defines parameter type for predicates.
  */
-typedef boost::variant <double, std::string> PredicateParameterType;
 
 class PredicateParameters
 {
 public:
-    typedef std::pair <std::string, PredicateParameterType> name_parameter_type;
-    typedef std::vector <name_parameter_type> container_type;
+    typedef std::pair <std::string, bx::parameter> name_parameter_type;
+    typedef std::unordered_map<std::string, bx::parameter> container_type;
     typedef container_type::const_iterator const_iterator;
     typedef container_type::iterator iterator;
     typedef container_type::size_type size_type;
 
     void addDouble(const std::string& name, double param);
     void addString(const std::string& name, const std::string& param);
-
-    /**
-     * Sort the container by string. After, you can use getDouble and
-     * getString functions.
-     */
-    void sort();
 
     /**
      * To check if the parameter does exist.
@@ -138,6 +133,10 @@ public:
         , m_function(function)
     {}
 
+    Predicate(const std::string& name)
+        : m_name(name)
+    {}
+
     bool isAvailable(const std::string& activity,
                      const std::string& rule) const
     {
@@ -190,8 +189,8 @@ struct PredicateHash
 class Predicates
 {
 public:
-    typedef boost::unordered_set <Predicate, PredicateHash,
-                                  PredicateEqual> container_type;
+    typedef std::unordered_set <Predicate, PredicateHash,
+                                PredicateEqual> container_type;
     typedef container_type::const_iterator const_iterator;
     typedef container_type::iterator iterator;
     typedef container_type::size_type size_type;
@@ -219,7 +218,7 @@ public:
 
     const_iterator find(const std::string& name) const
     {
-        return m_lst.find(name, PredicateHash(), PredicateEqual());
+        return m_lst.find(Predicate(name));
     }
 
     const Predicate& get(const std::string& name) const
