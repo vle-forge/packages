@@ -2069,7 +2069,7 @@ vleDmDD::getData()
             std::string actListElem = name.toStdString() + "\";\n";
             // temporal
             if ((getMinStart(name) != "" && getMinStart(name) != "+") ||
-                (getMaxFinish(name) != ""  getMaxFinish(name) != "+")) {
+                (getMaxFinish(name) != "" && getMaxFinish(name) != "+")) {
                 actListElem =  actListElem + "      temporal {\n";
                 if (getMinStart(name) != "" && getMinStart(name) != "+") {
                     if (not isRelativeDate(name)) {

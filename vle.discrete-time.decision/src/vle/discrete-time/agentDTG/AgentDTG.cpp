@@ -857,7 +857,7 @@ observation(const devs::ObservationEvent& event) const
 {
     using vle::extension::decision::operator<<;
     const std::string port = event.getPortName();
-    if (port == "Resume") {
+    if (port == "achievedPlan") {
         std::stringstream out;
         ved::Activities::const_iterator activity;
         for (activity = activities().begin();
