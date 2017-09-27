@@ -1,0 +1,12 @@
+Package: gvle.simulating.plan
+Version: 0.1.0
+Depends: vle.discrete-time.decision
+Build-Depends:
+Conflicts:
+Maintainer: Patrick Chabrier <patrick.chabrier@inra.fr>
+Description: a plan viewer, still in progress
+ .
+Tags: examples
+Url: http://www.vle-project.org/2.0
+Size: 0
+MD5sum: xxxx
