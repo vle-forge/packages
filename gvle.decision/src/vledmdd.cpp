@@ -286,7 +286,7 @@ vleDmDD::xCreateDom()
         }
 
         vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "KnowledgeBase");
-        vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Resume");
+        vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "AchievedPlan");
         vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "Activities");
     }
 }
@@ -1177,10 +1177,15 @@ vleDmDD::setPredicateRightValue(const QString& predicateName,
 
     if (type == "rename") {
         if (singleVarUsage(orv)){
-            vleDomStatic::renamePortToInNode(nodeIn(), orv,
-                                             rv, 0);
-            vleDomStatic::renameObservablePort(nodeObs(), orv, rv, 0);
-
+            if (existVar(rv))
+            {
+                vleDomStatic::rmPortToInNode(nodeIn(), orv);
+                vleDomStatic::rmObservablePort(nodeObs(), orv);
+            } else {
+                vleDomStatic::renamePortToInNode(nodeIn(), orv,
+                                                 rv, 0);
+                vleDomStatic::renameObservablePort(nodeObs(), orv, rv, 0);
+            }
         } else {
             vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), rv, 0);
             vleDomStatic::addObservablePort(*mDocDm, nodeObs(), rv, 0);
@@ -1221,10 +1226,16 @@ vleDmDD::setPredicateLeftValue(const QString& predicateName,
 
     if (type == "rename") {
         if (singleVarUsage(olv)){
-            vleDomStatic::renamePortToInNode(nodeIn(), olv,
-                                             lv, 0);
-            vleDomStatic::renameObservablePort(nodeObs(), olv,
-                                               lv, 0);
+            if (existVar(lv))
+            {
+                vleDomStatic::rmPortToInNode(nodeIn(), olv);
+                vleDomStatic::rmObservablePort(nodeObs(), olv);
+            } else {
+                vleDomStatic::renamePortToInNode(nodeIn(), olv,
+                                                 lv, 0);
+                vleDomStatic::renameObservablePort(nodeObs(), olv,
+                                                   lv, 0);
+            }
         } else {
             vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), lv, 0);
             vleDomStatic::addObservablePort(*mDocDm, nodeObs(), lv, 0);
@@ -1305,6 +1316,26 @@ vleDmDD::singleVarUsage(const QString& varName)
     }
 
     return (nbVarUsage == 1);
+
+}
+bool
+vleDmDD::existVar(const QString& varName)
+{
+    QDomNodeList predList = predicatesFromDoc();
+    int nbVarUsage = 0;
+    for (int i = 0; i < predList.length(); i++) {
+        QString left = predList.item(i).attributes().namedItem("leftValue").nodeValue();
+        QString right = predList.item(i).attributes().namedItem("rightValue").nodeValue();
+        if (left == varName) {
+            nbVarUsage++;
+        }
+        if (right == varName) {
+            nbVarUsage++;
+        }
+
+    }
+
+    return (nbVarUsage != 0);
 
 }
 
@@ -2037,8 +2068,8 @@ vleDmDD::getData()
 
             std::string actListElem = name.toStdString() + "\";\n";
             // temporal
-            if (getMinStart(name) != "" ||
-                getMaxFinish(name) != "") {
+            if ((getMinStart(name) != "" && getMinStart(name) != "+") ||
+                (getMaxFinish(name) != ""  getMaxFinish(name) != "+")) {
                 actListElem =  actListElem + "      temporal {\n";
                 if (getMinStart(name) != "" && getMinStart(name) != "+") {
                     if (not isRelativeDate(name)) {

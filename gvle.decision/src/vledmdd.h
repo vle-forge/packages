@@ -192,6 +192,7 @@ public:
     void rmPredicateToDoc(const QString& predName);
 
     bool singleVarUsage(const QString& varName);
+    bool existVar(const QString& varName);
 
     /**
      * @brief rename everywhere the name of a predicate
