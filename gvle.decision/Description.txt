@@ -1,4 +1,4 @@
-Package: MyProject
+Package: gvle.decision
 Version: 0.1.0
 Depends:
 Build-Depends:

@@ -1,4 +1,4 @@
-Package: MyProject
+Package: vle.discrete-time.decision_test
 Version: 0.1.0
 Depends:
 Build-Depends: vle.reader,vle.tester,vle.discrete-time,vle.extension.decision,vle.discrete-time.decision
