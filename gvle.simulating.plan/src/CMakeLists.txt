@@ -36,7 +36,7 @@ add_library(PlanSimSubpanel SHARED ${PlanSimSubpanel_SOURCES_CPP}
 target_link_libraries(PlanSimSubpanel ${INTL_LIB} ${GVLE_LIBRARIES}
   ${VLE_LIBRARIES} ${Qt5Xml_LIBRARIES} ${Qt5Widgets_LIBRARIES}
   ${Qt5Gui_LIBRARIES} ${Qt5Help_LIBRARIES} ${Qt5Svg_LIBRARIES}
-  ${Qt5XmlPattrens_LIBRARIES}
+  ${Qt5XmlPatterns_LIBRARIES}
   ${Qt5PrintSupport_LIBRARIES})
 
 INSTALL(TARGETS PlanSimSubpanel RUNTIME DESTINATION
