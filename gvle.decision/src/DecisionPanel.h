@@ -66,9 +66,6 @@ public:
 
 public slots:
     void onUndoAvailable(bool);
-    void onUndoRedoSm(QDomNode oldValSm, QDomNode newValSm);
-
-private:
 
 public:
     DecisionLeftWidget* left;

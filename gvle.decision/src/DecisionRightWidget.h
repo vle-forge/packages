@@ -66,7 +66,6 @@ public slots:
     void onMaxFinishDate();
 
     void onDmModified(int modifType);
-    void onDerivative(const QString&, const QString&, const QString&);
     void onOutParActMenu(const QPoint& pos);
     void insertRowOut(int row, const QString& outParName);
     void onValueUpdated(const QString& id, double value);
