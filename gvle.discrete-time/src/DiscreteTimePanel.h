@@ -43,7 +43,7 @@ namespace vv = vle::value;
 namespace vle {
 namespace gvle {
 
-class VleTextEdit;
+class VleCodeEdit;
 class VleLineEdit;
 
 class DiscreteTimePanel : public PluginMainPanel
@@ -68,10 +68,10 @@ public:
     void discard() override;
     PluginMainPanel* newInstance() override;
 
-    VleTextEdit* getComputeWidget();
-    VleTextEdit* getConstructorWidget();
-    VleTextEdit* getUserSectionWidget();
-    VleTextEdit* getIncludesWidget();
+    VleCodeEdit* getComputeWidget();
+    VleCodeEdit* getConstructorWidget();
+    VleCodeEdit* getUserSectionWidget();
+    VleCodeEdit* getIncludesWidget();
     VleDoubleEdit* getTimeStepWidget();
     QGroupBox* getTimeStepBox();
     void reload();

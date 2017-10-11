@@ -36,17 +36,17 @@ namespace forrester {
 
 using namespace vle::gvle;
 
-vle::gvle::VleTextEdit*
+vle::gvle::VleCodeEdit*
 getDerivativeAssist(Ui::rightWidget* ui)
 {
-    return static_cast<vle::gvle::VleTextEdit*>(
+    return static_cast<vle::gvle::VleCodeEdit*>(
             ui->inplaceDerivativeAssist->widget(1));
 }
 
-vle::gvle::VleTextEdit*
+vle::gvle::VleCodeEdit*
 getDerivativeAdvanced(Ui::rightWidget* ui)
 {
-    return static_cast<vle::gvle::VleTextEdit*>(
+    return static_cast<vle::gvle::VleCodeEdit*>(
             ui->inplaceDerivativeAdvanced->widget(1));
 }
 
@@ -68,12 +68,12 @@ ForresterRightWidget::ForresterRightWidget(ForresterPanel*  f):
     ui->setupUi(this);
 
     ui->inplaceDerivativeAssist->addWidget(
-            new vle::gvle::VleTextEdit(this,"", "id", true));
+            new vle::gvle::VleCodeEdit(this,"", "id", true));
     ui->inplaceDerivativeAssist->setCurrentIndex(1);
 
 
     ui->inplaceDerivativeAdvanced->addWidget(
-            new vle::gvle::VleTextEdit(this,"", "id", true));
+            new vle::gvle::VleCodeEdit(this,"", "id", true));
     ui->inplaceDerivativeAdvanced->setCurrentIndex(1);
 
     ui->stackedWidget->setCurrentIndex(NO_EDIT);
@@ -394,4 +394,3 @@ ForresterRightWidget::onDerivative(const QString&, const QString&,
 
 
 }} //namespaces
-
