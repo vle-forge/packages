@@ -66,13 +66,13 @@ public:
     void discard() override;
     PluginMainPanel* newInstance() override;
 
-    vle::gvle::VleTextEdit* getComputeWidget();
-    vle::gvle::VleTextEdit* getConstructorWidget();
-    vle::gvle::VleTextEdit* getUserSectionWidget();
-    vle::gvle::VleTextEdit* getIncludesWidget();
+    vle::gvle::VleCodeEdit* getComputeWidget();
+    vle::gvle::VleCodeEdit* getConstructorWidget();
+    vle::gvle::VleCodeEdit* getUserSectionWidget();
+    vle::gvle::VleCodeEdit* getIncludesWidget();
     void reload();
     void insertRowVar(int row, const QString& val);
-    vle::gvle::VleTextEdit* getTextEdit(int row, int col);
+    vle::gvle::VleCodeEdit* getTextEdit(int row, int col);
 
 public slots:
     //for both left and right

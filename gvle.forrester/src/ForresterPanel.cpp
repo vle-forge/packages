@@ -145,25 +145,25 @@ ForresterPanel::newInstance()
     return new ForresterPanel;
 }
 
-VleTextEdit*
+VleCodeEdit*
 ForresterPanel::getComputeWidget()
 {
     return 0;
 }
 
-VleTextEdit*
+VleCodeEdit*
 ForresterPanel::getConstructorWidget()
 {
     return 0;
 }
 
-VleTextEdit*
+VleCodeEdit*
 ForresterPanel::getUserSectionWidget()
 {
     return 0;
 }
 
-VleTextEdit*
+VleCodeEdit*
 ForresterPanel::getIncludesWidget()
 {
     return 0;
@@ -181,7 +181,7 @@ ForresterPanel::insertRowVar(int /*row*/, const QString& /*name*/)
 {
 }
 
-VleTextEdit*
+VleCodeEdit*
 ForresterPanel::getTextEdit(int /*row*/, int /*col*/)
 {
     return 0;
