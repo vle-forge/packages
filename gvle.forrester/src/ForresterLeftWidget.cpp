@@ -243,7 +243,7 @@ type_str(int t)
 ForresterCompartment::ForresterCompartment(QDomNode n,
         vleSmForrester* smForrester) : sm(smForrester), node(n)
 {
-    QGraphicsTextItem* nameItem = new QGraphicsTextItem(
+    VleLineEditItem* nameItem = new VleLineEditItem(
             DomFunctions::attributeValue(node, "name"), this);
     nameItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
     QGraphicsItem::setFlag(QGraphicsItem::ItemIsMovable, false);
@@ -283,7 +283,7 @@ ForresterCompartment::update(const QRectF & /*rect*/)
 
         }
     }
-    QGraphicsTextItem* nameItem = getNameItem();
+    VleLineEditItem* nameItem = getNameItem();
     new QGraphicsRectItem(
             QRectF(0,0,nameItem->boundingRect().width(),
                     nameItem->boundingRect().height()), this);
@@ -313,13 +313,13 @@ ForresterCompartment::getRectangle() const
 
 
 
-QGraphicsTextItem*
+VleLineEditItem*
 ForresterCompartment::getNameItem() const
 {
     QList<QGraphicsItem *>  children = childItems();
     for (int i =0; i<children.length(); i++) {
-        if (children.at(i)->type() == 8) {//8 for QGraphicsTextItem
-            return static_cast<QGraphicsTextItem*>(children.at(i));
+        if (children.at(i)->type() == 8) {//8 for VleLineEditItem
+            return static_cast<VleLineEditItem*>(children.at(i));
         }
     }
     return 0;
@@ -328,7 +328,7 @@ ForresterCompartment::getNameItem() const
 void
 ForresterCompartment::setNameEdition(bool val)
 {
-    QGraphicsTextItem* textItem = getNameItem();
+    VleLineEditItem* textItem = getNameItem();
     if (val and textItem->textInteractionFlags() == Qt::NoTextInteraction) {
         textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
         textItem->setFocus(Qt::ActiveWindowFocusReason); // this gives the item keyboard focus
@@ -354,7 +354,7 @@ ForresterCompartment::setNameEdition(bool val)
 ForresterParameter::ForresterParameter(QDomNode n,
         vleSmForrester* smForrester) : sm(smForrester), node(n)
 {
-    QGraphicsTextItem* nameItem = new QGraphicsTextItem(
+    VleLineEditItem* nameItem = new VleLineEditItem(
             DomFunctions::attributeValue(node, "name"), this);
     nameItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
 
@@ -395,7 +395,7 @@ ForresterParameter::update(const QRectF & /*rect*/)
 
         }
     }
-    QGraphicsTextItem* nameItem = getNameItem();
+    VleLineEditItem* nameItem = getNameItem();
     new QGraphicsRectItem(
             QRectF(0,0,nameItem->boundingRect().width(),
                     nameItem->boundingRect().height()), this);
@@ -422,13 +422,13 @@ ForresterParameter::getRectangle() const
     return 0;
 }
 
-QGraphicsTextItem*
+VleLineEditItem*
 ForresterParameter::getNameItem() const
 {
     QList<QGraphicsItem *>  children = childItems();
     for (int i =0; i<children.length(); i++) {
-        if (children.at(i)->type() == 8) {//8 for QGraphicsTextItem
-            return static_cast<QGraphicsTextItem*>(children.at(i));
+        if (children.at(i)->type() == 8) {//8 for VleLineEditItem
+            return static_cast<VleLineEditItem*>(children.at(i));
         }
     }
     return 0;
@@ -437,7 +437,7 @@ ForresterParameter::getNameItem() const
 void
 ForresterParameter::setNameEdition(bool val)
 {
-    QGraphicsTextItem* textItem = getNameItem();
+    VleLineEditItem* textItem = getNameItem();
     if (val and textItem->textInteractionFlags() == Qt::NoTextInteraction) {
         textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
         textItem->setFocus(Qt::ActiveWindowFocusReason); // this gives the item keyboard focus
@@ -464,7 +464,7 @@ ForresterParameter::setNameEdition(bool val)
 ForresterMaterialFlow::ForresterMaterialFlow(QDomNode n,
         vleSmForrester* smForrester) : sm(smForrester), node(n)
 {
-    new QGraphicsTextItem(DomFunctions::attributeValue(node, "name"), this);
+    new VleLineEditItem(DomFunctions::attributeValue(node, "name"), this);
     QGraphicsItem::setFlag(QGraphicsItem::ItemIsMovable, false);
     QGraphicsItem::setFlag(QGraphicsItem::ItemIsSelectable, true);
     update();
@@ -506,7 +506,7 @@ ForresterMaterialFlow::update(const QRectF & /*rect*/)
 
     //add liens to form the flow
 
-    QGraphicsTextItem* nameItem = getNameItem();
+    VleLineEditItem* nameItem = getNameItem();
     nameItem->setDefaultTextColor(colorObj(isSelected()));
 
     double SPACE = 0;
@@ -574,13 +574,13 @@ ForresterMaterialFlow::update(const QRectF & /*rect*/)
 
 }
 
-QGraphicsTextItem*
+VleLineEditItem*
 ForresterMaterialFlow::getNameItem() const
 {
     QList<QGraphicsItem *>  children = childItems();
     for (int i =0; i<children.length(); i++) {
-        if (children.at(i)->type() == 8) {//8 for QGraphicsTextItem
-            return static_cast<QGraphicsTextItem*>(children.at(i));
+        if (children.at(i)->type() == 8) {//8 for VleLineEditItem
+            return static_cast<VleLineEditItem*>(children.at(i));
         }
     }
     return 0;
@@ -589,7 +589,7 @@ ForresterMaterialFlow::getNameItem() const
 void
 ForresterMaterialFlow::setNameEdition(bool val)
 {
-    QGraphicsTextItem* textItem = getNameItem();
+    VleLineEditItem* textItem = getNameItem();
     if (val and textItem->textInteractionFlags() == Qt::NoTextInteraction) {
         textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
         textItem->setFocus(Qt::ActiveWindowFocusReason); // this gives the item keyboard focus
@@ -1647,4 +1647,3 @@ ForresterLeftWidget::qtChanged(double v)
 }
 
 }} //namespaces
-

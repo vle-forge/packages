@@ -133,7 +133,7 @@ centerQGraphicsItem(QGraphicsItem* item)
 DecisionActivity::DecisionActivity(QDomNode n,
         vleDmDD* dmDecision) : dm(dmDecision), node(n)
 {
-    QGraphicsTextItem* nameItem = new QGraphicsTextItem(
+    VleLineEditItem* nameItem = new VleLineEditItem(
             DomFunctions::attributeValue(node, "name"), this);
     nameItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
     QGraphicsItem::setFlag(QGraphicsItem::ItemIsMovable, false);
@@ -174,7 +174,7 @@ DecisionActivity::update(const QRectF & /*rect*/)
 
         }
     }
-    QGraphicsTextItem* nameItem = getNameItem();
+    VleLineEditItem* nameItem = getNameItem();
     new QGraphicsRectItem(
             QRectF(0,0,nameItem->boundingRect().width(),
                     nameItem->boundingRect().height()), this);
@@ -204,13 +204,13 @@ DecisionActivity::getRectangle() const
 
 
 
-QGraphicsTextItem*
+VleLineEditItem*
 DecisionActivity::getNameItem() const
 {
     QList<QGraphicsItem *>  children = childItems();
     for (int i =0; i<children.length(); i++) {
-        if (children.at(i)->type() == 8) {//8 for QGraphicsTextItem
-            return static_cast<QGraphicsTextItem*>(children.at(i));
+        if (children.at(i)->type() == 8) {//8 for VleLineEditItem
+            return static_cast<VleLineEditItem*>(children.at(i));
         }
     }
     return 0;
@@ -219,7 +219,7 @@ DecisionActivity::getNameItem() const
 void
 DecisionActivity::setNameEdition(bool val)
 {
-    QGraphicsTextItem* textItem = getNameItem();
+    VleLineEditItem* textItem = getNameItem();
     if (val and textItem->textInteractionFlags() == Qt::NoTextInteraction) {
         textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
         textItem->setFocus(Qt::ActiveWindowFocusReason); // this gives the item keyboard focus
