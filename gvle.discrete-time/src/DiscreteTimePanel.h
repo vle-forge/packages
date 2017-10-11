@@ -44,6 +44,7 @@ namespace vle {
 namespace gvle {
 
 class VleTextEdit;
+class VleLineEdit;
 
 class DiscreteTimePanel : public PluginMainPanel
 {
@@ -75,7 +76,7 @@ public:
     QGroupBox* getTimeStepBox();
     void reload();
     void insertRowVar(int row, const QString& val);
-    VleTextEdit* getTextEdit(int row, int col);
+    VleLineEdit* getTextEdit(int row, int col);
 
 public slots:
     //for both left and right
