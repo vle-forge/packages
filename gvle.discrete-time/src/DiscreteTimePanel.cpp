@@ -265,7 +265,7 @@ DiscreteTimePanel::insertRowVar(int row, const QString& name)
     {
         col = 0;
         QString id = QString("%1,%2").arg(row).arg(col);
-        VleTextEdit* w = new VleTextEdit(right->ui->tableVars, name, id, true);
+        VleLineEdit* w = new VleLineEdit(right->ui->tableVars, name, id, true);
         right->ui->tableVars->setCellWidget(row, col, w);
         right->ui->tableVars->setItem(row, col, new QTableWidgetItem);
         QObject::connect(w, SIGNAL(
@@ -359,10 +359,10 @@ DiscreteTimePanel::insertRowVar(int row, const QString& name)
     }
 }
 
-VleTextEdit*
+VleLineEdit*
 DiscreteTimePanel::getTextEdit(int row, int col)
 {
-    return qobject_cast<VleTextEdit*>(
+    return qobject_cast<VleLineEdit*>(
             right->ui->tableVars->cellWidget(row,col));
 }
 
@@ -448,9 +448,9 @@ DiscreteTimePanel::onTableVarsMenu(const QPoint& pos)
     QString varName = "";
     bool hasInitialValue = false;
     if (index.row() >= 0 ){
-        VleTextEdit* item = (VleTextEdit*)right->ui->tableVars->cellWidget(
+        VleLineEdit* item = (VleLineEdit*)right->ui->tableVars->cellWidget(
                 index.row(), 0);
-        varName = item->getCurrentText();
+        varName = item->text();
         hasInitialValue = cppMetadata->hasInitialValue(varName);
     }
 
@@ -542,7 +542,7 @@ DiscreteTimePanel::onSelected(const QString& id)
 {
     QStringList split = id.split(",");
     int row = split.at(0).toInt();
-    mCurrVar =  getTextEdit(row, 0)->getCurrentText();
+    mCurrVar =  getTextEdit(row, 0)->text();
     updateConfigVar();
 
 }
@@ -552,7 +552,7 @@ DiscreteTimePanel::onTypeUpdated(const QString& id, const QString& val)
 {
     QStringList split = id.split(",");
     int row = split.at(0).toInt();
-    mCurrVar =  getTextEdit(row, 0)->getCurrentText();
+    mCurrVar =  getTextEdit(row, 0)->text();
     cppMetadata->setType(mCurrVar, val);
     reload();
 }
@@ -597,7 +597,7 @@ DiscreteTimePanel::onHistoryUpdated(const QString& id, int value)
 {
     QStringList split = id.split(",");
     int row = split.at(0).toInt();
-    mCurrVar =  getTextEdit(row, 0)->getCurrentText();
+    mCurrVar =  getTextEdit(row, 0)->text();
     if (mCurrVar == "") {
         return;
     }
@@ -610,7 +610,7 @@ DiscreteTimePanel::onDimUpdated(const QString& id, int value)
 {
     QStringList split = id.split(",");
     int row = split.at(0).toInt();
-    mCurrVar =  getTextEdit(row, 0)->getCurrentText();
+    mCurrVar =  getTextEdit(row, 0)->text();
     if (mCurrVar == "") {
         return;
     }
@@ -625,7 +625,7 @@ DiscreteTimePanel::onSyncUpdated(const QString& id, int value)
 {
     QStringList split = id.split(",");
     int row = split.at(0).toInt();
-    mCurrVar =  getTextEdit(row, 0)->getCurrentText();
+    mCurrVar =  getTextEdit(row, 0)->text();
     if (mCurrVar == "") {
         return;
     }
