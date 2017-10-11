@@ -48,6 +48,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <vle/gvle/vlevpz.hpp>
+#include <vle/gvle/gvle_widgets.h>
 
 #include "vledmdd.h"
 
@@ -82,7 +83,7 @@ public:
 
     QString name() const;
     QGraphicsRectItem* getRectangle() const;
-    QGraphicsTextItem* getNameItem() const;
+    VleLineEditItem* getNameItem() const;
     void setNameEdition(bool val);
 
     vleDmDD* dm;
@@ -90,87 +91,6 @@ public:
 
 };
 
-/***************************/
-
-/* class ForresterParameter : public QGraphicsItem */
-/* { */
-/* public: */
-/*     ForresterParameter(QDomNode node, vleSmForrester* smForrester); */
-/*     ~ForresterParameter(); */
-/*     int type() const; */
-/*     QRectF boundingRect() const; */
-/*     void paint(QPainter *\/\*painter*\/, */
-/*             const QStyleOptionGraphicsItem *\/\*option*\/, */
-/*             QWidget *\/\*widget*\/); */
-/*     void update(const QRectF & rect = QRectF()); */
-
-/*     QString name() const; */
-/*     QGraphicsRectItem* getRectangle() const; */
-/*     QGraphicsTextItem* getNameItem() const; */
-/*     void setNameEdition(bool val); */
-
-
-/*     vleSmForrester* sm; */
-/*     QDomNode node; */
-
-/* }; */
-
-/***************************/
-
-/*class ForresterMaterialFlow : public QGraphicsItem */
-/* { */
-/* public: */
-/*     ForresterMaterialFlow(QDomNode node, vleSmForrester* smForrester); */
-/*     ~ForresterMaterialFlow(); */
-/*     int type() const; */
-/*     QRectF boundingRect() const; */
-/*     void paint(QPainter *\/\*painter*\/, */
-/*             const QStyleOptionGraphicsItem *\/\*option*\/, */
-/*             QWidget *\/\*widget*\/); */
-/*     void update(const QRectF & rect = QRectF()); */
-
-/*     QGraphicsTextItem* getNameItem() const; */
-/*     void setNameEdition(bool val); */
-
-/*     QString name() const; */
-
-/*     vleSmForrester* sm; */
-/*     QDomNode node; */
-
-/* }; */
-
-/***************************/
-
-/* class ForresterSoftLink : public QGraphicsItem */
-/* { */
-/* public: */
-/*     ForresterSoftLink(QDomNode dep, ForresterCompartment* comp, */
-/*             ForresterMaterialFlow* flow); */
-/*     ForresterSoftLink(QDomNode dep, ForresterParameter* comp, */
-/*                 ForresterMaterialFlow* flow); */
-/*     ~ForresterSoftLink(); */
-
-/*     void clear(); */
-/*     void reload(); */
-/*     QGraphicsEllipseItem* getEllipse() const; */
-/*     QGraphicsItem* varItem() const; */
-/*     QGraphicsItem* matFlowItem() const; */
-/*     QString varName() const; */
-/*     QString matFlowName() const; */
-
-/*     int type() const; */
-/*     QRectF boundingRect() const; */
-/*     void paint(QPainter *\/\*painter*\/, */
-/*             const QStyleOptionGraphicsItem *\/\*option*\/, */
-/*             QWidget *\/\*widget*\/); */
-/*     void update(const QRectF & rect = QRectF()); */
-
-/*     ForresterCompartment* comp; */
-/*     ForresterParameter* param; */
-/*     ForresterMaterialFlow* flow; */
-
-
-/* }; */
 
 class DecisionPrecedence : public QGraphicsLineItem
 {

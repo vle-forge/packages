@@ -47,6 +47,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <vle/gvle/vlevpz.hpp>
+#include <vle/gvle/gvle_widgets.h>
 
 #include "vlesmForrester.h"
 
@@ -57,6 +58,8 @@ namespace Ui {
 
 namespace gvle {
 namespace forrester {
+
+using namespace vle::gvle;
 
 class ForresterPanel;
 
@@ -76,7 +79,7 @@ public:
 
     QString name() const;
     QGraphicsRectItem* getRectangle() const;
-    QGraphicsTextItem* getNameItem() const;
+    VleLineEditItem* getNameItem() const;
     void setNameEdition(bool val);
 
     vleSmForrester* sm;
@@ -100,7 +103,7 @@ public:
 
     QString name() const;
     QGraphicsRectItem* getRectangle() const;
-    QGraphicsTextItem* getNameItem() const;
+    VleLineEditItem* getNameItem() const;
     void setNameEdition(bool val);
 
 
@@ -123,7 +126,7 @@ public:
             QWidget */*widget*/);
     void update(const QRectF & rect = QRectF());
 
-    QGraphicsTextItem* getNameItem() const;
+    VleLineEditItem* getNameItem() const;
     void setNameEdition(bool val);
 
     QString name() const;
