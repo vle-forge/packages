@@ -82,6 +82,7 @@ public slots:
     void enableMaxFinish();
     void onMaxFinish(int state);
     void onRelativeDate(int state);
+    void onDeadline(int state);
 
     void onCurrentIndexChangedPrecedenceType(int index);
     void onPrecedenceMinLag(int value);
@@ -104,6 +105,7 @@ private:
     QDateEdit*          mMinStartDate;
     QDateEdit*          mMaxFinishDate;
     QCheckBox*          mRelativeDateCheckBox;
+    QCheckBox*          mDeadlineCheckBox;
     QCheckBox*          mMinStartCheckBox;
     QCheckBox*          mMaxFinishCheckBox;
     QSpinBox*           mRelativeYearMinStart;

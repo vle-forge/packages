@@ -1493,6 +1493,7 @@ vleDmDD::addActivityToDoc(const QString& actName, QPointF pos)
     el.setAttribute("maxfinish", "");
     el.setAttribute("maxiter", "1");
     el.setAttribute("timeLag", "1");
+    el.setAttribute("deadline", 0);
     xElem = mDocDm->createElement("outputParams");
     el.appendChild(xElem);
     xElem = mDocDm->createElement("rulesAssigment");
@@ -1532,6 +1533,25 @@ vleDmDD::setPositionToActivity(const QString& actName, QPointF pos,
     DomFunctions::setAttributeValue(act, "y", QVariant(pos.y()).toString());
     if (snap) {
         emit modified(MOVE_OBJ);
+    }
+}
+
+void
+vleDmDD::setDeadline(const QString& actName, bool deadline,
+                     bool snap)
+{
+    if (not existActToDoc(actName)) {
+        return;
+    }
+
+    QDomNode act = nodeAct(actName);
+    if (snap) {
+          undoStackDm->snapshot(act);
+    }
+
+    DomFunctions::setAttributeValue(act, "deadline",  QString::number(deadline));
+    if (snap) {
+        emit modified(OTHER);
     }
 }
 
@@ -1642,6 +1662,19 @@ vleDmDD::getMaxIter(const QString& actName)
 
     return DomFunctions::attributeValue(act, "maxiter").toInt();
 }
+
+bool
+vleDmDD::hasDeadline(const QString& actName)
+{
+    if (not existActToDoc(actName)) {
+        return {};
+    }
+
+    QDomNode act = nodeAct(actName);
+
+    return DomFunctions::attributeValue(act, "deadline").toInt();
+}
+
 QString
 vleDmDD::getMinStart(const QString& actName)
 {
@@ -2144,6 +2177,10 @@ vleDmDD::getData()
                         esp16 + "maxIter = " + QString::number(maxIter).toStdString() + ";\n";
                     actListElem =  actListElem +
                         esp16 + "timeLag = " + QString::number(timeLag).toStdString() + ";\n";
+                }
+                if (hasDeadline(name)) {
+                    actListElem =  actListElem +
+                        esp16 + "_deadline = 1;\n";
                 }
                 actListElem =  actListElem + "      }";
             }

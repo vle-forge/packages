@@ -71,6 +71,7 @@ DecisionRightWidget::DecisionRightWidget(DecisionPanel*  d):
     mRelativeYearMaxFinish = ui->relativeYearMaxFinish;
     mRelativeMonthDayMinStart = ui->relativeMonthDayMinStart;
     mRelativeMonthDayMaxFinish = ui->relativeMonthDayMaxFinish;
+    mDeadlineCheckBox = ui->deadlineCheckBox;
 
     mMaxIter = ui->maxIter;
     mTimeLag = ui->timeLag;
@@ -110,6 +111,10 @@ DecisionRightWidget::DecisionRightWidget(DecisionPanel*  d):
     QObject::connect(ui->relativeDateCheckBox,
                      SIGNAL(stateChanged(int)),
                      this, SLOT(onRelativeDate(int)));
+
+    QObject::connect(ui->deadlineCheckBox,
+                     SIGNAL(stateChanged(int)),
+                     this, SLOT(onDeadline(int)));
 
     QObject::connect(ui->comboBoxType,
                      SIGNAL(currentIndexChanged(int)),
@@ -233,6 +238,7 @@ DecisionRightWidget::disableMaxFinish()
     mMaxFinishDate->setEnabled(false);
     mRelativeYearMaxFinish->setEnabled(false);
     mRelativeMonthDayMaxFinish->setEnabled(false);
+    mDeadlineCheckBox->setEnabled(false);
     ui->maxFinishCheckBox->blockSignals(oldBlock);
 }
 
@@ -267,6 +273,7 @@ DecisionRightWidget::enableMaxFinish()
         mRelativeYearMaxFinish->setEnabled(false);
         mRelativeMonthDayMaxFinish->setEnabled(false);
     }
+    mDeadlineCheckBox->setEnabled(true);
     ui->maxFinishCheckBox->blockSignals(oldBlock);
 }
 
@@ -282,6 +289,7 @@ DecisionRightWidget::onMaxFinish(int state)
             decision->dataMetadata->setMaxFinish(currAct, mMaxFinishDate->text());
         }
     } else {
+        decision->dataMetadata->setDeadline(currAct, false, false);
         if (ui->relativeDateCheckBox->isChecked()) {
             decision->dataMetadata->setMaxFinish(currAct, "+");
         } else {
@@ -334,6 +342,15 @@ DecisionRightWidget::onRelativeDate(int state)
              decision->dataMetadata->setMaxFinish(currAct,"");
          }
     }
+}
+void
+DecisionRightWidget::onDeadline(int state)
+{
+      if (state == 2) {
+          decision->dataMetadata->setDeadline(currAct, true);
+      } else {
+          decision->dataMetadata->setDeadline(currAct, false);
+      }
 }
 
 void
@@ -509,11 +526,17 @@ DecisionRightWidget::reload()
 
         ui->actName->setText(currAct);
 
+        ui->deadlineCheckBox->blockSignals(true);
+        ui->deadlineCheckBox->setChecked(
+            decision->dataMetadata->hasDeadline(currAct));
+        ui->deadlineCheckBox->blockSignals(false);
+
         if (decision->dataMetadata->isRelativeDate(currAct)) {
 
             ui->relativeDateCheckBox->blockSignals(true);
             ui->relativeDateCheckBox->setChecked(true);
             ui->relativeDateCheckBox->blockSignals(false);
+
             {
                 if (decision->dataMetadata->getMinStart(currAct) == "+"||
                     decision->dataMetadata->getMinStart(currAct) == "") {

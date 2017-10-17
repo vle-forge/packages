@@ -231,6 +231,10 @@ public:
 
     bool isRelativeDate(const QString& actName);
 
+    void setDeadline(const QString& actName, bool deadline,
+		     bool snap=true);
+    bool hasDeadline(const QString& actName);
+
     void setMaxIter(const QString& actName, const int maxIter,
 		    bool snap=true);
 
