@@ -456,6 +456,7 @@ vle.recursive.configPropagate = function(rvle_handle=NULL, propagate=NULL,
     
 vle.recursive.configInput = function(rvle_handle=NULL, input=NULL, values=NULL)
 {
+  force(values);
   if (! vle.recursive.check(rvle_handle)) {
       stop("[vle.recursive] Error: rvle_handle is malformed");
       return (NULL);
