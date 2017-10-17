@@ -174,3 +174,18 @@ Testing if every day decsision can be made on the same var.
 + agroclim.csv
 + itkTankIter_6.txt
 + Anothertank.cpp
+
+## Case 13: A Farmer(event outputs)(ack inside), 1 parcel, 3 sequences</a>
+
+The synchronization is not considered.
+
+ALmost the same than case 4 : we test the deadline parameter
+
+### Files envolved:
+
++ case_13.vpz
++ 31035002.csv
++ itk1autoAckDeadLine.txt
++ itk2autoAck.txt
++ itk3autoAck.txt
++ AwwdmDt.cpp

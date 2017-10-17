@@ -192,6 +192,12 @@ init(vd::Time t)
     a.addRule("rSecondDayOfYear", r1);
     a.addRule("rForceFirstLoad", r2);
 
+    ved::Rule& r = addRule("rDeadline");
+    r.add(std::bind(&AgentDTG::Deadline,
+                    this, std::placeholders::_1,
+                    std::placeholders::_2,
+                    std::placeholders::_3));
+
     return AgentDT::init(t);
 }
 
@@ -340,6 +346,24 @@ getSuffixName(int n) const {
    std::stringstream ret("#");
    ret << vu::format("%1$02d", n);
    return ret.str();
+}
+
+/**
+ * @brief provide a predicate true on the max finish date
+ *
+ *
+ */
+bool
+Deadline(const std::string& activity,
+         const std::string& /* rule */,
+         const ved::PredicateParameters& param) const {
+    if (activities().get(activity)->second.params().exist("_deadline")) {
+        if (activities().get(activity)->second.maxfinish() == current_date) {
+            return true;
+        }
+    } else {
+        return false;
+    }
 }
 
 /**
@@ -554,7 +578,18 @@ ack_plan(const std::string&activityname,
     a.addRule("rSecondDayOfYear", KnowledgeBase::rules().get("rSecondDayOfYear"));
 }
 
-    void loadPlan(const std::string& activityname,
+void manageDeadlines()
+{
+    for (auto activity : activities()) {
+        if (activity.second.isInWaitState() &&
+            activity.second.params().exist("_deadline")) {
+            plan().activities().get(activity.first)->second.addRule("rDeadline", KnowledgeBase::rules().get("rDeadline"));
+        }
+    }
+}
+
+
+void loadPlan(const std::string& activityname,
               const ved::Activity& activity)
 {
     firstLoad = false;
@@ -589,6 +624,7 @@ ack_plan(const std::string&activityname,
                 }
 
                 KnowledgeBase::plan().fill(fileStream, current_date, suf);
+                manageDeadlines();
             }
         }
         setActivityDone(activityname, current_date);
@@ -829,6 +865,14 @@ GUpdate(const std::string& name,
                 // if (a.params().exist("priority")){
                 //     a.setPriority(a.Params().getDouble("priority"));
                 // }
+                if (a.params().exist("_deadline")) {
+                    ved::Rule& r = addRule("rDeadline");
+                    r.add(std::bind(&AgentDTG::Deadline,
+                                    this, std::placeholders::_1,
+                                    std::placeholders::_2,
+                                    std::placeholders::_3));
+                    a.addRule("rDeadline", r);
+                }
             }
         }
     }
