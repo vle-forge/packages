@@ -701,7 +701,6 @@ DecisionLeftWidget::DecisionLeftWidget(DecisionPanel* d):
 
 DecisionLeftWidget::~DecisionLeftWidget()
 {
-    delete mScene;
     delete ui;
 }
 
