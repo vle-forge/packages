@@ -837,6 +837,66 @@ vle.recursive.simulate = function(rvle_handle=NULL, withSpawn=1)
   return (res)
 }
 
+#'
+#' Extract simulation results form the overall structure
+#' 
+#'  @param res, results from vle.recursive.simulate
+#'  @param time_ind, indices of time to extract from results
+#'  @param date, dates at which to extract results
+#'  @param file_sim, file of simulations
+#'  @param id, indices of simulations to extract if file_sim is null,
+#'             id of simulations to extrat otherwise
+#'  @param output_vars, list of char giving the outputs to extract
+#'  @return a sub structure odf res
+#' 
+vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,  
+                                 file_sim=NULL, id=NULL,  output_vars=NULL)
+{
+  #get sim indices
+  sim_ind = 1:ncol(res[[1]]);
+  if (!is.null(file_sim)) {
+    if (is.null(id)) {
+      id = file_sim$id;
+    }
+    file_sim = vle.recursive.parseSim(file_sim=file_sim, id = NULL);
+    if (length(file_sim$id) != ncol(res[[1]])) {
+      stop(paste("[vle.recursive] Error: file_sim and res do not fit"));
+    }
+    sim_ind = match(intersect(file_sim$id, id), file_sim$id);
+  } else if (! is.null(id)){
+    sim_ind = id;
+  }
+  
+  #get time indices
+  if (!is.null(date)) {
+    if (!is.null(time_ind)){
+      stop(paste("[vle.recursive] Error: cannot get both dates and time_ind"));
+    }
+    if (is.character(date)){
+      date = vle.recursive.dateToNum(date);
+    }
+    if(!("date" %in% names(res))){
+      stop(paste("[vle.recursive] Error: missing dates in results"));
+    }
+    time_ind = match(intersect(res$date[,sim_ind[1]], date), res$date[,sim_ind[1]]);
+  }
+  if (is.null(time_ind)) {
+    time_ind = 1:nrow(res[[1]]);
+  }
+  
+  #get output vars
+  if (is.null(output_vars)) {
+    output_vars = names(res);
+  }
+  for (var in names(res)) {
+    if (var %in% output_vars) {
+      res[[var]] <- as.matrix(res[[var]][time_ind, sim_ind]);
+    } else {
+      res[[var]] <- NULL
+    }
+  }
+  return(res)
+}
 
 #'
 #' Parses an experiment configuration file
@@ -1027,7 +1087,9 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
       stop("[vle.recursive] missing path of output");
     }
     header = attr(file_obs, "paths")[names(file_obs)];
+    header = header[which(!is.na(names(header)))]
   }
+
   #keep only line to simulate
   if (! is.null(id)) {
     if (! all(id %in% file_obs$id) & withWarnings) {
@@ -1036,8 +1098,7 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
     } 
     file_obs = file_obs[which(is.element(file_obs$id, id)),];
   }
-  
-  
+
   #remove useless columns and lines of file_obs
   for (n in names(header)) {
     if (all(is.na(file_obs[[n]]))){
@@ -1077,12 +1138,12 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
 #'  @param output_vars, list of char giving the outputs for which
 #'                      to compute RMSE
 #'  @param id,  id to simulate for comparison
-#'  @param typeReturn,  either 'all' or 'rmse'
+#'  @param print,  if true, print rmse
 #'  @return a complex structure
 #' 
 
 vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
-                                      output_vars=NULL, id=NULL)
+                                      output_vars=NULL, id=NULL, print=FALSE)
 {
   #read observations
   file_obs = vle.recursive.parseObs(file_obs=file_obs, id=id,
@@ -1112,11 +1173,12 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
   }
   
   #compute RMSE
+  resRMSE = NULL;
   for (var in setdiff(output_vars,"date")){
     rmse = 0;
     simValues = NULL;
     obsValues = NULL;
-    
+    idsdbg = NULL;
     for (idi in isSim){
       tmp_obs = subset(file_obs, id==file_sim$id[idi]);
       tmp_obs = tmp_obs[!is.na(tmp_obs[[var]]),]
@@ -1125,23 +1187,22 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
       obsV = rep(NA, length(simV));
       tsObs = which(res[["date"]][,idi] %in% 
                       vle.recursive.dateToNum(tmp_obs$date))
-      
-      
-      
       obsV[tsObs] = tmp_obs[[var]];
       obsValues = c(obsValues, obsV[tsObs]);
       simValues = c(simValues, simV[tsObs]);
+      idsdbg = c(idsdbg, file_sim$id[idi]);
       rm(tmp_obs); rm(tsObs);
       
     }
     squareError = (obsValues - simValues)^2;
     elOk = !is.na(squareError);
     rmse = sqrt(sum(squareError[elOk]/sum(elOk)))
-    print(paste(sep="", " rmse for '",var,"' : ", rmse));
+    resRMSE[[var]] <- rmse;
+    if (print) {
+      print(paste(sep="", " rmse for '",var,"' : ", rmse));
+    }
   }
-  
-  
-  return(invisible(NULL));
+  return(resRMSE);
 }
 
 
@@ -1157,6 +1218,8 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
 #' @param r, number of replicate of the morris method
 #' @param levels, number levels of the morris method
 #' @param n, sample size of fast99 method or sobolEff
+#' @param typeReturn, either 'indices', 'out' or NULL . If NULL, both the
+#'  indices and simulation results are returned.
 #' 
 #' usage:
 #'  source("vle.recursive.R")
@@ -1165,7 +1228,7 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
 #'
 vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
                    output_vars=NULL, integration=NULL, method='morris', 
-                   r=100, levels=5, n=100)
+                   r=100, levels=5, n=100, typeReturn=NULL)
 {
   library(sensitivity)
   bounds = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
@@ -1218,7 +1281,13 @@ vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
     tell(sensi_plan_bis, res[[i]][1,])
     res_sensitivity[[i]] <- sensi_plan_bis
   }
-  return(res_sensitivity)  
+  if (is.null(typeReturn)){
+    return(list(indices=res_sensitivity, out=res))  
+  } else if (typeReturn == 'out') {
+    return(list(out=res))  
+  } else {
+    return(list(indices=res_sensitivity))  
+  }
 }
 
 #'
@@ -1287,7 +1356,7 @@ vle.recursive.lhs = function(rvle_handle=rvle_handle, file_expe=NULL,
 #'  @param output_vars, list of char giving the outputs to plot
 #'  @param id, id of simulation or observations. is applied to selection in 
 #'             file_sim and file_obs if not null (only one?)
-#'  @param type, either "static" or "dynamic" or "rmse"
+#'  @param type, either "static" or "dynamic"
 #'  @param sim_legend, vector of char for legend of simulation
 #' 
 vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_vars=NULL,
@@ -1320,14 +1389,17 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
   isSim = 1:ncol(res[[1]]);
   if (! is.null(file_sim)) {
     file_sim = vle.recursive.parseSim(file_sim=file_sim);
-    isSim = which(file_sim$id %in% id)
-    if (length(isSim) != length(id)){
-      stop("[vle.recursive] file_sim and id do not fit");
+    if (! is.null(id)) {
+     if (length(which(file_sim$id %in% id)) != length(id)){
+       stop("[vle.recursive] file_sim and id do not fit");
+     }
     }
     if (ncol(res[[1]]) != nrow(file_sim)){
       stop("[vle.recursive] file_sim and res do not fit");
     }
+    res = vle.recursive.extract(res = res, file_sim = file_sim, id = id);
     file_sim = vle.recursive.parseSim(file_sim=file_sim, id=id);
+    isSim = file_sim$id;
   }
   
   
@@ -1336,32 +1408,56 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
     gpAll = NULL;
     i = 1;
     for (var in setdiff(output_vars,"date")) {
-      seqLength = length(res[[var]][,isSim[1]]);
-      df = data.frame(obs=as.numeric(rep(NA,seqLength)), time=1:seqLength);
-      
-      tmp_obs_todo = TRUE;
-      for (s in isSim){
-        #get matched observations
-        tsObs = which(res$date[,s] %in% vle.recursive.dateToNum(file_obs$date));
-        if (length(tsObs) > 0) {
-          if (is.null(sim_legend)) {
-            df[[paste("sim",sep="_",s)]]<-res[[var]][,s];
-          } else {
-            df[[sim_legend[s]]]<-res[[var]][,s];
-          }
-          if (tmp_obs_todo) {
-            tsObs = tsObs[! is.null(file_obs[[var]])];
-            df$obs[tsObs] <- file_obs[[var]]
-            tmp_obs_todo = FALSE;
+      df = NULL;
+      begin_date = NULL;
+      for (ii in 1:length(isSim)){
+        idi = isSim[ii]
+        file_obsi = NULL;
+        if (! is.null(file_obs) && (var %in% names(file_obs))) {
+          file_obsi = subset(file_obs, id == idi);
+          file_obsi = subset(file_obsi,  !is.na(file_obsi[[var]]));
+          file_obsi$date = vle.recursive.dateToNum(file_obsi$date);
+        }
+        
+        resi = vle.recursive.extract(res = res, time_ind = NULL, 
+                                     date = NULL,  file_sim = file_sim, 
+                                     id = idi, output_vars = c(var,"date"));
+        if (! is.null(file_obsi)) {
+          file_obsi = subset(file_obsi, date %in% resi$date[,1])
+          if (nrow(file_obsi) == 0){
+            file_obsi = NULL;
           }
         }
+        
+        idistr = as.character(idi);
+        if (!is.null(sim_legend)){
+          idistr = sim_legend[ii];
+        }
+        
+        if (! is.null(begin_date)){
+          if (begin_date != resi$date[1,1]){
+            stop("[vle.recursive] superposition sim error");
+          }
+        } else {
+          begin_date = resi$date[1,1];
+        }
+        sim_vec = resi[[var]][,1];
+        time_vec = 1:length(sim_vec);
+        obs_vec = as.numeric(rep(NA, length(sim_vec)));
+        if (! is.null(file_obsi)) {
+          obs_vec[which(resi$date[,1] %in% file_obsi$date)] = file_obsi[,var];
+        }
+        id_vec = rep(idistr, length(sim_vec));
+        
+        df = rbind(df,data.frame(id=id_vec, sim = sim_vec, time=time_vec, 
+                                 obs=obs_vec, stringsAsFactors = F));
       }
-      rm (tmp_obs_todo);
-      
       #build plot
-      df = melt(df, id=c("time","obs"))
-      gp = ggplot(data=df, aes(x=time, y=value, colour=variable)) + 
-        geom_line() + geom_point(aes(y=obs)) + labs(x="time", y=var);
+      gp = ggplot(data=df, aes(x=time, y=sim, colour=id)) + geom_line() +  
+        labs(x="time", y=var);
+      if (! is.null(file_obs)) {
+        gp = gp + geom_point(aes(y=obs), color='black', na.rm=TRUE)
+      }
       if (is.null(sim_legend)) {
         gp = gp + theme(legend.position="none");
       }
@@ -1377,31 +1473,42 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
     if (is.null(file_sim)) {
       stop("[vle.recursive] file_sim is null");
     }
+    if (is.null(file_obs)) {
+      stop("[vle.recursive] file_obs is null");
+    }
     gpAll = NULL;
     i = 1;
     for (var in setdiff(output_vars, "date")) {
-      not_na_sel = ! is.na(file_obs[[var]]);
-      df = data.frame(id=file_obs[["id"]][not_na_sel], 
-                      date=file_obs[["date"]][not_na_sel], stringsAsFactors=F)
-      df$obs = file_obs[[var]][not_na_sel]
-      for (idi in unique(df$id)){
-        iSim = which(file_sim$id == idi);
-        if (length(iSim) == 0) {
-          break;
+      df = NULL;
+      for (ii in 1:length(file_sim$id)){
+        idi = file_sim$id[ii]
+        file_obsi = subset(file_obs, id == idi);
+        file_obsi = subset(file_obsi,  !is.na(file_obsi[[var]]))
+        file_obsi$date = vle.recursive.dateToNum(file_obsi$date);
+        
+        resi = vle.recursive.extract(res = res, time_ind = NULL, 
+                                     date = file_obsi$date,
+                                     file_sim = file_sim, id = idi, 
+                                     output_vars = c(var,"date"));
+
+        file_obsi = subset(file_obsi, date %in% resi$date[,1])
+
+        idistr = as.character(idi);
+        if (!is.null(sim_legend)){
+          idistr = sim_legend[ii];
         }
-        isDF = which(df$id == idi);
-        isTime = which(res$date[,iSim] %in% 
-                         vle.recursive.dateToNum(subset(df, id==idi)$date));
-        if (is.null(sim_legend)) {
-          df[[paste("sim", sep="_",idi)]] <- NA
-          df[[paste("sim", sep="_",idi)]][isDF] <- res[[var]][isTime,iSim];
-        } else {
-          df[[sim_legend[idi]]] <- NA
-          df[[sim_legend[idi]]][isDF] <- res[[var]][isTime,iSim];
+        if(nrow(resi$date) > 0) {
+          for (o in 1:nrow(file_obsi)) {
+            df = rbind(df,data.frame(id=idistr, obs = file_obsi[o,var], 
+                                     sim = resi[[var]][o,1], 
+                                     stringsAsFactors = F));
+            
+          }
         }
       }
-      df = melt(df, id=c("id", "date", "obs"))
-      gp = ggplot(data=df, aes(x=value, y=obs, colour=variable));
+      print(paste("rmse ",var,":", sqrt(sum((df$obs-df$sim)^2)/length(df$obs))))
+      
+      gp = ggplot(data=df, aes(x=sim, y=obs, colour=id));
       if (is.null(sim_legend)) {
         gp = gp+ geom_text(aes(label=id)) + theme(legend.position="none");
       } else {
