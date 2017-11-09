@@ -1358,9 +1358,12 @@ vle.recursive.lhs = function(rvle_handle=rvle_handle, file_expe=NULL,
 #'             file_sim and file_obs if not null (only one?)
 #'  @param type, either "static" or "dynamic"
 #'  @param sim_legend, vector of char for legend of simulation
+#'  @param typeReturn, either 
+#'   - 'plot_list': the list of ggplot is returned (can be modified)
+#'   - NULL: the ggplot are arranged and the return is NULL. if 'plot_list
 #' 
 vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_vars=NULL,
-                               id=NULL, type="dynamic", sim_legend=NULL)
+                               id=NULL, type="dynamic", sim_legend=NULL, typeReturn=NULL)
 {
   library(gridExtra)
   library(grid)
@@ -1404,8 +1407,8 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
   
   
   #build dynamic plots
+  gpAll = NULL;
   if (type == "dynamic") {
-    gpAll = NULL;
     i = 1;
     for (var in setdiff(output_vars,"date")) {
       df = NULL;
@@ -1422,6 +1425,7 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         resi = vle.recursive.extract(res = res, time_ind = NULL, 
                                      date = NULL,  file_sim = file_sim, 
                                      id = idi, output_vars = c(var,"date"));
+        
         if (! is.null(file_obsi)) {
           file_obsi = subset(file_obsi, date %in% resi$date[,1])
           if (nrow(file_obsi) == 0){
@@ -1444,6 +1448,7 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         sim_vec = resi[[var]][,1];
         time_vec = 1:length(sim_vec);
         obs_vec = as.numeric(rep(NA, length(sim_vec)));
+        
         if (! is.null(file_obsi)) {
           obs_vec[which(resi$date[,1] %in% file_obsi$date)] = file_obsi[,var];
         }
@@ -1452,6 +1457,7 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         df = rbind(df,data.frame(id=id_vec, sim = sim_vec, time=time_vec, 
                                  obs=obs_vec, stringsAsFactors = F));
       }
+      
       #build plot
       gp = ggplot(data=df, aes(x=time, y=sim, colour=id)) + geom_line() +  
         labs(x="time", y=var);
@@ -1464,8 +1470,7 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
       gpAll[[i]] = gp;
       i = i+1;
     }
-    do.call(grid.arrange, gpAll);
-    return (invisible(NULL))
+
   }
   
   #build static plots
@@ -1476,7 +1481,6 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
     if (is.null(file_obs)) {
       stop("[vle.recursive] file_obs is null");
     }
-    gpAll = NULL;
     i = 1;
     for (var in setdiff(output_vars, "date")) {
       df = NULL;
@@ -1519,7 +1523,11 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
       gpAll[[i]] = gp;
       i = i+1;
     }
-    do.call(grid.arrange, gpAll);
-    return (invisible(NULL))
   }
+  
+  if (!is.null(typeReturn) & typeReturn == "plot_list") {
+    return (gpAll)
+  }
+  do.call(grid.arrange, gpAll);
+  return (invisible(NULL)) 
 }
