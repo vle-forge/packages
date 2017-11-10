@@ -618,15 +618,17 @@ vle.recursive.configOutput = function(rvle_handle=NULL, id=NULL, path=NULL,
     config = list(id=id, path=path);
     if (! is.null(integration)) {
       if (integration == "mse") {
-	config = c(config, list(integration=integration, 
+        class(mse_times) <- "VleTUPLE";
+        class(mse_observations) <- "VleTUPLE";
+	      config = c(config, list(integration=integration, 
             mse_times = mse_times, mse_observations = mse_observations));
       } else {
         config = c(config, list(integration=integration));
       }
     }
     if (! is.null(aggregation_replicate)) {
-       if (aggregation_replicate == "quantile") {
-	config = c(config, list(aggregation_replicate=aggregation_replicate, 
+      if (aggregation_replicate == "quantile") {
+	      config = c(config, list(aggregation_replicate=aggregation_replicate, 
             replicate_quantile = replicate_quantile));
       } else {
         config = c(config, list(aggregation_replicate=aggregation_replicate));
@@ -1525,7 +1527,7 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
     }
   }
   
-  if (!is.null(typeReturn) & typeReturn == "plot_list") {
+  if (!is.null(typeReturn) && (typeReturn == "plot_list")) {
     return (gpAll)
   }
   do.call(grid.arrange, gpAll);
