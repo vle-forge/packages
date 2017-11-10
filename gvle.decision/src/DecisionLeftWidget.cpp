@@ -917,6 +917,10 @@ DecisionLeftWidget::insertRowPred(int row, const QString& name)
          QList <QString> l;
          l.append("Val");
          l.append("Var");
+         l.append("dayVar");
+         l.append("dayVal");
+         l.append("dayOfYearVar");
+         l.append("dayOfYearVal");
          w->addItems(l);
          w->setCurrentIndex(w->findText(leftType));
          ui->tablePredicates->setCellWidget(row, col, w);
@@ -935,6 +939,10 @@ DecisionLeftWidget::insertRowPred(int row, const QString& name)
          QList <QString> l;
          l.append("Val");
          l.append("Var");
+         l.append("dayVar");
+         l.append("dayVal");
+         l.append("dayOfYearVar");
+         l.append("dayOfYearVal");
          w->addItems(l);
          w->setCurrentIndex(w->findText(rightType));
          ui->tablePredicates->setCellWidget(row, col, w);
@@ -959,7 +967,7 @@ DecisionLeftWidget::insertRowPred(int row, const QString& name)
                                  onLeftNumUpdated(const QString&, double)));
             QObject::connect(w, SIGNAL(selected(const QString&)),
                              this, SLOT(onSelected(const QString&)));
-        } else {
+        } else if (leftType == "Var") {
             VleLineEdit* w = new VleLineEdit(ui->tablePredicates, leftValue, id, false);
             ui->tablePredicates->setCellWidget(row, col, w);
             ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
@@ -969,6 +977,48 @@ DecisionLeftWidget::insertRowPred(int row, const QString& name)
                                  onLeftNameUpdated(const QString&, const QString&, const QString&)));
             QObject::connect(w, SIGNAL(selected(const QString&)),
                              this, SLOT(onSelected(const QString&)));
+        } else if (leftType == "dayVal") {
+            VleDayEdit* w = new VleDayEdit(ui->tablePredicates, leftValue, "yyyy-M-d", id, true);
+            ui->tablePredicates->setCellWidget(row, col, w);
+            ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
+            QObject::connect(w, SIGNAL(
+                                 valUpdated(const QString&, const QString&)),
+                             this, SLOT(
+                                 onLeftDayUpdated(const QString&, const QString&)));
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+        } else if (leftType == "dayVar") {
+            VleLineEdit* w = new VleLineEdit(ui->tablePredicates, leftValue, id, false);
+            ui->tablePredicates->setCellWidget(row, col, w);
+            ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
+            // QObject::connect(w, SIGNAL(
+            //                      textUpdated(const QString&, const QString&, const QString&)),
+            //                  this, SLOT(
+            //                      onLeftNameUpdated(const QString&, const QString&, const QString&)));
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+            w->setEnabled(false);
+        } else if (leftType == "dayOfYearVal") {
+            VleDayEdit* w = new VleDayEdit(ui->tablePredicates, leftValue, "M-d", id, true);
+            ui->tablePredicates->setCellWidget(row, col, w);
+            ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
+            QObject::connect(w, SIGNAL(
+                                 valUpdated(const QString&, const QString&)),
+                             this, SLOT(
+                                 onLeftDayUpdated(const QString&, const QString&)));
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+        } else { //"dayOfYearVar"
+            VleLineEdit* w = new VleLineEdit(ui->tablePredicates, leftValue, id, false);
+            ui->tablePredicates->setCellWidget(row, col, w);
+            ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
+            // QObject::connect(w, SIGNAL(
+            //                      textUpdated(const QString&, const QString&, const QString&)),
+            //                  this, SLOT(
+            //                      onLeftNameUpdated(const QString&, const QString&, const QString&)));
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+            w->setEnabled(false);
         }
     }
     //insert rightValue
@@ -985,8 +1035,8 @@ DecisionLeftWidget::insertRowPred(int row, const QString& name)
                                  onRightNumUpdated(const QString&, double)));
             QObject::connect(w, SIGNAL(selected(const QString&)),
                              this, SLOT(onSelected(const QString&)));
-        } else {
-            VleLineEdit* w = new VleLineEdit(ui->tablePredicates, leftValue, id, false);
+        } else if (rightType == "Var") {
+            VleLineEdit* w = new VleLineEdit(ui->tablePredicates, rightValue, id, false);
             ui->tablePredicates->setCellWidget(row, col, w);
             ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
             QObject::connect(w, SIGNAL(
@@ -995,6 +1045,48 @@ DecisionLeftWidget::insertRowPred(int row, const QString& name)
                                  onRightNameUpdated(const QString&, const QString&, const QString&)));
             QObject::connect(w, SIGNAL(selected(const QString&)),
                              this, SLOT(onSelected(const QString&)));
+        } else if (rightType == "dayVal") {
+            VleDayEdit* w = new VleDayEdit(ui->tablePredicates, rightValue, "yyyy-M-d", id, true);
+            ui->tablePredicates->setCellWidget(row, col, w);
+            ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
+            QObject::connect(w, SIGNAL(
+                                 valUpdated(const QString&, const QString&)),
+                             this, SLOT(
+                                 onRightDayUpdated(const QString&, const QString&)));
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+        } else  if (rightType == "dayVar") {
+            VleLineEdit* w = new VleLineEdit(ui->tablePredicates, rightValue, id, false);
+            ui->tablePredicates->setCellWidget(row, col, w);
+            ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
+            // QObject::connect(w, SIGNAL(
+            //                      textUpdated(const QString&, const QString&, const QString&)),
+            //                  this, SLOT(
+            //                      onRightNameUpdated(const QString&, const QString&, const QString&)));
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+            w->setEnabled(false);
+        } else if (rightType == "dayOfYearVal") {
+            VleDayEdit* w = new VleDayEdit(ui->tablePredicates, rightValue, "M-d", id, true);
+            ui->tablePredicates->setCellWidget(row, col, w);
+            ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
+            QObject::connect(w, SIGNAL(
+                                 valUpdated(const QString&, const QString&)),
+                             this, SLOT(
+                                 onRightDayUpdated(const QString&, const QString&)));
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+        } else { //"dayOfYearVar"
+            VleLineEdit* w = new VleLineEdit(ui->tablePredicates, rightValue, id, false);
+            ui->tablePredicates->setCellWidget(row, col, w);
+            ui->tablePredicates->setItem(row, col, new QTableWidgetItem);
+            // QObject::connect(w, SIGNAL(
+            //                      textUpdated(const QString&, const QString&, const QString&)),
+            //                  this, SLOT(
+            //                      onRightNameUpdated(const QString&, const QString&, const QString&)));
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+            w->setEnabled(false);
         }
     }
 }
@@ -1016,10 +1108,46 @@ DecisionLeftWidget::onLeftTypeUpdated(const QString& id, const QString& val)
     mCurrPredicate =  getTextEdit(row, 0)->text();
     decision->dataMetadata->setPredicateLeftType(mCurrPredicate, val);
     QString previous = decision->dataMetadata->getPredicateLeftValue(mCurrPredicate);
+    QString rightType = decision->dataMetadata->getPredicateRightType(mCurrPredicate);
+    QString previousRight = decision->dataMetadata->getPredicateRightValue(mCurrPredicate);
     if (val == "Val") {
         decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, val, previous, "0.");
-    } else {
+        if (rightType != "Var" || rightType != "Val") {
+            decision->dataMetadata->setPredicateRightType(mCurrPredicate, "Var");
+            decision->dataMetadata->setPredicateRightValue(mCurrPredicate, "Var", previousRight, "variableName");
+        }
+    } else if (val == "Var") {
         decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, val, previous, "variableName");
+        if (rightType != "Var" || rightType != "Val") {
+            if (rightType == "dayVar" || rightType == "dayVal") {
+             decision->dataMetadata->setPredicateRightType(mCurrPredicate, "Val");
+                decision->dataMetadata->setPredicateRightValue(mCurrPredicate, "Val", previousRight, "0.");
+            }
+        }
+    } else if (val == "dayVal") {
+        decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, val, previous, "2000-01-01");
+        if (rightType != "dayVar" || rightType != "dayVal") {
+             decision->dataMetadata->setPredicateRightType(mCurrPredicate, "dayVar");
+             decision->dataMetadata->setPredicateRightValue(mCurrPredicate, "dayVar", previousRight, "day");
+        }
+    } else if (val == "dayVar"){
+        decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, val, previous, "day");
+        if (rightType != "dayVar" || rightType != "dayVal") {
+             decision->dataMetadata->setPredicateRightType(mCurrPredicate, "dayVal");
+             decision->dataMetadata->setPredicateRightValue(mCurrPredicate, "dayVal", previousRight, "2000-01-01");
+        }
+    } else if (val == "dayOfYearVal") {
+        decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, val, previous, "01-01");
+        if (rightType != "dayOfYearVal" || rightType != "dayOfYearVal") {
+             decision->dataMetadata->setPredicateRightType(mCurrPredicate, "dayOfYearVar");
+             decision->dataMetadata->setPredicateRightValue(mCurrPredicate, "dayOfYearVar", previousRight, "dayOfYear");
+        }
+    } else { // "dayOfYearVar"
+        decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, val, previous, "dayOfYear");
+        if (rightType != "dayOfYearVal" || rightType != "dayOfYearVar") {
+             decision->dataMetadata->setPredicateRightType(mCurrPredicate, "dayOfYearVal");
+             decision->dataMetadata->setPredicateRightValue(mCurrPredicate, "dayOfYearVal", previousRight, "01-01");
+        }
     }
 }
 
@@ -1031,12 +1159,45 @@ DecisionLeftWidget::onRightTypeUpdated(const QString& id, const QString& val)
     mCurrPredicate =  getTextEdit(row, 0)->text();
     decision->dataMetadata->setPredicateRightType(mCurrPredicate, val);
     QString previous = decision->dataMetadata->getPredicateRightValue(mCurrPredicate);
+    QString leftType = decision->dataMetadata->getPredicateLeftType(mCurrPredicate);
+    QString previousLeft = decision->dataMetadata->getPredicateLeftValue(mCurrPredicate);
     if (val == "Val") {
         decision->dataMetadata->setPredicateRightValue(mCurrPredicate, val, previous, "0.");
-    } else {
+        if (leftType != "Var" || leftType != "Val") {
+            decision->dataMetadata->setPredicateLeftType(mCurrPredicate, "Var");
+            decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, "Var", previousLeft, "variableName");
+        }
+    } else  if (val == "Var") {
         decision->dataMetadata->setPredicateRightValue(mCurrPredicate, val, previous, "variableName");
+        if (leftType != "Var" || leftType != "Val") {
+            decision->dataMetadata->setPredicateLeftType(mCurrPredicate, "Val");
+            decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, "Val", previousLeft, "0.");
+        }
+    } else if (val == "dayVal") {
+        decision->dataMetadata->setPredicateRightValue(mCurrPredicate, val, previous, "2000-01-01");
+         if (leftType != "dayVar" || leftType != "dayVal") {
+             decision->dataMetadata->setPredicateLeftType(mCurrPredicate, "dayVar");
+             decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, "dayVar", previousLeft, "day");
+        }
+    } else if (val == "dayVar"){
+        decision->dataMetadata->setPredicateRightValue(mCurrPredicate, val, previous, "day");
+         if (leftType != "dayVar" || leftType != "dayVal") {
+             decision->dataMetadata->setPredicateLeftType(mCurrPredicate, "dayVal");
+             decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, "dayVal", previousLeft, "2000-01-01");
+        }
+    } else if (val == "dayOfYearVal") {
+        decision->dataMetadata->setPredicateRightValue(mCurrPredicate, val, previous, "01-01");
+        if (leftType != "dayOfYearVal" || leftType != "dayOfYearVal") {
+            decision->dataMetadata->setPredicateLeftType(mCurrPredicate, "dayOfYearVar");
+            decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, "dayOfYearVar", previousLeft, "dayOfYear");
+        }
+    } else { // "dayOfYearVar"
+        decision->dataMetadata->setPredicateRightValue(mCurrPredicate, val, previous, "dayOfYear");
+        if (leftType != "dayOfYearVal" || leftType != "dayOfYearVar") {
+            decision->dataMetadata->setPredicateLeftType(mCurrPredicate, "dayOfYearVal");
+            decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, "dayOfYearVal", previousLeft, "01-01");
+        }
     }
-
 }
 
 void
@@ -1057,6 +1218,26 @@ DecisionLeftWidget::onRightNameUpdated(const QString& /*id*/,
     if (oldname != newname) {
         decision->dataMetadata->setPredicateRightValue(mCurrPredicate, "rename" ,oldname, newname);
     }
+}
+
+void
+DecisionLeftWidget::onLeftDayUpdated(const QString& id,
+                                     const QString& day)
+{
+    QStringList split = id.split(",");
+    int row = split.at(0).toInt();
+    mCurrPredicate =  getTextEdit(row, 0)->text();
+    decision->dataMetadata->setPredicateLeftValue(mCurrPredicate, "", "", day);
+}
+
+void
+DecisionLeftWidget::onRightDayUpdated(const QString& id,
+                                      const QString& day)
+{
+    QStringList split = id.split(",");
+    int row = split.at(0).toInt();
+    mCurrPredicate =  getTextEdit(row, 0)->text();
+    decision->dataMetadata->setPredicateRightValue(mCurrPredicate, "", "", day);
 }
 
 void

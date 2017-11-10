@@ -201,6 +201,8 @@ public slots:
    void onLeftNameUpdated(const QString& id,
 			  const QString& oldname,
 			  const QString& newname);
+   void onRightDayUpdated(const QString& id, const QString &day);
+   void onLeftDayUpdated(const QString& id,  const QString &day);
    void onRightNumUpdated(const QString& id, double val);
    void onLeftNumUpdated(const QString& id, double val);
 

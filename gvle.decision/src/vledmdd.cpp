@@ -1193,10 +1193,17 @@ vleDmDD::setPredicateRightValue(const QString& predicateName,
         }
     }
 
-    if (type == "Val") {
+    if (type == "Var" || type == "dayVar" || type == "dayOfYearVar") {
         if (singleVarUsage(orv)){
             vleDomStatic::rmPortToInNode(nodeIn(), orv);
             vleDomStatic::rmObservablePort(nodeObs(), orv);
+        }
+    }
+
+    if (type == "val") {
+        if (not existVar(rv)) {
+            vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), rv, 0);
+            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), rv, 0);
         }
     }
 
@@ -1242,10 +1249,17 @@ vleDmDD::setPredicateLeftValue(const QString& predicateName,
         }
     }
 
-    if (type == "Val") {
+    if (type == "Var" || type == "dayVar" || type == "dayOfYearVar") {
         if (singleVarUsage(olv)){
             vleDomStatic::rmPortToInNode(nodeIn(), olv);
             vleDomStatic::rmObservablePort(nodeObs(), olv);
+        }
+    }
+
+    if (type == "val") {
+        if (not existVar(lv)) {
+            vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), lv, 0);
+            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), lv, 0);
         }
     }
 

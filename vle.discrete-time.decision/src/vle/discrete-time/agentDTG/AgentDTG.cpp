@@ -377,7 +377,8 @@ Deadline(const std::string& activity,
  * ">"|"<="|">="|"!="
  * _opLeft a string or a double
  * _opRight a string or a double
- * _opLeftType a string defining the type of of operand "Var"|"Var@"|"Par"|"Par@"|"Val"
+ * _opLeftType a string defining the type of operand
+ * "Var"|"Var@"|"Par"|"Par@"|"Val|dayVar|dayVal|dayOfYearVar|dayOfYearVal"
  * _opRightType idem
  *
  * TODO: managing model parameters and string values
@@ -424,6 +425,25 @@ GPred(const std::string& activity,
             leftOpD = v->getVal(current_date, 0.0);
             leftDouble = true;
         } else if (param.exist("_opLeftType") &&
+                   param.getString("_opLeftType") == "dayVar") {
+            leftOpD = current_date;
+            leftDouble = true;
+        } else if (param.exist("_opLeftType") &&
+                   param.getString("_opLeftType") == "dayVal") {
+            leftOpD = vle::utils::DateTime::toJulianDayNumber(
+                param.getString("_opLeft"));
+            leftDouble = true;
+        } else if (param.exist("_opLeftType") &&
+                   param.getString("_opLeftType") == "dayOfYearVar") {
+            leftOpD = current_date;
+            leftDouble = true;
+        } else if (param.exist("_opLeftType") &&
+                   param.getString("_opLeftType") == "dayOfYearVal") {
+            leftOpD = vle::utils::DateTime::toJulianDayNumber(
+                std::to_string(vle::utils::DateTime::year(current_date)) +
+                + "-" + param.getString("_opLeft"));
+            leftDouble = true;
+        } else if (param.exist("_opLeftType") &&
                    param.getString("_opLeftType") == "Var@") {
             if (locationName.empty()) {
                 throw vle::utils::ModellingError("Location missing");
@@ -453,6 +473,25 @@ GPred(const std::string& activity,
             rightOpD = v->getVal(current_date, 0.0);
             rightDouble = true;
         } else if (param.exist("_opRightType") &&
+                   param.getString("_opRightType") == "dayVar") {
+            rightOpD = current_date;
+            rightDouble = true;
+        } else if (param.exist("_opRightType") &&
+                   param.getString("_opRightType") == "dayVal") {
+            rightOpD = vle::utils::DateTime::toJulianDayNumber(
+                param.getString("_opRight"));
+            rightDouble = true;
+        } else if (param.exist("_opRightType") &&
+                   param.getString("_opRightType") == "dayOfYearVar") {
+            rightOpD = current_date;
+            rightDouble = true;
+        } else if (param.exist("_opRightType") &&
+                   param.getString("_opRightType") == "dayOfYearVal") {
+            rightOpD = vle::utils::DateTime::toJulianDayNumber(
+                std::to_string(vle::utils::DateTime::year(current_date)) +
+                + "-" + param.getString("_opRight"));
+            rightDouble = true;
+        } else if (param.exist("_opRightType") &&
                    param.getString("_opRightType") == "Var@") {
             if (locationName.empty()) {
                 throw vle::utils::ModellingError("Location missing");
@@ -470,7 +509,7 @@ GPred(const std::string& activity,
     }
 
     if(leftDouble != rightDouble) {
-        throw vle::utils::ModellingError("Predicate operand mot compatible");
+        throw vle::utils::ModellingError("Predicate operand not compatible");
     }
 
     if (op == "<") {
