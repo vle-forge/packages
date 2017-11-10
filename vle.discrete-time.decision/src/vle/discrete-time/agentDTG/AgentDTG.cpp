@@ -356,14 +356,13 @@ getSuffixName(int n) const {
 bool
 Deadline(const std::string& activity,
          const std::string& /* rule */,
-         const ved::PredicateParameters& param) const {
+         const ved::PredicateParameters& /*param*/) const {
     if (activities().get(activity)->second.params().exist("_deadline")) {
         if (activities().get(activity)->second.maxfinish() == current_date) {
             return true;
         }
-    } else {
-        return false;
     }
+    return false;
 }
 
 /**
