@@ -49,7 +49,7 @@ public:
 
     virtual ~DiscreteTimeDyn();
 
-    vle::devs::Dynamics* toDynamics();
+    vle::devs::Dynamics* toDynamics() override;
 
 
     /*  - - - - - - - - - - - - - --ooOoo-- - - - - - - - - - - -  */
