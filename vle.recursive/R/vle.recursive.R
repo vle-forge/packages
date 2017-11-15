@@ -878,7 +878,7 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
       date = vle.recursive.dateToNum(date);
     }
     if(!("date" %in% names(res))){
-      stop(paste("[vle.recursive] Error: missing dates in results"));
+      stop(paste("[vle.recursive] Error: missing 'date' in results"));
     }
     time_ind = match(intersect(res$date[,sim_ind[1]], date), res$date[,sim_ind[1]]);
   }
@@ -1402,9 +1402,13 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
     if (ncol(res[[1]]) != nrow(file_sim)){
       stop("[vle.recursive] file_sim and res do not fit");
     }
-    res = vle.recursive.extract(res = res, file_sim = file_sim, id = id);
+    res = vle.recursive.extract(res = res, file_sim = file_sim, id = id,
+                                output_vars=output_vars);
     file_sim = vle.recursive.parseSim(file_sim=file_sim, id=id);
     isSim = file_sim$id;
+  } else if (! is.null(id)) {
+    #id is interpreted as index
+    isSim = id;
   }
   
   
@@ -1423,23 +1427,23 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
           file_obsi = subset(file_obsi,  !is.na(file_obsi[[var]]));
           file_obsi$date = vle.recursive.dateToNum(file_obsi$date);
         }
-        
         resi = vle.recursive.extract(res = res, time_ind = NULL, 
                                      date = NULL,  file_sim = file_sim, 
                                      id = idi, output_vars = c(var,"date"));
         
         if (! is.null(file_obsi)) {
+          if(!("date" %in% names(resi))){
+            stop(paste("[vle.recursive] Error: missing 'date' in results"));
+          }
           file_obsi = subset(file_obsi, date %in% resi$date[,1])
           if (nrow(file_obsi) == 0){
             file_obsi = NULL;
           }
         }
-        
         idistr = as.character(idi);
         if (!is.null(sim_legend)){
           idistr = sim_legend[ii];
         }
-        
         if (! is.null(begin_date)){
           if (begin_date != resi$date[1,1]){
             stop("[vle.recursive] superposition sim error");
