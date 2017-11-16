@@ -164,13 +164,17 @@ public:
     void reloadRules();
     void reloadPredicates(const QString& ruleName,
 		     QTreeWidgetItem* ruleItem);
+    void reloadParameters();
     void insertRowPred(int row, const QString& name);
+    void insertRowParameter(int row, const QString& name);
     VleLineEdit* getTextEdit(int row, int col);
+    VleLineEdit* getParameterTextEdit(int row, int col);
 
     Ui::leftWidget* ui;
     DecisionScene* mScene;
     DecisionPanel* decision;
     QString mCurrPredicate;
+    QString mCurrParameter;
 
 signals:
    //selection on the diagram
@@ -206,6 +210,9 @@ public slots:
    void onRightNumUpdated(const QString& id, double val);
    void onLeftNumUpdated(const QString& id, double val);
 
+   void onParameterSelected(const QString& id);
+   void onNumUpdated(const QString& id, double val);
+   void onDayUpdated(const QString& id, const QString& day);
 private:
     int itemType(const QTreeWidgetItem * item) const;
     QTreeWidgetItem* newItem(const RuleTreeType type, const QString name);

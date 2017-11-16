@@ -54,7 +54,8 @@ enum MODIF_TYPE
     ADVANCED_EDTION,
     DEPENDENCY,
     MOVE_OBJ, //modif concerning moving an obect
-    OTHER
+    OTHER,
+    PARAMETERS
 };
 
 /**
@@ -171,11 +172,15 @@ public:
 			      const QString& op,
 			      bool snap = true);
     void setPredicateLeftType(const QString& predicateName,
+			      const QString& plt,
+			      const QString& plv,
 			      const QString& lt,
 			      bool snap = true);
     void setPredicateRightType(const QString& predicateName,
-			      const QString& rt,
-			      bool snap = true);
+			       const QString& prt,
+			       const QString& prv,
+			       const QString& rt,
+			       bool snap = true);
     void setPredicateRightValue(const QString& predicateName,
 				const QString& type,
 				const QString& olv,
@@ -211,6 +216,27 @@ public:
 
     QDomNodeList activitiesFromDoc();
 
+    bool singleParUsage(const QString& name);
+
+    void updateParametersCond(bool snap = false);
+
+    void setParameterValue(const QString& name,
+                           const QString& value,
+                           bool snap = true);
+
+    QString getParameterValue(const QString& name);
+
+    QString getParameterType(const QString& name);
+
+    QDomNode nodeParameters() const;
+
+    QDomNode nodeParameter(const QString& name) const;
+
+    bool existParameterToDoc(QString name);
+
+    QDomNodeList parametersFromDoc();
+
+    void addParameterToDoc(const QString& name, const QString& type);
     /**
      * @brief add a activity
      * @param compName is the name of the activity
@@ -300,10 +326,16 @@ public:
     QString newOutParActNameToDoc();
 
     void addOutParActToDoc(const QString& actName,
+			   const QString& type,
 			   const QString& outParName);
     void setValueOutParAct(const QString& actName,
 			   const QString& outParName,
 			   double value,
+			   bool snap = true);
+    void setValueOutParAct(const QString& actName,
+			   const QString& outParName,
+			   const QString& prevVarName,
+			   const QString& varName,
 			   bool snap = true);
     void renameOutParActToDoc(const QString& actName,
 			      const QString& oldOutParName,
@@ -346,6 +378,11 @@ public:
     QSet<QString> predicatesNamesRule(QString ruleName);
     QSet<QString> outputParamNames();
 
+    QStringList parameters();
+    QStringList variables();
+    QStringList dayParameters();
+    QStringList dayOfYearParameters();
+
     void save();
     void providePlan();
     QString getData();
@@ -387,7 +424,6 @@ signals:
 
 
 private:
-
 
     QDomDocument*               mDocDm;
     QString                     mFileNameSrc;

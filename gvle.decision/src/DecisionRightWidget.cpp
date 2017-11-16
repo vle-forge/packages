@@ -369,23 +369,40 @@ DecisionRightWidget::onOutParActMenu(const QPoint& pos)
 
     QAction* action;
     QMenu menu;
-    action = menu.addAction("Add Output");
+    action = menu.addAction("Add Output Value");
     action->setData(1);
-    action = menu.addAction("Remove");
+    action = menu.addAction("Add Output Variable");
     action->setData(2);
+    action = menu.addAction("Add Output Parameter");
+    action->setData(3);
+    action = menu.addAction("Remove");
+    action->setData(4);
     action->setEnabled(parName != "");
 
     QAction* selAction = menu.exec(globalPos);
     if (selAction) {
         int actCode =  selAction->data().toInt();
         switch(actCode) {
-        case 1: //Add variable
-            decision->dataMetadata->addOutParActToDoc(currAct,
+        case 1: //Add value
+            decision->dataMetadata->addOutParActToDoc(currAct, "Value",
                                                       decision->dataMetadata->newOutParToDoc());
             mCurrPar = parName;
             emit undoAvailable(true);
             break;
-        case 2: //Remove
+        case 2: //Add variable
+            decision->dataMetadata->addOutParActToDoc(currAct, "Variable",
+                                                      decision->dataMetadata->newOutParToDoc());
+            mCurrPar = parName;
+            emit undoAvailable(true);
+            break;
+        case 3: //Add parameter
+            decision->dataMetadata->addParameterToDoc("parameterName", "Par");
+            decision->dataMetadata->addOutParActToDoc(currAct, "Parameter",
+                                                      decision->dataMetadata->newOutParToDoc());
+            mCurrPar = parName;
+            emit undoAvailable(true);
+            break;
+        case 4: //Remove
             decision->dataMetadata->rmOutputParActToDoc(currAct, parName);
             mCurrPar = parName;
             emit undoAvailable(true);
@@ -442,10 +459,28 @@ DecisionRightWidget::onValueUpdated(const QString& id, double value)
 }
 
 void
+DecisionRightWidget::onNameUpdated(const QString& id,
+                                   const QString& oldname,
+                                   const QString& newname)
+{
+    QStringList split = id.split(",");
+    int row = split.at(0).toInt();
+    mCurrPar =  getTextEdit(row, 0)->text();
+    if (mCurrPar == "") {
+        return;
+    }
+
+    if (oldname != newname) {
+        decision->dataMetadata->setValueOutParAct(currAct, mCurrPar, oldname, newname);
+    }
+
+    reload();
+}
+
+void
 DecisionRightWidget::insertRowOut(int row, const QString& outParName)
 {
     QDomNode par = decision->dataMetadata->nodeOutParAct(currAct, outParName);
-    double value = par.attributes().namedItem("value").nodeValue().toDouble();
 
     int col = 0;
 
@@ -463,18 +498,42 @@ DecisionRightWidget::insertRowOut(int row, const QString& outParName)
         QObject::connect(w, SIGNAL(selected(const QString&)),
                 this, SLOT(onSelected(const QString&)));
     }
-    //insert value
+    //insert values
     {
         col = 1;
         QString id = QString("%1,%2").arg(row).arg(col);
-        VleDoubleEdit* w = new VleDoubleEdit(ui->tableOutputParams, value, id, true);
-        QObject::connect(w, SIGNAL(selected(const QString&)),
-                            this, SLOT(onSelected(const QString&)));
-        QObject::connect(w, SIGNAL(valUpdated(const QString&, double)),
-                         this, SLOT(onValueUpdated(const QString&, double)));
-        ui->tableOutputParams->setCellWidget(row, col, w);
-        ui->tableOutputParams->setItem(row, col, new QTableWidgetItem);
+        if (par.attributes().namedItem("type").nodeValue() == "Value") {
+            double value = par.attributes().namedItem("value").nodeValue().toDouble();
 
+            QString id = QString("%1,%2").arg(row).arg(col);
+            VleDoubleEdit* w = new VleDoubleEdit(ui->tableOutputParams, value, id, true);
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+            QObject::connect(w, SIGNAL(valUpdated(const QString&, double)),
+                             this, SLOT(onValueUpdated(const QString&, double)));
+            ui->tableOutputParams->setCellWidget(row, col, w);
+            ui->tableOutputParams->setItem(row, col, new QTableWidgetItem);
+        } else {
+            QString value = par.attributes().namedItem("value").nodeValue();
+            QString type = par.attributes().namedItem("type").nodeValue();
+            QStringList values;
+            if (type == "Variable") {
+                values = decision->dataMetadata->variables();
+            } else if (type == "Parameter") {
+                values = decision->dataMetadata->parameters();
+            }
+            VleComboLineEdit* w = new VleComboLineEdit(ui->tableOutputParams,
+                                                       values, value, id, false);
+
+            ui->tableOutputParams->setCellWidget(row, col, w);
+            ui->tableOutputParams->setItem(row, col, new QTableWidgetItem);
+            QObject::connect(w, SIGNAL(
+                                 textUpdated(const QString&, const QString&, const QString&)),
+                             this, SLOT(
+                                 onNameUpdated(const QString&, const QString&, const QString&)));
+            QObject::connect(w, SIGNAL(selected(const QString&)),
+                             this, SLOT(onSelected(const QString&)));
+        }
     }
 }
 
@@ -620,7 +679,7 @@ DecisionRightWidget::reload()
             ui->timeLag->blockSignals(oldBlock);
         }
 
-        //reload table of variables
+        //reload table of outputs
 
         // Clear the current list content
         ui->tableOutputParams->clearContents();

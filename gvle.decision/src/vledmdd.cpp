@@ -35,6 +35,7 @@
 #include <vle/value/Boolean.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/value/Integer.hpp>
+#include <vle/value/Double.hpp>
 #include <vle/value/String.hpp>
 #include <vle/value/Set.hpp>
 
@@ -72,13 +73,16 @@ vleDomDmDD::getXQuery(QDomNode node)
         (name == "out") or
         (name == "outputParam") or
         (name == "activity") or
-        (name == "definition")) {
+        (name == "definition") or
+        (name == "parameters") or
+        (name == "parameter")) {
         return getXQuery(node.parentNode())+"/"+name;
     }
     //element identified by attribute name
     if ((name == "activity") or
         (name == "predicate") or
-        (name == "rule")) {
+        (name == "rule") or
+        (name == "parameter")) {
         return getXQuery(node.parentNode())+"/"+name+"[@name=\""
             +DomFunctions::attributeValue(node,"name")+"\"]";
     }
@@ -138,7 +142,9 @@ vleDomDmDD::getNodeFromXQuery(const QString& query,
         (curr == "out") or
         (curr == "outputParams") or
         (curr == "definition") or
-        (curr == "activity")) {
+        (curr == "activity") or
+        (curr == "parameters") or
+        (curr == "parameter")) {
         return getNodeFromXQuery(rest, DomFunctions::obtainChild(d, curr, mDoc));
     }
 
@@ -147,6 +153,7 @@ vleDomDmDD::getNodeFromXQuery(const QString& query,
     nodeByNames.push_back(QString("activity"));
     nodeByNames.push_back(QString("predicate"));
     nodeByNames.push_back(QString("rule"));
+    nodeByNames.push_back(QString("parameter"));
     QString selNodeByName ="";
     for (unsigned int i=0; i< nodeByNames.size(); i++) {
         if (curr.startsWith(nodeByNames[i])) {
@@ -171,6 +178,7 @@ vleDmDD::vleDmDD(const QString& srcpath, const QString& ompath,
     oldValDm(), newValDm(), mpluginName(pluginName)
 {
     QFile file(mFileNameDm);
+
     if (file.exists()) {
         mDocDm = new QDomDocument("vle_project_metadata");
         QXmlInputSource source(&file);
@@ -227,6 +235,8 @@ vleDmDD::xCreateDom()
         QDomElement xDefModel = mDocDm->createElement("definition");
         xElem = mDocDm->createElement("activities");
         xDefModel.appendChild(xElem);
+        xElem = mDocDm->createElement("parameters");
+        xDefModel.appendChild(xElem);
         xElem = mDocDm->createElement("predicates");
         xDefModel.appendChild(xElem);
         xElem = mDocDm->createElement("rules");
@@ -280,6 +290,11 @@ vleDmDD::xCreateDom()
             port.appendChild(vale);
         }
         {
+            QDomNode port = nodeCondPort("aDTGParameters");
+            QDomElement vale = mDocDm->createElement("map");
+            port.appendChild(vale);
+        }
+        {
             QDomNode dataModelNode =
                 mDocDm->elementsByTagName("dataModel").item(0);
             dataModelNode.toElement().setAttribute("outputsType", "discrete-time");
@@ -301,7 +316,9 @@ vleDmDD::xReadDom()
 }
 
 void
-vleDmDD::addOutParActToDoc(const QString& actName, const QString& outParName)
+vleDmDD::addOutParActToDoc(const QString& actName,
+                           const QString& parType ,
+                           const QString& outParName)
 {
     if (existOutParActToDoc(outParName)) {
         return;
@@ -316,7 +333,17 @@ vleDmDD::addOutParActToDoc(const QString& actName, const QString& outParName)
     //add Param
     QDomElement el = mDocDm->createElement("outputParam");
     el.setAttribute("name", outParName);
-    el.setAttribute("value", QString::number(0.));
+    el.setAttribute("type", parType);
+    if (parType == "Value") {
+        el.setAttribute("value", QString::number(0.));
+    } else if (parType == "Variable") {
+        el.setAttribute("value", "variableName");
+    } else if (parType == "Parameter") {
+        el.setAttribute("value", "parameterName");
+
+
+    }
+
     outParsNode.appendChild(el);
 
     //add Port
@@ -384,6 +411,58 @@ vleDmDD::setValueOutParAct(const QString& actName, const QString& outParName,
 
     if (snap) {
         emit modified(OUTPUTS);
+    }
+}
+
+void
+vleDmDD::setValueOutParAct(const QString& actName, const QString& outParName,
+                           const QString& prevName, const QString& name,
+                           bool snap)
+{
+    if (not existOutParActToDoc(outParName)) {
+        return;
+    }
+
+    QDomNode parsNode = nodeOutParsAct(actName);
+    QDomNode parNode = nodeOutParAct(actName, outParName);
+    QString type = parNode.attributes().namedItem("type").nodeValue();
+
+    if (type == "Variable") {
+        if (singleVarUsage(prevName)){
+            if (existVar(name))
+            {
+                vleDomStatic::rmPortToInNode(nodeIn(), prevName);
+                vleDomStatic::rmObservablePort(nodeObs(), prevName);
+            } else {
+                vleDomStatic::renamePortToInNode(nodeIn(), prevName,
+                                                 name, 0);
+                vleDomStatic::renameObservablePort(nodeObs(), prevName, name, 0);
+            }
+        } else {
+            vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), name, 0);
+            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), name, 0);
+
+        }
+    } if (type == "Parameter") {
+        if (singleParUsage(prevName)) {
+
+            QDomNode parametersNode = nodeParameters();
+            QDomNode parameterNode = nodeParameter(prevName);
+            parametersNode.removeChild(parameterNode);
+        }
+        addParameterToDoc(name, "Par");
+    }
+
+    QDomNode par = nodeOutParAct(actName, outParName);
+
+    if (snap) {
+        undoStackDm->snapshot(par);
+    }
+
+    DomFunctions::setAttributeValue(par, "value", name);
+
+    if (snap) {
+        emit modified(OTHER);
     }
 }
 
@@ -551,6 +630,24 @@ vleDmDD::rmOutputParActToDoc(const QString& actName, const QString& outParName)
 
     QDomNode parsNode = nodeOutParsAct(actName);
     QDomNode parNode = nodeOutParAct(actName, outParName);
+    QString type = parNode.attributes().namedItem("type").nodeValue();
+    QString name = parNode.attributes().namedItem("value").nodeValue();
+    if (type == "Variable") {
+        if (singleVarUsage(name)) {
+            vleDomStatic::rmPortToInNode(nodeIn(), name);
+            vleDomStatic::rmObservablePort(nodeObs(), name);
+        }
+    } else if (type == "Parameter") {
+        if (singleParUsage(name)) {
+
+            QDomNode parametersNode = nodeParameters();
+            QDomNode parameterNode = nodeParameter(name);
+            parametersNode.removeChild(parameterNode);
+
+            updateParametersCond();
+        }
+    }
+
     parsNode.removeChild(parNode);
 
     vleDomStatic::rmPortToOutNode(nodeOut(), outParName, 0);
@@ -578,7 +675,7 @@ vleDmDD::rmOutputParActToDoc(const QString& actName, const QString& outParName)
         vleDomStatic::rmObservablePort(nodeObs(), outParName, 0);
     }
 
-    emit modified(OUTPUTS);
+    emit modified(OTHER);
 }
 
 void
@@ -1121,47 +1218,176 @@ vleDmDD::setPredicateOperator(const QString& predicateName,
 
 void
 vleDmDD::setPredicateLeftType(const QString& predicateName,
+                              const QString& plt,
+                              const QString& plv,
                               const QString& lt,
                               bool snap)
 {
     if (not existPredToDoc(predicateName)) {
         return;
     }
-
+    QDomNode rootNode = mDocDm->documentElement();
     QDomNode pred = nodePred(predicateName);
 
     if (snap) {
-        undoStackDm->snapshot(pred);
+        undoStackDm->snapshot(rootNode);
     }
 
+    if (plt == "Var") {
+        if (singleVarUsage(plv)) {
+            vleDomStatic::rmPortToInNode(nodeIn(), plv);
+            vleDomStatic::rmObservablePort(nodeObs(), plv);
+        }
+    } else if (plt == "par" ||plt == "dayPar" || plt == "dayOfYearPar") {
+        if (singleParUsage(plv)) {
+            QDomNode parametersNode = nodeParameters();
+            QDomNode parameterNode = nodeParameter(plv);
+            parametersNode.removeChild(parameterNode);
+
+            updateParametersCond();
+        }
+    }
+    QString lv;
+    if (lt == "Var") {
+        lv = "variableName";
+        if (not existVar(lv)) {
+            vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), lv, 0);
+            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), lv, 0);
+        }
+    } else if (lt == "Par") {
+        lv = "ParameterName";
+        if (not existParameterToDoc(lv)) {
+            addParameterToDoc(lv, lt); //snap to add
+        }
+    } else if (lt == "dayPar") {
+        lv = "DayParameterName";
+        if (not existParameterToDoc(lv)) {
+            addParameterToDoc(lv, lt); //snap to add
+        }
+    } else if (lt == "dayOfYearPar") {
+        lv = "DayOfYearParameterName";
+        if (not existParameterToDoc(lv)) {
+            addParameterToDoc(lv, lt); //snap to add
+        }
+    } else if (lt == "Val") {
+        lv = "0.";
+    } else if (lt == "dayVal") {
+        lv = "01-01";
+    } else if (lt == "dayOfYearVal") {
+        lv = "2000-01-01";
+    } else if (lt == "dayVar") {
+        lv = "day";
+    } else if (lt == "dayOfYearVar") {
+        lv = "dayOfYear";
+    }
+
+    DomFunctions::setAttributeValue(pred, "leftValue", lv);
     DomFunctions::setAttributeValue(pred, "leftType", lt);
 
+
+
     if (snap) {
-        emit modified(PREDICATE);
+        emit modified(OTHER);
     }
 }
 
 void
 vleDmDD::setPredicateRightType(const QString& predicateName,
-                              const QString& rt,
-                              bool snap)
+                               const QString& prt,
+                               const QString& prv,
+                               const QString& rt,
+                               bool snap)
 {
     if (not existPredToDoc(predicateName)) {
         return;
     }
-
+    QDomNode rootNode = mDocDm->documentElement();
     QDomNode pred = nodePred(predicateName);
 
     if (snap) {
-         undoStackDm->snapshot(pred);
+        undoStackDm->snapshot(rootNode);
     }
 
+    if (prt == "Var") {
+        if (singleVarUsage(prv)) {
+            vleDomStatic::rmPortToInNode(nodeIn(), prv);
+            vleDomStatic::rmObservablePort(nodeObs(), prv);
+        }
+    } else if (prt == "par" ||prt == "dayPar" || prt == "dayOfYearPar") {
+        if (singleParUsage(prv)) {
+            QDomNode parametersNode = nodeParameters();
+            QDomNode parameterNode = nodeParameter(prv);
+            parametersNode.removeChild(parameterNode);
+
+
+        }
+    }
+    QString rv;
+    if (rt == "Var") {
+        rv = "variableName";
+        if (not existVar(rv)) {
+            vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), rv, 0);
+            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), rv, 0);
+        }
+    } else if (rt == "Par") {
+        rv = "ParameterName";
+        if (not existParameterToDoc(rv)) {
+            addParameterToDoc(rv, rt); //snap to add
+        }
+    } else if (rt == "dayPar") {
+        rv = "DayParameterName";
+        if (not existParameterToDoc(rv)) {
+            addParameterToDoc(rv, rt); //snap to add
+        }
+    } else if (rt == "dayOfYearPar") {
+        rv = "DayOfYearParameterName";
+        if (not existParameterToDoc(rv)) {
+            addParameterToDoc(rv, rt); //snap to add
+        }
+    } else if (rt == "Val") {
+        rv = "0.";
+    } else if (rt == "dayVal") {
+        rv = "01-01";
+    } else if (rt == "dayOfYearVal") {
+        rv = "2000-01-01";
+    } else if (rt == "dayVar") {
+        rv = "day";
+    } else if (rt == "dayOfYearVar") {
+        rv = "dayOfYear";
+    }
+
+    DomFunctions::setAttributeValue(pred, "rightValue", rv);
     DomFunctions::setAttributeValue(pred, "rightType", rt);
 
+
+
     if (snap) {
-        emit modified(PREDICATE);
+        emit modified(OTHER);
     }
 }
+
+// void
+// vleDmDD::setPredicateRightType(const QString& predicateName,
+//                                const QString& prt,
+//                                const QString& rt,
+//                                bool snap)
+// {
+//     if (not existPredToDoc(predicateName)) {
+//         return;
+//     }
+
+//     QDomNode pred = nodePred(predicateName);
+
+//     if (snap) {
+//          undoStackDm->snapshot(pred);
+//     }
+
+//     DomFunctions::setAttributeValue(pred, "rightType", rt);
+
+//     if (snap) {
+//         emit modified(PREDICATE);
+//     }
+// }
 
 
 void
@@ -1175,7 +1401,13 @@ vleDmDD::setPredicateRightValue(const QString& predicateName,
         return;
     }
 
-    if (type == "rename") {
+    QDomNode rootNode = mDocDm->documentElement();
+
+    if (snap) {
+        undoStackDm->snapshot(rootNode);
+    }
+
+    if (type == "Var") {
         if (singleVarUsage(orv)){
             if (existVar(rv))
             {
@@ -1193,30 +1425,32 @@ vleDmDD::setPredicateRightValue(const QString& predicateName,
         }
     }
 
-    if (type == "Var" || type == "dayVar" || type == "dayOfYearVar") {
-        if (singleVarUsage(orv)){
-            vleDomStatic::rmPortToInNode(nodeIn(), orv);
-            vleDomStatic::rmObservablePort(nodeObs(), orv);
+    if (type == "Par" || type == "dayPar" || type == "dayOfYearPar") {
+        QDomNode parametersNode = nodeParameters();
+        if (existParameterToDoc(rv)) {
+            if (getParameterType(rv) != type) {
+                if (snap) {
+                    emit modified(OTHER);
+                }
+                return;
+            }
+        } else {
+            addParameterToDoc(rv, type); //snap to add
         }
-    }
+        if (singleParUsage(orv)) {
+            QDomNode parameterNode = nodeParameter(orv);
+            parametersNode.removeChild(parameterNode);
+        }
 
-    if (type == "val") {
-        if (not existVar(rv)) {
-            vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), rv, 0);
-            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), rv, 0);
-        }
+        updateParametersCond();
     }
 
     QDomNode pred = nodePred(predicateName);
 
-    if (snap) {
-        undoStackDm->snapshot(pred);
-    }
-
     DomFunctions::setAttributeValue(pred, "rightValue", rv);
 
     if (snap) {
-        emit modified(PREDICATE);
+        emit modified(OTHER);
     }
 }
 
@@ -1231,7 +1465,13 @@ vleDmDD::setPredicateLeftValue(const QString& predicateName,
         return;
     }
 
-    if (type == "rename") {
+    QDomNode rootNode = mDocDm->documentElement();
+
+    if (snap) {
+        undoStackDm->snapshot(rootNode);
+    }
+
+    if (type == "Var") {
         if (singleVarUsage(olv)){
             if (existVar(lv))
             {
@@ -1240,39 +1480,41 @@ vleDmDD::setPredicateLeftValue(const QString& predicateName,
             } else {
                 vleDomStatic::renamePortToInNode(nodeIn(), olv,
                                                  lv, 0);
-                vleDomStatic::renameObservablePort(nodeObs(), olv,
-                                                   lv, 0);
+                vleDomStatic::renameObservablePort(nodeObs(), olv, lv, 0);
             }
         } else {
             vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), lv, 0);
             vleDomStatic::addObservablePort(*mDocDm, nodeObs(), lv, 0);
+
         }
     }
 
-    if (type == "Var" || type == "dayVar" || type == "dayOfYearVar") {
-        if (singleVarUsage(olv)){
-            vleDomStatic::rmPortToInNode(nodeIn(), olv);
-            vleDomStatic::rmObservablePort(nodeObs(), olv);
+    if (type == "Par" || type == "dayPar" || type == "dayOfYearPar") {
+        QDomNode parametersNode = nodeParameters();
+        if (existParameterToDoc(lv)) {
+            if (getParameterType(lv) != type) {
+                if (snap) {
+                    emit modified(OTHER);
+                }
+                return;
+            }
+        } else {
+            addParameterToDoc(lv, type); //snap to add
         }
-    }
+        if (singleParUsage(olv)) {
+            QDomNode parameterNode = nodeParameter(olv);
+            parametersNode.removeChild(parameterNode);
+        }
 
-    if (type == "val") {
-        if (not existVar(lv)) {
-            vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), lv, 0);
-            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), lv, 0);
-        }
+        updateParametersCond();
     }
 
     QDomNode pred = nodePred(predicateName);
 
-    if (snap) {
-        undoStackDm->snapshot(pred);
-    }
-
     DomFunctions::setAttributeValue(pred, "leftValue", lv);
 
     if (snap) {
-        emit modified(PREDICATE);
+        emit modified(OTHER);
     }
 }
 
@@ -1312,6 +1554,87 @@ vleDmDD::newPredicateNameToDoc()
             "predicate");
 }
 
+QStringList
+vleDmDD::variables()
+{
+    QStringList variables;
+
+    QDomNodeList predList = predicatesFromDoc();
+    for (int i = 0; i < predList.length(); i++) {
+        QString left = predList.item(i).attributes().namedItem("leftValue").nodeValue();
+        QString right = predList.item(i).attributes().namedItem("rightValue").nodeValue();
+        QString leftType = predList.item(i).attributes().namedItem("leftType").nodeValue();
+        QString rightType = predList.item(i).attributes().namedItem("rightType").nodeValue();
+        if (leftType == "Var") {
+            variables += left;
+        }
+        if (rightType == "Var") {
+            variables += right;
+        }
+    }
+    QDomNodeList outList = nodeActs().toElement().elementsByTagName("outputParam");
+    for (int i = 0; i < outList.length(); i++) {
+        QString value = outList.item(i).attributes().namedItem("value").nodeValue();
+        QString type = outList.item(i).attributes().namedItem("type").nodeValue();
+        if (type == "Variable") {
+            variables += value;
+        }
+    }
+    variables.removeDuplicates();
+    return variables;
+}
+
+QStringList
+vleDmDD::parameters()
+{
+    QStringList parametersList;
+
+    QDomNodeList parameters = nodeParameters().toElement().elementsByTagName("parameter");
+    for (int i = 0; i < parameters.length(); i++) {
+        QString name = parameters.item(i).attributes().namedItem("name").nodeValue();
+        QString type = parameters.item(i).attributes().namedItem("type").nodeValue();
+
+        if (type == "Par") {
+            parametersList += name;
+        }
+    }
+    return parametersList;
+}
+
+QStringList
+vleDmDD::dayParameters()
+{
+    QStringList parametersList;
+
+    QDomNodeList parameters = nodeParameters().toElement().elementsByTagName("parameter");
+    for (int i = 0; i < parameters.length(); i++) {
+        QString name = parameters.item(i).attributes().namedItem("name").nodeValue();
+        QString type = parameters.item(i).attributes().namedItem("type").nodeValue();
+
+        if (type == "dayPar") {
+            parametersList += name;
+        }
+    }
+    return parametersList;
+}
+
+QStringList
+vleDmDD::dayOfYearParameters()
+{
+    QStringList parametersList;
+
+    QDomNodeList parameters = nodeParameters().toElement().elementsByTagName("parameter");
+    for (int i = 0; i < parameters.length(); i++) {
+        QString name = parameters.item(i).attributes().namedItem("name").nodeValue();
+        QString type = parameters.item(i).attributes().namedItem("type").nodeValue();
+
+        if (type == "dayOfYearPar") {
+            parametersList += name;
+        }
+    }
+    return parametersList;
+}
+
 bool
 vleDmDD::singleVarUsage(const QString& varName)
 {
@@ -1320,18 +1643,62 @@ vleDmDD::singleVarUsage(const QString& varName)
     for (int i = 0; i < predList.length(); i++) {
         QString left = predList.item(i).attributes().namedItem("leftValue").nodeValue();
         QString right = predList.item(i).attributes().namedItem("rightValue").nodeValue();
-        if (left == varName) {
+        QString leftType = predList.item(i).attributes().namedItem("leftType").nodeValue();
+        QString rightType = predList.item(i).attributes().namedItem("rightType").nodeValue();
+        if (left == varName && leftType == "Var") {
             nbVarUsage++;
         }
-        if (right == varName) {
+        if (right == varName && rightType == "Var") {
             nbVarUsage++;
         }
-
+    }
+    QDomNodeList outList = nodeActs().toElement().elementsByTagName("outputParam");
+    for (int i = 0; i < outList.length(); i++) {
+        QString value = outList.item(i).attributes().namedItem("value").nodeValue();
+        QString type = outList.item(i).attributes().namedItem("type").nodeValue();
+        if (value == varName && type == "Variable") {
+            nbVarUsage++;
+        }
     }
 
     return (nbVarUsage == 1);
 
 }
+
+bool
+vleDmDD::singleParUsage(const QString& name)
+{
+    QDomNodeList predList = predicatesFromDoc();
+    int nbParUsage = 0;
+    for (int i = 0; i < predList.length(); i++) {
+        QString left = predList.item(i).attributes().namedItem("leftValue").nodeValue();
+        QString right = predList.item(i).attributes().namedItem("rightValue").nodeValue();
+        QString leftType = predList.item(i).attributes().namedItem("leftType").nodeValue();
+        QString rightType = predList.item(i).attributes().namedItem("rightType").nodeValue();
+        if (left == name && (leftType == "Par" ||
+                             leftType == "dayPar" ||
+                             leftType == "dayOfYearPar")) {
+            nbParUsage++;
+        }
+        if (right == name && (rightType == "Par" ||
+                              rightType == "dayPar" ||
+                              rightType == "dayOfYearPar")) {
+            nbParUsage++;
+        }
+
+    }
+    QDomNodeList outList = nodeActs().toElement().elementsByTagName("outputParam");
+    for (int i = 0; i < outList.length(); i++) {
+        QString value = outList.item(i).attributes().namedItem("value").nodeValue();
+        QString type = outList.item(i).attributes().namedItem("type").nodeValue();
+        if (value == name && type == "Parameter") {
+            nbParUsage++;
+        }
+    }
+
+    return (nbParUsage == 1);
+}
+
 bool
 vleDmDD::existVar(const QString& varName)
 {
@@ -1347,6 +1714,13 @@ vleDmDD::existVar(const QString& varName)
             nbVarUsage++;
         }
 
+    }
+    QDomNodeList outList = nodeActs().toElement().elementsByTagName("outputParam");
+    for (int i = 0; i < outList.length(); i++) {
+        QString value = outList.item(i).attributes().namedItem("value").nodeValue();
+        if (value == varName) {
+            nbVarUsage++;
+        }
     }
 
     return (nbVarUsage != 0);
@@ -1397,32 +1771,46 @@ vleDmDD::rmPredicateToDoc(const QString& predName)
 
     undoStackDm->snapshot(mDocDm->documentElement());
 
-
-
     QDomNode predsNode = nodePreds();
     QDomNode predNode = nodePred(predName);
 
     {
         QString type = predNode.attributes().namedItem("leftType").nodeValue();
-        QString varName = predNode.attributes().namedItem("leftValue").nodeValue();
+        QString name = predNode.attributes().namedItem("leftValue").nodeValue();
 
         if (type == "Var") {
-            if (singleVarUsage(varName)) {
-                vleDomStatic::rmPortToInNode(nodeIn(), varName);
-                vleDomStatic::rmObservablePort(nodeObs(), varName);
+            if (singleVarUsage(name)) {
+                vleDomStatic::rmPortToInNode(nodeIn(), name);
+                vleDomStatic::rmObservablePort(nodeObs(), name);
             }
+        } else if (type == "Par" || type == "dayPar" || type == "dayOfYearPar") {
+            if (singleParUsage(name)) {
+                QDomNode parametersNode = nodeParameters();
+                QDomNode parameterNode = nodeParameter(name);
+                parametersNode.removeChild(parameterNode);
+            }
+            updateParametersCond();
         }
+
     }
     {
         QString type = predNode.attributes().namedItem("rightType").nodeValue();
-        QString varName = predNode.attributes().namedItem("rightValue").nodeValue();
+        QString name = predNode.attributes().namedItem("rightValue").nodeValue();
 
         if (type == "Var") {
-            if (singleVarUsage(varName)) {
-                vleDomStatic::rmPortToInNode(nodeIn(), varName);
-                vleDomStatic::rmObservablePort(nodeObs(), varName);
+            if (singleVarUsage(name)) {
+                vleDomStatic::rmPortToInNode(nodeIn(), name);
+                vleDomStatic::rmObservablePort(nodeObs(), name);
             }
+        } else if (type == "Par" || type == "dayPar" || type == "dayOfYearPar") {
+            if (singleParUsage(name)) {
+                QDomNode parametersNode = nodeParameters();
+                QDomNode parameterNode = nodeParameter(name);
+                parametersNode.removeChild(parameterNode);
+            }
+            updateParametersCond();
         }
+
     }
     predsNode.removeChild(predNode);
 
@@ -1436,7 +1824,7 @@ vleDmDD::rmPredicateToDoc(const QString& predName)
             rule.removeChild(predicateRuleNode);
         }
     }
-    emit modified(RENAMEPREDICATE);
+    emit modified(OTHER);
 }
 
 void
@@ -1484,6 +1872,149 @@ vleDmDD::nodePred(const QString& predName) const
     return DomFunctions::childWhithNameAttr(vars , "predicate", predName);
 }
 
+void
+vleDmDD::updateParametersCond(bool snap)
+{
+    QDomNode condNode = nodeCond();
+
+    if (snap) {
+         undoStackDm->snapshot(condNode);
+    }
+
+    vle::value::Map tofill;
+    tofill.add("aDTGParameters", vle::value::Map::create());
+    QDomNode port = nodeCondPort("aDTGParameters");
+    QDomNode init_value = port.firstChildElement();
+
+    QDomNodeList parameters = nodeParameters().toElement().elementsByTagName("parameter");
+    for (int i = 0; i < parameters.length(); i++) {
+        QString name = parameters.item(i).attributes().namedItem("name").nodeValue();
+        QString type = parameters.item(i).attributes().namedItem("type").nodeValue();
+        QString value = parameters.item(i).attributes().namedItem("value").nodeValue();
+
+        if (type == "Par") {
+            tofill["aDTGParameters"]->toMap().add(name.toStdString(),
+                                                  vle::value::Double::create(value.toDouble()));
+        } else if (type == "dayPar") {
+            tofill["aDTGParameters"]->toMap().add(name.toStdString(),
+                                                  vle::value::String::create(value.toStdString()));
+        } else { //dayOfYearPar
+            tofill["aDTGParameters"]->toMap().add(name.toStdString(),
+                                                  vle::value::String::create(value.toStdString()));
+        }
+    }
+    vleDomStatic::fillConditionWithMap(*mDocDm, condNode, tofill);
+
+    if (snap) {
+        emit modified(PARAMETERS);
+    }
+}
+
+void
+vleDmDD::setParameterValue(const QString& name,
+                           const QString& value,
+                           bool snap)
+{
+    if (not existParameterToDoc(name)) {
+        return;
+    }
+
+    QDomNode parameter = nodeParameter(name);
+
+    if (snap) {
+         undoStackDm->snapshot(parameter);
+    }
+
+    DomFunctions::setAttributeValue(parameter, "value", value);
+
+    updateParametersCond();
+
+    if (snap) {
+        emit modified(OTHER);
+    }
+}
+
+QString
+vleDmDD::getParameterValue(const QString& name)
+{
+    if (not existParameterToDoc(name)) {
+        return {};
+    }
+
+    QDomNode parameter = nodeParameter(name);
+
+    return DomFunctions::attributeValue(parameter, "value");
+}
+
+QString
+vleDmDD::getParameterType(const QString& name)
+{
+    if (not existParameterToDoc(name)) {
+        return {};
+    }
+
+    QDomNode parameter = nodeParameter(name);
+
+    return DomFunctions::attributeValue(parameter, "type");
+}
+
+QDomNode
+vleDmDD::nodeParameters() const
+{
+    return mDocDm->elementsByTagName("parameters").item(0);
+}
+
+QDomNode
+vleDmDD::nodeParameter(const QString& name) const
+{
+    QDomNode parameters = nodeParameters();
+    return DomFunctions::childWhithNameAttr(parameters, "parameter", name);
+}
+
+bool
+vleDmDD::existParameterToDoc(QString name)
+{
+    QDomNode parameter = nodeParameter(name);
+    return not parameter.isNull();
+}
+
+QDomNodeList
+vleDmDD::parametersFromDoc()
+{
+    return nodeParameters().toElement().elementsByTagName("parameter");
+}
+
+void
+vleDmDD::addParameterToDoc(const QString& name, const QString& type)
+{
+    if (existParameterToDoc(name)) {
+        return;
+    }
+
+    QDomNode rootNode = mDocDm->documentElement();
+    QDomNode parsNode = mDocDm->elementsByTagName("parameters").item(0);
+
+    undoStackDm->snapshot(rootNode);
+
+    QDomElement xElem;
+    //add activity
+    QDomElement el = mDocDm->createElement("parameter");
+    el.setAttribute("name", name);
+    if (type == "Par") {
+        el.setAttribute("value", QString::number(0.));
+    } else if (type == "dayPar") {
+        el.setAttribute("value", "2000-01-01");
+    } else { //dayOfYearPar
+        el.setAttribute("value", "01-01");
+    }
+    el.setAttribute("type", type);
+
+    parsNode.appendChild(el);
+
+    updateParametersCond();
+
+    emit modified(OTHER);
+}
 
 void
 vleDmDD::addActivityToDoc(const QString& actName, QPointF pos)
@@ -2170,11 +2701,14 @@ vleDmDD::getData()
             // parameter
             int maxIter = getMaxIter(name);
             QDomNodeList params = outParActFromDoc(name);
-            QString paramPrefix;
+            QString paramPrefix_1;
+            QString paramPrefix_2;
             if (getOutputsTypeToDoc() == "discrete-time") {
-                paramPrefix = "_update_Done_";
+                paramPrefix_1 = "_update";
+                paramPrefix_2 = "_Done";
             } else {
-                paramPrefix = "_out_";
+                paramPrefix_1 = "_out";
+                paramPrefix_2 = "";
             }
             if (params.length() != 0 or not (maxIter == 1)) {
                 actListElem =  actListElem + "      parameter {\n";
@@ -2182,8 +2716,25 @@ vleDmDD::getData()
                     QDomNode variable = params.item(i);
                     QString name = variable.attributes().namedItem("name").nodeValue();
                     QString value = variable.attributes().namedItem("value").nodeValue();
-                    actListElem =  actListElem +
-                        esp16 + paramPrefix.toStdString() + name.toStdString() + " = " + value.toStdString() + ";\n";
+                    QString type = variable.attributes().namedItem("type").nodeValue();
+                    QString typeS = ""; // "Value"
+                    if (type == "Parameter") {
+                        typeS = "(Par)";
+                        actListElem =  actListElem +
+                            esp16 + paramPrefix_1.toStdString() + typeS.toStdString() +
+                            paramPrefix_2.toStdString() + "_" +
+                            name.toStdString() + " = \"" + value.toStdString() + "\";\n";
+                    } else if (type == "Variable") {
+                        typeS = "(Var)";
+                        actListElem =  actListElem +
+                            esp16 + paramPrefix_1.toStdString() + typeS.toStdString() +
+                            paramPrefix_2.toStdString() + "_" +
+                            name.toStdString() + " = \"" + value.toStdString() + "\";\n";
+                    } else { //"Value"
+                        actListElem =  actListElem +
+                            esp16 + paramPrefix_1.toStdString() + "_" +
+                            name.toStdString() + " = " + value.toStdString() + ";\n";
+                    }
                 }
                 int timeLag = getTimeLag(name);
                 if (not (maxIter == 1)) {

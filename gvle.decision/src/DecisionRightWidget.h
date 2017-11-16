@@ -69,6 +69,9 @@ public slots:
     void onOutParActMenu(const QPoint& pos);
     void insertRowOut(int row, const QString& outParName);
     void onValueUpdated(const QString& id, double value);
+    void onNameUpdated(const QString& id,
+		       const QString& oldname,
+		       const QString& newname);
     VleLineEdit* getTextEdit(int row, int col);
     void onSelected(const QString& id);
     void onTextUpdated(const QString& /*id*/,

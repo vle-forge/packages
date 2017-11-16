@@ -111,6 +111,10 @@ AgentDTG(const vd::DynamicsInit& mdl, const vd::InitEventList& evts) :
         throw vle::utils::ModellingError("Parameter Rotation not found");
     }
 
+    if (evts.exist("aDTGParameters")) {
+        mADTGParametersP = evts.getMap("aDTGParameters").clone();
+    }
+
     vv::MapValue::const_iterator it;
     for (it = mRotationP->toMap().begin(); it != mRotationP->toMap().end(); it++) {
         mPlanPerLocationCounter[it->first] = 0;
@@ -377,7 +381,8 @@ Deadline(const std::string& activity,
  * _opLeft a string or a double
  * _opRight a string or a double
  * _opLeftType a string defining the type of operand
- * "Var"|"Var@"|"Par"|"Par@"|"Val|dayVar|dayVal|dayOfYearVar|dayOfYearVal"
+ * "Var"|"Var@"|"Par"|"Par@"|"Val|dayVar|dayVal|dayOfYearVar|dayOfYearVal|"
+ * "dayPar|dayOfYearPar"
  * _opRightType idem
  *
  * TODO: managing model parameters and string values
@@ -413,6 +418,12 @@ GPred(const std::string& activity,
 
     if (param.exist("_opLeft")) {
         if (param.exist("_opLeftType") &&
+            (param.getString("_opLeftType") == "Par" ||
+             param.getString("_opLeftType") == "dayPar" ||
+             param.getString("_opLeftType") == "dayOfYearPar"  )) {
+            leftOpD = getADTGParam(param.getString("_opLeft"));
+            leftDouble = true;
+         } else if (param.exist("_opLeftType") &&
             param.getString("_opLeftType") == "Val") {
             leftOpD = param.getDouble("_opLeft");
             leftDouble = true;
@@ -459,7 +470,13 @@ GPred(const std::string& activity,
         throw vle::utils::ModellingError("Left operand missing");
     }
 
-    if (param.exist("_opRight")) {
+    if (param.exist("_opRightType") &&
+        (param.getString("_opRightType") == "Par" ||
+         param.getString("_opRightType") == "dayPar" ||
+         param.getString("_opRightType") == "dayOfYearPar"  )) {
+        rightOpD = getADTGParam(param.getString("_opRight"));
+        rightDouble = true;
+    } else if (param.exist("_opRight")) {
         if (param.exist("_opRightType") &&
             param.getString("_opRightType") == "Val"){
             rightOpD = param.getDouble("_opRight");
@@ -691,10 +708,36 @@ void loadPlan(const std::string& activityname,
     }
 }
 
+double getADTGParam(const std::string& paramName) const
+{
+    vv::MapValue::const_iterator it = mADTGParametersP->toMap().find(paramName);
+    if (it == mADTGParametersP->toMap().end()) {
+        throw vle::utils::ModellingError(
+            vle::utils::format("Parameter %s not found", paramName.c_str()));
+    } else {
+        if (it->second->isDouble()) {
+            return mADTGParametersP->toMap().getDouble(paramName);
+        } else {
+            std::string dayS = mADTGParametersP->toMap().getString(paramName);
+            std::vector< std::string > lst;
+            vu::tokenize(dayS, lst, "-", true);
+            if (lst.size() == 3) {
+                return vle::utils::DateTime::toJulianDayNumber(dayS);
+            } else {
+                return vle::utils::DateTime::toJulianDayNumber(
+                    std::to_string(vle::utils::DateTime::year(current_date)) +
+                    + "-" + dayS);
+            }
+        }
+    }
+}
+
 private:
 
     std::unique_ptr<vle::value::Value> mRotationP;
     std::unique_ptr<vle::value::Value> mResourceP;
+    std::unique_ptr<vle::value::Value> mADTGParametersP;
+
     vd::Time mStartTime;
     std::map < std::string, int > mPlanPerLocationCounter;
 
@@ -808,11 +851,32 @@ GUpdate(const std::string& name,
         ved::ActivityParameters::const_iterator it;
         for (it = activity.params().begin(); it != activity.params().end(); it++) {
             std::string paramName = getParamName(it->first);
+            double paramToTreat = false;
 
-            if (paramName.compare(0,9 + statePrefix.size() ,"_update_" + statePrefix + "_") == 0) {
+            std::string variableName;
+            double variableValue;
+
+            if (paramName.compare(0,14 + statePrefix.size() ,"_update(Var)_" + statePrefix + "_") == 0) {
+                variableName = paramName.substr(14 + statePrefix.size()) + portSuffix;
+                std::string variableNameValue = activity.params().getString(it->first);
+                Variables::const_iterator itv =
+                    getVariables().find(variableNameValue);
+                VarMono* v = (VarMono*) itv->second;
+                variableValue = v->getVal(current_date, 0.0);
+                paramToTreat = true;
+            } else if (paramName.compare(0,14 + statePrefix.size() ,"_update(Par)_" + statePrefix + "_") == 0 ) {
+                variableName = paramName.substr(14 + statePrefix.size()) + portSuffix;
+                variableValue =  getADTGParam(activity.params().getString(it->first));
+                paramToTreat = true;
+            } else if (paramName.compare(0,9 + statePrefix.size() ,"_update_" + statePrefix + "_") ==0 ){
+                variableName = paramName.substr(9 + statePrefix.size()) + portSuffix;
+                variableValue =  activity.params().getDouble(it->first);
+                paramToTreat = true;
+            }
+
+            if (paramToTreat) {
                 varToReset++;
-                std::string variableName =  paramName.substr(9 + statePrefix.size()) + portSuffix;
-                double variableValue =  activity.params().getDouble(it->first);
+
                 Variables::const_iterator itv =
                     getVariables().find(variableName);
                 VarMono* v = (VarMono*) itv->second;
