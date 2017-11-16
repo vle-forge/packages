@@ -1,0 +1,310 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" date="" author="Gauthier Quesnel">
+ <structures>
+   <model width="300" height="300" x="0" y="0" name="top" type="coupled">
+   <in/>
+   <out/>
+   <submodels>
+    <model observables="obsMeteo" conditions="condMeteo" dynamics="dynMeteo" width="50" height="50" x="50" y="266" name="Meteo" type="atomic">
+     <in/>
+     <out>
+      <port name="TN"/>
+      <port name="TX"/>
+      <port name="RG"/>
+     </out>
+    </model>
+    <model observables="obsWwdmDt" conditions="condP1" dynamics="dynCrop" width="50" height="50" x="469" y="14" name="p1" type="atomic">
+     <in>
+      <port name="Tmin"/>
+      <port name="Tmax"/>
+      <port name="RG"/>
+      <port name="Lmax"/>
+      <port name="ST"/>
+     </in>
+     <out>
+      <port name="Eb"/>
+      <port name="Eimax"/>
+      <port name="K"/>
+      <port name="Lmax"/>
+      <port name="A"/>
+      <port name="B"/>
+      <port name="TI"/>
+      <port name="ST"/>
+      <port name="LAI"/>
+      <port name="U"/>
+      <port name="Tr"/>
+      <port name="Tmean"/>
+      <port name="PAR"/>
+     </out>
+    </model>
+    <model observables="obsFarmer" conditions="condFarmer,simulation_engine" dynamics="dynFarmer" width="50" height="50" x="196" y="335" name="Farmer" type="atomic">
+     <in>
+      <port name="TN"/>
+      <port name="TX"/>
+     <port name="LAI"/>
+     </in>
+     <out>
+      <port name="ST"/>
+      <port name="Lmax"/>
+     </out>
+    </model>
+   </submodels>
+   <connections>
+    <connection type="internal">
+     <origin model="Meteo" port="TN"/>
+     <destination model="Farmer" port="TN"/>
+    </connection>
+    <connection type="internal">
+     <origin model="Meteo" port="TX"/>
+     <destination model="Farmer" port="TX"/>
+    </connection>
+    <connection type="internal">
+     <origin model="Farmer" port="ST"/>
+     <destination model="p1" port="ST"/>
+    </connection>
+    <connection type="internal">
+     <origin model="Farmer" port="Lmax"/>
+     <destination model="p1" port="Lmax"/>
+    </connection>
+    <connection type="internal">
+     <origin model="Meteo" port="TN"/>
+     <destination model="p1" port="Tmin"/>
+    </connection>
+    <connection type="internal">
+     <origin model="Meteo" port="TX"/>
+     <destination model="p1" port="Tmax"/>
+    </connection>
+    <connection type="internal">
+     <origin model="Meteo" port="RG"/>
+     <destination model="p1" port="RG"/>
+    </connection>
+   <connection type="internal">
+     <origin model="p1" port="LAI"/>
+     <destination model="Farmer" port="LAI"/>
+    </connection>
+   </connections>
+  </model>
+ </structures>
+ <dynamics>
+ <dynamic library="AMeteoReader" package="vle.discrete-time.decision_test" name="dynMeteo"/>
+  <dynamic library="AwwdmDt" package="vle.discrete-time.decision_test" name="dynCrop"/>
+
+ <dynamic library="agentDTG" package="vle.discrete-time.decision" name="dynFarmer"/>
+ </dynamics>
+ <experiment name="test_2" seed="123456789">
+   <conditions>
+    <condition name="simulation_engine">
+     <port name="begin">
+      <double>0.0</double>
+     </port>
+     <port name="duration">
+      <double>1000</double>
+     </port>"
+    <port name="begin_date">
+     <string>"2000-1-3"</string>
+    </port>
+   <port name="autoAck">
+     <boolean>1</boolean>
+    </port>
+   </condition>
+   <condition name="condMeteo">
+      <port name="PkgName">
+	<string>vle.discrete-time.decision_test</string>
+      </port>
+      <port name="meteo_file">
+	<string>31035002.csv</string>
+      </port>
+      <port name="meteo_type">
+	<string>agroclim</string>
+      </port>
+    </condition>
+   <condition name="condP1">
+   <port name="time_step">
+    <double>1</double>
+   </port>
+  <port name="init_value_A">
+    <double>0.0065</double>
+   </port>
+   <port name="init_value_B">
+    <double>0.00205</double>
+   </port>
+   <port name="init_value_TI">
+    <double>900</double>
+   </port>
+   <port name="init_value_Eb">
+    <double>1.85</double>
+   </port>
+   <port name="init_value_Eimax">
+    <double>0.94</double>
+   </port>
+   <port name="init_value_K">
+    <double>0.7</double>
+   </port>
+   <port name="init_value_Lmax">
+    <double>7.5</double>
+   </port>
+
+  <port name="allow_update_ST">
+     <boolean>1</boolean>
+    </port>
+    <port name="init_value_ST">
+     <double>10000</double>
+    </port>
+   <port name="sync_ST">
+    <integer>0</integer>
+    </port>
+   </condition>
+   
+  <condition name="condFarmer">
+    <port name="dyn_allow">
+     <boolean>1</boolean>
+    </port>
+   
+   
+
+
+   <port name="PlansLocation">
+     <string>vle.discrete-time.decision_test</string>
+    </port>
+   <port name="Resource">
+     <map>
+      <key name="female">
+       <set>
+        <integer>4</integer>
+        <string>Nice</string>
+        <string>Small</string>
+       </set>
+      </key>
+      <key name="male">
+       <set>
+        <integer>6</integer>
+        <string>Big</string>
+        <string>Boss</string>
+       </set>
+      </key>
+     </map>
+    </port>
+    <port name="Rotation">
+<map>
+      <key name="">
+       <set>
+        <integer>3</integer>
+        <set>
+         <integer>1</integer>
+         <string>itk2autoAck</string>
+        </set>
+        <set>
+         <integer>2</integer>
+         <string>itk1autoAckDeadLine</string>
+        </set>
+        <set>
+         <integer>3</integer>
+         <string>itk3autoAckSimple</string>
+        </set>
+       </set>
+      </key>
+     </map>
+</port>
+   <port name="dyn_denys">
+     <set>
+      <string>ST</string>
+      <string>Lmax</string>
+     </set>
+    </port>
+   </condition>
+  </conditions>
+  <views>
+   <outputs>
+    <output format="local" plugin="storage" package="vle.output" location="" name="view">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
+   <output format="local" plugin="file" package="vle.output" location="" name="ViewFile">
+     <map>
+      <key name="type">
+       <string>text</string>
+      </key>
+      <key name="flush-by-bag">
+       <boolean>0</boolean>
+      </key>
+      <key name="locale">
+       <string>C</string>
+      </key>
+      <key name="julian-day">
+       <boolean>0</boolean>
+      </key>
+      <key name="output">
+       <string>file</string>
+      </key>
+     </map>
+    </output>
+   </outputs>
+   <view timestep="1" output="view" name="view" type="timed"/>
+   <observables>
+    <observable name="obsMeteo">
+
+
+
+    <port name="TN">
+      <attachedview name="view"/>
+     </port>
+     <port name="TX">
+      <attachedview name="view"/>
+     </port>
+     <port name="RG">
+      <attachedview name="view"/>
+     </port>
+    </observable>
+    <observable name="obsWwdmDt">
+   <port name="Eb"/>
+   <port name="Eimax"/>
+   <port name="K"/>
+   <port name="Lmax"/>
+   <port name="A"/>
+   <port name="B"/>
+   <port name="TI"/>
+   <port name="Tmin"/>
+   <port name="Tmax"/>
+   <port name="RG"/>
+   <port name="ST">
+      <attachedview name="view"/>
+     <attachedview name="ViewFile"/>
+     </port>
+   <port name="LAI">
+      <attachedview name="view"/>
+     <attachedview name="ViewFile"/>
+     </port>
+   <port name="U"/>
+  <port name="Tr"/>
+   <port name="Tmean"/>
+   <port name="PAR"/>
+  </observable>
+
+   <observable name="obsFarmer">
+     <port name="KnowledgeBase">
+
+     <attachedview name="ViewFile"/>
+     </port>
+
+
+    </observable>
+   </observables>
+  <view timestep="1" output="ViewFile" name="ViewFile" type="timed"/>
+  </views>
+ </experiment>
+</vle_project>
