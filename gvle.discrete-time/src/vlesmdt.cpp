@@ -1076,9 +1076,8 @@ vleSmDT::getData()
         "{{includes}}\n"                                                \
         "namespace vd = vle::devs;\n\n"                                 \
         "namespace vv = vle::value;\n\n"                                \
-        "namespace vle {\n"                                             \
-        "namespace discrete_time {\n"                                   \
         "namespace {{namespace}} {\n\n"                                 \
+        "using namespace vle::discrete_time;\n\n"                       \
         "class {{classname}} : public DiscreteTimeDyn\n"                \
         "{\n"                                                           \
         "public:\n"                                                     \
@@ -1113,11 +1112,9 @@ vleSmDT::getData()
         "{{end for}}"                                                   \
         "{{userSection}}\n"                                             \
         "};\n\n"                                                        \
-        "} // namespace {{namespace}}\n"                                \
-        "} // namespace discrete_time\n"                                \
-        "} // namespace vle\n\n"                                        \
+        "} // namespace {{namespace}}\n\n"                                \
         "DECLARE_DYNAMICS("                                             \
-        "vle::discrete_time::{{namespace}}::{{classname}})\n\n";
+        "{{namespace}}::{{classname}})\n\n";
 
     vle::utils::Template vleTpl(tpl.toStdString());
     vleTpl.stringSymbol().append("classname", getClassName().toStdString());
