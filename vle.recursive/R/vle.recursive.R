@@ -598,48 +598,48 @@ vle.recursive.configOutput = function(rvle_handle=NULL, id=NULL, path=NULL,
         integration=NULL, aggregation_replicate=NULL, aggregation_input=NULL, 
         mse_times=NULL, mse_observations=NULL, replicate_quantile=NULL)
 {
-    if (! vle.recursive.check(rvle_handle)) {
-        stop("[vle.recursive] Error: rvle_handle is malformed");
-        return (NULL);
+  if (! vle.recursive.check(rvle_handle)) {
+    stop("[vle.recursive] Error: rvle_handle is malformed");
+  }
+  if (is.null(id)) {
+    stop("[vle.recursive.configOutput] missing 'id'");
+  }
+  outputPort = paste("output", sep="_", id);
+  #remove existing output port
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
+  if (sum(listPorts == outputPort) != 0) {
+    rvle.removePort(rvle_handle, "cond", outputPort);
+    rvle.show(rvle_handle)
+  }
+  if (is.null(path)) {
+    return(invisible(NULL));
+  }
+  rvle.addPort(rvle_handle, "cond", outputPort);
+  config = list(id=id, path=path);
+  if (! is.null(integration)) {
+    if (integration == "mse") {
+      class(mse_times) <- "VleTUPLE";
+      class(mse_observations) <- "VleTUPLE";
+      config = c(config, list(integration=integration, 
+                              mse_times = mse_times, 
+                              mse_observations = mse_observations));
+    } else {
+      config = c(config, list(integration=integration));
     }
-
-    outputPort = paste("output", sep="_", id);
-    listPorts = rvle.listConditionPorts(rvle_handle, "cond");
-    #remove existing output port
-    if (sum(listPorts == outputPort) != 0) {
-       rvle.removePort(rvle_handle, "cond", outputPort);
+  }
+  if (! is.null(aggregation_replicate)) {
+    if (aggregation_replicate == "quantile") {
+      config = c(config, list(aggregation_replicate=aggregation_replicate, 
+                              replicate_quantile = replicate_quantile));
+    } else {
+      config = c(config, list(aggregation_replicate=aggregation_replicate));
     }
-    rvle.addPort(rvle_handle, "cond", outputPort);
-
-    if (is.null(id) || is.null(path)) {
-       stop("[vle.recursive.configOutput] missing 'id' or 'path'");
-       return;
-    }
-    config = list(id=id, path=path);
-    if (! is.null(integration)) {
-      if (integration == "mse") {
-        class(mse_times) <- "VleTUPLE";
-        class(mse_observations) <- "VleTUPLE";
-	      config = c(config, list(integration=integration, 
-            mse_times = mse_times, mse_observations = mse_observations));
-      } else {
-        config = c(config, list(integration=integration));
-      }
-    }
-    if (! is.null(aggregation_replicate)) {
-      if (aggregation_replicate == "quantile") {
-	      config = c(config, list(aggregation_replicate=aggregation_replicate, 
-            replicate_quantile = replicate_quantile));
-      } else {
-        config = c(config, list(aggregation_replicate=aggregation_replicate));
-      }
-    }
-    if (! is.null(aggregation_input)) {
-      config = c(config, list(aggregation_input=aggregation_input));
-    }
-    class(config) <- "VleMAP";
-    rvle.setValueCondition(rvle_handle, cond="cond", port=outputPort, 
-            config);
+  }
+  if (! is.null(aggregation_input)) {
+    config = c(config, list(aggregation_input=aggregation_input));
+  }
+  class(config) <- "VleMAP";
+  rvle.setValueCondition(rvle_handle, cond="cond", port=outputPort, config);
 }
 
 #'
@@ -1213,9 +1213,6 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
 #'
 #' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param file_expe, a file_expe parameter of vle.recursive.parseExpe
-#' @param output_vars, list of named path eg c(LAI="view/Coupled:Atomic.port")
-#'     on which the sensitivity analysis is performed
-#' @param integration, type of integration for outputs (default 'last')
 #' @param method, either 'morris' or 'fast99' or 'sobolEff'
 #' @param r, number of replicate of the morris method
 #' @param levels, number levels of the morris method
@@ -1229,8 +1226,7 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
 #'  
 #'
 vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
-                   output_vars=NULL, integration=NULL, method='morris', 
-                   r=100, levels=5, n=100, typeReturn=NULL)
+                   method='morris', r=100, levels=5, n=100, typeReturn=NULL)
 {
   library(sensitivity)
   bounds = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
@@ -1274,13 +1270,11 @@ vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
           input=colnames(bounds)[i], 
           values=sensi_plan$X[,i]);
   }
-  vle.recursive.configOutputs(rvle_handle=rvle_handle, output_vars=output_vars,
-       integration=integration);
   res = vle.recursive.simulate(rvle_handle);
   res_sensitivity = list();
-  for (i in names(output_vars)) {
+  for (i in names(res)) {
     sensi_plan_bis = sensi_plan;
-    tell(sensi_plan_bis, res[[i]][1,])
+    tell(sensi_plan_bis, res[[i]][nrow(res[[i]]),])
     res_sensitivity[[i]] <- sensi_plan_bis
   }
   if (is.null(typeReturn)){
@@ -1342,6 +1336,86 @@ vle.recursive.lhs = function(rvle_handle=rvle_handle, file_expe=NULL,
   } else {
     return(res) 
   }
+}
+
+#'
+#' Performs optimization
+#'
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
+#' @param file_expe, a file_expe parameter of vle.recursive.parseExpe
+#'
+#' usage:
+#'  source("vle.recursive.R")
+#'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
+#'
+#'
+vle.recursive.optim = function(rvle_handle=rvle_handle, file_expe=NULL)
+{
+  library(rgenoud)
+  file_expe = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
+
+  #define intern optim fun
+  intern_fun = function(x) {
+    for (i in 1:ncol(file_expe)) {
+      vle.recursive.configPropagate(rvle_handle,
+            propagate = names(file_expe)[i], value=x[i]);
+    }
+    r = vle.recursive.simulate(rvle_handle);
+    if ((length(r) != 1) || (dim(r[[1]])[1] != 1) || (dim(r[[1]])[2] != 1)) {
+      rvle.show(rvle_handle)
+      stop(paste("[vle.recursive.optim] ambiguity in output ", length(r), dim(r[[1]])[1],
+                 dim(r[[1]])[2]))
+    }
+    return (r[[1]][1,1]);
+  }
+  res = genoud(fn=intern_fun, nvars=ncol(file_expe), pop.size=4,
+               max.generations=5, Domains=t(as.matrix(file_expe)),
+               boundary.enforcement=2)
+  return(res);
+}
+
+#'
+#' Performs MCMC estimation
+#'
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
+#' @param file_expe, a file_expe parameter of vle.recursive.parseExpe
+#'
+#' usage:
+#'  source("vle.recursive.R")
+#'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
+#'
+vle.recursive.mcmc = function(rvle_handle=rvle_handle, file_expe=NULL, n=1000)
+{
+  library(BayesianTools)
+  file_expe = vle.recursive.parseExpe(file_expe, rvle_handle,
+                                      typeReturn='bounds');
+  #define intern optim fun
+  intern_like = function(x) {
+    if (! is.matrix(x)){
+      x = t(as.matrix(x))
+    }
+    str(x)
+    if (ncol(x) != ncol(file_expe)){
+      print(paste("[vle.recursive.mcmc] error cols "));
+    }
+    for (i in 1:ncol(file_expe)) {
+      vle.recursive.configInput(rvle_handle, input = names(file_expe)[i],
+                                values=x[,i]);
+    }
+    r = vle.recursive.simulate(rvle_handle, withSpawn=0);
+    str(ncol(x))
+    if ((length(r) != 1)||(dim(r[[1]])[1] != 1)||(dim(r[[1]])[2] != nrow(x))){
+      print(paste("[vle.recursive.mcmc] error ambiguity in output ",
+                  length(r), dim(r[[1]])[1], dim(r[[1]])[2]))
+    }
+    return (- 0.5*r[[1]][1,]);
+  }
+  bayesianSetup = createBayesianSetup(likelihood=intern_like,
+      lower=as.numeric(file_expe[1,]), upper=as.numeric(file_expe[2,]),
+      parallel = "external")
+  res <- runMCMC(bayesianSetup = bayesianSetup, sampler = "DREAM",
+                 settings = list(iterations = n, startValue = 4))
+  return(res);
 }
 
 
