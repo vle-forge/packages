@@ -609,7 +609,6 @@ vle.recursive.configOutput = function(rvle_handle=NULL, id=NULL, path=NULL,
   listPorts = rvle.listConditionPorts(rvle_handle, "cond");
   if (sum(listPorts == outputPort) != 0) {
     rvle.removePort(rvle_handle, "cond", outputPort);
-    rvle.show(rvle_handle)
   }
   if (is.null(path)) {
     return(invisible(NULL));
@@ -1349,7 +1348,8 @@ vle.recursive.lhs = function(rvle_handle=rvle_handle, file_expe=NULL,
 #'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
 #'
 #'
-vle.recursive.optim = function(rvle_handle=rvle_handle, file_expe=NULL)
+vle.recursive.optim = function(rvle_handle=rvle_handle, file_expe=NULL, 
+                               pop.size=4, max.generations=5)
 {
   library(rgenoud)
   file_expe = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
@@ -1368,8 +1368,8 @@ vle.recursive.optim = function(rvle_handle=rvle_handle, file_expe=NULL)
     }
     return (r[[1]][1,1]);
   }
-  res = genoud(fn=intern_fun, nvars=ncol(file_expe), pop.size=4,
-               max.generations=5, Domains=t(as.matrix(file_expe)),
+  res = genoud(fn=intern_fun, nvars=ncol(file_expe), pop.size=pop.size,
+               max.generations=max.generations, Domains=t(as.matrix(file_expe)),
                boundary.enforcement=2)
   return(res);
 }
