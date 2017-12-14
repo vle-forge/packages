@@ -104,6 +104,7 @@ struct  DEVS_Options
 
     vle::value::Integer* outputPeriodsGlobal;
     vle::value::Boolean* outputNilsGlobal;
+    vle::value::Boolean* outputInitGlobal;
     bool snapshot_before;
     bool snapshot_after;
     bool dyn_allow;
@@ -120,6 +121,9 @@ struct  DEVS_Options
 
     void
     setGlobalOutputNils(bool type);
+
+    void
+    setGlobalOutputInit(bool type);
 
     void
     setGlobalOutputPeriods(const std::string& dtd, int period);

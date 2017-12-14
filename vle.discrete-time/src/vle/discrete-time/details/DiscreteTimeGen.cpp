@@ -370,6 +370,8 @@ Pimpl::initializeFromInitEventList(
             }
         } else if (event_name == "output_nil") {
             devs_options.setGlobalOutputNils(itb->second->toBoolean().value());
+        } else if (event_name == "output_init") {
+            devs_options.setGlobalOutputInit(itb->second->toBoolean().value());
         } else if (event_name == "output_period") {
             devs_options.setGlobalOutputPeriods(tvp.get_model_name(),
                     itb->second->toInteger().value());
@@ -726,6 +728,10 @@ Pimpl::output(const vle::vpz::AtomicModel& model,
 {
     switch (devs_state) {
     case INIT:
+        if (devs_options.outputInitGlobal and
+                devs_options.outputInitGlobal->value()) {
+            devs_atom->outputVar(model, time, output);
+        }
         break;
     case WAIT:
         break;
@@ -963,15 +969,16 @@ DEVS_TransitionGuards::DEVS_TransitionGuards():
 DEVS_Options::DEVS_Options():
         bags_to_eat(0), dt(1.0), syncs(), outputPeriods(), outputNils(),
         forcingEvents(0), allowUpdates(0), outputPeriodsGlobal(0),
-        outputNilsGlobal(0), snapshot_before(false), snapshot_after(false),
-        dyn_allow(false), dyn_type(MONO), dyn_sync(0), dyn_sync_out(true),
-        dyn_init_value(), dyn_dim(2)
+        outputNilsGlobal(0), outputInitGlobal(0), snapshot_before(false),
+        snapshot_after(false), dyn_allow(false), dyn_type(MONO), dyn_sync(0),
+        dyn_sync_out(true), dyn_init_value(), dyn_dim(2)
 {
 }
 
 DEVS_Options::~DEVS_Options()
 {
     delete outputNilsGlobal;
+    delete outputInitGlobal;
     delete outputPeriodsGlobal;
     delete forcingEvents;
     delete allowUpdates;
@@ -983,6 +990,13 @@ DEVS_Options::setGlobalOutputNils(bool nil)
 {
     delete outputNilsGlobal;
     outputNilsGlobal = new vle::value::Boolean(nil);
+}
+
+void
+DEVS_Options::setGlobalOutputInit(bool type)
+{
+    delete outputInitGlobal;
+    outputInitGlobal = new vle::value::Boolean(type);
 }
 
 void
