@@ -860,14 +860,16 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
       id = file_sim$id;
     }
     file_sim = vle.recursive.parseSim(file_sim=file_sim, id = NULL);
+  
     if (length(file_sim$id) != ncol(res[[1]])) {
-      stop(paste("[vle.recursive] Error: file_sim and res do not fit"));
+      stop(paste(sep="", "[vle.recursive] Error: file_sim (",
+          length(file_sim$id)," ids) and res (", ncol(res[[1]]),
+          " sims) do not match"));
     }
     sim_ind = match(intersect(file_sim$id, id), file_sim$id);
   } else if (! is.null(id)){
     sim_ind = id;
   }
-  
   #get time indices
   if (!is.null(date)) {
     if (!is.null(time_ind)){
@@ -884,7 +886,6 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
   if (is.null(time_ind)) {
     time_ind = 1:nrow(res[[1]]);
   }
-  
   #get output vars
   if (is.null(output_vars)) {
     output_vars = names(res);
@@ -977,6 +978,7 @@ vle.recursive.parseExpe = function(file_expe=NULL, rvle_handle=NULL,
 #'        vle.recursive.init, input values are used to initialize the model
 #' @param id [default:NULL], id of simulations to keep
 #' @param withWarnings [default:TRUE], gives warnings if true
+#' @param sep [default:";"], separator type for columns in file
 #' @param skip [default:1], skip parameter of read.table
 #' @return the dataframe of intputs
 #'
@@ -988,11 +990,11 @@ vle.recursive.parseExpe = function(file_expe=NULL, rvle_handle=NULL,
 #'  
 #'
 vle.recursive.parseSim = function(file_sim=NULL, rvle_handle=NULL, id=NULL,
-  withWarnings=TRUE, skip=1)
+  withWarnings=TRUE, sep=";", skip=1)
 {
   #read inputs
   if (is.character(file_sim)) {
-    file_sim = read.table(file_sim, sep=";", skip=skip, header=TRUE, 
+    file_sim = read.table(file_sim, sep=sep, skip=skip, header=TRUE, 
             stringsAsFactors = FALSE); 
   }
 
@@ -1408,6 +1410,7 @@ vle.recursive.mcmc = function(rvle_handle=rvle_handle, file_expe=NULL, n=1000)
       print(paste("[vle.recursive.mcmc] error ambiguity in output ",
                   length(r), dim(r[[1]])[1], dim(r[[1]])[2]))
     }
+    str(- 0.5*r[[1]][1,])
     return (- 0.5*r[[1]][1,]);
   }
   bayesianSetup = createBayesianSetup(likelihood=intern_like,
@@ -1533,7 +1536,7 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
           obs_vec[which(resi$date[,1] %in% file_obsi$date)] = file_obsi[,var];
         }
         id_vec = rep(idistr, length(sim_vec));
-        
+
         df = rbind(df,data.frame(id=id_vec, sim = sim_vec, time=time_vec, 
                                  obs=obs_vec, stringsAsFactors = F));
       }
