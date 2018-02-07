@@ -348,7 +348,7 @@ getParamName(const std::string activity) const {
 std::string
 getSuffixName(int n) const {
    std::stringstream ret("#");
-   ret << vu::format("%1$02d", n);
+   ret << vu::format("%02d", n);
    return ret.str();
 }
 
@@ -670,7 +670,7 @@ void loadPlan(const std::string& activityname,
 
                 int counter = mPlanPerLocationCounter.find(it->first)->second++;
                 std::stringstream ss;
-                ss << vu::format("%1$02d", counter);
+                ss << vu::format("%02d", counter);
                 std::string suf;
                 if (it->first == "") {
                     suf = ":" + ss.str();
