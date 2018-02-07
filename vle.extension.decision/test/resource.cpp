@@ -406,23 +406,38 @@ void resource_2()
         EnsuresEqual(B.isInWaitState(), true);
     }
     base.processChanges(1.0);
+    bool AStartedFirst;
     {
         const vmd::Activity& A =  base.activities().get("A")->second;
         const vmd::Activity& B =  base.activities().get("B")->second;
-        EnsuresEqual(A.isInStartedState(), true);
+        AStartedFirst = A.isInStartedState() && B.isInWaitState();
+        EnsuresEqual((A.isInStartedState() && B.isInWaitState()) ||
+                     (B.isInStartedState() && A.isInWaitState()), true);
         vmd::ActivitiesResourcesConstIteratorPair pit;
-        pit = base.activities().resources("A");
+        if (AStartedFirst) {
+            pit = base.activities().resources("A");
+        } else {
+            pit = base.activities().resources("B");
+        }
         EnsuresEqual(std::distance(pit.first, pit.second), 1);
         EnsuresEqual((*(pit.first)).second, "Bob");
-        EnsuresEqual(B.isInWaitState(), true);
     }
-    base.setActivityDone("A",2.0);
+    if (AStartedFirst) {
+        base.setActivityDone("A",2.0);
+    } else {
+        base.setActivityDone("B",2.0);
+    }
     base.processChanges(2.0);
     {
         const vmd::Activity& A =  base.activities().get("A")->second;
         const vmd::Activity& B =  base.activities().get("B")->second;
-        EnsuresEqual(A.isInDoneState(), true);
-        EnsuresEqual(B.isInStartedState(), true);
+        if (AStartedFirst) {
+            EnsuresEqual(A.isInDoneState(), true);
+            EnsuresEqual(B.isInStartedState(), true);
+        } else {
+            EnsuresEqual(B.isInDoneState(), true);
+            EnsuresEqual(A.isInStartedState(), true);
+        }
     }
 }
 
