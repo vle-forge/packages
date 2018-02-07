@@ -125,6 +125,8 @@ namespace vle { namespace extension { namespace decision { namespace ex {
             A.freeRessources();
             B.freeRessources();
             C.freeRessources();
+
+            A.setPriority(1.);
         }
 
         virtual ~Resourcetest_3() {}
@@ -311,6 +313,9 @@ namespace vle { namespace extension { namespace decision { namespace ex {
             B.freeRessources();
             C.freeRessources();
             D.freeRessources();
+
+            B.setPriority(1.);
+
         }
 
         virtual ~Resourcetest_5() {}
