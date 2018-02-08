@@ -65,6 +65,7 @@ private:
     bool mRemoveSimulationFiles;
     unsigned int mConfigParallelNbSlots;
     utils::Rand mrand;
+    std::vector<std::unique_ptr<VleDefine>> mDefine;
     std::vector<std::unique_ptr<VlePropagate>> mPropagate;
     std::vector<std::unique_ptr<VleInput>> mInputs;
     std::vector<std::unique_ptr<VleReplicate>> mReplicates;
@@ -202,6 +203,8 @@ private:
     std::unique_ptr<value::Map> run_with_cvle(
                 const wrapper_init& init, manager::Error& err);
 
+    //setup the model
+    void post_define(vpz::Vpz& model);
     void post_propagates(vpz::Vpz& model, const wrapper_init& init);
 
     void post_inputs(vpz::Vpz& model, const wrapper_init& init);

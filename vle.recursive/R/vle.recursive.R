@@ -152,19 +152,19 @@ vle.recursive.checkCondPortName = function(name=NULL)
 #' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param input, index of the input for embedded model configuration
 #' @param replicate, index of the replicate for embedded model configuration
-#' 
+#'
 #' @return a rvle handle built from the embedding model
-#' 
+#'
 #' @author Ronan Trépos MIA-T, INRA
 #' 
 #' @return return the embedded model
-#' 
+#'
 #' @note
-#' 
+#'
 #' Will build an new rvle handle based on the embedding model
-#' 
+#'
 #' @examples
-#' 
+#'
 #' f = vle.recursive(pkg="mypkg", file="mymodel.vpz");
 #' femb = vle.recursive.getEmbedded (f);
 #'  
@@ -177,6 +177,22 @@ vle.recursive.getEmbedded = function(rvle_handle=NULL, input=1, replicate=1)
     ftmp = rvle.open(
             pkg=rvle.getConditionPortValues(rvle_handle, "cond", "package"),
             file=rvle.getConditionPortValues(rvle_handle, "cond", "vpz"));
+    #modify conditions
+    for (cond in rvle.listConditions(rvle_handle)) {
+      for (port in rvle.listConditionPorts(rvle_handle, cond)) {
+        if (substring(port, 1, nchar("define_")) == "define_") {
+          econdPort = strsplit(port, split="define_")[[1]][2]
+          econd = strsplit(econdPort, split="\\.")[[1]][1]
+          eport = strsplit(econdPort, split="\\.")[[1]][2]
+          if (rvle.getConditionPortValues(rvle_handle, cond, port)){
+            rvle.addPort(ftmp, econd, eport);
+          } else {
+	    rvle.removePort(ftmp, econd, eport);
+	  }
+        }
+      }
+    }
+    #update condition values
     for (cond in rvle.listConditions(rvle_handle)) {
         for (port in rvle.listConditionPorts(rvle_handle, cond)) {
             if (substring(port, 1, nchar("propagate_")) == "propagate_") {
@@ -365,7 +381,49 @@ vle.recursive.showEmbedded = function(rvle_handle=NULL)
 }
 
 #'
-#' init one input
+#' init one definition
+#'
+#' @export
+#'
+#' @param rvle_handle, a rvle handle built with vle.recursive.init
+#' @param define, a string of the form 'cond.port'
+#' @param to_add, if true cond.port will be added to the embedded
+#'                model, else, it will be removed.
+#'
+#' @return NULL
+#'
+#' @author Ronan Trépos MIA-T, INRA
+#'
+#' @note
+#'
+#' Nothing
+#'
+#' @examples
+#'
+#' f = vle.recursive(pkg="mypkg", file="mymodel.vpz")
+#' vle.recursive.configDefine(f, "mycond.myport", to_add=TRUE)
+#'
+
+vle.recursive.configDefine = function(rvle_handle=NULL, define=NULL, 
+                                         to_add=TRUE)
+{
+  if (! vle.recursive.check(rvle_handle)) {
+      stop("[vle.recursive] Error: rvle_handle is malformed");
+      return (NULL);
+  }
+  vle.recursive.checkCondPortName(define)
+  inputPort = paste("define", sep="_", define);
+  listPorts = rvle.listConditionPorts(rvle_handle, "cond");
+  if (sum(listPorts == inputPort) ==0) {
+    rvle.addPort(rvle_handle, "cond", inputPort);
+  }
+  class(to_add) <- "VleBOOLEAN"
+  rvle.setValueCondition(rvle_handle, cond="cond", port=inputPort, 
+                         to_add);
+}
+
+#'
+#' init one propagate
 #' 
 #' @export
 #'

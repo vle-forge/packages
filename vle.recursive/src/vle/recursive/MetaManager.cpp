@@ -50,7 +50,7 @@ namespace recursive {
 
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
-        mConfigParallelNbSlots(2), mrand(), mPropagate(), mInputs(),
+        mConfigParallelNbSlots(2), mrand(), mDefine(), mPropagate(), mInputs(),
         mReplicates(), mOutputs(),
         mWorkingDir(utils::Path::temp_directory_path().string()),
         mCtx(utils::make_context())
@@ -62,7 +62,7 @@ MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
 
 MetaManager::MetaManager(utils::ContextPtr ctx): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
-        mConfigParallelNbSlots(2), mrand(), mPropagate(), mInputs(),
+        mConfigParallelNbSlots(2), mrand(), mDefine(), mPropagate(), mInputs(),
         mReplicates(), mOutputs(),
         mWorkingDir(utils::Path::temp_directory_path().string()),
         mCtx(ctx)
@@ -386,7 +386,9 @@ MetaManager::run(wrapper_init& init,
         std::string conf = "";
         for (init.begin(); not init.isEnded(); init.next()) {
             const value::Value& val = init.current(conf, status);
-            if (parseInput(conf, in_cond, in_port, "propagate_")) {
+            if (parseInput(conf, in_cond, in_port, "define_")) {
+                mDefine.emplace_back(new VleDefine(in_cond, in_port, val));
+            } else if (parseInput(conf, in_cond, in_port, "propagate_")) {
                 mPropagate.emplace_back(new VlePropagate(in_cond, in_port));
             } else if (parseInput(conf, in_cond, in_port)) {
                 mInputs.emplace_back(new VleInput(
@@ -399,6 +401,7 @@ MetaManager::run(wrapper_init& init,
                 mOutputs.emplace_back(new VleOutput(out_id, val));
             }
         }
+        std::sort(mDefine.begin(), mDefine.end(), VleDefineSorter());
         std::sort(mPropagate.begin(), mPropagate.end(),
                 VlePropagateSorter());
         std::sort(mInputs.begin(), mInputs.end(), VleInputSorter());
@@ -409,6 +412,56 @@ MetaManager::run(wrapper_init& init,
         err.message += e.what();
         clear();
         return nullptr;
+    }
+
+    //check Define
+    for (unsigned int i = 0; i< mDefine.size(); i++) {
+        const VleDefine& vleDef = *mDefine[i];
+        //check if exist in Input
+        bool found = false;
+        for (unsigned int j=0; j<mInputs.size() and not found; j++) {
+            const VleInput& vleIn = *mInputs[j];
+            if (vleDef.getName() == vleIn.getName()) {
+                if (vleDef.to_add) {
+                    found = true;
+                } else {
+                    err.code = -1;
+                    err.message = utils::format(
+                            "[MetaManager]: error in define_X '%s': it cannot "
+                            "be removed and declared as input at the same time",
+                            vleDef.getName().c_str());
+                    clear();
+                    return nullptr;
+                }
+            }
+        }
+        //check if exist in Propagate
+        for (unsigned int j=0; j<mPropagate.size() and not found; j++) {
+            const VlePropagate& vleProp = *mPropagate[j];
+            if (vleDef.getName() == vleProp.getName()) {
+                if (vleDef.to_add) {
+                    found = true;
+                } else {
+                    err.code = -1;
+                    err.message = utils::format(
+                            "[MetaManager]: error in define_X '%s': it cannot "
+                            "be removed and declared as propagate at the same "
+                            "time", vleDef.getName().c_str());
+                    clear();
+                    return nullptr;
+                }
+            }
+        }
+        //check if initialized
+        if (vleDef.to_add and not found) {
+            err.code = -1;
+            err.message = utils::format(
+                    "[MetaManager]: error in define_X '%s': it cannot "
+                    "be added without initialization",
+                    vleDef.getName().c_str());
+            clear();
+            return nullptr;
+        }
     }
 
     //check Inputs
@@ -559,6 +612,7 @@ MetaManager::init_embedded_model(const wrapper_init& init, manager::Error& err)
             break;
         }}
     }
+    post_define(*model);
     post_propagates(*model, init);
     return model;
 }
@@ -866,6 +920,25 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
     return results;
 }
 
+void
+MetaManager::post_define(vpz::Vpz& model)
+{
+    vpz::Conditions& conds = model.project().experiment().conditions();
+    for (unsigned int i=0; i < mDefine.size(); i++) {
+        VleDefine& tmp_def = *mDefine[i];
+        vpz::Condition& cond = conds.get(tmp_def.cond);
+        if (cond.exist(tmp_def.port)) {
+            if (not tmp_def.to_add) {
+                cond.del(tmp_def.port);
+            }
+        } else {
+            if (tmp_def.to_add) {
+                cond.add(tmp_def.port);
+            }
+        }
+    }
+
+}
 
 void
 MetaManager::post_propagates(vpz::Vpz& model, const wrapper_init& init)

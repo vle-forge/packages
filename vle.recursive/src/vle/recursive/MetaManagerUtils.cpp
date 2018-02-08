@@ -288,6 +288,28 @@ wrapper_init::getBoolean(const std::string& key, bool& status) const
     return 0;
 }
 
+/***********VlePropagate*************/
+VleDefine::VleDefine(const std::string& _cond, const std::string& _port,
+        const vle::value::Value& val):
+        cond(_cond), port(_port), to_add(true)
+{
+    if (val.isBoolean()) {
+        to_add = val.toBoolean().value();
+    } else {
+        throw utils::ArgError(utils::format(
+                "[MetaManager] : the define_X has wrong form: '%s.%s'",
+                cond.c_str(),  port.c_str()));
+    }
+}
+
+std::string
+VleDefine::getName() const
+{
+    std::string ret = cond;
+    ret.append(".");
+    ret.append(port);
+    return ret;
+}
 
 /***********VlePropagate*************/
 

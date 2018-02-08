@@ -161,6 +161,30 @@ private:
     value::Null def;
 
 };
+struct VleDefine
+{
+    /*
+     * @brief VleDefine a cond.port to add or remove.
+     * @param cond, id of the cond
+     * @param port, id of the port
+     * @param val, true (add) or false (remove)
+     */
+    VleDefine(const std::string& cond, const std::string& port,
+            const vle::value::Value& val);
+    std::string getName() const;
+    std::string cond;
+    std::string port;
+    bool to_add;
+};
+
+struct VleDefineSorter
+{
+    bool operator() (const std::unique_ptr<VleDefine>& i,
+                     const std::unique_ptr<VleDefine>& j)
+    {
+        return (i->getName()<j->getName());
+    }
+};
 
 
 struct VlePropagate
