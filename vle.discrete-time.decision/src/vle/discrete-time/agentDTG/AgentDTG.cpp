@@ -638,7 +638,16 @@ void manageDeadlines()
     for (auto activity : activities()) {
         if (activity.second.isInWaitState() &&
             activity.second.params().exist("_deadline")) {
-            plan().activities().get(activity.first)->second.addRule("rDeadline", KnowledgeBase::rules().get("rDeadline"));
+            bool deadlineToAdd = true;
+            for (ved::Rules::const_iterator it = activity.second.getRules().begin();
+                 it !=  activity.second.getRules().end(); ++it) {
+                if (it->first == "rDeadline") {
+                    deadlineToAdd = false;
+                }
+            }
+            if (deadlineToAdd) {
+                plan().activities().get(activity.first)->second.addRule("rDeadline", KnowledgeBase::rules().get("rDeadline"));
+            }
         }
     }
 }
