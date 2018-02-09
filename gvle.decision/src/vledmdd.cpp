@@ -1076,6 +1076,14 @@ void vleDmDD::rmRuleToDoc(const QString& ruleName)
     QDomNode ruleNode = nodeRule(ruleName);
     rulesNode.removeChild(ruleNode);
 
+    QSet<QString> activities = activityNames();
+    QSet<QString>::iterator itb = activities.begin();
+    QSet<QString>::iterator ite = activities.end();
+    for (; itb != ite; itb++) {
+        QDomNode rulesNode = nodeRulesAct(*itb);
+        QDomNode ruleNode = nodeRuleAct(*itb, ruleName);
+        rulesNode.removeChild(ruleNode);
+    }
     emit modified(RENAME);
 }
 
