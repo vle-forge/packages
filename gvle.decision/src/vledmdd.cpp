@@ -24,6 +24,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <limits>
 
 #include <QFileInfo>
 #include <QDir>
@@ -2480,7 +2481,7 @@ vleDmDD::setDataNameToDoc(const QString& dataName, const QString& pacNam, bool s
     vle::value::Map tofill;
     tofill.add("Rotation", vle::value::Map::create());
     tofill["Rotation"]->toMap().add("", vle::value::Set::create());
-    tofill["Rotation"]->toMap()[""]->toSet().add(vle::value::Integer::create(1));
+    tofill["Rotation"]->toMap()[""]->toSet().add(vle::value::Integer::create(std::numeric_limits<int>::max()));
     tofill["Rotation"]->toMap()[""]->toSet().add(vle::value::Set::create());
     tofill["Rotation"]->toMap()[""]->toSet()[1]->toSet().add(vle::value::Integer::create(1));
     tofill["Rotation"]->toMap()[""]->toSet()[1]->toSet().add(vle::value::String::create(dataName.toStdString()));
