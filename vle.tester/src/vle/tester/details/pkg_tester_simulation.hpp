@@ -124,7 +124,7 @@ public:
     {
         if (mvpz) {
             setStorageViews();
-            vm::Simulation sim(mCtx, vm::LOG_NONE, vm::SIMULATION_NONE,
+            vm::Simulation sim(mCtx, vm::LOG_NONE, vm::SIMULATION_SPAWN_PROCESS,
                     std::chrono::milliseconds(0), &std::cout);
             std::unique_ptr<va::Map> res = sim.run(std::move(mvpz), &merror);
             return res;
