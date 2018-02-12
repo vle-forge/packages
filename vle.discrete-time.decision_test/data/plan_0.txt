@@ -1,0 +1,26 @@
+#/**
+#  * @file plan_0.txt
+#  * @author ...
+#  * ...
+#  */
+
+## Predicates
+## Rules
+## Activities
+activities {
+   activity {
+      id = "activity";
+      temporal {
+            minstart = 2451554; # 2000-1-10
+        }
+      output = "GOut";
+      update = "GUpdate";
+      parameter {
+            _update_Done_outputParam = 1;
+            _update(Var)_Done_outputParam_1 = "variableName";
+            _update(Par)_Done_outputParam_2 = "parameterName";
+      }
+   }
+}
+
+## Precedences

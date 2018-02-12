@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" date="" author="Gauthier Quesnel">
+ <structures>
+   <model width="300" height="300" x="0" y="0" name="top" type="coupled">
+   <in/>
+   <out/>
+   <submodels>
+    <model observables="obsplan_1" conditions="simulation_engine,condplan_1" width="50" dynamics="dynagentDTG" height="50" y="92" x="183" name="atomic" type="atomic">
+     <in>
+   
+  </in>
+     <out>
+   <port name="outputParam"/>
+   
+   
+  </out>
+    </model>
+   </submodels>
+   <connections/>
+  </model>
+ </structures>
+ <dynamics>
+ 
+  
+ <dynamic library="agentDTG" package="vle.discrete-time.decision" name="dynagentDTG"/>
+ </dynamics>
+ <experiment name="test">
+   <conditions>
+    <condition name="simulation_engine">
+     <port name="begin">
+      <double>0.0</double>
+     </port>
+     <port name="duration">
+      <double>100</double>
+     </port>"
+    <port name="begin_date">
+     <string>2000-1-1</string>
+    </port>
+   </condition>
+   
+   
+   
+  <condition name="condplan_1">
+   <port name="dyn_allow">
+    <boolean>1</boolean>
+   </port>
+   <port name="dyn_denys">
+    <set/>
+   </port>
+   <port name="autoAck">
+    <boolean>1</boolean>
+   </port>
+   <port name="PlansLocation">
+    <string>vle.discrete-time.decision_test</string>
+   </port>
+   <port name="Rotation">
+    <map>
+     <key name="">
+      <set>
+       <integer>2147483647</integer>
+       <set>
+        <integer>1</integer>
+        <string>plan_1</string>
+       </set>
+      </set>
+     </key>
+    </map>
+   </port>
+   <port name="aDTGParameters">
+    <map/>
+   </port>
+  </condition>
+  </conditions>
+  <views>
+   <outputs>
+    <output format="local" plugin="storage" package="vle.output" location="" name="view">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
+   </outputs>
+   <view timestep="1" name="view" output="view" type="timed"/>
+   <observables>
+    
+    
+   <observable name="obsplan_1">
+   <port name="KnowledgeBase"/>
+   <port name="AchievedPlan"/>
+   <port name="Activities"/>
+   <port name="Activity_activity"/>
+   <port name="Activity(state)_activity"/>
+   <port name="Activity(ressources)_activity"/>
+   <port name="outputParam">
+      <attachedview name="view"/>
+     </port>
+   
+   
+   
+  </observable>
+   </observables>
+  </views>
+ </experiment>
+</vle_project>

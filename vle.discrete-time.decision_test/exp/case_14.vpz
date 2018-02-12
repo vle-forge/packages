@@ -1,0 +1,175 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" date="" author="Gauthier Quesnel">
+ <structures>
+   <model width="300" height="300" x="0" y="0" name="top" type="coupled">
+   <in/>
+   <out/>
+  <submodels>
+    <model observables="obsplan_0" conditions="simulation_engine,condplan_0_1" width="50" dynamics="dynagentDTG" height="50" y="98" x="301" name="atomic" type="atomic">
+     <in>
+   <port name="variableName"/>
+  </in>
+     <out>
+   <port name="outputParam"/>
+   <port name="outputParam_1"/>
+   <port name="outputParam_2"/>
+  </out>
+    </model>
+    <model observables="obsConstant" conditions="condConstant" width="50" dynamics="dynConstant" height="50" y="98" x="97" name="atomic_1" type="atomic">
+     <in/>
+     <out>
+   <port name="a"/>
+  </out>
+    </model>
+   </submodels>
+   <connections>
+    <connection type="internal">
+     <origin model="atomic_1" port="a"/>
+     <destination model="atomic" port="variableName"/>
+    </connection>
+   </connections>
+  </model>
+ </structures>
+ <dynamics>
+ <dynamic library="agentDTG" package="vle.discrete-time.decision" name="dynagentDTG"/>
+  <dynamic library="Constant" package="vle.discrete-time.generic" name="dynConstant"/>
+ </dynamics>
+ <experiment name="test">
+   <conditions>
+    <condition name="simulation_engine">
+     <port name="begin">
+      <double>0.0</double>
+     </port>
+     <port name="duration">
+      <double>100</double>
+     </port>"
+    <port name="begin_date">
+     <string>2000-1-1</string>
+    </port>
+   </condition>
+   <condition name="condplan_0">
+   <port name="dyn_allow">
+    <boolean>1</boolean>
+   </port>
+   <port name="dyn_denys">
+    <set/>
+   </port>
+   <port name="autoAck">
+    <boolean>1</boolean>
+   </port>
+   <port name="PlansLocation">
+    <string>vle.discrete-time.decision_test</string>
+   </port>
+   <port name="Rotation">
+    <map>
+     <key name="">
+      <set>
+       <integer>2147483647</integer>
+       <set>
+        <integer>1</integer>
+        <string>plan_0</string>
+       </set>
+      </set>
+     </key>
+    </map>
+   </port>
+   <port name="aDTGParameters">
+    <map>
+     <key name="parameterName">
+      <double>0</double>
+     </key>
+    </map>
+   </port>
+  </condition>
+   <condition name="condplan_0_1">
+   <port name="dyn_allow">
+    <boolean>1</boolean>
+   </port>
+   <port name="dyn_denys">
+    <set/>
+   </port>
+   <port name="autoAck">
+    <boolean>1</boolean>
+   </port>
+   <port name="PlansLocation">
+    <string>vle.discrete-time.decision_test</string>
+   </port>
+   <port name="Rotation">
+    <map>
+     <key name="">
+      <set>
+       <integer>2147483647</integer>
+       <set>
+        <integer>1</integer>
+        <string>plan_0</string>
+       </set>
+      </set>
+     </key>
+    </map>
+   </port>
+   <port name="aDTGParameters">
+    <map>
+     <key name="parameterName">
+      <double>2</double>
+     </key>
+    </map>
+   </port>
+  </condition>
+   <condition name="condConstant">
+   <port name="time_step">
+    <double>1</double>
+   </port>
+    <port name="init_value_a">
+     <double>3</double>
+    </port>
+  </condition>
+  </conditions>
+  <views>
+   <outputs>
+    <output format="local" plugin="storage" package="vle.output" location="" name="view">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
+   </outputs>
+   <view timestep="1" name="view" output="view" type="timed"/>
+   <observables>
+    <observable name="obsplan_0">
+   <port name="KnowledgeBase"/>
+   <port name="AchievedPlan"/>
+   <port name="Activities"/>
+   <port name="Activity_activity"/>
+   <port name="Activity(state)_activity"/>
+   <port name="Activity(ressources)_activity"/>
+   <port name="outputParam">
+      <attachedview name="view"/>
+     </port>
+   <port name="variableName"/>
+   <port name="outputParam_1">
+      <attachedview name="view"/>
+     </port>
+   <port name="outputParam_2">
+      <attachedview name="view"/>
+     </port>
+  </observable>
+    <observable name="obsConstant">
+   <port name="a"/>
+  </observable>
+   </observables>
+  </views>
+ </experiment>
+</vle_project>

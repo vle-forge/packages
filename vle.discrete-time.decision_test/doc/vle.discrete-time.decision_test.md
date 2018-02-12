@@ -189,3 +189,25 @@ ALmost the same than case 4 : we test the deadline parameter
 + itk2autoAck.txt
 + itk3autoAck.txt
 + AwwdmDt.cpp
+
+## Case14: Testing outputs for a single activity
+
+3 outputs for a single activity at a given date specified by constraint
+Value output, Variable output, Parameter ouput
+
++ case_14.vpz
++ plan_0.txt (editable by the decision plan GUI)
+
+## Case14: Testing deadline
+
+Simple test
+
++ case_15.vpz
++ plan_1.txt (editable by the decision plan GUI)
+
+## Case14: Testing predicates
+
+Simple test
+
++ case_16.vpz
++ plan_2.txt (editable by the decision plan GUI)

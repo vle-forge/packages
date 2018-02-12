@@ -339,6 +339,10 @@ vleDmDD::addOutParActToDoc(const QString& actName,
         el.setAttribute("value", QString::number(0.));
     } else if (parType == "Variable") {
         el.setAttribute("value", "variableName");
+        if (not existVar("variableName")) {
+            vleDomStatic::addPortToInNode(*mDocDm, nodeIn(), "variableName", 0);
+            vleDomStatic::addObservablePort(*mDocDm, nodeObs(), "variableName", 0);
+        }
     } else if (parType == "Parameter") {
         el.setAttribute("value", "parameterName");
 
@@ -420,6 +424,8 @@ vleDmDD::setValueOutParAct(const QString& actName, const QString& outParName,
                            const QString& prevName, const QString& name,
                            bool snap)
 {
+    std::cout <<actName.toStdString() << " " << outParName.toStdString() << " " << prevName.toStdString() << " " << name.toStdString() << std::endl;
+
     if (not existOutParActToDoc(outParName)) {
         return;
     }
@@ -2741,7 +2747,8 @@ vleDmDD::getData()
                             name.toStdString() + " = \"" + value.toStdString() + "\";\n";
                     } else { //"Value"
                         actListElem =  actListElem +
-                            esp16 + paramPrefix_1.toStdString() + "_" +
+                            esp16 + paramPrefix_1.toStdString() +
+                            paramPrefix_2.toStdString() + "_" +
                             name.toStdString() + " = " + value.toStdString() + ";\n";
                     }
                 }
