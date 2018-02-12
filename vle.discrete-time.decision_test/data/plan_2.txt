@@ -1,0 +1,191 @@
+#/**
+#  * @file plan_2.txt
+#  * @author ...
+#  * ...
+#  */
+
+## Predicates
+predicates {
+   predicate {
+      id = "predicate";
+      type = "GPred";
+      parameter {
+         _opLeftType = "Val";
+         _opLeft = 0.;
+         _op = "==";
+         _opRightType = "Val";
+         _opRight = 0.;
+      }
+   }
+   predicate {
+      id = "predicate_1";
+      type = "GPred";
+      parameter {
+         _opLeftType = "Var";
+         _opLeft = "variableName";
+         _op = "==";
+         _opRightType = "Var";
+         _opRight = "variableName";
+      }
+   }
+   predicate {
+      id = "predicate_2";
+      type = "GPred";
+      parameter {
+         _opLeftType = "Par";
+         _opLeft = "ParameterName";
+         _op = "==";
+         _opRightType = "Par";
+         _opRight = "ParameterName";
+      }
+   }
+   predicate {
+      id = "predicate_3";
+      type = "GPred";
+      parameter {
+         _opLeftType = "dayVar";
+         _opLeft = "day";
+         _op = "==";
+         _opRightType = "dayVar";
+         _opRight = "day";
+      }
+   }
+   predicate {
+      id = "predicate_4";
+      type = "GPred";
+      parameter {
+         _opLeftType = "dayVal";
+         _opLeft = "01-01";
+         _op = "==";
+         _opRightType = "dayVal";
+         _opRight = "01-01";
+      }
+   }
+   predicate {
+      id = "predicate_5";
+      type = "GPred";
+      parameter {
+         _opLeftType = "dayOfYearVal";
+         _opLeft = "2000-01-01";
+         _op = "==";
+         _opRightType = "dayOfYearVal";
+         _opRight = "2000-01-01";
+      }
+   }
+   predicate {
+      id = "predicate_6";
+      type = "GPred";
+      parameter {
+         _opLeftType = "dayOfYearPar";
+         _opLeft = "DayOfYearParameterName";
+         _op = "==";
+         _opRightType = "dayOfYearPar";
+         _opRight = "DayOfYearParameterName";
+      }
+   }
+   predicate {
+      id = "predicate_7";
+      type = "GPred";
+      parameter {
+         _opLeftType = "dayPar";
+         _opLeft = "DayParameterName";
+         _op = "==";
+         _opRightType = "dayPar";
+         _opRight = "DayParameterName";
+      }
+   }
+   predicate {
+      id = "predicate_8";
+      type = "GPred";
+      parameter {
+         _opLeftType = "dayOfYearVar";
+         _opLeft = "dayOfYear";
+         _op = "==";
+         _opRightType = "dayOfYearVar";
+         _opRight = "dayOfYear";
+      }
+   }
+   predicate {
+      id = "predicate_9";
+      type = "GPred";
+      parameter {
+         _opLeftType = "Val";
+         _opLeft = 0.;
+         _op = "==";
+         _opRightType = "Val";
+         _opRight = 1;
+      }
+   }
+   predicate {
+      id = "predicate_10";
+      type = "GPred";
+      parameter {
+         _opLeftType = "dayVal";
+         _opLeft = "2000-1-2";
+         _op = "==";
+         _opRightType = "dayVal";
+         _opRight = "01-01";
+      }
+   }
+   predicate {
+      id = "predicate_11";
+      type = "GPred";
+      parameter {
+         _opLeftType = "dayOfYearVal";
+         _opLeft = "2000-01-01";
+         _op = "==";
+         _opRightType = "dayOfYearVal";
+         _opRight = "1-2";
+      }
+   }
+}
+
+## Rules
+rules {
+   rule {
+      id = "ruleEqual";
+      predicates = "predicate", "predicate_1", "predicate_2", "predicate_3", "predicate_4", "predicate_5", "predicate_6", "predicate_7", "predicate_8";
+   }
+   rule {
+      id = "ruleNotEqu_0";
+      predicates = "predicate_9";
+   }
+   rule {
+      id = "ruleNotEqu_2";
+      predicates = "predicate_10";
+   }
+   rule {
+      id = "ruleNotEqu_1";
+      predicates = "predicate_11";
+   }
+}
+
+## Activities
+activities {
+   activity {
+      id = "activity";
+      temporal {
+            minstart = 2451554; # 2000-1-10
+        }
+      output = "GOut";
+      update = "GUpdate";
+      rules = "ruleEqual";
+      parameter {
+            _update_Done_outputParam = 1;
+      }
+   }
+   activity {
+      id = "activity_1";
+      temporal {
+            minstart = 2451554; # 2000-1-10
+        }
+      output = "GOut";
+      update = "GUpdate";
+      rules = "ruleNotEqu_2", "ruleNotEqu_1", "ruleNotEqu_0";
+      parameter {
+            _update_Done_outputParam_1 = 1;
+      }
+   }
+}
+
+## Precedences

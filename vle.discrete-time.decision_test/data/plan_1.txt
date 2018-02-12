@@ -1,0 +1,48 @@
+#/**
+#  * @file plan_1.txt
+#  * @author ...
+#  * ...
+#  */
+
+## Predicates
+predicates {
+   predicate {
+      id = "predicate";
+      type = "GPred";
+      parameter {
+         _opLeftType = "Val";
+         _opLeft = 0.;
+         _op = "!=";
+         _opRightType = "Val";
+         _opRight = 0.;
+      }
+   }
+}
+
+## Rules
+rules {
+   rule {
+      id = "rule";
+      predicates = "predicate";
+   }
+}
+
+## Activities
+activities {
+   activity {
+      id = "activity";
+      temporal {
+            minstart = 2451553; # 2000-1-9
+            maxfinish = 2451554; #2000-1-10
+        }
+      output = "GOut";
+      update = "GUpdate";
+      rules = "rule";
+      parameter {
+            _update_Done_outputParam = 1;
+            _deadline = 1;
+      }
+   }
+}
+
+## Precedences

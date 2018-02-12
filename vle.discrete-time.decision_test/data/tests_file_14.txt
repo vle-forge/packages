@@ -1,0 +1,3 @@
+vle.discrete-time.decision_test case_14.vpz view "top:atomic.outputParam" 10 10e-5 1
+vle.discrete-time.decision_test case_14.vpz view "top:atomic.outputParam_1" 10 10e-5 3
+vle.discrete-time.decision_test case_14.vpz view "top:atomic.outputParam_2" 10 10e-5 2
