@@ -911,6 +911,7 @@ vle.recursive.simulate = function(rvle_handle=NULL, withSpawn=1)
 vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,  
                                  file_sim=NULL, id=NULL,  output_vars=NULL)
 {
+  
   #get sim indices
   sim_ind = 1:ncol(res[[1]]);
   if (!is.null(file_sim)) {
@@ -928,6 +929,12 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
   } else if (! is.null(id)){
     sim_ind = id;
   }
+  #get output vars
+  if (is.null(output_vars)) {
+    output_vars = names(res);
+  }  else {
+    output_vars = intersect(output_vars, names(res))
+  }
   #get time indices
   if (!is.null(date)) {
     if (!is.null(time_ind)){
@@ -942,12 +949,9 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
     time_ind = match(intersect(res$date[,sim_ind[1]], date), res$date[,sim_ind[1]]);
   }
   if (is.null(time_ind)) {
-    time_ind = 1:nrow(res[[1]]);
+    time_ind = 1:nrow(res[[output_vars[1]]]);
   }
-  #get output vars
-  if (is.null(output_vars)) {
-    output_vars = names(res);
-  }
+  #select final matrices
   for (var in names(res)) {
     if (var %in% output_vars) {
       res[[var]] <- as.matrix(res[[var]][time_ind, sim_ind]);
@@ -1145,7 +1149,14 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
     attr(file_obs, "paths")<-header;
   } else {#a data frame
     if (is.null(attr(file_obs, "paths"))){
-      stop("[vle.recursive] missing path of output");
+      if (! is.null(rvle_handle)){
+        stop("[vle.recursive] missing output paths to configure model");
+      }
+      header_tmp = lapply(names(file_obs), function(x){
+        "unknown vle variable"});
+      names(header_tmp) <- names(file_obs) 
+      attr(file_obs,"paths") <-header_tmp ;
+      
     }
     header = attr(file_obs, "paths")[names(file_obs)];
     header = header[which(!is.na(names(header)))]
@@ -1454,7 +1465,6 @@ vle.recursive.mcmc = function(rvle_handle=rvle_handle, file_expe=NULL, n=1000)
     if (! is.matrix(x)){
       x = t(as.matrix(x))
     }
-    str(x)
     if (ncol(x) != ncol(file_expe)){
       print(paste("[vle.recursive.mcmc] error cols "));
     }
@@ -1463,12 +1473,10 @@ vle.recursive.mcmc = function(rvle_handle=rvle_handle, file_expe=NULL, n=1000)
                                 values=x[,i]);
     }
     r = vle.recursive.simulate(rvle_handle, withSpawn=0);
-    str(ncol(x))
     if ((length(r) != 1)||(dim(r[[1]])[1] != 1)||(dim(r[[1]])[2] != nrow(x))){
       print(paste("[vle.recursive.mcmc] error ambiguity in output ",
                   length(r), dim(r[[1]])[1], dim(r[[1]])[2]))
     }
-    str(- 0.5*r[[1]][1,])
     return (- 0.5*r[[1]][1,]);
   }
   bayesianSetup = createBayesianSetup(likelihood=intern_like,
@@ -1511,6 +1519,11 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
     stop("[vle.recursive] object 'res' should be the result of 
          vle.recursive.simulate");
   }
+  #define output_vars
+  if (is.null(output_vars)) {
+    output_vars = names(res);
+  }
+  
   
   #identify output_vars and open obs
   if (! is.null(file_obs)) {
@@ -1521,32 +1534,32 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
       output_vars<-names(output_vars);
     }
   }
-  if (is.null(output_vars)) {
-    stop("[vle.recursive] missing 'output_vars'");
-  }
+
   
-  #select subset of simulations
+  #compute isSim from id it is either
+  # - indices of simulations to extract if file_sim is null
+  # - id of simu to extract otherwise
   isSim = 1:ncol(res[[1]]);
   if (! is.null(file_sim)) {
-    file_sim = vle.recursive.parseSim(file_sim=file_sim);
+    file_sim = vle.recursive.parseSim(file_sim=file_sim, id=id);
+    isSim = file_sim$id
     if (! is.null(id)) {
-     if (length(which(file_sim$id %in% id)) != length(id)){
+     if (nrow(file_sim) != length(id)){
        stop("[vle.recursive] file_sim and id do not fit");
      }
     }
     if (ncol(res[[1]]) != nrow(file_sim)){
       stop("[vle.recursive] file_sim and res do not fit");
     }
-    res = vle.recursive.extract(res = res, file_sim = file_sim, id = id,
-                                output_vars=output_vars);
-    file_sim = vle.recursive.parseSim(file_sim=file_sim, id=id);
-    isSim = file_sim$id;
   } else if (! is.null(id)) {
     #id is interpreted as index
     isSim = id;
   }
   
-  
+  #extract simulation _results
+  res = vle.recursive.extract(res = res, file_sim = file_sim, id = isSim,
+                              output_vars=output_vars);
+
   #build dynamic plots
   gpAll = NULL;
   if (type == "dynamic") {
