@@ -1519,13 +1519,11 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
     stop("[vle.recursive] object 'res' should be the result of 
          vle.recursive.simulate");
   }
-  #define output_vars
+  
+  #identify output_vars and open obs
   if (is.null(output_vars)) {
     output_vars = names(res);
   }
-  
-  
-  #identify output_vars and open obs
   if (! is.null(file_obs)) {
     file_obs = vle.recursive.parseObs(file_obs=file_obs, id=id);
     if (is.null(output_vars)) {
@@ -1535,6 +1533,9 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
     }
   }
 
+  ##extract res
+  res = vle.recursive.extract(res = res, file_sim = file_sim, id = id,
+                              output_vars=output_vars);
   
   #compute isSim from id it is either
   # - indices of simulations to extract if file_sim is null
@@ -1544,21 +1545,19 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
     file_sim = vle.recursive.parseSim(file_sim=file_sim, id=id);
     isSim = file_sim$id
     if (! is.null(id)) {
-     if (nrow(file_sim) != length(id)){
-       stop("[vle.recursive] file_sim and id do not fit");
-     }
-    }
-    if (ncol(res[[1]]) != nrow(file_sim)){
-      stop("[vle.recursive] file_sim and res do not fit");
+      if (nrow(file_sim) != length(id)){
+        stop("[vle.recursive] file_sim and id do not fit");
+      }
+      if (ncol(res[[1]]) != nrow(file_sim)){
+        stop("[vle.recursive] file_sim and res do not fit");
+      }
     }
   } else if (! is.null(id)) {
     #id is interpreted as index
     isSim = id;
   }
-  
-  #extract simulation _results
-  res = vle.recursive.extract(res = res, file_sim = file_sim, id = isSim,
-                              output_vars=output_vars);
+
+
 
   #build dynamic plots
   gpAll = NULL;
@@ -1594,7 +1593,8 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         }
         if (! is.null(begin_date)){
           if (begin_date != resi$date[1,1]){
-            stop("[vle.recursive] superposition sim error");
+            stop("[vle.recursive] superposition sim error: 
+                 sim dates are not equal");
           }
         } else {
           begin_date = resi$date[1,1];
