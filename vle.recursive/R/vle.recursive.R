@@ -46,6 +46,7 @@ vle.recursive.dateFromNum = function(dateNum)
 #' 
 #' @param pkg, package where is located the embedded simulator
 #' @param file, vpz file that identifies the embedded simulator
+#' @param embedding, model that embeddies the simulator
 #'   
 #' @return a rvle handle of vle recursive model
 #' 
@@ -59,15 +60,17 @@ vle.recursive.dateFromNum = function(dateNum)
 #' 
 #' f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
 #'  
-vle.recursive.init = function(pkg=NULL, file=NULL)
+vle.recursive.init = function(pkg=NULL, file=NULL, 
+                              embedding="vle.recursive/vle-recursive.vpz")
 {
-    rvle_handle = rvle.open(pkg="vle.recursive", file="vle-recursive.vpz");
-    rvle.addCondition(rvle_handle, "cond");
-    rvle.addPort(rvle_handle, "cond", "vpz");
-    rvle.addPort(rvle_handle, "cond", "package");
-    rvle.setStringCondition(rvle_handle, "cond", "package", pkg);
-    rvle.setStringCondition(rvle_handle, "cond", "vpz", file);
-    return(rvle_handle);
+  splitres= strsplit(embedding, split="/")[[1]];
+  rvle_handle = rvle.open(pkg=splitres[1], file=splitres[2]);
+  rvle.addCondition(rvle_handle, "cond");
+  rvle.addPort(rvle_handle, "cond", "vpz");
+  rvle.addPort(rvle_handle, "cond", "package");
+  rvle.setStringCondition(rvle_handle, "cond", "package", pkg);
+  rvle.setStringCondition(rvle_handle, "cond", "vpz", file);
+  return(rvle_handle);
 }
 
 #'
