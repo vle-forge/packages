@@ -765,11 +765,13 @@ vle.recursive.configOutputs = function(rvle_handle=NULL, output_vars=NULL,
 #' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param config_parallel_type (string amongst threads, mvle and single). 
 #'  It sets the type of parallelization to perform.
+#' @param config_parallel_nb_slots (int > 0). it gives the number of slots to 
+#'  use for parallelization.
+#' @param config_parallel_spawn (bool). If true, each simulation is launched
+#'  in a subprocess.
 #' @param config_parallel_rm_files (bool; default true). 
 #'  Used only if config_parallel_type is set to mvle. Simulation files created
 #'  into directory working_dir are removed after analysis.
-#' @param config_parallel_nb_slots (int > 0). it gives the number of slots to 
-#'  use for parallelization.
 #' @param working_dir.  Required only if config_parallel_type is set to mvle. 
 #' It gives the working directory where are produced result file of single 
 #' simulations.
@@ -789,9 +791,10 @@ vle.recursive.configOutputs = function(rvle_handle=NULL, output_vars=NULL,
 #' #TODO
 #' 
 
-vle.recursive.configSimulation = function(rvle_handle=NULL, config_parallel_type=NULL, 
-        config_parallel_rm_files=NULL, config_parallel_nb_slots=NULL, 
-        working_dir=NULL, expe_seed = 12369, expe_log = 7)
+vle.recursive.configSimulation = function(rvle_handle=NULL, 
+        config_parallel_type="single", config_parallel_nb_slots=1, 
+        config_parallel_spawn=FALSE, config_parallel_rm_files=FALSE,
+        working_dir="/tmp/", expe_seed = 12369, expe_log = 7,)
 {
     if (! vle.recursive.check(rvle_handle)) {
         stop("[vle.recursive] Error: rvle_handle is malformed");
@@ -802,12 +805,16 @@ vle.recursive.configSimulation = function(rvle_handle=NULL, config_parallel_type
     if (sum(listPorts == "config_parallel_type") == 0) {
         rvle.addPort(rvle_handle, "cond", "config_parallel_type");
     }
-    if (sum(listPorts == "config_parallel_rm_files") == 0) {
-        rvle.addPort(rvle_handle, "cond", "config_parallel_rm_files");
-    }
     if (sum(listPorts == "config_parallel_nb_slots") == 0) {
         rvle.addPort(rvle_handle, "cond", "config_parallel_nb_slots");
     }
+    if (sum(listPorts == "config_parallel_spawn") == 0) {
+        rvle.addPort(rvle_handle, "cond", "config_parallel_spawn");
+    }
+    if (sum(listPorts == "config_parallel_rm_files") == 0) {
+        rvle.addPort(rvle_handle, "cond", "config_parallel_rm_files");
+    }
+
     if (sum(listPorts == "working_dir") == 0) {
         rvle.addPort(rvle_handle, "cond", "working_dir");
     }
@@ -817,38 +824,19 @@ vle.recursive.configSimulation = function(rvle_handle=NULL, config_parallel_type
     if (sum(listPorts == "expe_log") == 0) {
         rvle.addPort(rvle_handle, "cond", "expe_log");
     }
-    if (is.null(config_parallel_type)) {
-        rvle.setValueCondition(rvle_handle, cond="cond",
-                port="config_parallel_type", "single");
-    } else {
-        rvle.setValueCondition(rvle_handle, cond="cond",
-                port="config_parallel_type", config_parallel_type);
-    }
-    if (is.null(config_parallel_rm_files)) {
-        rvle.setValueCondition(rvle_handle, cond="cond",
-                port="config_parallel_rm_files", FALSE);
-    } else {
-        rvle.setValueCondition(rvle_handle, cond="cond",
-                port="config_parallel_rm_files", config_parallel_rm_files);
-    }
-    if (is.null(config_parallel_nb_slots)) {
-        rvle.setValueCondition(rvle_handle, cond="cond",
-                port="config_parallel_nb_slots", as.integer(1));
-    } else {
-        rvle.setValueCondition(rvle_handle, cond="cond",
-                port="config_parallel_nb_slots",
-                as.integer(config_parallel_nb_slots));
-    }
-    if (is.null(working_dir)) {
-        rvle.setValueCondition(rvle_handle, cond="cond",
-                port="working_dir", "/tmp/");
-    } else {
-        rvle.setValueCondition(rvle_handle, cond="cond",
-                port="working_dir", working_dir);
-    }
+    rvle.setValueCondition(rvle_handle, cond="cond",
+            port="config_parallel_type", config_parallel_type);
+    rvle.setValueCondition(rvle_handle, cond="cond",
+            port="config_parallel_nb_slots",
+            as.integer(config_parallel_nb_slots));
+    rvle.setValueCondition(rvle_handle, cond="cond",
+            port="config_parallel_spawn", config_parallel_spawn);
+    rvle.setValueCondition(rvle_handle, cond="cond",
+            port="config_parallel_rm_files", config_parallel_rm_files);
+    rvle.setValueCondition(rvle_handle, cond="cond",
+            port="working_dir", working_dir);
     rvle.setValueCondition(rvle_handle, cond="cond",
             port="expe_log", as.integer(expe_log));
-
     rvle.setValueCondition(rvle_handle, cond="cond",
             port="expe_seed", as.integer(expe_seed));
 }
@@ -1412,10 +1400,13 @@ vle.recursive.lhs = function(rvle_handle=rvle_handle, file_expe=NULL,
 }
 
 #'
-#' Performs optimization
+#' Performs optimization (using rgenoud)
 #'
 #' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param file_expe, a file_expe parameter of vle.recursive.parseExpe
+#' @param pop.size, see genoud parameter
+#' @param max.generations, see genoud parameter
+#' @param withSpawn, if 1, uses spawn tou louch simulation
 #'
 #' usage:
 #'  source("vle.recursive.R")
@@ -1423,7 +1414,7 @@ vle.recursive.lhs = function(rvle_handle=rvle_handle, file_expe=NULL,
 #'
 #'
 vle.recursive.optim = function(rvle_handle=rvle_handle, file_expe=NULL, 
-                               pop.size=4, max.generations=5)
+                               pop.size=4, max.generations=5, withSpawn=1)
 {
   library(rgenoud)
   file_expe = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
@@ -1434,7 +1425,7 @@ vle.recursive.optim = function(rvle_handle=rvle_handle, file_expe=NULL,
       vle.recursive.configPropagate(rvle_handle,
             propagate = names(file_expe)[i], value=x[i]);
     }
-    r = vle.recursive.simulate(rvle_handle);
+    r = vle.recursive.simulate(rvle_handle, withSpawn=withSpawn);
     if ((length(r) != 1) || (dim(r[[1]])[1] != 1) || (dim(r[[1]])[2] != 1)) {
       rvle.show(rvle_handle)
       stop(paste("[vle.recursive.optim] ambiguity in output ", length(r), dim(r[[1]])[1],

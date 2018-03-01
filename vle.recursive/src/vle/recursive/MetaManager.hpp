@@ -26,6 +26,7 @@
 #include <cmath>
 #include <string>
 #include <thread>
+#include <memory>
 
 #include <vle/devs/InitEventList.hpp>
 #include <vle/value/Map.hpp>
@@ -63,6 +64,7 @@ private:
     std::string mIdPackage;
     CONFIG_PARALLEL_TYPE mConfigParallelType;
     bool mRemoveSimulationFiles;
+    bool mUseSpawn;
     unsigned int mConfigParallelNbSlots;
     utils::Rand mrand;
     std::vector<std::unique_ptr<VleDefine>> mDefine;

@@ -50,8 +50,8 @@ namespace recursive {
 
 MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
-        mConfigParallelNbSlots(2), mrand(), mDefine(), mPropagate(), mInputs(),
-        mReplicates(), mOutputs(),
+        mUseSpawn(false), mConfigParallelNbSlots(2), mrand(), mDefine(),
+        mPropagate(), mInputs(), mReplicates(), mOutputs(),
         mWorkingDir(utils::Path::temp_directory_path().string()),
         mCtx(utils::make_context())
 {
@@ -62,8 +62,8 @@ MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
 
 MetaManager::MetaManager(utils::ContextPtr ctx): mIdVpz(), mIdPackage(),
         mConfigParallelType(SINGLE), mRemoveSimulationFiles(true),
-        mConfigParallelNbSlots(2), mrand(), mDefine(), mPropagate(), mInputs(),
-        mReplicates(), mOutputs(),
+        mUseSpawn(false), mConfigParallelNbSlots(2), mrand(), mDefine(),
+        mPropagate(), mInputs(), mReplicates(), mOutputs(),
         mWorkingDir(utils::Path::temp_directory_path().string()),
         mCtx(ctx)
 {
@@ -363,6 +363,10 @@ MetaManager::run(wrapper_init& init,
         mRemoveSimulationFiles = init.getBoolean(
                 "config_parallel_rm_files", status);
     }
+    if (init.exist("config_parallel_spawn", status)) {
+        mUseSpawn = init.getBoolean(
+                "config_parallel_spawn", status);
+    }
     if (init.exist("package", status)) {
         mIdPackage = init.getString("package", status);
     } else {
@@ -642,10 +646,15 @@ MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
     unsigned int repSize = replicasSize();
     unsigned int outputSize =  mOutputs.size();
     post_inputs(*model, init);
+
+    vle::manager::SimulationOptions optSim = vle::manager::SIMULATION_NONE;
+    if (mUseSpawn) {
+        optSim = vle::manager::SIMULATION_SPAWN_PROCESS;
+    }
     vle::manager::Manager planSimulator(
             mCtx,
             vle::manager::LOG_NONE,
-            vle::manager::SIMULATION_NONE,
+            optSim,
             nullptr);
     vle::manager::Error manerror;
 
@@ -742,7 +751,9 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
     argv.push_back("--block-size");
     argv.push_back(vle::utils::to(
             (int(inputSize*repSize)/int(mConfigParallelNbSlots-1))+1));
-    argv.push_back("--withoutspawn");
+    if (not mUseSpawn) {
+        argv.push_back("--withoutspawn");
+    }
     ////use mpi_warn_nf_forgk since cvle launches simulation with fork
     //// if whithspawn (?)
     //argv.push_back("--mca");
