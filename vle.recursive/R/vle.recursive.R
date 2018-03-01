@@ -794,7 +794,7 @@ vle.recursive.configOutputs = function(rvle_handle=NULL, output_vars=NULL,
 vle.recursive.configSimulation = function(rvle_handle=NULL, 
         config_parallel_type="single", config_parallel_nb_slots=1, 
         config_parallel_spawn=FALSE, config_parallel_rm_files=FALSE,
-        working_dir="/tmp/", expe_seed = 12369, expe_log = 7,)
+        working_dir="/tmp/", expe_seed = 12369, expe_log = 7)
 {
     if (! vle.recursive.check(rvle_handle)) {
         stop("[vle.recursive] Error: rvle_handle is malformed");
