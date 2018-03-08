@@ -18,13 +18,13 @@ SET(discrete-time_SOURCES DiscreteTimePanel.cpp
   vlesmdt.cpp
 )
 
-QT5_WRAP_UI(ui_leftWidget_h leftWidget.ui)
-QT5_WRAP_UI(ui_rightWidget_h rightWidget.ui)
+QT5_WRAP_UI(ui_leftWidget_DT_h leftWidget_DT.ui)
+QT5_WRAP_UI(ui_rightWidget_DT_h rightWidget_DT.ui)
 
 ADD_DEFINITIONS(-DQT_PLUGIN)
 
 add_library(modeler-discrete-time SHARED ${discrete-time_SOURCES}
-  ${ui_leftWidget_h} ${ui_rightWidget_h})
+  ${ui_leftWidget_DT_h} ${ui_rightWidget_DT_h})
 
 add_definitions(${Qt5Widgets_DEFINITIONS} ${Qt5Xml_DEFINITIONS}
   ${Qt5Gui_DEFINITIONS})

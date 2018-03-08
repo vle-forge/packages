@@ -31,7 +31,7 @@
 #include <vle/gvle/vlevpz.hpp>
 
 namespace Ui {
-    class rightWidget;
+    class rightWidget_DT;
 }
 
 
@@ -44,7 +44,7 @@ class DiscreteTimeRightWidget : public QWidget
 public:
     DiscreteTimeRightWidget();
     virtual ~DiscreteTimeRightWidget();
-    Ui::rightWidget* ui;
+    Ui::rightWidget_DT* ui;
 };
 
 }} //namespaces

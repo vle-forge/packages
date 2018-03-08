@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>leftWidget</class>
- <widget class="QWidget" name="leftWidget">
+ <class>leftWidget_DT</class>
+ <widget class="QWidget" name="leftWidget_DT">
   <property name="geometry">
    <rect>
     <x>0</x>

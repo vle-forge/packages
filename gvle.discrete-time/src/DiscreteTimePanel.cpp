@@ -29,8 +29,8 @@
 #include <vle/value/Tuple.hpp>
 
 #include "DiscreteTimePanel.h"
-#include "ui_leftWidget.h"
-#include "ui_rightWidget.h"
+#include "ui_leftWidget_DT.h"
+#include "ui_rightWidget_DT.h"
 
 namespace vv = vle::value;
 

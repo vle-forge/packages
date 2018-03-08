@@ -24,7 +24,7 @@
 
 
 #include "DiscreteTimeRightWidget.h"
-#include "ui_rightWidget.h"
+#include "ui_rightWidget_DT.h"
 
 
 namespace vle {
@@ -32,7 +32,7 @@ namespace gvle {
 
 
 DiscreteTimeRightWidget::DiscreteTimeRightWidget():
-        QWidget(), ui(new Ui::rightWidget)
+        QWidget(), ui(new Ui::rightWidget_DT)
 {
     ui->setupUi(this);
 }
