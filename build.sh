@@ -24,34 +24,34 @@
 # set -x
 
 output=build_packages.log
-pkgs="vle.discrete-time
-vle.discrete-time_test
-vle.extension.decision
-vle.discrete-time.decision
-vle.discrete-time.decision_test
-gvle.discrete-time
-gvle.decision
-vle.reader
-vle.reader_test
+pkgs="vle.reader
 vle.tester
-vle.tester_test
-vle.recursive
-vle.recursive_test
-vle.ode
-vle.ode_test
+vle.discrete-time
+vle.extension.celldevs
+vle.extension.decision
 vle.extension.dsdevs
 vle.extension.fsa
-vle.extension.celldevs
-vle.extension.cellqss
 vle.extension.petrinet
+vle.ode
+vle.ode_test
+vle.recursive
+vle.discrete-time.decision
+vle.reader_test
+vle.extension.cellqss
+vle.discrete-time_test
+vle.recursive_test
 vle.examples
-ext.muparser
-ext.shapelib
+vle.tester_test
+vle.discrete-time.decision_test
 ext.lua
+ext.muparser
 ext.qwt
-gvle.forrester
+ext.shapelib
+vle.adaptative-qss.examples
+gvle.decision
+gvle.discrete-time
 gvle.simulating.plan
-vle.adaptative-qss.examples"
+gvle.forrester"
 
 clean_package () {
   echo -e -n " -  clean:"
