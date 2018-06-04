@@ -49,22 +49,34 @@ struct sim_log : utils::Context::LogFunctor
     {
     }
 
-    virtual void write(const utils::Context& ctx,
-                       int priority,
-                       const char* file,
-                       int line,
-                       const char* fn,
-                       const char* format,
-                       va_list args) noexcept override
+    void write(const utils::Context& ctx,
+               int priority,
+               const std::string& msg) noexcept override
+    {
+        (void)ctx;
+        (void)priority;
+
+        log_messages.emplace_back(msg);
+    }
+
+    void write(const utils::Context& ctx,
+               int priority,
+               const char* file,
+               int line,
+               const char* fn,
+               const char* format,
+               va_list args) noexcept override
     {
         (void)ctx;
         (void)priority;
         (void)file;
         (void)line;
         (void)fn;
+
         log_messages.emplace_back(vle::utils::vformat(format, args));
     }
-    virtual ~sim_log(){};
+
+    ~sim_log() override = default;
 };
 
 PlanSimSubpanelThread::PlanSimSubpanelThread(
