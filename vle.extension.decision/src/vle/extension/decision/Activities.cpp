@@ -34,6 +34,7 @@
 #include <numeric>
 #include <algorithm>
 
+namespace vd = vle::devs;
 
 namespace vle { namespace extension { namespace decision {
 
@@ -490,7 +491,7 @@ ResourceSolution Activities::firstResources(const std::string& resources) const
                     throw utils::ArgError(vle::utils::format("Decision: resource syntax error, more ressources wanted than available: '%s'", (*jt).c_str()));
                 } else {
                     notSatisfiable = true;
-                    Trace(ctx, 6,
+                    vd::Trace(ctx, 6,
                           "Decision: resource syntax error, more ressources wanted than available: '%s'", (*jt).c_str());
                 }
             }

@@ -36,6 +36,8 @@
 #include <sstream>
 #include <iostream>
 
+namespace vd = vle::devs;
+
 namespace vle { namespace extension { namespace decision {
 
 typedef utils::Block UB;
@@ -228,7 +230,7 @@ void __fill_predicate(utils::ContextPtr ctx,
 
             utils::Block::BlocksResult parameters = block.blocks.equal_range("parameter");
             if (parameters.first == parameters.second) {
-                Trace(ctx, 6, "predicate %s added",
+                vd::Trace(ctx, 6, "predicate %s added",
                       (id.first->second + suffixe).c_str());
 
                 predicates.add(id.first->second + suffixe, fctit->second);
@@ -243,13 +245,13 @@ void __fill_predicate(utils::ContextPtr ctx,
                               parameters.first->second.reals.end(),
                               AssignDoubleParameter(params));
 
-                Trace(ctx, 6, "Predicate %s added with parameters:",
+                vd::Trace(ctx, 6, "Predicate %s added with parameters:",
                       (id.first->second + suffixe).c_str());
 
 
                 for (PredicateParameters::const_iterator it = params.begin();
                      it != params.end(); ++it)
-                    Trace(ctx, 6, "    - %s",
+                    vd::Trace(ctx, 6, "    - %s",
                           (it->first).c_str());
 
                 if (params.exist("planTimeStamp")) {
@@ -259,7 +261,7 @@ void __fill_predicate(utils::ContextPtr ctx,
                 predicates.add(id.first->second + suffixe, fctit->second, params);
             }
         } else {
-            Trace(ctx, 4, "Predicate %s already exists, we forget the new",
+            vd::Trace(ctx, 4, "Predicate %s already exists, we forget the new",
                   (id.first->second + suffixe).c_str());
         }
     }
@@ -321,7 +323,7 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&,
                 // Trying to found a parametred parameter in this plan.
                 Predicates::const_iterator p = mPredicates.find(jt->second + suffixe);
                 if (p != mPredicates.end()) {
-                    Trace(ctx, 6, "rule %s adds predicate %s",
+                    vd::Trace(ctx, 6, "rule %s adds predicate %s",
                           (id.first->second + suffixe).c_str(),
                           (jt->second).c_str());
 
@@ -334,7 +336,7 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&,
                         throw vle::utils::ArgError(
                             vle::utils::format("Decision: unknown predicate function %s", (jt->second).c_str()));
 
-                    Trace(ctx, 6, "rule %s adds old predicate (c++ function) %s",
+                    vd::Trace(ctx, 6, "rule %s adds old predicate (c++ function) %s",
                           (id.first->second + suffixe).c_str(),
                           (jt->second).c_str());
 
@@ -342,7 +344,7 @@ void Plan::fillRules(const utils::Block::BlocksResult& rules, const devs::Time&,
                 }
             }
         } else {
-            Trace(ctx, 4, "Rule %s already exists, we forget the new",
+            vd::Trace(ctx, 4, "Rule %s already exists, we forget the new",
                   (id.first->second + suffixe).c_str());
 
         }
@@ -412,13 +414,13 @@ void Plan::fillActivities(const utils::Block::BlocksResult& acts,
 
             act.addParams(params);
 
-            Trace(ctx, 6, "Activity %s added with parameters:",
+            vd::Trace(ctx, 6, "Activity %s added with parameters:",
                   (id.first->second).c_str());
 
             for (ActivityParameters::const_iterator it = params.begin();
                  it != params.end(); ++it)
 
-                Trace(ctx, 6, "    - %s", (it->first).c_str());
+                vd::Trace(ctx, 6, "    - %s", (it->first).c_str());
 
             std::string resources;
             std::string resourceFunc;
