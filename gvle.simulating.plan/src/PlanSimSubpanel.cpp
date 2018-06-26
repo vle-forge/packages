@@ -46,8 +46,7 @@ struct sim_log : utils::Context::LogFunctor
     std::vector<std::string>& log_messages;
     sim_log(std::vector<std::string>& logMessages)
       : log_messages(logMessages)
-    {
-    }
+    {}
 
     void write(const utils::Context& ctx,
                int priority,
@@ -61,17 +60,11 @@ struct sim_log : utils::Context::LogFunctor
 
     void write(const utils::Context& ctx,
                int priority,
-               const char* file,
-               int line,
-               const char* fn,
                const char* format,
                va_list args) noexcept override
     {
         (void)ctx;
         (void)priority;
-        (void)file;
-        (void)line;
-        (void)fn;
 
         log_messages.emplace_back(vle::utils::vformat(format, args));
     }
@@ -92,12 +85,10 @@ PlanSimSubpanelThread::PlanSimSubpanelThread(
   , mdebug(debug)
   , mnbthreads(nbthreads)
   , mblockSize(blockSize)
-{
-}
+{}
 
 PlanSimSubpanelThread::~PlanSimSubpanelThread()
-{
-}
+{}
 void
 PlanSimSubpanelThread::init(vleVpz* vpz, vle::utils::Package* pkg)
 {
