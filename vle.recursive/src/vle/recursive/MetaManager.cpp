@@ -287,7 +287,7 @@ MetaManager::readCvleMatrix(std::ifstream& outFile, std::string& line,
 
     //fill matrix header
     tokens.clear();
-    utils::tokenize(line, tokens, " ", true);
+    utils::tokenize(line, tokens, ",", true);
     unsigned int nbCols = tokens.size();
     viewMatrix.reset(new value::Matrix(nbCols,1,nbCols, nb_rows));
     for (unsigned int c=0; c<nbCols; c++){
@@ -299,7 +299,7 @@ MetaManager::readCvleMatrix(std::ifstream& outFile, std::string& line,
         stream_place = outFile.tellg();
         std::getline(outFile,line);
         tokens.clear();
-        utils::tokenize(line, tokens, " ", true);
+        utils::tokenize(line, tokens, ",", true);
         if (tokens.size() != nbCols) {
             outFile.seekg(stream_place);
             break;
@@ -754,6 +754,7 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
     if (not mUseSpawn) {
         argv.push_back("--withoutspawn");
     }
+    argv.push_back("--more-output-details");
     ////use mpi_warn_nf_forgk since cvle launches simulation with fork
     //// if whithspawn (?)
     //argv.push_back("--mca");
