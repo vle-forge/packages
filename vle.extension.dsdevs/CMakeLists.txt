@@ -70,14 +70,12 @@ if (COMMAND CMAKE_POLICY)
   cmake_policy(SET CMP0020 NEW)#for qt link
 endif (COMMAND CMAKE_POLICY)
 
-
 ##
 ## Check VLE and package dependencies
 ##
 
-set(VLE_DEBUG 0)
-set(VLE_ABI_VERSION 2.0)
-find_package(VLE REQUIRED)
+set(VLE_DEBUG 1)
+find_package(VLE 2.0 REQUIRED)
 set (VleUtils_DIR "${VLE_SHARE_DIR}/cmake")
 set (CMAKE_MODULE_PATH ${VLE_SHARE_DIR}/cmake ${CMAKE_MODULE_PATH})
 find_package(VleUtils REQUIRED)
@@ -96,7 +94,6 @@ if (WITH_GVLE)
     message (WARNING "GVLE not found!")
   endif ()
 endif ()
-
 
 ##
 ## Find Qt
@@ -172,6 +169,9 @@ endif ()
 if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data")
   add_subdirectory(data)
 endif ()
+if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/metadata")
+  add_subdirectory(metadata)
+endif ()
 if (WITH_DOC)
   if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/doc")
     add_subdirectory(doc)
@@ -183,12 +183,11 @@ endif ()
 if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_subdirectory(src)
 endif ()
-
-if (Boost_UNIT_TEST_FRAMEWORK_FOUND AND WITH_TEST)
+if (WITH_TEST)
   if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test")
     add_subdirectory(test)
   endif ()
-endif (Boost_UNIT_TEST_FRAMEWORK_FOUND AND WITH_TEST)
+endif ()
 
 ##
 ## CPack configuration

@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(MyProject CXX C)
+PROJECT(gvle.simulating.plan CXX C)
 set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 ENABLE_TESTING()
 
@@ -74,9 +74,8 @@ endif (COMMAND CMAKE_POLICY)
 ## Check VLE and package dependencies
 ##
 
-set(VLE_DEBUG 0)
-set(VLE_ABI_VERSION 2.0)
-find_package(VLE REQUIRED)
+set(VLE_DEBUG 1)
+find_package(VLE 2.0 REQUIRED)
 set (VleUtils_DIR "${VLE_SHARE_DIR}/cmake")
 set (CMAKE_MODULE_PATH ${VLE_SHARE_DIR}/cmake ${CMAKE_MODULE_PATH})
 find_package(VleUtils REQUIRED)
@@ -173,13 +172,27 @@ endif ()
 ## Subdirectory
 ##
 
+if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data")
+  add_subdirectory(data)
+endif ()
+if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/metadata")
+  add_subdirectory(metadata)
+endif ()
 if (WITH_DOC)
   if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/doc")
     add_subdirectory(doc)
   endif ()
 endif ()
+if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/exp")
+  add_subdirectory(exp)
+endif ()
 if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_subdirectory(src)
+endif ()
+if (WITH_TEST)
+  if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test")
+    add_subdirectory(test)
+  endif ()
 endif ()
 
 ##
