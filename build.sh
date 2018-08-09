@@ -56,7 +56,7 @@ gvle.forrester"
 clean_package () {
   echo -e -n " -  clean:"
   rm -fr "$1"/buildvle
-  if vle-2.0 -P "$1" clean rclean 2>> $output; then
+  if vle -P "$1" clean rclean 2>> $output; then
     echo -e "\e[0;34m ok\e[m"
   else
     echo -e "\e[0;31m failed\e[m"
@@ -67,13 +67,13 @@ build_package () {
   oldpwd=$PWD
 
   echo -e -n " -  configure:"
-  if vle-2.0 -P "$1" configure 2>> $output; then
+  if vle -P "$1" configure 2>> $output; then
     echo -e "\e[0;34m ok\e[m"
     echo -e -n " -  build:"
-    if vle-2.0 -P "$1" build 2>> $output; then
+    if vle -P "$1" build 2>> $output; then
       echo -e "\e[0;34m ok\e[m"
       echo -e -n " -  test:"
-      if vle-2.0 -P "$1" test 2>> $output; then
+      if vle -P "$1" test 2>> $output; then
         echo -e "\e[0;34m ok\e[m"
       else
         echo -e "\e[0;31m failed\e[m"
