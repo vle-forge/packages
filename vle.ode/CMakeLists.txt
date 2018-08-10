@@ -74,8 +74,11 @@ endif (COMMAND CMAKE_POLICY)
 ## Check VLE and package dependencies
 ##
 
-set(VLE_DEBUG 1)
+set(VLE_DEBUG 0)
 find_package(VLE 2.0 REQUIRED)
+if (${VLE_VERSION} EQUAL "2.0")#backward compatibility
+  set(VLE_ABI_VERSION "2.0")
+endif ()
 set (VleUtils_DIR "${VLE_SHARE_DIR}/cmake")
 set (CMAKE_MODULE_PATH ${VLE_SHARE_DIR}/cmake ${CMAKE_MODULE_PATH})
 find_package(VleUtils REQUIRED)
