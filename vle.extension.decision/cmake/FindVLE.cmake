@@ -133,15 +133,19 @@ foreach (_find_vle_test_version ${_find_vle_all_versions})
 
     set (VLE_SHARE_DIR "${_vle_base_include}/../share/vle-${_find_vle_test_version}")
   else (${_find_vle_using_cmake})
-    pkg_check_modules(VLE vle-${_find_vle_test_version} QUIET)
+    pkg_check_modules(_VLE-${_find_vle_test_version}
+		vle-${_find_vle_test_version} QUIET)
     # select only the directory of vle, containing the pkgs directory
     # to build VLE_SHARE_DIR
-    if (${VLE_FOUND})
+    if (_VLE-${_find_vle_test_version}_FOUND)
       set(VLE_VERSION ${_find_vle_test_version})
+      set(VLE_INCLUDE_DIRS ${_VLE-${_find_vle_test_version}_INCLUDE_DIRS})
+      set(VLE_LIBRARY_DIRS ${_VLE-${_find_vle_test_version}_LIBRARY_DIRS})
+      set(VLE_LIBRARIES ${_VLE-${_find_vle_test_version}_LIBRARIES})
       find_path(vle_lib_dir vle PATHS ${VLE_INCLUDE_DIRS} NO_DEFAULT_PATH)
       set(VLE_SHARE_DIR "${vle_lib_dir}/../../share/vle-${VLE_VERSION}")
       break ()
-    endif (${VLE_FOUND}) 
+    endif ()
   endif (${_find_vle_using_cmake})
 endforeach (_find_vle_test_version)
 
