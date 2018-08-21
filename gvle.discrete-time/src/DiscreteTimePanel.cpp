@@ -42,13 +42,13 @@ DiscreteTimePanel::DiscreteTimePanel():
         right(new DiscreteTimeRightWidget), cppMetadata(0), mCurrVar("")
 {
     left->ui->computeContent->addWidget(
-        new VleCodeEdit(left, "","", true));
+        new GvleCodeEdit(left, "",""));
     left->ui->constructorContent->addWidget(
-        new VleCodeEdit(left, "","", true));
+        new GvleCodeEdit(left, "",""));
     left->ui->userSectionContent->addWidget(
-        new VleCodeEdit(left, "","", true));
+        new GvleCodeEdit(left, "",""));
     left->ui->includesContent->addWidget(
-        new VleCodeEdit(left, "","", true));
+        new GvleCodeEdit(left, "",""));
 
     left->ui->boxLayout->addWidget(
         new VleDoubleEdit(left->ui->boxTimeStep, 1., "dummy"));
@@ -183,28 +183,28 @@ DiscreteTimePanel::newInstance()
     return new DiscreteTimePanel;
 }
 
-VleCodeEdit*
+GvleCodeEdit*
 DiscreteTimePanel::getComputeWidget()
 {
-    return (VleCodeEdit*)left->ui->computeContent->itemAt(0)->widget();
+    return (GvleCodeEdit*)left->ui->computeContent->itemAt(0)->widget();
 }
 
-VleCodeEdit*
+GvleCodeEdit*
 DiscreteTimePanel::getConstructorWidget()
 {
-    return (VleCodeEdit*)left->ui->constructorContent->itemAt(0)->widget();
+    return (GvleCodeEdit*)left->ui->constructorContent->itemAt(0)->widget();
 }
 
-VleCodeEdit*
+GvleCodeEdit*
 DiscreteTimePanel::getUserSectionWidget()
 {
-    return (VleCodeEdit*)left->ui->userSectionContent->itemAt(0)->widget();
+    return (GvleCodeEdit*)left->ui->userSectionContent->itemAt(0)->widget();
 }
 
-VleCodeEdit*
+GvleCodeEdit*
 DiscreteTimePanel::getIncludesWidget()
 {
-    return (VleCodeEdit*)left->ui->includesContent->itemAt(0)->widget();
+    return (GvleCodeEdit*)left->ui->includesContent->itemAt(0)->widget();
 }
 
 VleDoubleEdit*
@@ -659,5 +659,6 @@ DiscreteTimePanel::updateConfigVar()
         valWidget->show();
     }
 }
+
 
 }} //namespaces

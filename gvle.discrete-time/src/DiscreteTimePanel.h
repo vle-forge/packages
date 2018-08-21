@@ -32,6 +32,7 @@
 #include <vle/gvle/vlevpz.hpp>
 #include <vle/gvle/plugin_mainpanel.h>
 #include <vle/gvle/gvle_widgets.h>
+#include <vle/gvle/widgets/GvleCodeEdit.h>
 #include <vle/gvle/gvle_file.h>
 
 #include "DiscreteTimeLeftWidget.h"
@@ -68,10 +69,10 @@ public:
     void discard() override;
     PluginMainPanel* newInstance() override;
 
-    VleCodeEdit* getComputeWidget();
-    VleCodeEdit* getConstructorWidget();
-    VleCodeEdit* getUserSectionWidget();
-    VleCodeEdit* getIncludesWidget();
+    GvleCodeEdit* getComputeWidget();
+    GvleCodeEdit* getConstructorWidget();
+    GvleCodeEdit* getUserSectionWidget();
+    GvleCodeEdit* getIncludesWidget();
     VleDoubleEdit* getTimeStepWidget();
     QGroupBox* getTimeStepBox();
     void reload();
