@@ -220,6 +220,9 @@ private:
             }
         } else {
             double prec = str_to_double(precision);
+            if (not res.isDouble()) {
+                return false;
+            }
             double valSim = res.toDouble().value();
             if (std::isnan(valSim)) {
                 return (valExpected == "nan");
