@@ -902,6 +902,23 @@ vle.recursive.simulate = function(rvle_handle=NULL, withSpawn=1)
 vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,  
                                  file_sim=NULL, id=NULL,  output_vars=NULL)
 {
+  #get output vars
+  if (is.null(output_vars)) {
+    output_vars = names(res);
+  }  else {
+    output_vars = intersect(output_vars, names(res))
+    if (length(output_vars) ==0 ) {
+      stop(paste(sep="", "[vle.recursive.extract] Error: output_vars
+                 are not found in res"));
+    }
+    res = res[output_vars];
+  }
+  if ((!is.null(time_ind) | !is.null(date)) &
+      !all(unlist(lapply(res, function(x) {nrow(x)})) == nrow(res[[1]]))) {
+    stop(paste(sep="", "[vle.recursive.extract] Error: all selected variables ",
+               "do not have the same time indices ",
+               "(use of 'time_ind' or 'date')"));
+  }
   
   #get sim indices
   sim_ind = 1:ncol(res[[1]]);
@@ -912,7 +929,7 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
     file_sim = vle.recursive.parseSim(file_sim=file_sim, id = NULL);
   
     if (length(file_sim$id) != ncol(res[[1]])) {
-      stop(paste(sep="", "[vle.recursive] Error: file_sim (",
+      stop(paste(sep="", "[vle.recursive.extract] Error: file_sim (",
           length(file_sim$id)," ids) and res (", ncol(res[[1]]),
           " sims) do not match"));
     }
@@ -920,34 +937,42 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
   } else if (! is.null(id)){
     sim_ind = id;
   }
-  #get output vars
-  if (is.null(output_vars)) {
-    output_vars = names(res);
-  }  else {
-    output_vars = intersect(output_vars, names(res))
-  }
+
   #get time indices
   if (!is.null(date)) {
     if (!is.null(time_ind)){
-      stop(paste("[vle.recursive] Error: cannot get both dates and time_ind"));
+      stop(paste("[vle.recursive.extract] Error: cannot get",
+                 "both dates and time_ind"));
     }
     if (is.character(date)){
       date = vle.recursive.dateToNum(date);
     }
     if(!("date" %in% names(res))){
-      stop(paste("[vle.recursive] Error: missing 'date' in results"));
+      stop(paste("[vle.recursive.extract] Error: missing 'date' in results"));
     }
-    time_ind = match(intersect(res$date[,sim_ind[1]], date), res$date[,sim_ind[1]]);
-  }
-  if (is.null(time_ind)) {
-    time_ind = 1:nrow(res[[output_vars[1]]]);
+    time_ind = match(intersect(res$date[,sim_ind[1]], date),
+                     res$date[,sim_ind[1]]);
+    if (length(time_ind) == 0) {
+      stop(paste(sep="", "[vle.recursive.extract] Error: selected dates do ",
+                 "not match simulation results"));
+    }
   }
   #select final matrices
   for (var in names(res)) {
-    if (var %in% output_vars) {
-      res[[var]] <- as.matrix(res[[var]][time_ind, sim_ind]);
+    if (is.null(time_ind)) {
+      tmp_data_var = res[[var]];
+      if (nrow(tmp_data_var) == 1) {#handle weird behavior of R
+        res[[var]] <- as.matrix(t(tmp_data_var[, sim_ind]));
+      } else {
+        res[[var]] <- as.matrix(tmp_data_var[, sim_ind]);
+      }
     } else {
-      res[[var]] <- NULL
+      tmp_data_var = res[[var]];
+      if (length(time_ind) == 1) {#handle weird behavior of R
+        res[[var]] <- as.matrix(t(tmp_data_var[time_ind, sim_ind]));
+      } else {
+        res[[var]] <- as.matrix(tmp_data_var[time_ind, sim_ind]);
+      }
     }
   }
   return(res)
@@ -1076,7 +1101,7 @@ vle.recursive.parseSim = function(file_sim=NULL, rvle_handle=NULL, id=NULL,
   #keep only line to simulate
   if (! is.null(id)) {
     if (! all(id %in% file_sim$id) & withWarnings) {
-       warnings("[vle.recursive] requiring to simulate id that does not exist");
+       warning("[vle.recursive] requiring to simulate id that does not exist");
     }
     file_sim = file_sim[which(is.element(file_sim$id, id)),];
   }
@@ -1156,8 +1181,8 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
   #keep only line to simulate
   if (! is.null(id)) {
     if (! all(id %in% file_obs$id) & withWarnings) {
-      warnings("[vle.recursive] requiring to keep observations 
-               that does not exist");
+      warning(paste("[vle.recursive] requiring to keep observations",
+               "that does not exist"));
     } 
     file_obs = file_obs[which(is.element(file_obs$id, id)),];
   }
@@ -1167,7 +1192,8 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
     if (all(is.na(file_obs[[n]]))){
       file_obs[[n]] <- NULL;
       if (withWarnings){
-          warnings(paste("remove column because all are NA:", n))
+        attr(file_obs,"paths")[[n]] <- NULL
+        warning(paste("remove column because all are NA:", n))
       }
     }
   }
@@ -1176,7 +1202,7 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
       if (all(is.na(file_obs[r,]))) {
           toremove = c(toremove, r);
           if (withWarnings){
-            warnings(paste("remove row because all are NA:", r))
+            warning(paste("remove row because all are NA:", r))
           }
       }
   }
@@ -1242,6 +1268,7 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
     simValues = NULL;
     obsValues = NULL;
     idsdbg = NULL;
+
     for (idi in isSim){
       tmp_obs = subset(file_obs, id==file_sim$id[idi]);
       tmp_obs = tmp_obs[!is.na(tmp_obs[[var]]),]
@@ -1496,13 +1523,15 @@ vle.recursive.mcmc = function(rvle_handle=rvle_handle, file_expe=NULL, n=1000)
 #'  @param id, id of simulation or observations. is applied to selection in 
 #'             file_sim and file_obs if not null (only one?)
 #'  @param type, either "static" or "dynamic"
+#'  @param time_ind, time indices for plot (only for dynamic type plot)
 #'  @param sim_legend, vector of char for legend of simulation
 #'  @param typeReturn, either 
 #'   - 'plot_list': the list of ggplot is returned (can be modified)
 #'   - NULL: the ggplot are arranged and the return is NULL. if 'plot_list
 #' 
 vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_vars=NULL,
-                               id=NULL, type="dynamic", sim_legend=NULL, typeReturn=NULL)
+                              id=NULL, type="dynamic", time_ind=NULL,
+                              sim_legend=NULL, typeReturn=NULL)
 {
   library(gridExtra)
   library(grid)
@@ -1568,7 +1597,7 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
           file_obsi = subset(file_obsi,  !is.na(file_obsi[[var]]));
           file_obsi$date = vle.recursive.dateToNum(file_obsi$date);
         }
-        resi = vle.recursive.extract(res = res, time_ind = NULL, 
+        resi = vle.recursive.extract(res = res, time_ind = time_ind,
                                      date = NULL,  file_sim = file_sim, 
                                      id = idi, output_vars = c(var,"date"));
         
@@ -1587,8 +1616,8 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         }
         if (! is.null(begin_date)){
           if (begin_date != resi$date[1,1]){
-            stop("[vle.recursive] superposition sim error: 
-                 sim dates are not equal");
+            stop(paste("[vle.recursive] superposition sim error: ",
+                 "sim dates are not equal"));
           }
         } else {
           begin_date = resi$date[1,1];
@@ -1636,25 +1665,23 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         idi = file_sim$id[ii]
         file_obsi = subset(file_obs, id == idi);
         file_obsi = subset(file_obsi,  !is.na(file_obsi[[var]]))
-        file_obsi$date = vle.recursive.dateToNum(file_obsi$date);
-        
-        resi = vle.recursive.extract(res = res, time_ind = NULL, 
-                                     date = file_obsi$date,
-                                     file_sim = file_sim, id = idi, 
-                                     output_vars = c(var,"date"));
-
-        file_obsi = subset(file_obsi, date %in% resi$date[,1])
-
-        idistr = as.character(idi);
-        if (!is.null(sim_legend)){
-          idistr = sim_legend[ii];
-        }
-        if(nrow(resi$date) > 0) {
-          for (o in 1:nrow(file_obsi)) {
-            df = rbind(df,data.frame(id=idistr, obs = file_obsi[o,var], 
-                                     sim = resi[[var]][o,1], 
-                                     stringsAsFactors = F));
-            
+        if (nrow(file_obsi) > 0) {
+          file_obsi$date = vle.recursive.dateToNum(file_obsi$date);
+          resi = vle.recursive.extract(res = res, time_ind = NULL,
+                                       date = file_obsi$date,
+                                       file_sim = file_sim, id = idi,
+                                       output_vars = c(var,"date"));
+          file_obsi = subset(file_obsi, date %in% resi$date[,1])
+          idistr = as.character(idi);
+          if (!is.null(sim_legend)){
+            idistr = sim_legend[ii];
+          }
+          if(nrow(resi$date) > 0) {
+            for (o in 1:nrow(file_obsi)) {
+              df = rbind(df,data.frame(id=idistr, obs = file_obsi[o,var],
+                                       sim = resi[[var]][o,1],
+                                       stringsAsFactors = F));
+            }
           }
         }
       }
