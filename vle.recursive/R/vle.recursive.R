@@ -897,10 +897,12 @@ vle.recursive.simulate = function(rvle_handle=NULL, withSpawn=1)
 #'  @param id, indices of simulations to extract if file_sim is null,
 #'             id of simulations to extrat otherwise
 #'  @param output_vars, list of char giving the outputs to extract
+#'  @param withWarnings, if true, print warnings
 #'  @return a sub structure odf res
 #' 
 vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,  
-                                 file_sim=NULL, id=NULL,  output_vars=NULL)
+                                 file_sim=NULL, id=NULL,  output_vars=NULL,
+                                 withWarnings=withWarnings)
 {
   #get output vars
   if (is.null(output_vars)) {
@@ -926,7 +928,8 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
     if (is.null(id)) {
       id = file_sim$id;
     }
-    file_sim = vle.recursive.parseSim(file_sim=file_sim, id = NULL);
+    file_sim = vle.recursive.parseSim(file_sim=file_sim, id = NULL,
+                                      withWarnings=withWarnings);
   
     if (length(file_sim$id) != ncol(res[[1]])) {
       stop(paste(sep="", "[vle.recursive.extract] Error: file_sim (",
@@ -950,7 +953,7 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
     if(!("date" %in% names(res))){
       stop(paste("[vle.recursive.extract] Error: missing 'date' in results"));
     }
-    time_ind = match(intersect(res$date[,sim_ind[1]], date),
+    time_ind = match(intersect(date, res$date[,sim_ind[1]]),
                      res$date[,sim_ind[1]]);
     if (length(time_ind) == 0) {
       stop(paste(sep="", "[vle.recursive.extract] Error: selected dates do ",
@@ -1140,7 +1143,7 @@ vle.recursive.parseSim = function(file_sim=NULL, rvle_handle=NULL, id=NULL,
 #' @return a dataframe of observations whit attributes giving the paths
 #'         to atomic ports on views
 #' 
-vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL, 
+vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
    withWarnings=TRUE, skip=1)
 {
   #reader header
@@ -1227,16 +1230,18 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
 #'  @param output_vars, list of char giving the outputs for which
 #'                      to compute RMSE
 #'  @param id,  id to simulate for comparison
+#'  @param withWarnings,  if true, print warnings
 #'  @param print,  if true, print rmse
 #'  @return a complex structure
 #' 
 
 vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
-                                      output_vars=NULL, id=NULL, print=FALSE)
+                                      output_vars=NULL, id=NULL,
+                                     withWarnings=TRUE, print=FALSE)
 {
   #read observations
   file_obs = vle.recursive.parseObs(file_obs=file_obs, id=id,
-                                    withWarnings=TRUE)
+                                    withWarnings=withWarnings)
   if (is.null(output_vars)) {
     output_vars = attr(file_obs, "paths");
     output_vars[["id"]]<-NULL;
@@ -1247,7 +1252,8 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
   }
   
   #select subset of simulations
-  file_sim = vle.recursive.parseSim(file_sim=file_sim);
+  file_sim = vle.recursive.parseSim(file_sim=file_sim,
+                                    withWarnings=withWarnings);
   if (ncol(res[[1]]) != nrow(file_sim)){
     stop("[vle.recursive] file_sim and res do not fit");
   }
@@ -1258,7 +1264,8 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
       stop("[vle.recursive] file_sim and id do not fit");
     }
     
-    file_sim = vle.recursive.parseSim(file_sim=file_sim, id=id);
+    file_sim = vle.recursive.parseSim(file_sim=file_sim, id=id,
+                                      withWarnings=withWarnings);
   }
   
   #compute RMSE
@@ -1275,8 +1282,7 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
       
       simV = res[[var]][,idi];
       obsV = rep(NA, length(simV));
-      tsObs = which(res[["date"]][,idi] %in% 
-                      vle.recursive.dateToNum(tmp_obs$date))
+      tsObs = match(vle.recursive.dateToNum(tmp_obs$date), res[["date"]][,idi])
       obsV[tsObs] = tmp_obs[[var]];
       obsValues = c(obsValues, obsV[tsObs]);
       simValues = c(simValues, simV[tsObs]);
@@ -1600,7 +1606,6 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         resi = vle.recursive.extract(res = res, time_ind = time_ind,
                                      date = NULL,  file_sim = file_sim, 
                                      id = idi, output_vars = c(var,"date"));
-        
         if (! is.null(file_obsi)) {
           if(!("date" %in% names(resi))){
             stop(paste("[vle.recursive] Error: missing 'date' in results"));
@@ -1625,9 +1630,8 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         sim_vec = resi[[var]][,1];
         time_vec = 1:length(sim_vec);
         obs_vec = as.numeric(rep(NA, length(sim_vec)));
-        
         if (! is.null(file_obsi)) {
-          obs_vec[which(resi$date[,1] %in% file_obsi$date)] = file_obsi[,var];
+          obs_vec[match(file_obsi$date, resi$date[,1])] = file_obsi[,var];
         }
         id_vec = rep(idistr, length(sim_vec));
 
@@ -1686,7 +1690,6 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         }
       }
       print(paste("rmse ",var,":", sqrt(sum((df$obs-df$sim)^2)/length(df$obs))))
-      
       gp = ggplot(data=df, aes(x=sim, y=obs, colour=id));
       if (is.null(sim_legend)) {
         gp = gp+ geom_text(aes(label=id)) + theme(legend.position="none");
