@@ -29,10 +29,13 @@
 #include <QObject>
 #include <QDebug>
 #include <QGroupBox>
+#include <vle/version.hpp>
 #include <vle/gvle/vlevpz.hpp>
 #include <vle/gvle/plugin_mainpanel.h>
 #include <vle/gvle/gvle_widgets.h>
-#include <vle/gvle/widgets/GvleCodeEdit.h>
+#if VLE_VERSION >= 200100
+  #include <vle/gvle/widgets/GvleCodeEdit.h>
+#endif
 #include <vle/gvle/gvle_file.h>
 
 #include "DiscreteTimeLeftWidget.h"
@@ -68,11 +71,17 @@ public:
     void save() override;
     void discard() override;
     PluginMainPanel* newInstance() override;
-
+#if VLE_VERSION >= 200100
     GvleCodeEdit* getComputeWidget();
     GvleCodeEdit* getConstructorWidget();
     GvleCodeEdit* getUserSectionWidget();
     GvleCodeEdit* getIncludesWidget();
+#else
+    VleCodeEdit* getComputeWidget();
+    VleCodeEdit* getConstructorWidget();
+    VleCodeEdit* getUserSectionWidget();
+    VleCodeEdit* getIncludesWidget();
+#endif
     VleDoubleEdit* getTimeStepWidget();
     QGroupBox* getTimeStepBox();
     void reload();

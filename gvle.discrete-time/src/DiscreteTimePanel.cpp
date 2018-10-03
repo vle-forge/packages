@@ -23,7 +23,6 @@
  */
 
 #include <QMenu>
-#include <vle/gvle/gvle_widgets.h>
 #include <vle/value/Double.hpp>
 #include <vle/value/Integer.hpp>
 #include <vle/value/Tuple.hpp>
@@ -41,6 +40,7 @@ DiscreteTimePanel::DiscreteTimePanel():
         PluginMainPanel(), left(new DiscreteTimeLeftWidget),
         right(new DiscreteTimeRightWidget), cppMetadata(0), mCurrVar("")
 {
+#if VLE_VERSION >= 200100
     left->ui->computeContent->addWidget(
         new GvleCodeEdit(left, "",""));
     left->ui->constructorContent->addWidget(
@@ -49,7 +49,16 @@ DiscreteTimePanel::DiscreteTimePanel():
         new GvleCodeEdit(left, "",""));
     left->ui->includesContent->addWidget(
         new GvleCodeEdit(left, "",""));
-
+#else
+    left->ui->computeContent->addWidget(
+        new VleCodeEdit(left, "",""));
+    left->ui->constructorContent->addWidget(
+        new VleCodeEdit(left, "",""));
+    left->ui->userSectionContent->addWidget(
+        new VleCodeEdit(left, "",""));
+    left->ui->includesContent->addWidget(
+        new VleCodeEdit(left, "",""));
+#endif
     left->ui->boxLayout->addWidget(
         new VleDoubleEdit(left->ui->boxTimeStep, 1., "dummy"));
 
@@ -183,6 +192,7 @@ DiscreteTimePanel::newInstance()
     return new DiscreteTimePanel;
 }
 
+#if VLE_VERSION >= 200100
 GvleCodeEdit*
 DiscreteTimePanel::getComputeWidget()
 {
@@ -206,6 +216,31 @@ DiscreteTimePanel::getIncludesWidget()
 {
     return (GvleCodeEdit*)left->ui->includesContent->itemAt(0)->widget();
 }
+#else
+VleCodeEdit*
+DiscreteTimePanel::getComputeWidget()
+{
+    return (VleCodeEdit*)left->ui->computeContent->itemAt(0)->widget();
+}
+
+VleCodeEdit*
+DiscreteTimePanel::getConstructorWidget()
+{
+    return (VleCodeEdit*)left->ui->constructorContent->itemAt(0)->widget();
+}
+
+VleCodeEdit*
+DiscreteTimePanel::getUserSectionWidget()
+{
+    return (VleCodeEdit*)left->ui->userSectionContent->itemAt(0)->widget();
+}
+
+VleCodeEdit*
+DiscreteTimePanel::getIncludesWidget()
+{
+    return (VleCodeEdit*)left->ui->includesContent->itemAt(0)->widget();
+}
+#endif
 
 VleDoubleEdit*
 DiscreteTimePanel::getTimeStepWidget()
