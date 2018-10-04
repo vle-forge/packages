@@ -503,9 +503,9 @@ DelegateOut::integrateReplicate(VleOutput& vleout, vle::value::Matrix& outMat)
         double nbVal = 0;
         for (unsigned int i=0; i< vleout.mse_times->size(); i++) {
             int t = std::floor(vleout.mse_times->at(i));
-            if (t > 0 and t< (int) outMat.rows()) {
+            if (t >= 0 and (t+1) < (int) outMat.rows()) {
                 sum_square_error += std::pow(
-                        (outMat.getDouble(vleout.colIndex,t)
+                        (outMat.getDouble(vleout.colIndex,t+1)
                                 - vleout.mse_observations->at(i)), 2);
                 nbVal++;
             }
@@ -748,8 +748,13 @@ VleOutput::VleOutput(const std::string& _id,
     } else if (val.isMap()) {
         const value::Map& m = val.toMap();
         bool error = false;
-        if (m.exist("path")) {
-            error = not parsePath(m.getString("path"));
+        if (m.exist("path")) { 
+            if (not parsePath(m.getString("path"))) {
+                throw utils::ArgError(utils::format(
+                    "[MetaManager] : error in configuration of the output "
+                    " '%s%s' when parsing the path",
+                    "output_",  id.c_str()));
+            }
         }
         if (m.exist("aggregation_replicate")) {
             tmp = m.getString("aggregation_replicate");
@@ -778,7 +783,10 @@ VleOutput::VleOutput(const std::string& _id,
             } else if (tmp == "all"){
                 inputAggregationType = S_at;
             } else {
-                error = true;
+                throw utils::ArgError(utils::format(
+                    "[MetaManager] : error in configuration of the output "
+                    "'%s%s' when parsing the aggregation type of inputs",
+                    "output_",  id.c_str()));
             }
         }
         if (not error) {
@@ -795,7 +803,10 @@ VleOutput::VleOutput(const std::string& _id,
                 } else if(tmp == "all") {
                     integrationType = ALL;
                 } else {
-                    error = true;
+                    throw utils::ArgError(utils::format(
+                    "[MetaManager] : error in configuration of the output "
+                    "'%s%s' when parsing the integration type: '%s'",
+                    "output_",  id.c_str(), tmp.c_str()));
                 }
             } else {
                 integrationType = LAST;
@@ -814,8 +825,8 @@ VleOutput::VleOutput(const std::string& _id,
         if (error) {
             throw utils::ArgError(utils::format(
                     "[MetaManager] : error in configuration of the output "
-                    " '%s%s' with a map",
-                    "id_output_",  id.c_str()));
+                    "'%s%s' with a map",
+                    "output_",  id.c_str()));
         }
     }
 }

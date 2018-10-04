@@ -259,7 +259,7 @@ void test_SIR()
         init.addString("package","vle.recursive_test");
         init.addString("vpz","SIR.vpz");
 
-        //config output, mse on S
+        //config output, mse on I
         vv::Map& conf_out = init.addMap("output_mseI");
         conf_out.addString("path", "view/top:SIR.I");
         conf_out.addString("integration", "mse");
@@ -272,6 +272,12 @@ void test_SIR()
         mseObs[1] = 10;
         mseObs[2] = 15;
         conf_out.addString("aggregation_input", "all");
+
+        //config output, I values
+        vv::Map& conf_I = init.addMap("output_I");
+        conf_I.addString("path", "view/top:SIR.I");
+        conf_I.addString("integration", "all");
+        conf_I.addString("aggregation_input", "all");
 
         //set 3 input values for beta parameter
         vv::Tuple& beta = init.addTuple(
@@ -286,13 +292,14 @@ void test_SIR()
         if (err.code ==-1) {
             std::cout << " error: " << err.message << "\n";
         }
-        std::cout << " Mse for beta in (0.001,0.002,0.003): " << *res << "\n";
+
+        std::cout << " Mse for beta in (0.001,0.002,0.003): " << res->getTable("mseI") << "\n";
 
         Ensures(res->getTable("mseI").width() ==  3);
         Ensures(res->getTable("mseI").height() ==  1);
-        EnsuresApproximatelyEqual(res->getTable("mseI")(0,0), 102.158,10e-4);
-        EnsuresApproximatelyEqual(res->getTable("mseI")(1,0), 0.233604,10e-4);
-        EnsuresApproximatelyEqual(res->getTable("mseI")(2,0), 228.278,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("mseI")(0,0), 102.227, 10e-4);
+        EnsuresApproximatelyEqual(res->getTable("mseI")(1,0), 0.420443,10e-4);
+        EnsuresApproximatelyEqual(res->getTable("mseI")(2,0), 238.222,10e-4);
 
     }
 
