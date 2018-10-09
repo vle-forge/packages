@@ -55,9 +55,6 @@ MetaManager::MetaManager(): mIdVpz(), mIdPackage(),
         mWorkingDir(utils::Path::temp_directory_path().string()),
         mCtx(utils::make_context())
 {
-
-    mCtx->set_log_priority(3);//erros only
-
 }
 
 MetaManager::MetaManager(utils::ContextPtr ctx): mIdVpz(), mIdPackage(),
@@ -658,10 +655,8 @@ MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
             nullptr);
     vle::manager::Error manerror;
 
-    mCtx->log(7, "", __LINE__, "",
-            "[vle.recursive] simulation single/threads(%d slots) "
-            "nb simus: %u \n", mConfigParallelNbSlots,
-            (repSize*inputSize));
+    mCtx->info("[vle.recursive] simulation single/threads(%d slots) "
+            "nb simus: %u \n", mConfigParallelNbSlots, (repSize*inputSize));
 
 
     //        //for dbg
@@ -672,8 +667,7 @@ MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
     std::unique_ptr<value::Matrix> output_mat =  planSimulator.run(
             std::move(model), mConfigParallelNbSlots, 0, 1, &manerror);
 
-    mCtx->log(7, "", __LINE__, "",
-            "[vle.recursive] end simulation single/threads\n");
+    mCtx->info("[vle.recursive] end simulation single/threads\n");
 
     if (manerror.code != 0) {
         err.code = -1;
@@ -697,8 +691,7 @@ MetaManager::run_with_threads(const wrapper_init& init, manager::Error& err)
         results->set(outId.id, std::move(aggrValue));
     }
 
-    mCtx->log(7, "", __LINE__, "",
-            "[vle.recursive] aggregation finished\n");
+    mCtx->info("[vle.recursive] aggregation finished\n");
 
     return results;
 }
@@ -715,8 +708,7 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
     unsigned int inputSize = inputsSize();
     unsigned int repSize = replicasSize();
 
-    mCtx->log(6, "", __LINE__, "",
-            "[vle.recursive] simulation cvle (%d slots) "
+    mCtx->info("[vle.recursive] simulation cvle (%d slots) "
             "nb simus: %u \n", mConfigParallelNbSlots,
             (repSize*inputSize));
 
@@ -781,15 +773,14 @@ MetaManager::run_with_cvle(const wrapper_init& init, manager::Error& err)
     argv.push_back("-o");
     argv.push_back(tempOutCsv.string());
 
-    if (mCtx->get_log_priority() >= 7) {
+    if (mCtx->get_log_priority() >= 6) {
         std::string messageDbg ="";
         for (const auto& s : argv ) {
             messageDbg += " ";
             messageDbg += s;
         }
         messageDbg += "\n";
-        mCtx->log(7, "", __LINE__, "",
-                "[vle.recursive] launching in dir %s: %s %s",
+        mCtx->info("[vle.recursive] launching in dir %s: %s %s",
                 mWorkingDir.c_str(), exe.c_str(), messageDbg.c_str());
     }
 
