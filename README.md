@@ -4,11 +4,10 @@ Virtual Laboratory Environment 2.0
 This repository stores the packages distributed into the distribution of VLE.
 See AUTHORS and COPYRIGHT files for the list of contributors.
 
-
 ## Documentation
 
 Documentation of the packages are given on the [dedicated VLE web page]
-(http://www.vle-project.org/packages/)
+(https://www.vle-project.org/packages/)
 
 ## License
 
