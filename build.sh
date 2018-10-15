@@ -53,6 +53,8 @@ gvle.discrete-time
 gvle.simulating.plan
 gvle.forrester"
 
+all_ok=1
+
 clean_package () {
   echo -e -n " -  clean:"
   rm -fr "$1"/buildvle
@@ -77,12 +79,15 @@ build_package () {
         echo -e "\e[0;34m ok\e[m"
       else
         echo -e "\e[0;31m failed\e[m"
+        all_ok=0
       fi
     else
       echo -e "\e[0;31m failed\e[m"
+      all_ok=0
     fi
   else
     echo -e "\e[0;31m failed\e[m"
+    all_ok=0
   fi
 
   cd $oldpwd
@@ -121,4 +126,10 @@ else
     echo -e Package $dir  2>> $output
     build_package $dir
   done
+fi
+
+if [ $all_ok = 0 ]
+then
+  echo "packages generation failure"
+  exit -1
 fi
