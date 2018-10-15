@@ -1,0 +1,131 @@
+sudo: required
+dist: trusty
+language: cpp
+
+addons:
+  apt:
+    packages: &common_packages
+      - cmake
+      - libboost-dev
+      - libmpich-dev
+      - libxml2-dev
+      - qttools5-dev
+      - qttools5-dev-tools
+      - qtbase5-dev
+      - qtbase5-dev-tools
+      - libqt5svg5-dev
+      - qtchooser
+      - qt5-default
+
+matrix:
+  include:
+    # - compiler: gcc
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - *common_packages
+    #         - g++-4.9
+    #   env:
+    #     - CXX_COMPILER=g++-4.9 C_COMPILER=gcc-4.9
+    #     - QT_SELECT=qt5
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - *common_packages
+            - g++-5
+      env:
+        - CXX_COMPILER=g++-5 C_COMPILER=gcc-5
+        - QT_SELECT=qt5
+    # - compiler: gcc
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - *common_packages
+    #         - g++-6
+    #   env:
+    #     - CXX_COMPILER=g++-6 C_COMPILER=gcc-6
+    #     - QT_SELECT=qt5
+    # - compiler: gcc
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - *common_packages
+    #         - g++-7
+    #   env:
+    #     - CXX_COMPILER=g++-7 C_COMPILER=gcc-7
+    #     - QT_SELECT=qt5
+    # - compiler: gcc
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - *common_packages
+    #         - g++-8
+    #   env:
+    #     - CXX_COMPILER=g++-8 C_COMPILER=gcc-8
+    #     - QT_SELECT=qt5
+
+before_script:
+  - cd $HOME
+  - VLE_ABI=$(curl https://www.vle-project.org/pub/vle/latest)
+  - VLE_VERSION=$(curl https://www.vle-project.org/pub/vle/$VLE_ABI/latest)
+  - curl -O https://www.vle-project.org/pub/vle/$VLE_ABI/$VLE_VERSION/vle-$VLE_VERSION.tar.gz
+  - tar zxf vle-$VLE_VERSION.tar.gz
+  - cd vle-$VLE_VERSION
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_CXX_COMPILER=$CXX_COMPILER -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_GVLE=ON -DWITH_CVLE=OFF -DWITH_MVLE=OFF ..
+  - make
+  - sudo make install
+
+script:
+  - export CC=gcc-5
+  - export CXX=g++-5
+  - cd $TRAVIS_BUILD_DIR
+  - vle --restart
+  - vle -P vle.reader clean rclean configure build
+  - vle -P vle.tester clean rclean configure build
+  - vle -P vle.discrete-time clean rclean configure build
+  - vle -P vle.extension.celldevs clean rclean configure build
+  - vle -P vle.extension.decision clean rclean configure build
+  - vle -P vle.extension.dsdevs clean rclean configure build
+  - vle -P vle.extension.fsa clean rclean configure build
+  - vle -P vle.extension.petrinet clean rclean configure build
+  - vle -P vle.ode clean rclean configure build
+  - vle -P vle.ode_test clean rclean configure build
+  - vle -P vle.recursive clean rclean configure build
+  - vle -P vle.discrete-time.decision clean rclean configure build
+  - vle -P vle.reader_test clean rclean configure build
+  - vle -P vle.extension.cellqss clean rclean configure build
+  - vle -P vle.discrete-time_test clean rclean configure build
+  - vle -P vle.recursive_test clean rclean configure build
+    #  - vle -P vle.examples clean rclean configure build
+  - vle -P vle.tester_test clean rclean configure build
+  - vle -P vle.discrete-time.decision_test clean rclean configure build
+  - vle -P ext.lua clean rclean configure build
+  - vle -P ext.muparser clean rclean configure build
+  - vle -P ext.qwt clean rclean configure build
+  - vle -P ext.shapelib clean rclean configure build
+  - vle -P vle.adaptative-qss.examples clean rclean configure build
+  - vle -P gvle.decision clean rclean configure build
+  - vle -P gvle.discrete-time clean rclean configure build
+  - vle -P gvle.simulating.plan clean rclean configure build
+  - vle -P gvle.forrester clean rclean configure build
+
+notifications:
+  irc:
+    channels:
+      - "chat.freenode.net#vle"
+    template:
+      - "%{repository} (%{commit}) : %{message} %{foo} "
+      - "Build details: %{build_url}"
