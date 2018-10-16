@@ -1,0 +1,56 @@
+version: "{branch}-ci-{build}"
+os: Visual Studio 2015
+
+branches:
+  only:
+    - master
+    - master1.1
+    - test
+
+init:
+  - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+  - set APPVEYOR_PATH=%PATH%
+
+build_script:
+  - cmd: appveyor DownloadFile https://www.vle-project.org/pub/vle/latest -FileName vle_abi.txt
+  - cmd: set /p VLE_ABI=<vle_abi.txt
+  - cmd: appveyor DownloadFile https://www.vle-project.org/pub/vle/%VLE_ABI%/latest -FileName vle_version.txt
+  - cmd: set /p RAW_VLE_VERSION=<vle_version.txt
+  - cmd: set VLE_VERSION=%RAW_VLE_VERSION:.=_%
+  - cmd: echo https://www.vle-project.org/pub/vle/%VLE_ABI%/%RAW_VLE_VERSION%/Setup-VLE_%VLE_VERSION%.exe -FileName vle-dl.exe
+  - cmd: appveyor DownloadFile https://www.vle-project.org/pub/vle/%VLE_ABI%/%RAW_VLE_VERSION%/Setup-VLE_%VLE_VERSION%.exe -FileName vle-dl.exe
+  - cmd: vle-dl.exe /TYPE=full /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /NORESTARTAPPLICATIONS /DIR="%ProgramFiles(x86)%\VLE"
+
+after_build:
+  - cmd: set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" --restart'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.reader clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.tester clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.discrete-time clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.extension.celldevs clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.extension.decision clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.extension.dsdevs clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.extension.fsa clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.extension.petrinet clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.ode clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.ode_test clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.recursive clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.discrete-time.decision clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.reader_test clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.extension.cellqss clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.discrete-time_test clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.recursive_test clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.tester_test clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.discrete-time.decision_test clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P ext.lua clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P ext.muparser clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P ext.qwt clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P ext.shapelib clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P vle.adaptative-qss.examples clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P gvle.decision clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P gvle.discrete-time clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P gvle.simulating.plan clean rclean configure build'
+  - cmd: '"C:/Program Files (x86)\VLE\\bin\\vle.exe" -P gvle.forrester clean rclean configure build'
+
+# vle.examples disables to avoid appveyor timeout error.
+#  - cmd: vle.exe -P vle.examples clean rclean configure build
