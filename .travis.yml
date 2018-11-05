@@ -16,6 +16,10 @@ addons:
       - libqt5svg5-dev
       - qtchooser
       - qt5-default
+      - libqt5opengl5-dev
+      - libqt5svg5-dev
+      - libqt5xmlpatterns5-dev
+
 
 matrix:
   include:
