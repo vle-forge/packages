@@ -89,8 +89,8 @@ before_script:
   - sudo make install
 
 script:
-  - export CC=gcc-5
-  - export CXX=g++-5
+  - export CC=$C_COMPILER
+  - export CXX=$CXX_COMPILER
   - cd $TRAVIS_BUILD_DIR
   - vle --restart
   - vle -P vle.reader clean rclean configure build
