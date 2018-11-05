@@ -29,7 +29,7 @@
 #include <sstream>
 #include <string>
 #include <exception>
-#include <math.h>
+#include <cmath>
 
 #include <vle/utils/Package.hpp>
 #include <vle/utils/Context.hpp>
