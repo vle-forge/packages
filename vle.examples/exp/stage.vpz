@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE vle_project PUBLIC '-//VLE TEAM//DTD Strict//EN' 'http://www.vle-project.org/vle-1.3.0.dtd'>
-<vle_project version="0.7" author="HRaynal" date="jeu, 23 oct 2008 23:00:27 +0200">
+<vle_project version="0.7" date="jeu, 23 oct 2008 23:00:27 +0200" author="HRaynal">
 <structures>
-<model height="373" name="stage" width="468" type="coupled">
+<model width="468" height="373" name="stage" type="coupled">
 <submodels>
-<model dynamics="dynMeteo" y="25" observables="obsMeteo" height="45" name="Meteo" width="100" type="atomic" conditions="condMeteo" x="17">
+<model observables="obsMeteo" conditions="condMeteo" dynamics="dynMeteo" width="100" height="45" y="25" x="17" name="Meteo" type="atomic">
 <out>
  <port name="out"/>
 </out>
 </model>
-<model dynamics="dynStage" y="87" observables="obsStage" height="45" name="Stage" width="100" type="atomic" conditions="condStage" x="269">
+<model observables="obsStage" conditions="condStage" dynamics="dynStage" width="100" height="45" y="87" x="269" name="Stage" type="atomic">
 <in>
  <port name="Tmoy"/>
 </in>
@@ -27,8 +27,8 @@
 </model>
 </structures>
 <dynamics>
-<dynamic library="Meteo" name="dynMeteo" package="vle.examples" type="local"/>
-<dynamic library="Stage" name="dynStage" package="vle.examples" type="local"/>
+<dynamic library="Meteo" package="vle.examples" name="dynMeteo" type="local"/>
+<dynamic library="Stage" package="vle.examples" name="dynStage" type="local"/>
 </dynamics>
 <experiment combination="linear" name="stage">
 <conditions>
@@ -89,7 +89,7 @@
 </conditions>
 <views>
 <outputs>
-<output name="view" plugin="storage" package="vle.output" format="local" location="">
+<output format="local" plugin="console" package="vle.output" name="view" location="">
      <map>
       <key name="inc_columns">
        <integer>10</integer>
@@ -123,10 +123,13 @@
  <attachedview name="view"/>
 </port>
 
-</observable>
+<port name="State">
+      <attachedview name="view"/>
+     </port>
+    </observable>
 
 </observables>
-<view output="view" name="view" type="timed" timestep="1"/>
+<view timestep="1" output="view" name="view" type="timed"/>
 
 </views>
 </experiment>

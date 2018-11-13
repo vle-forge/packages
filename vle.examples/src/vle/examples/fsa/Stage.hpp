@@ -48,7 +48,17 @@ public:
     virtual ~Stage()
     { }
 
+    virtual std::unique_ptr<vle::value::Value> observation(
+        const vd::ObservationEvent& event) const override;
+
 private:
+    std::string stateToString() const
+    {
+        std::vector<std::string> state_s = {"INIT", "PS", "LV", "IF",
+                                            "DF", "DRG", "FSLA", "MP", "FIN"};
+        return state_s[currentState() - 1];
+    }
+
     void activity1(const vd::Time& /* time */) // PS
     {
         if (STiz > 0.0) {

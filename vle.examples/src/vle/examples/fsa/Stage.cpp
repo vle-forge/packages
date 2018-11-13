@@ -113,6 +113,16 @@ Stage::Stage(const vd::DynamicsInit& init,
     STi = 0.0;
 }
 
+std::unique_ptr<vle::value::Value> Stage::observation(
+    const vd::ObservationEvent& event) const
+{
+    if (event.onPort("State")) {
+        return vle::value::String::create(stateToString());
+    } else {
+        return vf::Statechart::observation(event);
+    }
+}
+
 DECLARE_DYNAMICS(Stage)
 
 }}} // namespace vle examples fsa

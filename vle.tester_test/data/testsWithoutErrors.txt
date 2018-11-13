@@ -1,4 +1,4 @@
 vle.examples stage.vpz view "stage:Meteo.state" 186 10e-3 23.6517409627881
-vle.examples stage.vpz view "stage:Meteo.state" 317 10e-3 19.8968079261578   
-
-
+vle.examples stage.vpz view "stage:Meteo.state" 317 10e-3 19.8968079261578
+vle.examples stage.vpz view "stage:Stage.State" 186 NA PS
+vle.examples stage.vpz view "stage:Stage.State" 317 NA FSLA
