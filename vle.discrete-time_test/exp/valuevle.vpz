@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" date="" author="Gauthier Quesnel">
+ <structures>
+   <model width="300" height="300" x="0" y="0" name="top" type="coupled">
+   <in/>
+   <out/>
+  <submodels>
+    <model observables="obsVVSender" conditions="" width="50" dynamics="dynVVS" height="50" y="90" x="55" name="VVSender" type="atomic">
+     <in/>
+     <out>
+      <port name="stringVar"/>
+     </out>
+    </model>
+    <model observables="obsVVReceiver" conditions="" width="50" dynamics="dynVVR" height="50" y="94" x="246" name="VVReceiver" type="atomic">
+     <in>
+      <port name="stringVar"/>
+     </in>
+     <out/>
+    </model>
+   </submodels>
+   <connections>
+    <connection type="internal">
+     <origin model="VVSender" port="stringVar"/>
+     <destination model="VVReceiver" port="stringVar"/>
+    </connection>
+   </connections>
+  </model>
+ </structures>
+ <dynamics>
+ <dynamic library="VVSender" package="vle.discrete-time_test" name="dynVVS"/>
+ <dynamic library="VVReceiver" package="vle.discrete-time_test" name="dynVVR"/>
+ </dynamics>
+ <experiment name="test">
+   <conditions>
+    <condition name="simulation_engine">
+     <port name="begin">
+      <double>0.0</double>
+     </port>
+     <port name="duration">
+      <double>3</double>
+     </port>"
+    </condition>
+   </conditions>
+  <views>
+   <outputs>
+    <output format="local" plugin="storage" package="vle.output" location="" name="view">
+     <map>
+      <key name="columns">
+       <integer>15</integer>
+      </key>
+      <key name="header">
+       <string>top</string>
+      </key>
+      <key name="inc_columns">
+       <integer>10</integer>
+      </key>
+      <key name="inc_rows">
+       <integer>10</integer>
+      </key>
+      <key name="rows">
+       <integer>15</integer>
+      </key>
+     </map>
+    </output>
+   </outputs>
+   <view timestep="1" name="view" output="view" type="timed"/>
+   <observables>
+    <observable name="obsVVSender">
+     <port name="stringVar">
+      <attachedview name="view"/>
+     </port>
+    </observable>
+    <observable name="obsVVReceiver">
+     <port name="stringVar">
+      <attachedview name="view"/>
+     </port>
+    </observable>
+   </observables>
+  </views>
+ </experiment>
+</vle_project>

@@ -818,7 +818,8 @@ Pimpl::observation(
         } case VALUE_VLE: {
             VarValue* vvalue = static_cast < VarValue* >(v);
             if (! snapshot) {
-                vvalue->getVal(event.getTime(),0).clone();
+                return std::unique_ptr<vle::value::Value>(
+                    vvalue->getVal(event.getTime(),0).clone());
             } else if (vvalue->hasSnapshot(snap)) {
                 const vle::value::Value& v = vvalue->getSnapshot(snap);
                 return std::unique_ptr<vle::value::Value>(v.clone());
