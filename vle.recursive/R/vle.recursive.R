@@ -1433,42 +1433,82 @@ vle.recursive.lhs = function(rvle_handle=rvle_handle, file_expe=NULL,
 }
 
 #'
-#' Performs optimization (using rgenoud)
-#'
+#' Performs mono-objective simulation optimization using 
+#' genoud (from rgenoud package).
+#' 
 #' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param file_expe, a file_expe parameter of vle.recursive.parseExpe
-#' @param pop.size, see genoud parameter
-#' @param max.generations, see genoud parameter
-#' @param withSpawn, if 1, uses spawn tou louch simulation
+#' @param pop.size, see genoud parameter (default : 4)
+#' @param max.generations, see genoud parameter (default : 5)
+#' @param optim.method, see genoud parameter (default : 'L-BFGS-B').
+#'   if 'Nelder-Mead', then a default handleX funtion is given that handles 
+#'   out-of-bounds X values (a problem in rgenoud?). The default is 'L-BFGS-B'
+#'   since no out-of-bounds evaluation should be requested 
+#'   (boundary.enforcement=2)
+#' @param withSpawn, if 1, uses spawn to launch simulation (default : 1)
+#' @param handleX [optionnal], function called on the X parameters before
+#'   launching the simulation, if it returns NA then the simulation is called,
+#'   otherwise the values return is directly the fitness value
+#' @param handleY [optionnal], function called on the simulation outputs 
+#'   (from vle.recursive.simulate) that computes the aggregation of output in a
+#'   unique fitness value.
 #'
 #' usage:
 #'  source("vle.recursive.R")
 #'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
 #'
 #'
-vle.recursive.optim = function(rvle_handle=rvle_handle, file_expe=NULL, 
-                               pop.size=4, max.generations=5, withSpawn=1)
+vle.recursive.optim = function(rvle_handle=NULL, file_expe=NULL, 
+                               pop.size=4, max.generations=5, 
+                               optim.method="L-BFGS-B",
+                               withSpawn=1, handleX=NULL, handleY=NULL)
 {
   library(rgenoud)
-  file_expe = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
+  file_expe = vle.recursive.parseExpe(file_expe, rvle_handle, 
+                                      typeReturn='bounds');
+
+  #define default handleX if required 
+  if ((optim.method == 'Nelder-Mead') & is.null(handleX) ) {
+    handleX = function (x) {
+      str(x)
+      for (i in 1:ncol(file_expe)) {
+        if ((file_expe[1,i] > x[i]) | (x[i] > file_expe[2,i])) return(9999999)
+      }
+      return(NA);
+    }
+  }
+  
+  #define default handleY the default y takes the first value available
+  if (is.null(handleY) ) {
+    handleY = function (vle_res) {
+      if ((length(vle_res) != 1) || (dim(vle_res[[1]])[1] != 1) || 
+          (dim(vle_res[[1]])[2] != 1)) {
+        stop(paste("[vle.recursive.optim] ambiguity in output "))
+      }
+      return (vle_res[[1]][1,1]);
+    }
+  }
 
   #define intern optim fun
-  intern_fun = function(x) {
+  intern_fun = function(x, rvle_handle, file_expe, withSpawn, handleX, handleY){
+    if (! is.null(handleX)){
+      fitness = handleX(x);
+      if (! is.na(fitness)) return(fitness)
+    }
     for (i in 1:ncol(file_expe)) {
       vle.recursive.configPropagate(rvle_handle,
             propagate = names(file_expe)[i], value=x[i]);
     }
-    r = vle.recursive.simulate(rvle_handle, withSpawn=withSpawn);
-    if ((length(r) != 1) || (dim(r[[1]])[1] != 1) || (dim(r[[1]])[2] != 1)) {
-      rvle.show(rvle_handle)
-      stop(paste("[vle.recursive.optim] ambiguity in output ", length(r), dim(r[[1]])[1],
-                 dim(r[[1]])[2]))
-    }
-    return (r[[1]][1,1]);
+    vle_res = vle.recursive.simulate(rvle_handle, withSpawn=withSpawn);
+    return (handleY(vle_res));
   }
+  
   res = genoud(fn=intern_fun, nvars=ncol(file_expe), pop.size=pop.size,
                max.generations=max.generations, Domains=t(as.matrix(file_expe)),
-               boundary.enforcement=2)
+               boundary.enforcement=2, optim.method = optim.method,
+               rvle_handle=rvle_handle, file_expe=file_expe,#for internal fun
+               withSpawn=withSpawn, handleX=handleX,        #for internal fun
+               handleY=handleY)                             #for internal fun
   return(res);
 }
 
@@ -1477,34 +1517,39 @@ vle.recursive.optim = function(rvle_handle=rvle_handle, file_expe=NULL,
 #'
 #' @param rvle_handle, a rvle handle built with vle.recursive.init
 #' @param file_expe, a file_expe parameter of vle.recursive.parseExpe
+#' @param intern_like [optionnal], define the likelihood function 
+#'            (if NULL, a default one is defined)
 #'
 #' usage:
 #'  source("vle.recursive.R")
 #'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
 #'
-vle.recursive.mcmc = function(rvle_handle=rvle_handle, file_expe=NULL, n=1000)
+vle.recursive.mcmc = function(rvle_handle=NULL, file_expe=NULL,
+                              intern_like=NULL, n=1000)
 {
   library(BayesianTools)
   file_expe = vle.recursive.parseExpe(file_expe, rvle_handle,
                                       typeReturn='bounds');
   #define intern optim fun
-  intern_like = function(x) {
-    if (! is.matrix(x)){
-      x = t(as.matrix(x))
+  if (is.null(intern_like)) {
+    intern_like = function(x) {
+      if (! is.matrix(x)){
+        x = t(as.matrix(x))
+      }
+      if (ncol(x) != ncol(file_expe)){
+        print(paste("[vle.recursive.mcmc] error cols "));
+      }
+      for (i in 1:ncol(file_expe)) {
+        vle.recursive.configInput(rvle_handle, input = names(file_expe)[i],
+                                  values=x[,i]);
+      }
+      r = vle.recursive.simulate(rvle_handle, withSpawn=0);
+      if ((length(r) != 1)||(dim(r[[1]])[1] != 1)||(dim(r[[1]])[2] != nrow(x))){
+        print(paste("[vle.recursive.mcmc] error ambiguity in output ",
+                    length(r), dim(r[[1]])[1], dim(r[[1]])[2]))
+      }
+      return (- 0.5*r[[1]][1,]);
     }
-    if (ncol(x) != ncol(file_expe)){
-      print(paste("[vle.recursive.mcmc] error cols "));
-    }
-    for (i in 1:ncol(file_expe)) {
-      vle.recursive.configInput(rvle_handle, input = names(file_expe)[i],
-                                values=x[,i]);
-    }
-    r = vle.recursive.simulate(rvle_handle, withSpawn=0);
-    if ((length(r) != 1)||(dim(r[[1]])[1] != 1)||(dim(r[[1]])[2] != nrow(x))){
-      print(paste("[vle.recursive.mcmc] error ambiguity in output ",
-                  length(r), dim(r[[1]])[1], dim(r[[1]])[2]))
-    }
-    return (- 0.5*r[[1]][1,]);
   }
   bayesianSetup = createBayesianSetup(likelihood=intern_like,
       lower=as.numeric(file_expe[1,]), upper=as.numeric(file_expe[2,]),
