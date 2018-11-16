@@ -1311,8 +1311,16 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
 #' @param r, number of replicate of the morris method
 #' @param levels, number levels of the morris method
 #' @param n, sample size of fast99 method or sobolEff
+#' @param output_vars [optionnal], these are the output variables for which 
+#'  sensitivity indices should be computed and that are not directly available
+#'  from simulation results. If not provided, sensisitivy indices are computed 
+#'  for all simulated variables, taking the last value available
+#' @param handleY [optionnal], this function must return the vector of 
+#'  simulated variables for the sensitivity experiment plan. Its arguments 
+#'  are the name of the output variable and the vle simulation results of the
+#'  experiment plan.
 #' @param typeReturn, either 'indices', 'out' or NULL . If NULL, both the
-#'  indices and simulation results are returned.
+#'  indices and simulation results are returned (default : NULL)
 #' 
 #' usage:
 #'  source("vle.recursive.R")
@@ -1320,10 +1328,21 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
 #'  
 #'
 vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
-                   method='morris', r=100, levels=5, n=100, typeReturn=NULL)
+                   method='morris', r=100, levels=5, n=100, output_vars=NULL,
+                   handleY=NULL, typeReturn=NULL)
 {
   library(sensitivity)
+  
+  #provide a default handleY function
+  if (is.null(handleY)) {
+    handleY = function(output_var, vle_res) {
+      return(vle_res[[output_var]][nrow(vle_res[[output_var]]),])
+    }
+  }
+  
+  #read bounds
   bounds = vle.recursive.parseExpe(file_expe, rvle_handle, typeReturn='bounds');
+  
   #generate plan
   sensi_plan = NULL;
   if (method == 'morris') {
@@ -1357,24 +1376,31 @@ vle.recursive.sensitivity = function(rvle_handle=rvle_handle, file_expe=NULL,
     colnames(X2) <- colnames(bounds);
     sensi_plan = sobolEff(model = NULL, X1=X1, X2=X2);
   }
-
+  print(paste('will perform', nrow(sensi_plan$X),'simulations'))
+  
   #config simulator with exp plan
   for (i in 1:ncol(bounds)){
      vle.recursive.configInput(rvle_handle=rvle_handle, 
           input=colnames(bounds)[i], 
           values=sensi_plan$X[,i]);
   }
-  res = vle.recursive.simulate(rvle_handle);
+  vle_res = vle.recursive.simulate(rvle_handle);
+
+  #provide a default list of output varaibles 
+  if (is.null(output_vars)){
+    output_vars = names(vle_res);
+  }
+
   res_sensitivity = list();
-  for (i in names(res)) {
+  for (output_var in output_vars) {
     sensi_plan_bis = sensi_plan;
-    tell(sensi_plan_bis, res[[i]][nrow(res[[i]]),])
-    res_sensitivity[[i]] <- sensi_plan_bis
+    tell(sensi_plan_bis, handleY(output_var, vle_res));
+    res_sensitivity[[output_var]] <- sensi_plan_bis
   }
   if (is.null(typeReturn)){
-    return(list(indices=res_sensitivity, out=res))  
+    return(list(indices=res_sensitivity, out=vle_res))  
   } else if (typeReturn == 'out') {
-    return(list(out=res))  
+    return(list(out=vle_res))  
   } else {
     return(list(indices=res_sensitivity))  
   }
