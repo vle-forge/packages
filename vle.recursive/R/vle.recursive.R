@@ -1545,13 +1545,16 @@ vle.recursive.optim = function(rvle_handle=NULL, file_expe=NULL,
 #' @param file_expe, a file_expe parameter of vle.recursive.parseExpe
 #' @param intern_like [optionnal], define the likelihood function 
 #'            (if NULL, a default one is defined)
+#' @param n [default:1000], total number of simulations
+#' @param startValues [default:4], number of chains in the MCMCMC.
+#'   number of simulations by chain is n/startValue
 #'
 #' usage:
 #'  source("vle.recursive.R")
 #'  f = vle.recursive.init(pkg="mypkg", file="mymodel.vpz")
 #'
 vle.recursive.mcmc = function(rvle_handle=NULL, file_expe=NULL,
-                              intern_like=NULL, n=1000)
+                              intern_like=NULL, n=1000, startValue=4)
 {
   library(BayesianTools)
   file_expe = vle.recursive.parseExpe(file_expe, rvle_handle,
@@ -1579,9 +1582,9 @@ vle.recursive.mcmc = function(rvle_handle=NULL, file_expe=NULL,
   }
   bayesianSetup = createBayesianSetup(likelihood=intern_like,
       lower=as.numeric(file_expe[1,]), upper=as.numeric(file_expe[2,]),
-      parallel = "external")
+      parallel = "external", names=names(file_expe))
   res <- runMCMC(bayesianSetup = bayesianSetup, sampler = "DREAM",
-                 settings = list(iterations = n, startValue = 4))
+                 settings = list(iterations = n, startValue = startValue))
   return(res);
 }
 
