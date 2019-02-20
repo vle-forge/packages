@@ -34,18 +34,7 @@
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/vle.hpp>
 
-struct F
-{
-    vle::Init app;
-
-    F() : app()
-    {
-    }
-
-    ~F()
-    {
-    }
-};
+#include "test.hpp"
 
 namespace vmd = vle::extension::decision;
 
@@ -591,7 +580,7 @@ void EqualFail()
 
 int main()
 {
-    F fixture;
+    fixture f;
 
     Before1();
     Before2();

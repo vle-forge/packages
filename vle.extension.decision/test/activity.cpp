@@ -25,9 +25,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include <vle/utils/unit-test.hpp>
+
+#include "test.hpp"
 
 #include <iostream>
 #include <iterator>
@@ -348,7 +348,6 @@ void Minfinish()
 
 void kb()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     vmd::ex::KnowledgeBase base(ctxp);
 
@@ -388,7 +387,6 @@ void kb()
 
 void kb2()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     vmd::ex::KnowledgeBaseGraph base(ctxp);
 
@@ -436,7 +434,6 @@ void kb2()
 
 void kb3()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     vmd::ex::KnowledgeBaseGraph2 base(ctxp);
 
@@ -491,7 +488,6 @@ void kb3()
 
 void Activity4()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     vmd::ex::KnowledgeBaseGraph3 base(ctxp);
 
@@ -510,7 +506,6 @@ void Activity4()
 
 void ActivitiesnextDate1()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     vmd::ex::KB4 base(ctxp);
 
@@ -538,7 +533,6 @@ void ActivitiesnextDate1()
 
 void ActivitiesnextDate2()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     vmd::ex::KB4 base(ctxp);
 
@@ -566,7 +560,6 @@ void ActivitiesnextDate2()
 
 void activitiesExist()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     vmd::ex::KB4 base(ctxp);
 
@@ -578,7 +571,6 @@ void activitiesExist()
 
 void Activities_test_slot_function()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     vmd::ex::KB5 base(ctxp);
 
@@ -612,6 +604,8 @@ void Activities_test_slot_function()
 
 int main()
 {
+    fixture f;
+
     Maxstart();
     Minfinish();
     kb();

@@ -38,6 +38,8 @@
 
 #include <vle/extension/Decision.hpp>
 
+#include "test.hpp"
+
 namespace vmd = vle::extension::decision;
 namespace vd = vle::devs;
 namespace vu = vle::utils;
@@ -297,7 +299,6 @@ std::string Block(
 
 void parser_00()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
 
     vmd::ex::KnowledgeBase b(ctxp);
@@ -308,7 +309,6 @@ void parser_00()
 
 void parser()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
 
     vmd::ex::KnowledgeBase b(ctxp);
@@ -326,7 +326,6 @@ void parser()
 
 void test_stringdates()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
 
     vmd::ex::KnowledgeBase b(ctxp);
@@ -343,7 +342,6 @@ void test_stringdates()
 
 void test_relativedates()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     {
         vmd::ex::KnowledgeBase b(ctxp);
@@ -363,7 +361,6 @@ void test_relativedates()
 
 void test_relativehumandates()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     {
         vmd::ex::KnowledgeBase b(ctxp);
@@ -383,6 +380,8 @@ void test_relativehumandates()
 
 int main()
 {
+    fixture f;
+
     parser_00();
     parser();
     test_stringdates();

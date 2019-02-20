@@ -35,6 +35,8 @@
 #include <vle/utils/DateTime.hpp>
 #include <vle/extension/Decision.hpp>
 
+#include "test.hpp"
+
 namespace vmd = vle::extension::decision;
 namespace vd = vle::devs;
 namespace vu = vle::utils;
@@ -369,7 +371,6 @@ const char* Plan5 = \
 
 void test_planTimeStamp()
 {
-    vle::Init app;
     {
         vle::utils::ContextPtr ctxp =  vle::utils::make_context();
         vmd::ex::KnowledgeBase b(ctxp);
@@ -394,7 +395,6 @@ void test_planTimeStamp()
 
 void test_neverFail()
 {
-    vle::Init app;
     {
         vle::utils::ContextPtr ctxp =  vle::utils::make_context();
         vmd::ex::KnowledgeBase b(ctxp);
@@ -430,7 +430,6 @@ void test_neverFail()
 
 void test_neverFail2()
 {
-    vle::Init app;
     {
         vle::utils::ContextPtr ctxp =  vle::utils::make_context();
         vmd::ex::KnowledgeBase b(ctxp);
@@ -466,7 +465,6 @@ void test_neverFail2()
 
 void test_neverFail3()
 {
-    vle::Init app;
     {
         vle::utils::ContextPtr ctxp =  vle::utils::make_context();
         vmd::ex::KnowledgeBase b(ctxp);
@@ -502,7 +500,6 @@ void test_neverFail3()
 
 void test_resourceFunc()
 {
-    vle::Init app;
     {
         vle::utils::ContextPtr ctxp =  vle::utils::make_context();
         vmd::ex::KnowledgeBase b(ctxp);
@@ -526,6 +523,8 @@ void test_resourceFunc()
 
 int main()
 {
+    fixture f;
+
     test_planTimeStamp();
     test_neverFail();
     test_neverFail2();

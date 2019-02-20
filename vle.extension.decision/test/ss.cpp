@@ -25,8 +25,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include <vle/utils/unit-test.hpp>
 #include <iostream>
 #include <iterator>
@@ -36,19 +34,7 @@
 #include <vle/utils/Context.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 
-struct F
-{
-    vle::Init app;
-
-    F() : app()
-    {
-    }
-
-    ~F()
-    {
-    }
-};
-
+#include "test.hpp"
 
 namespace vmd = vle::extension::decision;
 
@@ -118,7 +104,7 @@ void ss()
 
 int main()
 {
-    F fixture;
+    fixture f;
 
     ss();
 

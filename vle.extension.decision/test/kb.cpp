@@ -25,7 +25,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <vle/utils/unit-test.hpp>
 #include <iostream>
 #include <iterator>
@@ -33,6 +32,8 @@
 #include <vle/utils/Context.hpp>
 #include <vle/extension/decision/KnowledgeBase.hpp>
 #include <vle/vle.hpp>
+
+#include "test.hpp"
 
 namespace vmd = vle::extension::decision;
 
@@ -93,7 +94,6 @@ namespace vle { namespace extension { namespace decision { namespace ex {
 
 void kb()
 {
-    vle::Init app;
     vle::utils::ContextPtr ctxp =  vle::utils::make_context();
     vmd::ex::KnowledgeBase base(ctxp);
 
@@ -122,6 +122,8 @@ void kb()
 
 int main()
 {
+    fixture f;
+
     kb();
 
     return unit_test::report_errors();
