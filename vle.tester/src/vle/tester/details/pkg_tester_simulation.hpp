@@ -28,6 +28,7 @@
 
 #include <chrono>
 
+#include <vle/version.hpp>
 #include <vle/vle.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/value/Matrix.hpp>
@@ -66,7 +67,7 @@ public:
      */
     TesterSimulation(const std::string& packagename,
             const std::string& vpzname, const utils::ContextPtr& ctx):
-        mapp(), mvpz(), mCtx(ctx)
+        mCtx(ctx)
     {
         vu::Package pkg(mCtx, packagename);
         mvpz = std::unique_ptr<vz::Vpz>(new vz::Vpz(pkg.getExpFile(vpzname)));
@@ -168,8 +169,9 @@ public:
     }
 
 private:
-
+#if VLE_VERSION < 200100
     vle::Init mapp;
+#endif
     std::unique_ptr<vz::Vpz> mvpz;
     vm::Error merror;
     utils::ContextPtr mCtx;
