@@ -25,6 +25,7 @@
 #include <iostream>
 #include <chrono>
 
+#include <vle/version.hpp>
 #include <vle/vle.hpp>
 #include <vle/value/Map.hpp>
 #include <vle/value/Matrix.hpp>
@@ -46,7 +47,10 @@ struct F
     {
     }
 
+
+#if VLE_VERSION < 200100
     vle::Init app;
+#endif
 };
 
 int
