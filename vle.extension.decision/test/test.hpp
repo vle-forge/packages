@@ -27,6 +27,7 @@
 #define VLE_PACKAGES_VLE_EXTENSION_DECISION_TEST_TEST_HPP
 
 #include <vle/version.hpp>
+#include <vle/vle.hpp>
 
 struct fixture
 {
