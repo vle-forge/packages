@@ -38,18 +38,19 @@
 
 #include <vle/value/Matrix.hpp>
 #include <vle/vle.hpp>
+#include <vle/version.hpp>
+
 #include <iostream>
 #include <iomanip>
 
 struct F
 {
+    F() = default;
+
+#if VLE_VERSION < 200100
     vle::Init app;
-
-    F()
-    {
-    }
+#endif
 };
-
 
 using namespace vle;
 

@@ -35,18 +35,17 @@
 #include <vle/vpz/Vpz.hpp>
 #include <vle/utils/Package.hpp>
 
-
 #include <vle/value/Matrix.hpp>
 #include <vle/vle.hpp>
+#include <vle/version.hpp>
 
 struct F
 {
-    F()
-    {
+    F() = default;
 
-    }
-
+#if VLE_VERSION < 200100
     vle::Init app;
+#endif
 };
 
 
