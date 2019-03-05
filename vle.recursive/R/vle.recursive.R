@@ -734,7 +734,7 @@ vle.recursive.configOutputs = function(rvle_handle=NULL, output_vars=NULL,
 {
   if (sum(duplicated(names(output_vars))) > 0){
     stop(paste(sep="", "[vle.recursive] Error: duplicated output:'",
-               names(output_vars)[which(duplicated(names(output_vars))[1])],
+               names(output_vars)[which(duplicated(names(output_vars)))[1]],
                "'"));
     return (NULL);
   }
