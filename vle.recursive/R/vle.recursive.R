@@ -953,8 +953,9 @@ vle.recursive.extract = function(res=NULL, time_ind=NULL, date=NULL,
     if(!("date" %in% names(res))){
       stop(paste("[vle.recursive.extract] Error: missing 'date' in results"));
     }
-    time_ind = match(intersect(date, res$date[,sim_ind[1]]),
-                     res$date[,sim_ind[1]]);
+    time_ind = match(round(intersect(round(date),
+                                     round(res$date[,sim_ind[1]]))),
+                     round(res$date[,sim_ind[1]]));
     if (length(time_ind) == 0) {
       stop(paste(sep="", "[vle.recursive.extract] Error: selected dates do ",
                  "not match simulation results"));
@@ -1279,10 +1280,11 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
     for (idi in isSim){
       tmp_obs = subset(file_obs, id==file_sim$id[idi]);
       tmp_obs = tmp_obs[!is.na(tmp_obs[[var]]),]
-      
+
       simV = res[[var]][,idi];
       obsV = rep(NA, length(simV));
-      tsObs = match(vle.recursive.dateToNum(tmp_obs$date), res[["date"]][,idi])
+      tsObs = match(round(vle.recursive.dateToNum(tmp_obs$date)),
+                    round(res[["date"]][,idi]))
       obsV[tsObs] = tmp_obs[[var]];
       obsValues = c(obsValues, obsV[tsObs]);
       simValues = c(simValues, simV[tsObs]);
@@ -1749,7 +1751,7 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
                                        date = file_obsi$date,
                                        file_sim = file_sim, id = idi,
                                        output_vars = c(var,"date"));
-          file_obsi = subset(file_obsi, date %in% resi$date[,1])
+          file_obsi = subset(file_obsi, round(date) %in% round(resi$date[,1]))
           idistr = as.character(idi);
           if (!is.null(sim_legend)){
             idistr = sim_legend[ii];
