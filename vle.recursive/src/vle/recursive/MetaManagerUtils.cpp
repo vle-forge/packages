@@ -609,6 +609,17 @@ DelOutIntAggrALL::insertReplicate(
                     outMat.rows()-1, 10, 10));
         }
     }
+    //resize if necessary
+    if (manageDouble) {
+        if (minputAccu->toTable().height() < outMat.rows()) {
+            minputAccu->toTable().resize(vleOut.nbInputs, outMat.rows()-1);
+        }
+    } else {
+        if (minputAccu->toMatrix().rows() < outMat.rows()) {
+            minputAccu->toMatrix().resize(vleOut.nbInputs, outMat.rows()-1);
+        }
+    }
+    //insert
     if (vleOut.nbReplicates == 1){//one can put directly into results
         for (unsigned int i=1; i < outMat.rows(); i++) {
             if (manageDouble) {
