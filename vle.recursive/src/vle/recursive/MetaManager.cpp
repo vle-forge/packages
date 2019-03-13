@@ -194,6 +194,11 @@ MetaManager::produceCvleInFile(const wrapper_init& init,
             inFile << "<port name =\"id\">";
             inFile << "<string>id_" << i << "_" << j << "</string>";
             inFile << "</port>";
+            if (has_simulation_engine) {
+                inFile << "<port name =\"has_simulation_engine\">";
+                inFile << "<boolean>true</boolean>";
+                inFile << "</port>";
+            }
             inFile << "</condition>";
             inFile << "</conditions>";
             inFile << "</experiment>";
