@@ -26,6 +26,7 @@ vle.recursive.dateToNum = function(dateStr)
 #' @export
 #' 
 #' @param dateNum, eg :  2456659
+#' @param round, are numerical rounded 
 #'   
 #' @return return a date object, eg:  as.Date("2014-01-01")
 #' 
@@ -33,9 +34,13 @@ vle.recursive.dateToNum = function(dateStr)
 #' 
 #' @note
 
-vle.recursive.dateFromNum = function(dateNum)
+vle.recursive.dateFromNum = function(dateNum, round=T)
 {
-  return(as.Date(as.Date(dateNum, origin="1970-01-01") - 2440588));
+  if (round) {
+    return(as.Date(as.Date(round(dateNum), origin="1970-01-01") - 2440588));
+  } else {
+    return(as.Date(as.Date(dateNum, origin="1970-01-01") - 2440588));
+  }
 }
 
 
@@ -1107,7 +1112,7 @@ vle.recursive.parseSim = function(file_sim=NULL, rvle_handle=NULL, id=NULL,
     if (! all(id %in% file_sim$id) & withWarnings) {
        warning("[vle.recursive] requiring to simulate id that does not exist");
     }
-    file_sim = file_sim[which(is.element(file_sim$id, id)),];
+    file_sim = file_sim[match(id, file_sim$id),];
   }
 
   #config inputs to simulate
@@ -1124,6 +1129,13 @@ vle.recursive.parseSim = function(file_sim=NULL, rvle_handle=NULL, id=NULL,
       }
     }
   }
+  
+  # force numeric values for duration (expected by vle kernel)
+  if ('simulation_engine.duration' %in% colnames(simData)) {
+    simData$simulation_engine.duration = 
+      as.numeric(simData$simulation_engine.duration)
+  }
+  
   return(file_sim)
 }
 
@@ -1240,6 +1252,10 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
                                       output_vars=NULL, id=NULL,
                                      withWarnings=TRUE, print=FALSE)
 {
+  #read simulations
+  file_sim = vle.recursive.parseSim(file_sim=file_sim,
+                                    withWarnings=withWarnings);
+  
   #read observations
   file_obs = vle.recursive.parseObs(file_obs=file_obs, id=id,
                                     withWarnings=withWarnings)
@@ -1252,15 +1268,18 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
     stop("[vle.recursive] missing 'output_vars'");
   }
   
-  #select subset of simulations
-  file_sim = vle.recursive.parseSim(file_sim=file_sim,
-                                    withWarnings=withWarnings);
-  if (ncol(res[[1]]) != nrow(file_sim)){
-    stop("[vle.recursive] file_sim and res do not fit");
+  #check results
+  if (is.null(res$date)) {
+    stop("[vle.recursive] missing date in simulation results");
   }
+  if (ncol(res$date) != nrow(file_sim)) {
+    stop("[vle.recursive] simulation results do not match simulation file");
+  }
+
+  #select subset of simulations
   isSim = 1:ncol(res[[1]]);
   if (!is.null(id)) {
-    isSim = which(file_sim$id %in% id)
+    isSim = match(id, file_sim$id)
     if (length(isSim) != length(id)){
       stop("[vle.recursive] file_sim and id do not fit");
     }
@@ -1269,38 +1288,33 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
                                       withWarnings=withWarnings);
   }
   
-  #compute RMSE
-  resRMSE = NULL;
-  for (var in setdiff(output_vars,"date")){
-    rmse = 0;
-    simValues = NULL;
-    obsValues = NULL;
-    idsdbg = NULL;
+  #select subsets of results and reorder to fit id
+  for (var in names(res)){
+    res[[var]] = res[[var]][,isSim]
+  }
 
-    for (idi in isSim){
-      tmp_obs = subset(file_obs, id==file_sim$id[idi]);
-      tmp_obs = tmp_obs[!is.na(tmp_obs[[var]]),]
-
-      simV = res[[var]][,idi];
-      obsV = rep(NA, length(simV));
-      tsObs = match(round(vle.recursive.dateToNum(tmp_obs$date)),
-                    round(res[["date"]][,idi]))
-      obsV[tsObs] = tmp_obs[[var]];
-      obsValues = c(obsValues, obsV[tsObs]);
-      simValues = c(simValues, simV[tsObs]);
-      idsdbg = c(idsdbg, file_sim$id[idi]);
-      rm(tmp_obs); rm(tsObs);
+  sim_vs_obs = NULL
+  for (i in 1:length(isSim)) {
+    idi = file_sim$id[i]
+    file_obs_i = file_obs[file_obs$id == idi,]
+    for (var in setdiff(output_vars,"date")) {
       
-    }
-    squareError = (obsValues - simValues)^2;
-    elOk = !is.na(squareError);
-    rmse = sqrt(sum(squareError[elOk]/sum(elOk)))
-    resRMSE[[var]] <- rmse;
-    if (print) {
-      print(paste(sep="", " rmse for '",var,"' : ", rmse));
+      file_obs_i_var = file_obs_i[!is.na(file_obs_i[[var]]),]
+      if (nrow(file_obs_i_var) > 0) {
+        res_i_val = res[[var]][,i]
+        res_i_date = round(res$date[,i])
+
+        for (j in 1:nrow(file_obs_i_var)) {
+          d_str = file_obs_i_var$date[j]
+          d = vle.recursive.dateToNum(d_str)
+          sim_vs_obs = rbind(sim_vs_obs, data.frame(id=idi, date=d_str,
+            output=var, observed=file_obs_i_var[[var]][j], 
+            simulated=res_i_val[which(res_i_date == d)], stringsAsFactors=F))
+        }
+      }
     }
   }
-  return(resRMSE);
+  return(sim_vs_obs);
 }
 
 
