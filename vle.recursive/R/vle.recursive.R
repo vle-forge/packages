@@ -1131,9 +1131,9 @@ vle.recursive.parseSim = function(file_sim=NULL, rvle_handle=NULL, id=NULL,
   }
   
   # force numeric values for duration (expected by vle kernel)
-  if ('simulation_engine.duration' %in% colnames(simData)) {
-    simData$simulation_engine.duration = 
-      as.numeric(simData$simulation_engine.duration)
+  if ('simulation_engine.duration' %in% colnames(file_sim)) {
+    file_sim$simulation_engine.duration = 
+      as.numeric(file_sim$simulation_engine.duration)
   }
   
   return(file_sim)
