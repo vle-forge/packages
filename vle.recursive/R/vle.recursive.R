@@ -237,7 +237,9 @@ vle.recursive.getEmbedded = function(rvle_handle=NULL, input=1, replicate=1)
 #' @export
 #' 
 #' @param rvle_handle, a rvle handle built with vle.recursive.init
-#' @param id, a string of the form 'cond.port'
+#' @param forcing, a string of the form 'cond.port'
+#' @param in_embedded [default:FALSE], if TRUE, return only the default value
+#'        in the embedded model, and not in the simulation configuration.
 #' 
 #' @return NULL
 #' 
@@ -251,42 +253,45 @@ vle.recursive.getEmbedded = function(rvle_handle=NULL, input=1, replicate=1)
 #' 
 #' #TODO
 #'  
-vle.recursive.getValue = function(rvle_handle=NULL, id=NULL)
+vle.recursive.getValue = function(rvle_handle=NULL, forcing=NULL,
+                                  in_embedded = FALSE)
 {
   if (! vle.recursive.check(rvle_handle)) {
       stop("[vle.recursive] Error: rvle_handle is malformed");
       return (NULL);
   }
-  inputPort = paste("input", sep="_", id);
-  ##try to find into rvle_handle an input
-  if (length(which(rvle.listConditionPorts(rvle_handle,"cond") == 
-                   inputPort)) > 0) {
-    return(rvle.getConditionPortValues(rvle_handle, 
-                                       "cond", inputPort));
-  }
-  
-  inputPort = paste("replicate", sep="_", id);
-  ##try to find into rvle_handle a replicate
-  if (length(which(rvle.listConditionPorts(rvle_handle,"cond") == 
-                   inputPort)) > 0) {
-    return(rvle.getConditionPortValues(rvle_handle, 
-                                       "cond", inputPort));
-  }
-  
-  inputPort = paste("propagate", sep="_", id);
-  ##try to find into rvle_handle a propagate
-  if (length(which(rvle.listConditionPorts(rvle_handle,"cond") == 
-                   inputPort)) > 0) {
-    return(rvle.getConditionPortValues(rvle_handle, 
-                                       "cond", inputPort));
+  if (! in_embedded) {
+    inputPort = paste("input", sep="_", forcing);
+    ##try to find into rvle_handle an input
+    if (length(which(rvle.listConditionPorts(rvle_handle,"cond") == 
+                     inputPort)) > 0) {
+      return(rvle.getConditionPortValues(rvle_handle, 
+                                         "cond", inputPort));
+    }
+    
+    inputPort = paste("replicate", sep="_", forcing);
+    ##try to find into rvle_handle a replicate
+    if (length(which(rvle.listConditionPorts(rvle_handle,"cond") == 
+                     inputPort)) > 0) {
+      return(rvle.getConditionPortValues(rvle_handle, 
+                                         "cond", inputPort));
+    }
+    
+    inputPort = paste("propagate", sep="_", forcing);
+    ##try to find into rvle_handle a propagate
+    if (length(which(rvle.listConditionPorts(rvle_handle,"cond") == 
+                     inputPort)) > 0) {
+      return(rvle.getConditionPortValues(rvle_handle, 
+                                         "cond", inputPort));
+    }
   }
 
   ##try to find into embedded sim
   ftmp = rvle.open(
           pkg=rvle.getConditionPortValues(rvle_handle, "cond", "package"),
           file=rvle.getConditionPortValues(rvle_handle, "cond", "vpz"));
-  econd = strsplit(id, split="\\.")[[1]][1]
-  eport = strsplit(id, split="\\.")[[1]][2]
+  econd = strsplit(forcing, split="\\.")[[1]][1]
+  eport = strsplit(forcing, split="\\.")[[1]][2]
   return (rvle.getConditionPortValues(ftmp, econd, eport));
 }
 
@@ -1064,6 +1069,9 @@ vle.recursive.parseExpe = function(file_expe=NULL, rvle_handle=NULL,
 #' @param rvle_handle [optionnal], a rvle handle built with
 #'        vle.recursive.init, input values are used to initialize the model
 #' @param id [default:NULL], id of simulations to keep
+#' @param fillMissing [default:depends on rvle_handle], if TRUE, then 
+#'        the simulations with missing value are filled with the default value 
+#'        in the original vpz.
 #' @param withWarnings [default:TRUE], gives warnings if true
 #' @param sep [default:";"], separator type for columns in file
 #' @param skip [default:1], skip parameter of read.table
@@ -1077,14 +1085,13 @@ vle.recursive.parseExpe = function(file_expe=NULL, rvle_handle=NULL,
 #'  
 #'
 vle.recursive.parseSim = function(file_sim=NULL, rvle_handle=NULL, id=NULL,
-  withWarnings=TRUE, sep=";", skip=1)
+    fillMissing = ! is.null(rvle_handle), withWarnings=TRUE, sep=";", skip=1)
 {
   #read inputs
   if (is.character(file_sim)) {
     file_sim = read.table(file_sim, sep=sep, skip=skip, header=TRUE, 
             stringsAsFactors = FALSE); 
   }
-
   #remove useless columns
   headerNames = names(file_sim)
   for (n in headerNames) {
@@ -1096,14 +1103,23 @@ vle.recursive.parseSim = function(file_sim=NULL, rvle_handle=NULL, id=NULL,
         warning(paste("Problem in simulation data: Na in all column", n, 
                       ", column is removed"));  
       }
-    } else if (sum(is.na(file_sim[[n]])) > 1) {
+    } else if (sum(is.na(file_sim[[n]])) > 0) {
       if (withWarnings) {
         strId = paste(which(is.na(file_sim[[n]])), collapse=",");
+        treatment = 'removed';
+        if (fillMissing) {
+          treatment = 'filled with default value';
+        }
         warning(paste("Problem  in simulation data: Na in column", n,
-                      ", missing lines are removed id=", 
+                      ", missing lines are ",treatment," : id=", 
                       strId));
       }
-      file_sim = file_sim[!is.na(file_sim[[n]]), ];
+      if (fillMissing) {
+        file_sim[is.na(file_sim[[n]]),n] <- 
+          vle.recursive.getValue(f, forcing=n, in_embedded=T)
+      } else {
+        file_sim = file_sim[!is.na(file_sim[[n]]), ];
+      }
     }
   }
 
