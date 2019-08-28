@@ -1312,6 +1312,7 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
   sim_vs_obs = NULL
   for (i in 1:length(isSim)) {
     idi = file_sim$id[i]
+    
     file_obs_i = file_obs[file_obs$id == idi,]
     for (var in setdiff(output_vars,"date")) {
       
@@ -1323,6 +1324,11 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
         for (j in 1:nrow(file_obs_i_var)) {
           d_str = file_obs_i_var$date[j]
           d = vle.recursive.dateToNum(d_str)
+          if (! length(res_i_val[which(res_i_date == d)])) {
+            stop(paste("[vle.recursive.compareSimObs] no simulation result ",
+                        "for variable '", var, "' for id '", idi, "' at date ",
+                        d_str, sep=""))
+          }
           sim_vs_obs = rbind(sim_vs_obs, data.frame(id=idi, date=d_str,
             output=var, observed=file_obs_i_var[[var]][j], 
             simulated=res_i_val[which(res_i_date == d)], stringsAsFactors=F))
@@ -1781,6 +1787,7 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
                                        date = file_obsi$date,
                                        file_sim = file_sim, id = idi,
                                        output_vars = c(var,"date"));
+         
           file_obsi = subset(file_obsi, round(date) %in% round(resi$date[,1]))
           idistr = as.character(idi);
           if (!is.null(sim_legend)){
@@ -1796,16 +1803,18 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
         }
       }
       print(paste("rmse ",var,":", sqrt(sum((df$obs-df$sim)^2)/length(df$obs))))
-      gp = ggplot(data=df, aes(x=sim, y=obs, colour=id));
-      if (is.null(sim_legend)) {
-        gp = gp+ geom_text(aes(label=id)) + theme(legend.position="none");
-      } else {
-        gp = gp+ geom_point();
+      if (length(df)) {
+        gp = ggplot(data=df, aes(x=sim, y=obs, colour=id));
+        if (is.null(sim_legend)) {
+          gp = gp+ geom_text(aes(label=id)) + theme(legend.position="none");
+        } else {
+          gp = gp+ geom_point();
+        }
+        gp = gp + geom_abline(intercept = 0, slope = 1) + 
+          labs(x=paste(var, "sim"), y=paste(var, "obs")) ;
+        gpAll[[i]] = gp;
+        i = i+1;
       }
-      gp = gp + geom_abline(intercept = 0, slope = 1) + 
-        labs(x=paste(var, "sim"), y=paste(var, "obs")) ;
-      gpAll[[i]] = gp;
-      i = i+1;
     }
   }
   
