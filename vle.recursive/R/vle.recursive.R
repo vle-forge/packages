@@ -893,7 +893,7 @@ vle.recursive.simulate = function(rvle_handle=NULL, withSpawn=1)
       cat(readLines(rvlelog),sep="\n")
     }
   }
-  class(res) = "vle.recursive.simulate";
+  attr(res, "rvle_obj") = "vle.recursive.simulate"
   return (res)
 }
 
@@ -1254,10 +1254,11 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
 #' Compute RMSE between simulations and obs
 #' 
 #'  @param res, simulation results
-#'  @param file_sim,  filename of simulations
-#'  @param file_obs,  filename of observations
-#'  @param output_vars, list of char giving the outputs for which
-#'                      to compute RMSE
+#'  @param file_sim, filename of simulations
+#'  @param file_obs, filename of observations
+#'  @param integration, temporal integration for all output variables 
+#'                       ("all" or "max") 
+#'                       eg : c(GY="max", LAI="all")
 #'  @param id,  id to simulate for comparison
 #'  @param withWarnings,  if true, print warnings
 #'  @param print,  if true, print rmse
@@ -1265,8 +1266,7 @@ vle.recursive.parseObs = function(file_obs=NULL, rvle_handle=NULL, id=NULL,
 #' 
 
 vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
-                                      output_vars=NULL, id=NULL,
-                                     withWarnings=TRUE, print=FALSE)
+    integration=NULL, id=NULL, withWarnings=TRUE, print=FALSE)
 {
   #read simulations
   file_sim = vle.recursive.parseSim(file_sim=file_sim,
@@ -1275,13 +1275,12 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
   #read observations
   file_obs = vle.recursive.parseObs(file_obs=file_obs, id=id,
                                     withWarnings=withWarnings)
-  if (is.null(output_vars)) {
-    output_vars = attr(file_obs, "paths");
-    output_vars[["id"]]<-NULL;
-    output_vars<-names(output_vars);
-  }
-  if (is.null(output_vars)) {
-    stop("[vle.recursive] missing 'output_vars'");
+  if (is.null(integration)) {
+    output_paths = attr(file_obs, "paths");
+    output_paths[["id"]]<-NULL;
+    output_paths[["date"]]<-NULL;
+    integration = rep(list("all"), length(output_paths))
+    names(integration) <- names(output_paths)
   }
   
   #check results
@@ -1311,31 +1310,40 @@ vle.recursive.compareSimObs=function(res=NULL, file_sim=NULL, file_obs=NULL,
 
   sim_vs_obs = NULL
   for (i in 1:length(isSim)) {
+  #for (i in 1:1) {
     idi = file_sim$id[i]
     
     file_obs_i = file_obs[file_obs$id == idi,]
-    for (var in setdiff(output_vars,"date")) {
-      
+    for (var in names(integration)) {
       file_obs_i_var = file_obs_i[!is.na(file_obs_i[[var]]),]
+      
       if (nrow(file_obs_i_var) > 0) {
         res_i_val = res[[var]][,i]
-        res_i_date = round(res$date[,i])
-
-        for (j in 1:nrow(file_obs_i_var)) {
-          d_str = file_obs_i_var$date[j]
-          d = vle.recursive.dateToNum(d_str)
-          if (! length(res_i_val[which(res_i_date == d)])) {
-            stop(paste("[vle.recursive.compareSimObs] no simulation result ",
-                        "for variable '", var, "' for id '", idi, "' at date ",
-                        d_str, sep=""))
+        if (integration[[var]] == "all") {
+          #handle "all" integration
+          res_i_date = round(res$date[,i])
+          for (j in 1:nrow(file_obs_i_var)) {
+            d_str = file_obs_i_var$date[j]
+            d = vle.recursive.dateToNum(d_str)
+            if (! length(res_i_val[which(res_i_date == d)])) {
+              stop(paste("[vle.recursive.compareSimObs] no simulation result ",
+                         "for variable '", var, "' for id '", idi, "' at date ",
+                         d_str, sep=""))
+            }
+            sim_vs_obs = rbind(sim_vs_obs, data.frame(id=idi, date=d_str,
+              output=var, observed=file_obs_i_var[[var]][j], 
+              simulated=res_i_val[which(res_i_date == d)], stringsAsFactors=F))
           }
-          sim_vs_obs = rbind(sim_vs_obs, data.frame(id=idi, date=d_str,
-            output=var, observed=file_obs_i_var[[var]][j], 
-            simulated=res_i_val[which(res_i_date == d)], stringsAsFactors=F))
+        } else if (integration[[var]] == "max") {
+          #handle "max" integration
+          sim_vs_obs = rbind(sim_vs_obs, data.frame(id=idi, date="max", 
+            output=var, observed=max(file_obs_i_var[[var]]),
+            simulated=max(res_i_val),  stringsAsFactors=F))
         }
       }
     }
   }
+  attr(sim_vs_obs, "rvle_obj") <- "vle.recursive.compareSimObs"
   return(sim_vs_obs);
 }
 
@@ -1630,7 +1638,8 @@ vle.recursive.mcmc = function(rvle_handle=NULL, file_expe=NULL,
 #'
 #' Generic function for plot
 #' 
-#'  @param res, results from vle.recursive.simulate
+#'  @param rvle_obj, results from vle.recursive.simulate 
+#'                    or vle.recursive.compareSimObs
 #'  @param file_sim, either 
 #'         - a csv file name of simulations
 #'         - a dataframe of simulations
@@ -1640,15 +1649,16 @@ vle.recursive.mcmc = function(rvle_handle=NULL, file_expe=NULL,
 #'  @param output_vars, list of char giving the outputs to plot
 #'  @param id, id of simulation or observations. is applied to selection in 
 #'             file_sim and file_obs if not null (only one?)
-#'  @param type, either "static" or "dynamic"
-#'  @param time_ind, time indices for plot (only for dynamic type plot)
+#'  @param time_ind, time indices for plot 
+#'                   (only for objects from vle.recursive.simulate)
 #'  @param sim_legend, vector of char for legend of simulation
 #'  @param typeReturn, either 
 #'   - 'plot_list': the list of ggplot is returned (can be modified)
 #'   - NULL: the ggplot are arranged and the return is NULL. if 'plot_list
 #' 
-vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_vars=NULL,
-                              id=NULL, type="dynamic", time_ind=NULL,
+vle.recursive.plot = function(rvle_obj=NULL, file_sim=NULL, file_obs=NULL, 
+                              output_vars=NULL,
+                              id=NULL, time_ind=NULL,
                               sim_legend=NULL, typeReturn=NULL)
 {
   library(gridExtra)
@@ -1656,53 +1666,68 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
   library(ggplot2)
   library(reshape2)
   
-  if (class(res) != "vle.recursive.simulate"){
-    stop("[vle.recursive] object 'res' should be the result of 
-         vle.recursive.simulate");
-  }
+  gpAll = NULL;
   
-  #identify output_vars and open obs
-  if (is.null(output_vars)) {
-    output_vars = names(res);
-  }
-  if (! is.null(file_obs)) {
-    file_obs = vle.recursive.parseObs(file_obs=file_obs, id=id);
-    if (is.null(output_vars)) {
-      output_vars = attr(file_obs, "paths");
-      output_vars[["id"]]<-NULL;
-      output_vars<-names(output_vars);
+  #build static plots
+  if (attr(rvle_obj, "rvle_obj") == "vle.recursive.compareSimObs"){
+    if (is.null(file_sim)) {
+      stop("[vle.recursive.plot] file_sim is null");
+    }
+    if (is.null(file_obs)) {
+      stop("[vle.recursive.plot] file_obs is null");
+    }
+    i = 1;
+    for (var in unique(rvle_obj$output)) {
+      df = rvle_obj[rvle_obj$output == var,]
+      print(paste("rmse ",var,":", sqrt(sum((df$observed-df$simulated)^2)/length(df$observed))))
+      
+      gp = ggplot(data=df, aes(x=simulated, y=observed, colour=as.character(id)));
+      if (is.null(sim_legend)) {
+        gp = gp+ geom_text(aes(label=id)) + theme(legend.position="none");
+      } else {
+        gp = gp+ geom_point();
+      }
+      gp = gp + geom_abline(intercept = 0, slope = 1) + 
+        labs(x=paste(var, "sim"), y=paste(var, "obs")) ;
+      gpAll[[i]] = gp;
+      i = i+1;
     }
   }
-
-  ##extract res
-  res = vle.recursive.extract(res = res, file_sim = file_sim, id = id,
-                              output_vars=output_vars);
-  
-  #compute isSim from id it is either
-  # - indices of simulations to extract if file_sim is null
-  # - id of simu to extract otherwise
-  isSim = 1:ncol(res[[1]]);
-  if (! is.null(file_sim)) {
-    file_sim = vle.recursive.parseSim(file_sim=file_sim, id=id);
-    isSim = file_sim$id
-    if (! is.null(id)) {
-      if (nrow(file_sim) != length(id)){
-        stop("[vle.recursive] file_sim and id do not fit");
-      }
-      if (ncol(res[[1]]) != nrow(file_sim)){
-        stop("[vle.recursive] file_sim and res do not fit");
-      }
-    }
-  } else if (! is.null(id)) {
-    #id is interpreted as index
-    isSim = id;
-  }
-
-
 
   #build dynamic plots
-  gpAll = NULL;
-  if (type == "dynamic") {
+  if (attr(rvle_obj, "rvle_obj") == "vle.recursive.simulate") {
+    #identify output_vars and open obs
+    if (is.null(output_vars)) {
+      output_vars = names(rvle_obj);
+    }
+    if (! is.null(file_obs)) {
+      file_obs = vle.recursive.parseObs(file_obs=file_obs, id=id);
+    }
+    
+    ##extract res
+    res = vle.recursive.extract(res = rvle_obj, file_sim = file_sim, id = id,
+                                output_vars=output_vars);
+    
+    #compute isSim from id it is either
+    # - indices of simulations to extract if file_sim is null
+    # - id of simu to extract otherwise
+    isSim = 1:ncol(res[[1]]);
+    if (! is.null(file_sim)) {
+      file_sim = vle.recursive.parseSim(file_sim=file_sim, id=id);
+      isSim = file_sim$id
+      if (! is.null(id)) {
+        if (nrow(file_sim) != length(id)){
+          stop("[vle.recursive] file_sim and id do not fit");
+        }
+        if (ncol(res[[1]]) != nrow(file_sim)){
+          stop("[vle.recursive] file_sim and res do not fit");
+        }
+      }
+    } else if (! is.null(id)) {
+      #id is interpreted as index
+      isSim = id;
+    }
+    
     i = 1;
     for (var in setdiff(output_vars,"date")) {
       df = NULL;
@@ -1763,61 +1788,9 @@ vle.recursive.plot = function(res=NULL, file_sim=NULL, file_obs=NULL, output_var
       gpAll[[i]] = gp;
       i = i+1;
     }
-
   }
   
-  #build static plots
-  if (type == "static") {
-    if (is.null(file_sim)) {
-      stop("[vle.recursive] file_sim is null");
-    }
-    if (is.null(file_obs)) {
-      stop("[vle.recursive] file_obs is null");
-    }
-    i = 1;
-    for (var in setdiff(output_vars, "date")) {
-      df = NULL;
-      for (ii in 1:length(file_sim$id)){
-        idi = file_sim$id[ii]
-        file_obsi = subset(file_obs, id == idi);
-        file_obsi = subset(file_obsi,  !is.na(file_obsi[[var]]))
-        if (nrow(file_obsi) > 0) {
-          file_obsi$date = vle.recursive.dateToNum(file_obsi$date);
-          resi = vle.recursive.extract(res = res, time_ind = NULL,
-                                       date = file_obsi$date,
-                                       file_sim = file_sim, id = idi,
-                                       output_vars = c(var,"date"));
-         
-          file_obsi = subset(file_obsi, round(date) %in% round(resi$date[,1]))
-          idistr = as.character(idi);
-          if (!is.null(sim_legend)){
-            idistr = sim_legend[ii];
-          }
-          if(nrow(resi$date) > 0) {
-            for (o in 1:nrow(file_obsi)) {
-              df = rbind(df,data.frame(id=idistr, obs = file_obsi[o,var],
-                                       sim = resi[[var]][o,1],
-                                       stringsAsFactors = F));
-            }
-          }
-        }
-      }
-      print(paste("rmse ",var,":", sqrt(sum((df$obs-df$sim)^2)/length(df$obs))))
-      if (length(df)) {
-        gp = ggplot(data=df, aes(x=sim, y=obs, colour=id));
-        if (is.null(sim_legend)) {
-          gp = gp+ geom_text(aes(label=id)) + theme(legend.position="none");
-        } else {
-          gp = gp+ geom_point();
-        }
-        gp = gp + geom_abline(intercept = 0, slope = 1) + 
-          labs(x=paste(var, "sim"), y=paste(var, "obs")) ;
-        gpAll[[i]] = gp;
-        i = i+1;
-      }
-    }
-  }
-  
+  #return static aor dynamic plots
   if (!is.null(typeReturn) && (typeReturn == "plot_list")) {
     return (gpAll)
   }
