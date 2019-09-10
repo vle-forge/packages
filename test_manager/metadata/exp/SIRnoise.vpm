@@ -2,5 +2,7 @@
 <!DOCTYPE vle_project_metadata>
 <vle_project_metadata version="1.x" author="me">
  <condPlugins/>
- <outputGUIplugins/>
+ <outputGUIplugins>
+  <outputGUIplugin view="view" GUIplugin="gvle.output/storage"/>
+ </outputGUIplugins>
 </vle_project_metadata>

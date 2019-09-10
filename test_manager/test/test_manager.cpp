@@ -23,19 +23,24 @@
  */
 
 //@@tagtest@@
-//@@tagdepends: vle.recursive @@endtagdepends
+//@@tagdepends: @@endtagdepends
 
-#include <vle/utils/unit-test.hpp>
+
 #include <vle/value/Map.hpp>
+#include <vle/value/Tuple.hpp>
+#include <vle/value/Set.hpp>
+#include <vle/value/Matrix.hpp>
+#include <vle/value/Table.hpp>
+#include <vle/utils/unit-test.hpp>
 #include <vle/utils/Package.hpp>
-#include <vle/recursive/MetaManager.hpp>
+#include <vle/manager/Manager.hpp>
 
 #include <iostream>
 
 void test_api()
 {
-    namespace vr = vle::recursive;
     namespace vv = vle::value;
+    namespace vm = vle::manager;
 
     //define x1 values
     vv::Tuple x1(2);
@@ -52,10 +57,10 @@ void test_api()
     r.addInt(9531);
 
     vv::Map init;
-    init.addString("config_parallel_type","single");
+    init.addString("parallel_option","mono");
     init.addString("working_dir","/tmp/");
-    init.addInt("config_parallel_nb_slots",2);
-    init.addString("package","vle.recursive_test");
+    init.addInt("nb_slots",1);
+    init.addString("package","test_manager");
     init.addString("vpz","ExBohachevsky.vpz");
     init.add("input_cond.x1", x1.clone());
     init.add("input_cond.x2", x2.clone());
@@ -69,9 +74,11 @@ void test_api()
 
     init.add("replicate_cond.seed",r.clone());
 
-    vr::MetaManager meta;
+    auto ctx = vle::utils::make_context();
+    vm::Manager manager(ctx);
+
     vle::manager::Error err;
-    std::unique_ptr<vv::Map> res = meta.run(init, err);
+    std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
 
     if (err.code ==-1) {
         std::cout << " error: " << err.message << "\n";
@@ -96,7 +103,7 @@ void test_api()
 
 void test_complex_values()
 {
-    namespace vr = vle::recursive;
+    namespace vm = vle::manager;
     namespace vv = vle::value;
 
     //define x1 values
@@ -110,10 +117,10 @@ void test_complex_values()
 
 
     vv::Map init;
-    init.addString("config_parallel_type","single");
+    init.addString("parallel_option","threads");
     init.addString("working_dir","/tmp/");
-    init.addInt("config_parallel_nb_slots",2);
-    init.addString("package","vle.recursive_test");
+    init.addInt("nb_slots",1);
+    init.addString("package","test_manager");
     init.addString("vpz","ExBohachevsky.vpz");
     init.add("input_cond.x1", x1.clone());
     init.add("input_cond.x2", x2.clone());
@@ -125,9 +132,11 @@ void test_complex_values()
 
     init.addInt("propagate_cond.seed",1235);
 
-    vr::MetaManager meta;
+    auto ctx = vle::utils::make_context();
+    vm::Manager manager(ctx);
+
     vle::manager::Error err;
-    std::unique_ptr<vv::Map> res = meta.run(init, err);
+    std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
 
     if (err.code ==-1) {
         std::cout << " error: " << err.message << "\n";
@@ -151,18 +160,17 @@ void test_SIR()
 {
     std::string conf_simu = "single"; int nb_slots=1;
     //std::string conf_simu = "threads"; int nb_slots=2;
-    //std::string conf_simu = "mvle"; int nb_slots=3;
-    //std::string conf_simu = "cvle"; int nb_slots=4;
+    //std::string conf_simu = "mpi"; int nb_slots=4;
 
-    namespace vr = vle::recursive;
+    namespace vm = vle::manager;
     namespace vv = vle::value;
 
     {//multiple simulation on init_value_S
         vv::Map init;
-        init.addString("config_parallel_type",conf_simu);
-        init.addInt("config_parallel_nb_slots",nb_slots);
+        init.addString("parallel_option",conf_simu);
+        init.addInt("nb_slots",nb_slots);
         init.addString("working_dir","/tmp/");
-        init.addString("package","vle.recursive_test");
+        init.addString("package","test_manager");
         init.addString("vpz","SIR.vpz");
 
         init.addString("output_Sfinal", "view/top:SIR.S");
@@ -179,9 +187,11 @@ void test_SIR()
         Svalues[3] = 75;
         Svalues[4] = 50;
 
-        vr::MetaManager meta;
+        auto ctx = vle::utils::make_context();
+        vm::Manager manager(ctx);
+
         vle::manager::Error err;
-        std::unique_ptr<vv::Map> res = meta.run(init, err);
+        std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
 
 
         if (err.code ==-1) {
@@ -201,10 +211,10 @@ void test_SIR()
 
     {//multiple replicate on seed and multiple inputs on init_value_S
         vv::Map init;
-        init.addString("config_parallel_type",conf_simu);
-        init.addInt("config_parallel_nb_slots",nb_slots);
+        init.addString("parallel_option",conf_simu);
+        init.addInt("nb_slots",nb_slots);
         init.addString("working_dir","/tmp/");
-        init.addString("package","vle.recursive_test");
+        init.addString("package","test_manager");
         init.addString("vpz","SIRnoise.vpz");
 
         //config output, mean on replicate, all on inputs
@@ -232,9 +242,11 @@ void test_SIR()
         seeds[3] = 85698;
         seeds[4] = 95699;
 
-        vr::MetaManager meta;
+        auto ctx = vle::utils::make_context();
+        vm::Manager manager(ctx);
+
         vle::manager::Error err;
-        std::unique_ptr<vv::Map> res = meta.run(init, err);
+        std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
 
         if (err.code ==-1) {
             std::cout << " error: " << err.message << "\n";
@@ -253,10 +265,10 @@ void test_SIR()
 
     {//compute mse on multiple beta parameters
         vv::Map init;
-        init.addString("config_parallel_type",conf_simu);
-        init.addInt("config_parallel_nb_slots",nb_slots);
+        init.addString("parallel_option",conf_simu);
+        init.addInt("nb_slots",nb_slots);
         init.addString("working_dir","/tmp/");
-        init.addString("package","vle.recursive_test");
+        init.addString("package","test_manager");
         init.addString("vpz","SIR.vpz");
 
         //config output, mse on I
@@ -286,9 +298,11 @@ void test_SIR()
         beta[1] = 0.002;
         beta[2] = 0.003;
 
-        vr::MetaManager meta;
+        auto ctx = vle::utils::make_context();
+        vm::Manager manager(ctx);
+
         vle::manager::Error err;
-        std::unique_ptr<vv::Map> res = meta.run(init, err);
+        std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
         if (err.code ==-1) {
             std::cout << " error: " << err.message << "\n";
         }

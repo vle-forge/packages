@@ -34,12 +34,10 @@ vle.extension.fsa
 vle.extension.petrinet
 vle.ode
 vle.ode_test
-vle.recursive
 vle.discrete-time.decision
 vle.reader_test
 vle.extension.cellqss
 vle.discrete-time_test
-vle.recursive_test
 vle.examples
 vle.tester_test
 vle.discrete-time.decision_test
@@ -48,6 +46,7 @@ ext.muparser
 ext.qwt
 ext.shapelib
 vle.adaptative-qss.examples
+test_manager
 gvle.decision
 gvle.discrete-time
 gvle.simulating.plan

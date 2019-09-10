@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<vle_project version="1.0" author="Ronan Trépos" date="jeu., 08 oct. 2009">
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" date="jeu., 08 oct. 2009" author="Ronan Trépos">
  <structures>
-<model width="482" x="0" y="0" height="500" type="coupled" name="LogEx">
+<model width="482" height="500" x="0" y="0" name="LogEx" type="coupled">
 <submodels>
-<model width="100" x="36" y="47" dynamics="logEx" conditions="cond" height="30" observables="obs" type="atomic" name="LogEx">
+<model observables="obs" conditions="cond" width="100" dynamics="logEx" height="30" x="36" y="47" name="LogEx" type="atomic">
 </model>
 </submodels>
 <connections>
@@ -11,9 +11,9 @@
 </model>
 </structures>
  <dynamics>
-<dynamic package="vle.recursive_test" name="logEx" library="LogEx"/>
+<dynamic library="LogEx" package="test_manager" name="logEx"/>
 </dynamics>
- <experiment name="LogEx" combination="linear">
+ <experiment combination="linear" name="LogEx">
 <conditions>
 <condition name="cond">
  <port name="seed">
@@ -35,7 +35,7 @@
 </conditions>
 <views>
 <outputs>
-<output package="vle.output" plugin="file" format="local" location="" name="view"/>
+<output format="local" plugin="file" package="vle.output" location="" name="view"/>
 
 </outputs>
 <observables>
@@ -52,7 +52,7 @@
     </observable>
 
 </observables>
-<view output="view" type="timed" timestep="1" name="view"/>
+<view timestep="1" output="view" name="view" type="timed"/>
 
 </views>
 </experiment>

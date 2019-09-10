@@ -1,2 +1,0 @@
-vle.recursive_test LogExMM.vpz view "LogExMM:LogExMM.output_y_0" 1 10e-3 3.96593356281757
-vle.recursive_test LogExMM.vpz view "LogExMM:LogExMM.output_y_1" 1 10e-3 1.0248405042402

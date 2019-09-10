@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<vle_project version="1.0" author="Ronan Trépos" date="jeu., 08 oct. 2009">
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" date="jeu., 08 oct. 2009" author="Ronan Trépos">
  <structures>
-<model width="482" name="ExBohachevsky" y="0" type="coupled" height="500" x="0">
+<model width="482" height="500" y="0" x="0" name="ExBohachevsky" type="coupled">
 <submodels>
-<model width="100" observables="obs" name="ExBohachevsky" y="47" type="atomic" height="30" conditions="cond" dynamics="ExBohachevsky" x="36">
+<model observables="obs" conditions="cond" width="100" dynamics="ExBohachevsky" height="30" y="47" x="36" name="ExBohachevsky" type="atomic">
 </model>
 </submodels>
 <connections>
@@ -11,9 +11,9 @@
 </model>
 </structures>
  <dynamics>
-<dynamic name="ExBohachevsky" library="ExBohachevsky" package="vle.recursive_test"/>
+<dynamic library="ExBohachevsky" package="test_manager" name="ExBohachevsky"/>
 </dynamics>
- <experiment combination="linear" name="Bohachevsky" duration="10">
+ <experiment duration="10" combination="linear" name="Bohachevsky">
 <conditions>
 <condition name="cond">
  <port name="seed">
@@ -37,7 +37,7 @@
 </conditions>
 <views>
 <outputs>
-<output location="" name="view" format="local" plugin="file" package="vle.output">
+<output format="local" plugin="file" package="vle.output" location="" name="view">
      <map>
       <key name="header">
        <string>top</string>
@@ -57,7 +57,7 @@
      </map>
     </output>
 
-<output location="" name="allinOne" format="local" plugin="file" package="vle.output">
+<output format="local" plugin="file" package="vle.output" location="" name="allinOne">
      <map>
       <key name="type">
        <string>text</string>
@@ -76,7 +76,7 @@
       </key>
      </map>
     </output>
-   <output location="" name="viewNoise" format="local" plugin="file" package="vle.output">
+   <output format="local" plugin="file" package="vle.output" location="" name="viewNoise">
      <map>
       <key name="type">
        <string>text</string>
@@ -115,10 +115,10 @@
     </observable>
 
 </observables>
-<view name="view" type="finish" output="view"/>
+<view name="view" output="view" type="finish"/>
 
-<view name="allinOne" type="timed" output="allinOne" timestep="1"/>
-  <view name="viewNoise" type="timed" output="viewNoise" timestep="1"/>
+<view timestep="1" name="allinOne" output="allinOne" type="timed"/>
+  <view timestep="1" name="viewNoise" output="viewNoise" type="timed"/>
   </views>
 </experiment>
 </vle_project>

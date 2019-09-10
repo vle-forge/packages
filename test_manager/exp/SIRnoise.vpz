@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<vle_project author="Gauthier Quesnel" date="dimanche 2 janvier 2000 02:00" version="1.0">
+<?xml version='1.0' encoding='UTF-8'?>
+<vle_project version="1.0" date="" author="Gauthier Quesnel">
  <structures>
-   <model width="300" type="coupled" y="0" height="300" x="0" name="top">
+   <model width="300" height="300" y="0" x="0" name="top" type="coupled">
    <in/>
    <out/>
   <submodels>
-    <model width="50" type="atomic" dynamics="dynSIR" y="89" observables="obsSIR" conditions="condSIR" height="73" x="55" name="SIR">
+    <model observables="obsSIRnoise" conditions="condSIRnoise" width="50" dynamics="dynSIRnoise" height="50" y="81" x="58" name="SIRnoise" type="atomic">
      <in/>
      <out>
    <port name="S"/>
@@ -17,10 +17,9 @@
   </model>
  </structures>
  <dynamics>
- 
- <dynamic library="SIR" package="vle.recursive_test" name="dynSIR"/>
+ <dynamic library="SIRnoise" package="test_manager" name="dynSIRnoise"/>
  </dynamics>
- <experiment seed="123456789" duration="60" name="test">
+ <experiment duration="60" name="test" seed="123456789">
    <conditions>
     <condition name="simulation_engine">
      <port name="begin">
@@ -30,8 +29,7 @@
       <double>60</double>
      </port>"
     </condition>
-   
-  <condition name="condSIR">
+   <condition name="condSIRnoise">
    <port name="init_value_S">
     <double>99</double>
    </port>
@@ -62,6 +60,12 @@
    <port name="sync_gamma">
     <integer>0</integer>
    </port>
+   <port name="init_value_seed">
+    <double>32568</double>
+   </port>
+   <port name="sync_seed">
+    <integer>0</integer>
+   </port>
   </condition>
   </conditions>
   <views>
@@ -86,10 +90,9 @@
      </map>
     </output>
    </outputs>
-   <view type="timed" timestep="1" output="view" name="view"/>
+   <view timestep="1" output="view" name="view" type="timed"/>
    <observables>
-    
-   <observable name="obsSIR">
+    <observable name="obsSIRnoise">
    <port name="S">
       <attachedview name="view"/>
      </port>

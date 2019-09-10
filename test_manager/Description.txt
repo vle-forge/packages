@@ -1,10 +1,10 @@
-Package: vle.recursive_test
+Package: test_manager
 Version: 0.1.0
 Depends: vle.output
-Build-Depends:vle.recursive, vle.tester, vle.discrete-time, vle.reader
+Build-Depends: vle.discrete-time, vle.tester, vle.reader
 Conflicts:
 Maintainer: Ronan Trépos <ronan.trepos@toulouse.inra.fr>
-Description: Test package for vle API for embedded simulations
+Description: Test package for vle manager API
  .
 Tags: vle utils simulation
 Url: http://www.vle-project.org/2.0
