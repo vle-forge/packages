@@ -454,11 +454,11 @@ vleSmDT::setHistorySize(const QString& varName, int hsize, bool snap)
     }
     QDomNode cond = nodeCond();
     std::unique_ptr<value::Value> oldHsize =
-            vleDomStatic::getValueFromPortCond(cond,"history_size_"+varName, 0);
+            vleDomStatic::getPortValueFromCond(cond,"history_size_"+varName);
     std::unique_ptr<value::Value> initVal =
-            vleDomStatic::getValueFromPortCond(cond,"init_value_"+varName, 0);
+            vleDomStatic::getPortValueFromCond(cond,"init_value_"+varName);
     std::unique_ptr<value::Value> dim =
-            vleDomStatic::getValueFromPortCond(cond,"dim_"+varName, 0);
+            vleDomStatic::getPortValueFromCond(cond,"dim_"+varName);
     if (isVect(varName)) {
         if (dim and initVal) {
             initVal->toTable().resize(hsize, dim->toInteger().value());
@@ -608,8 +608,8 @@ int
 vleSmDT::getHistorySize(const QString& varName)
 {
     QDomNode cond = nodeCond();
-    std::unique_ptr<value::Value> hsize = vleDomStatic::getValueFromPortCond(
-            cond,"history_size_"+varName, 0);
+    std::unique_ptr<value::Value> hsize = vleDomStatic::getPortValueFromCond(
+            cond,"history_size_"+varName);
     if (hsize) {
         return hsize->toInteger().value();
     }
@@ -624,8 +624,8 @@ vleSmDT::getDim(const QString& varName)
         return -1;
     }
     QDomNode cond = nodeCond();
-    std::unique_ptr<value::Value> dim = vleDomStatic::getValueFromPortCond(
-            cond, "dim_"+varName, 0);
+    std::unique_ptr<value::Value> dim = vleDomStatic::getPortValueFromCond(
+            cond, "dim_"+varName);
     if (dim) {
         return dim->toInteger().value();
     }
