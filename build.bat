@@ -18,8 +18,6 @@ vle.exe -P vle.ode clean rclean configure build
 if %ERRORLEVEL% NEQ 0 goto :ERROR
 vle.exe -P vle.ode_test clean rclean configure build
 if %ERRORLEVEL% NEQ 0 goto :ERROR
-vle.exe -P vle.recursive clean rclean configure build
-if %ERRORLEVEL% NEQ 0 goto :ERROR
 vle.exe -P vle.discrete-time.decision clean rclean configure build
 if %ERRORLEVEL% NEQ 0 goto :ERROR
 vle.exe -P vle.reader_test clean rclean configure build
@@ -27,8 +25,6 @@ if %ERRORLEVEL% NEQ 0 goto :ERROR
 vle.exe -P vle.extension.cellqss clean rclean configure build
 if %ERRORLEVEL% NEQ 0 goto :ERROR
 vle.exe -P vle.discrete-time_test clean rclean configure build
-if %ERRORLEVEL% NEQ 0 goto :ERROR
-vle.exe -P vle.recursive_test clean rclean configure build
 if %ERRORLEVEL% NEQ 0 goto :ERROR
 vle.exe -P vle.examples clean rclean configure build
 if %ERRORLEVEL% NEQ 0 goto :ERROR

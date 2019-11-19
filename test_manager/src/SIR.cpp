@@ -10,13 +10,14 @@
 */
 
 #include <vle/DiscreteTime.hpp>
+
 namespace vd = vle::devs;
 
 namespace vv = vle::value;
 
-namespace vle {
-namespace discrete_time {
-namespace vle_recursive_test {
+namespace test_manager {
+
+using namespace vle::discrete_time;
 
 class SIR : public DiscreteTimeDyn
 {
@@ -53,9 +54,7 @@ R = R(-1)+gamma()*I(-1);
 
 };
 
-} // namespace vle_recursive_test
-} // namespace discrete_time
-} // namespace vle
+} // namespace test_manager
 
-DECLARE_DYNAMICS(vle::discrete_time::vle_recursive_test::SIR)
+DECLARE_DYNAMICS(test_manager::SIR)
 

@@ -107,12 +107,10 @@ script:
   - vle -P vle.extension.petrinet clean rclean configure build
   - vle -P vle.ode clean rclean configure build
   - vle -P vle.ode_test clean rclean configure build
-  - vle -P vle.recursive clean rclean configure build
   - vle -P vle.discrete-time.decision clean rclean configure build
   - vle -P vle.reader_test clean rclean configure build
   - vle -P vle.extension.cellqss clean rclean configure build
   - vle -P vle.discrete-time_test clean rclean configure build
-  - vle -P vle.recursive_test clean rclean configure build
     #  - vle -P vle.examples clean rclean configure build
   - vle -P vle.tester_test clean rclean configure build
   - vle -P vle.discrete-time.decision_test clean rclean configure build

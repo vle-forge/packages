@@ -59,9 +59,11 @@ void test_logEx_threads()
     y_times[1] = 10;
     y_times[2] = 16;
 
+    vv::Map config;
+    config.addString("paprallel_option","mono");
+    config.addInt("nb_slots",1);
+
     vv::Map init;
-    init.addString("paprallel_option","mono");
-    init.addInt("nb_slots",1);
     init.addString("package","test_manager");
     init.addString("vpz","LogEx.vpz");
     init.add("input_cond.init_value_x", x.clone());
@@ -72,7 +74,7 @@ void test_logEx_threads()
     conf_y.add("mse_times", y_times.clone());
 
     auto ctx = vle::utils::make_context();
-    vm::Manager manager(ctx);
+    vm::Manager manager(ctx, config);
 
     vle::manager::Error err;
     std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
@@ -112,9 +114,11 @@ void test_ExBohachevsky_threads()
     seeds.addInt(7234);
     seeds.addInt(9531);
 
+    vv::Map config;
+    config.addString("paprallel_option","threads");
+    config.addInt("nb_slots",3);
+
     vv::Map init;
-    init.addString("paprallel_option","threads");
-    init.addInt("nb_slots",3);
     init.addString("package","test_manager");
     init.addString("vpz","ExBohachevsky.vpz");
     init.add("input_cond.x1", x1.clone());
@@ -131,7 +135,7 @@ void test_ExBohachevsky_threads()
     //conf_ynoise.addString("aggregation_replicate","quantile");
 
     auto ctx = vle::utils::make_context();
-    vm::Manager manager(ctx);
+    vm::Manager manager(ctx, config);
 
     vle::manager::Error err;
     std::unique_ptr<vv::Map> res = manager.runPlan(init, err);

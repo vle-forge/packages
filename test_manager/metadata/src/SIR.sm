@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE vle_project_metadata>
 <vle_project_metadata version="1.x" author="meto">
- <srcPlugin package="vle.recursive_test" name="discrete-time" class="SIR"/>
+ <srcPlugin package="test_manager" name="discrete-time" class="SIR"/>
  <definition>
   <variables>
    <variable name="S">
@@ -53,7 +53,7 @@ R = R(-1)+gamma()*I(-1);]]></compute>
   <includes/>
  </definition>
  <configuration>
-  <dynamic library="SIR" package="vle.recursive_test" name="dynSIR"/>
+  <dynamic library="SIR" package="test_manager" name="dynSIR"/>
   <observable name="obsSIR">
    <port name="S"/>
    <port name="I"/>

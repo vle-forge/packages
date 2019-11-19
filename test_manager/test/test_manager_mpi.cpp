@@ -67,10 +67,12 @@ void test_ExBohachevsky_mpi()
     seeds.addInt(7234);
     seeds.addInt(9531);
 
+    vv::Map config;
+    config.addString("parallel_option","mpi");
+    config.addString("working_dir","/tmp/");
+    config.addInt("nb_slots",3);
+
     vv::Map init;
-    init.addString("parallel_option","mpi");
-    init.addString("working_dir","/tmp/");
-    init.addInt("nb_slots",3);
     init.addString("package","test_manager");
     init.add("input_cond.x1", x1.clone());
     init.add("input_cond.x2", x2.clone());
@@ -85,7 +87,7 @@ void test_ExBohachevsky_mpi()
     conf_ynoise.addString("integration","max");
     //conf_ynoise.addString("aggregation_replicate","quantile");
 
-    vm::Manager manager(ctx);
+    vm::Manager manager(ctx, config);
 
     vle::manager::Error err;
     std::unique_ptr<vv::Map> res = manager.runPlan(

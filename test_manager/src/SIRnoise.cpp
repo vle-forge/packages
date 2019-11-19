@@ -15,9 +15,9 @@ namespace vd = vle::devs;
 
 namespace vv = vle::value;
 
-namespace vle {
-namespace discrete_time {
-namespace vle_recursive_test {
+namespace test_manager {
+
+using namespace vle::discrete_time;
 
 class SIRnoise : public DiscreteTimeDyn
 {
@@ -59,9 +59,7 @@ R = R(-1)+gamma()*epsilon2*I(-1);
 vle::utils::Rand mrand;
 };
 
-} // namespace vle_recursive_test
-} // namespace discrete_time
-} // namespace vle
+} // namespace test_manager
 
-DECLARE_DYNAMICS(vle::discrete_time::vle_recursive_test::SIRnoise)
+DECLARE_DYNAMICS(test_manager::SIRnoise)
 

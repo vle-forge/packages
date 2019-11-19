@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE vle_project_metadata>
-<vle_project_metadata author="meto" version="1.x">
- <srcPlugin class="SIRnoise" package="vle.recursive_test" name="discrete-time"/>
+<vle_project_metadata version="1.x" author="meto">
+ <srcPlugin package="test_manager" name="discrete-time" class="SIRnoise"/>
  <definition>
   <variables>
    <variable name="S">
@@ -64,7 +64,7 @@ R = R(-1)+gamma()*epsilon2*I(-1);]]></compute>
   <includes><![CDATA[#include <vle/utils/Rand.hpp>]]></includes>
  </definition>
  <configuration>
-  <dynamic library="SIRnoise" package="vle.recursive_test" name="dynSIRnoise"/>
+  <dynamic library="SIRnoise" package="test_manager" name="dynSIRnoise"/>
   <observable name="obsSIRnoise">
    <port name="S"/>
    <port name="I"/>

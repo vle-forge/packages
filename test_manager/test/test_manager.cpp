@@ -56,10 +56,12 @@ void test_api()
     r.addInt(7234);
     r.addInt(9531);
 
+    vv::Map config;
+    config.addString("parallel_option","mono");
+    config.addString("working_dir","/tmp/");
+    config.addInt("nb_slots",1);
+
     vv::Map init;
-    init.addString("parallel_option","mono");
-    init.addString("working_dir","/tmp/");
-    init.addInt("nb_slots",1);
     init.addString("package","test_manager");
     init.addString("vpz","ExBohachevsky.vpz");
     init.add("input_cond.x1", x1.clone());
@@ -75,7 +77,7 @@ void test_api()
     init.add("replicate_cond.seed",r.clone());
 
     auto ctx = vle::utils::make_context();
-    vm::Manager manager(ctx);
+    vm::Manager manager(ctx, config);
 
     vle::manager::Error err;
     std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
@@ -115,11 +117,12 @@ void test_complex_values()
     x2[0] = -10.0;
     x2[1] = 0.0;
 
+    vv::Map config;
+    config.addString("parallel_option","threads");
+    config.addString("working_dir","/tmp/");
+    config.addInt("nb_slots",1);
 
     vv::Map init;
-    init.addString("parallel_option","threads");
-    init.addString("working_dir","/tmp/");
-    init.addInt("nb_slots",1);
     init.addString("package","test_manager");
     init.addString("vpz","ExBohachevsky.vpz");
     init.add("input_cond.x1", x1.clone());
@@ -133,7 +136,7 @@ void test_complex_values()
     init.addInt("propagate_cond.seed",1235);
 
     auto ctx = vle::utils::make_context();
-    vm::Manager manager(ctx);
+    vm::Manager manager(ctx, config);
 
     vle::manager::Error err;
     std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
@@ -166,18 +169,18 @@ void test_SIR()
     namespace vv = vle::value;
 
     {//multiple simulation on init_value_S
+        vv::Map config;
+        config.addString("parallel_option",conf_simu);
+        config.addString("working_dir","/tmp/");
+        config.addInt("nb_slots",nb_slots);
+
         vv::Map init;
-        init.addString("parallel_option",conf_simu);
-        init.addInt("nb_slots",nb_slots);
-        init.addString("working_dir","/tmp/");
         init.addString("package","test_manager");
         init.addString("vpz","SIR.vpz");
-
         init.addString("output_Sfinal", "view/top:SIR.S");
         vv::Map& conf_out = init.addMap("output_Sfinal");
         conf_out.addString("path", "view/top:SIR.S");
         conf_out.addString("integration", "last");
-
         vv::Tuple& Svalues = init.addTuple(
                 "input_condSIR.init_value_S", 5, 0.0);
 
@@ -188,7 +191,7 @@ void test_SIR()
         Svalues[4] = 50;
 
         auto ctx = vle::utils::make_context();
-        vm::Manager manager(ctx);
+        vm::Manager manager(ctx, config);
 
         vle::manager::Error err;
         std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
@@ -210,20 +213,20 @@ void test_SIR()
     }
 
     {//multiple replicate on seed and multiple inputs on init_value_S
+        vv::Map config;
+        config.addString("parallel_option",conf_simu);
+        config.addInt("nb_slots",nb_slots);
+        config.addString("working_dir","/tmp/");
+
         vv::Map init;
-        init.addString("parallel_option",conf_simu);
-        init.addInt("nb_slots",nb_slots);
-        init.addString("working_dir","/tmp/");
         init.addString("package","test_manager");
         init.addString("vpz","SIRnoise.vpz");
-
         //config output, mean on replicate, all on inputs
         vv::Map& conf_out = init.addMap("output_Sfinal");
         conf_out.addString("path", "view/top:SIRnoise.S");
         conf_out.addString("integration", "last");
         conf_out.addString("aggregation_replicate", "mean");
         conf_out.addString("aggregation_input", "all");
-
         //set 5 input values
         vv::Tuple& Svalues = init.addTuple(
                 "input_condSIRnoise.init_value_S", 5, 0.0);
@@ -232,7 +235,6 @@ void test_SIR()
         Svalues[2] = 99;
         Svalues[3] = 75;
         Svalues[4] = 50;
-
         //set 6 seeds
         vv::Tuple& seeds = init.addTuple(
                 "replicate_condSIRnoise.init_value_seed", 6, 0.0);
@@ -243,7 +245,7 @@ void test_SIR()
         seeds[4] = 95699;
 
         auto ctx = vle::utils::make_context();
-        vm::Manager manager(ctx);
+        vm::Manager manager(ctx, config);
 
         vle::manager::Error err;
         std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
@@ -264,13 +266,14 @@ void test_SIR()
     }
 
     {//compute mse on multiple beta parameters
+        vv::Map config;
+        config.addString("parallel_option",conf_simu);
+        config.addInt("nb_slots",nb_slots);
+        config.addString("working_dir","/tmp/");
+
         vv::Map init;
-        init.addString("parallel_option",conf_simu);
-        init.addInt("nb_slots",nb_slots);
-        init.addString("working_dir","/tmp/");
         init.addString("package","test_manager");
         init.addString("vpz","SIR.vpz");
-
         //config output, mse on I
         vv::Map& conf_out = init.addMap("output_mseI");
         conf_out.addString("path", "view/top:SIR.I");
@@ -299,7 +302,7 @@ void test_SIR()
         beta[2] = 0.003;
 
         auto ctx = vle::utils::make_context();
-        vm::Manager manager(ctx);
+        vm::Manager manager(ctx, config);
 
         vle::manager::Error err;
         std::unique_ptr<vv::Map> res = manager.runPlan(init, err);
