@@ -78,9 +78,8 @@ public:
 
         manager::Error error;
 
-        manager::Simulation sim(context(), manager::LOG_NONE,
-                manager::SIMULATION_NONE,
-                std::chrono::milliseconds(0), &std::cout);
+        manager::Simulation sim(context(), manager::SIMULATION_NONE,
+                std::chrono::milliseconds(0));
         std::unique_ptr<value::Map> result = sim.run(std::move(file), &error);
 
         assert(not result);

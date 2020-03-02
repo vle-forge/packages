@@ -45,8 +45,7 @@ void test_RK4_LotkaVolterra()
 
     //simulation
     vm::Error error;
-    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    vm::Simulation sim(ctx, vm::SIMULATION_NONE, std::chrono::milliseconds(0));
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
 
@@ -106,8 +105,7 @@ void test_RK4_Seir()
 
     //simulation
     vm::Error error;
-    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    vm::Simulation sim(ctx, vm::SIMULATION_NONE, std::chrono::milliseconds(0));
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
     //checks that simulation has succeeded

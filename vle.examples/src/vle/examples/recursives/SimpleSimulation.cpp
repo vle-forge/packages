@@ -55,9 +55,8 @@ public:
         std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
                 pack.getExpFile("counter.vpz", vle::utils::PKG_BINARY)));
 
-        manager::Simulation sim(context(), manager::LOG_NONE,
-                manager::SIMULATION_NONE,
-                std::chrono::milliseconds(0), &std::cout);
+        manager::Simulation sim(context(), manager::SIMULATION_NONE,
+                std::chrono::milliseconds(0));
         std::unique_ptr<value::Map> result = sim.run(std::move(file), NULL);
 
         assert(result);

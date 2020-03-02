@@ -122,10 +122,8 @@ PlanSimSubpanelThread::onStarted()
     }
 
     vle::manager::Simulation sim(ctx,
-                                 vle::manager::LOG_RUN,
                                  doSpawn,
-                                 std::chrono::milliseconds::zero(),
-                                 &std::cout);
+                                 std::chrono::milliseconds::zero());
     vle::manager::Error manerror;
     output_map.reset(nullptr);
     std::unique_ptr<vle::vpz::Vpz> vpz(nullptr);

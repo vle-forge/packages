@@ -60,9 +60,8 @@ void test_moore1()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -104,9 +103,8 @@ void test_moore2()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -140,9 +138,8 @@ void test_mealy1()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -188,9 +185,8 @@ void test_mealy2()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -224,9 +220,8 @@ void test_statechart1()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -548,9 +543,8 @@ void test_statechart7()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -656,9 +650,8 @@ void test_statechart10()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -685,9 +678,8 @@ void test_statechart11()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -739,9 +731,8 @@ void test_statechartMultipleSend()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);

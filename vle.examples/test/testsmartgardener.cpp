@@ -62,9 +62,8 @@ void test_qss4()
 
 
     manager::Error error;
-    manager::Simulation sim(ctx, manager::LOG_NONE,
-            manager::SIMULATION_NONE,
-            std::chrono::milliseconds(0), &std::cout);
+    manager::Simulation sim(ctx, manager::SIMULATION_NONE,
+                std::chrono::milliseconds(0));
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
