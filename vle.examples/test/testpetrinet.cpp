@@ -66,8 +66,14 @@ void test_petrinet_and()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
             std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -98,8 +104,14 @@ void test_petrinet_or()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
             std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -131,8 +143,14 @@ void test_petrinet_nand1()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
             std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -164,8 +182,14 @@ void test_petrinet_nand2()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
             std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -197,8 +221,14 @@ void test_petrinet_and_timed()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
             std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -230,8 +260,14 @@ void test_petrinet_or_priority()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
             std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -263,8 +299,14 @@ void test_petrinet_meteo()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
             std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -294,8 +336,14 @@ void test_petrinet_inout()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
             std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -329,8 +377,14 @@ void test_petrinet_conflict()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
                 std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);

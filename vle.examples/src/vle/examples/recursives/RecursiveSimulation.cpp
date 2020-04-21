@@ -35,6 +35,8 @@
 #include <vle/manager/Simulation.hpp>
 #include <vle/utils/Package.hpp>
 
+#include <vle/version.hpp>
+
 
 namespace vle { namespace examples { namespace recursives {
 
@@ -78,8 +80,14 @@ public:
 
         manager::Error error;
 
+#if VLE_VERSION >= 200100
         manager::Simulation sim(context(), manager::SIMULATION_NONE,
                 std::chrono::milliseconds(0));
+#else
+        manager::Simulation sim(context(), manager::LOG_NONE,
+                manager::SIMULATION_NONE,
+                std::chrono::milliseconds(0), &std::cout);
+#endif
         std::unique_ptr<value::Map> result = sim.run(std::move(file), &error);
 
         assert(not result);

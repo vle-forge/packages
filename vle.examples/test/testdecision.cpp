@@ -60,8 +60,14 @@ void test_agentonly()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
                 std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -95,8 +101,14 @@ void test_agentonlyprecedenceconstraint()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
                 std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);
@@ -127,8 +139,14 @@ void test_agentonlywakeup()
 
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
                 std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     EnsuresEqual(error.code, 0);

@@ -125,8 +125,13 @@ public:
     {
         if (mvpz) {
             setStorageViews();
+#if VLE_VERSION >= 200100
             vm::Simulation sim(mCtx, vm::SIMULATION_SPAWN_PROCESS,
                     std::chrono::milliseconds(0));
+#else
+            vm::Simulation sim(mCtx, vm::LOG_NONE, vm::SIMULATION_SPAWN_PROCESS,
+                    std::chrono::milliseconds(0), &std::cout);
+#endif
             std::unique_ptr<va::Map> res = sim.run(std::move(mvpz), &merror);
             return res;
         } else {
