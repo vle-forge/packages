@@ -34,6 +34,8 @@
 #include <vle/manager/Simulation.hpp>
 #include <vle/utils/Package.hpp>
 
+#include <vle/version.hpp>
+
 
 namespace vle { namespace examples { namespace recursives {
 
@@ -55,8 +57,14 @@ public:
         std::unique_ptr<vpz::Vpz> file(new vpz::Vpz(
                 pack.getExpFile("counter.vpz", vle::utils::PKG_BINARY)));
 
+#if VLE_VERSION >= 200100
         manager::Simulation sim(context(), manager::SIMULATION_NONE,
                 std::chrono::milliseconds(0));
+#else
+        manager::Simulation sim(context(), manager::LOG_NONE,
+                manager::SIMULATION_NONE,
+                std::chrono::milliseconds(0), &std::cout);
+#endif
         std::unique_ptr<value::Map> result = sim.run(std::move(file), NULL);
 
         assert(result);

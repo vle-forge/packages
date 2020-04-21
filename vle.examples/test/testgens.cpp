@@ -67,8 +67,14 @@ void test_gens()
     /* run the simulation */
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
                 std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
@@ -123,8 +129,14 @@ void test_gens_with_class()
     /* run the simulation */
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
                 std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
@@ -181,8 +193,14 @@ void test_gens_with_graph()
     /* run the simulation */
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
             std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */
@@ -232,8 +250,14 @@ void test_gens_delete_connection()
     /* run the simulation */
 
     manager::Error error;
+#if VLE_VERSION >= 200100
     manager::Simulation sim(ctx, manager::SIMULATION_NONE,
                 std::chrono::milliseconds(0));
+#else
+    manager::Simulation sim(ctx, manager::LOG_NONE,
+            manager::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<value::Map> out = sim.run(std::move(file), &error);
 
     /* begin check */

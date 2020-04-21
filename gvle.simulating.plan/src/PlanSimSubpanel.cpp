@@ -35,6 +35,8 @@
 #include <vle/utils/Tools.hpp>
 #include <vle/value/Matrix.hpp>
 
+#include <vle/version.hpp>
+
 #include "ui_simpanelleft.h"
 #include "ui_simpanelright.h"
 
@@ -121,9 +123,17 @@ PlanSimSubpanelThread::onStarted()
         doSpawn = vle::manager::SIMULATION_SPAWN_PROCESS;
     }
 
+#if VLE_VERSION >= 200100
     vle::manager::Simulation sim(ctx,
                                  doSpawn,
                                  std::chrono::milliseconds::zero());
+#else
+    vle::manager::Simulation sim(ctx,
+                                 vle::manager::LOG_RUN,
+                                 doSpawn,
+                                 std::chrono::milliseconds::zero(),
+                                 &std::cout);
+#endif
     vle::manager::Error manerror;
     output_map.reset(nullptr);
     std::unique_ptr<vle::vpz::Vpz> vpz(nullptr);

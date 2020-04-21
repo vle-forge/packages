@@ -40,6 +40,8 @@
 #include <vle/value/Matrix.hpp>
 #include <vle/gvle/vlevpz.hpp>
 
+#include <vle/version.hpp>
+
 #include "vlesmdt.h"
 
 namespace vv = vle::value;
@@ -453,12 +455,21 @@ vleSmDT::setHistorySize(const QString& varName, int hsize, bool snap)
         return;
     }
     QDomNode cond = nodeCond();
+#if VLE_VERSION >= 200100
     std::unique_ptr<value::Value> oldHsize =
             vleDomStatic::getPortValueFromCond(cond,"history_size_"+varName);
     std::unique_ptr<value::Value> initVal =
             vleDomStatic::getPortValueFromCond(cond,"init_value_"+varName);
     std::unique_ptr<value::Value> dim =
             vleDomStatic::getPortValueFromCond(cond,"dim_"+varName);
+#else
+    std::unique_ptr<value::Value> oldHsize =
+            vleDomStatic::getValueFromPortCond(cond,"history_size_"+varName, 0);
+    std::unique_ptr<value::Value> initVal =
+            vleDomStatic::getValueFromPortCond(cond,"init_value_"+varName, 0);
+    std::unique_ptr<value::Value> dim =
+            vleDomStatic::getValueFromPortCond(cond,"dim_"+varName, 0);
+#endif
     if (isVect(varName)) {
         if (dim and initVal) {
             initVal->toTable().resize(hsize, dim->toInteger().value());
@@ -608,8 +619,13 @@ int
 vleSmDT::getHistorySize(const QString& varName)
 {
     QDomNode cond = nodeCond();
+#if VLE_VERSION >= 200100
     std::unique_ptr<value::Value> hsize = vleDomStatic::getPortValueFromCond(
             cond,"history_size_"+varName);
+#else
+    std::unique_ptr<value::Value> hsize = vleDomStatic::getValueFromPortCond(
+            cond,"history_size_"+varName, 0);
+#endif
     if (hsize) {
         return hsize->toInteger().value();
     }
@@ -624,8 +640,13 @@ vleSmDT::getDim(const QString& varName)
         return -1;
     }
     QDomNode cond = nodeCond();
+#if VLE_VERSION >= 200100
     std::unique_ptr<value::Value> dim = vleDomStatic::getPortValueFromCond(
             cond, "dim_"+varName);
+#else
+    std::unique_ptr<value::Value> dim = vleDomStatic::getValueFromPortCond(
+            cond, "dim_"+varName, 0);
+#endif
     if (dim) {
         return dim->toInteger().value();
     }

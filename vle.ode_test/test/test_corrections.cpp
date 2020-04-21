@@ -20,6 +20,7 @@
 // @@tagtest@@
 
 #include "test_common.hpp"
+#include <vle/version.hpp>
 
 
 /******************
@@ -38,7 +39,12 @@ void test_ExtUpLV()
 
     //simulation
     vm::Error error;
+#if VLE_VERSION >= 200100
     vm::Simulation sim(ctx, vm::SIMULATION_NONE, std::chrono::milliseconds(0));
+#else
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
 
@@ -75,7 +81,12 @@ void test_OutputPeriod()
 
     //simulation
     vm::Error error;
+#if VLE_VERSION >= 200100
     vm::Simulation sim(ctx, vm::SIMULATION_NONE, std::chrono::milliseconds(0));
+#else
+    vm::Simulation sim(ctx, vm::LOG_NONE, vm::SIMULATION_NONE,
+            std::chrono::milliseconds(0), &std::cout);
+#endif
     std::unique_ptr<va::Map> out = sim.run(std::move(vpz), &error);
 
 
