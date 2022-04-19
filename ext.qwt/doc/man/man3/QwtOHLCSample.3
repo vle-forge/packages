@@ -1,10 +1,8 @@
-.TH "QwtOHLCSample" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtOHLCSample" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtOHLCSample \- 
-.PP
-Open-High-Low-Close sample used in financial charts\&.  
+QwtOHLCSample \- Open-High-Low-Close sample used in financial charts\&.  
 
 .SH SYNOPSIS
 .br
@@ -18,13 +16,13 @@ Open-High-Low-Close sample used in financial charts\&.
 .RI "\fBQwtOHLCSample\fP (double \fBtime\fP=0\&.0, double \fBopen\fP=0\&.0, double \fBhigh\fP=0\&.0, double \fBlow\fP=0\&.0, double \fBclose\fP=0\&.0)"
 .br
 .ti -1c
-.RI "\fBQwtInterval\fP \fBboundingInterval\fP () const "
+.RI "\fBQwtInterval\fP \fBboundingInterval\fP () const"
 .br
-.RI "\fICalculate the bounding interval of the OHLC values\&. \fP"
+.RI "Calculate the bounding interval of the OHLC values\&. "
 .ti -1c
-.RI "bool \fBisValid\fP () const "
+.RI "bool \fBisValid\fP () const"
 .br
-.RI "\fICheck if a sample is valid\&. \fP"
+.RI "Check if a sample is valid\&. "
 .in -1c
 .SS "Public Attributes"
 
@@ -35,19 +33,19 @@ Open-High-Low-Close sample used in financial charts\&.
 .ti -1c
 .RI "double \fBopen\fP"
 .br
-.RI "\fIOpening price\&. \fP"
+.RI "Opening price\&. "
 .ti -1c
 .RI "double \fBhigh\fP"
 .br
-.RI "\fIHighest price\&. \fP"
+.RI "Highest price\&. "
 .ti -1c
 .RI "double \fBlow\fP"
 .br
-.RI "\fILowest price\&. \fP"
+.RI "Lowest price\&. "
 .ti -1c
 .RI "double \fBclose\fP"
 .br
-.RI "\fIClosing price\&. \fP"
+.RI "Closing price\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -55,7 +53,7 @@ Open-High-Low-Close sample used in financial charts\&.
 
 In financial charts the movement of a price in a time interval is often represented by the opening/closing prices and the lowest/highest prices in this interval\&.
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtTradingChartData\fP 
 .RE
@@ -63,10 +61,10 @@ In financial charts the movement of a price in a time interval is often represen
 
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "QwtOHLCSample::QwtOHLCSample (doublet = \fC0\&.0\fP, doubleo = \fC0\&.0\fP, doubleh = \fC0\&.0\fP, doublel = \fC0\&.0\fP, doublec = \fC0\&.0\fP)\fC [inline]\fP"
+.SS "QwtOHLCSample::QwtOHLCSample (double t = \fC0\&.0\fP, double o = \fC0\&.0\fP, double h = \fC0\&.0\fP, double l = \fC0\&.0\fP, double c = \fC0\&.0\fP)\fC [inline]\fP"
 Constructor
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIt\fP Time value 
 .br
@@ -87,12 +85,12 @@ Constructor
 .PP
 Calculate the bounding interval of the OHLC values\&. For valid samples the limits of this interval are always low/high\&.
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Bounding interval 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBisValid()\fP 
 .RE
@@ -111,7 +109,7 @@ low <= open <= high
 low <= close <= high
 .PP
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 True, when the sample is valid 
 .RE

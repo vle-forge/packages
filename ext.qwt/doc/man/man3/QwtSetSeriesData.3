@@ -1,10 +1,8 @@
-.TH "QwtSetSeriesData" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtSetSeriesData" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtSetSeriesData \- 
-.PP
-Interface for iterating over an array of samples\&.  
+QwtSetSeriesData \- Interface for iterating over an array of samples\&.  
 
 .SH SYNOPSIS
 .br
@@ -20,9 +18,9 @@ Inherits \fBQwtArraySeriesData< QwtSetSample >\fP\&.
 .RI "\fBQwtSetSeriesData\fP (const QVector< \fBQwtSetSample\fP > &=QVector< \fBQwtSetSample\fP >())"
 .br
 .ti -1c
-.RI "virtual QRectF \fBboundingRect\fP () const "
+.RI "virtual QRectF \fBboundingRect\fP () const"
 .br
-.RI "\fICalculate the bounding rectangle\&. \fP"
+.RI "Calculate the bounding rectangle\&. "
 .in -1c
 .SS "Additional Inherited Members"
 .SH "Detailed Description"
@@ -30,10 +28,10 @@ Inherits \fBQwtArraySeriesData< QwtSetSample >\fP\&.
 Interface for iterating over an array of samples\&. 
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "QwtSetSeriesData::QwtSetSeriesData (const QVector< \fBQwtSetSample\fP > &samples = \fCQVector<\fBQwtSetSample\fP>()\fP)"
+.SS "QwtSetSeriesData::QwtSetSeriesData (const QVector< \fBQwtSetSample\fP > & samples = \fCQVector<\fBQwtSetSample\fP>()\fP)"
 Constructor 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIsamples\fP Samples 
 .RE
@@ -46,14 +44,12 @@ Constructor
 .PP
 Calculate the bounding rectangle\&. The bounding rectangle is calculated once by iterating over all points and is stored for all following requests\&.
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Bounding rectangle 
 .RE
 .PP
 
-.PP
-Implements \fBQwtSeriesData< QwtSetSample >\fP\&.
 
 .SH "Author"
 .PP 

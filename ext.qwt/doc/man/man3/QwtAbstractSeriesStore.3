@@ -1,10 +1,8 @@
-.TH "QwtAbstractSeriesStore" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtAbstractSeriesStore" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtAbstractSeriesStore \- 
-.PP
-Bridge between \fBQwtSeriesStore\fP and \fBQwtPlotSeriesItem\fP\&.  
+QwtAbstractSeriesStore \- Bridge between \fBQwtSeriesStore\fP and \fBQwtPlotSeriesItem\fP\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,11 +17,11 @@ Inherited by \fBQwtPlotSeriesItem\fP\fC [virtual]\fP, \fBQwtSeriesStore< T >\fP\
 .ti -1c
 .RI "virtual \fB~QwtAbstractSeriesStore\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "virtual void \fBdataChanged\fP ()=0"
 .br
-.RI "\fI\fBdataChanged()\fP indicates, that the series has been changed\&. \fP"
+.RI "\fBdataChanged()\fP indicates, that the series has been changed\&. "
 .ti -1c
 .RI "virtual void \fBsetRectOfInterest\fP (const QRectF &)=0"
 .br
@@ -44,29 +42,29 @@ Bridge between \fBQwtSeriesStore\fP and \fBQwtPlotSeriesItem\fP\&.
 .SS "virtual QRectF QwtAbstractSeriesStore::dataRect () const\fC [protected]\fP, \fC [pure virtual]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Bounding rectangle of the stored series 
 .RE
 .PP
 
 .PP
-Implemented in \fBQwtSeriesStore< T >\fP, \fBQwtSeriesStore< QwtIntervalSample >\fP, \fBQwtSeriesStore< QwtOHLCSample >\fP, \fBQwtSeriesStore< QPointF >\fP, \fBQwtSeriesStore< QwtSetSample >\fP, and \fBQwtSeriesStore< QwtPoint3D >\fP\&.
+Implemented in \fBQwtSeriesStore< T >\fP\&.
 .SS "virtual size_t QwtAbstractSeriesStore::dataSize () const\fC [protected]\fP, \fC [pure virtual]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Number of samples 
 .RE
 .PP
 
 .PP
-Implemented in \fBQwtSeriesStore< T >\fP, \fBQwtSeriesStore< QwtIntervalSample >\fP, \fBQwtSeriesStore< QwtOHLCSample >\fP, \fBQwtSeriesStore< QPointF >\fP, \fBQwtSeriesStore< QwtSetSample >\fP, and \fBQwtSeriesStore< QwtPoint3D >\fP\&.
+Implemented in \fBQwtSeriesStore< T >\fP\&.
 .SS "virtual void QwtAbstractSeriesStore::setRectOfInterest (const QRectF &)\fC [protected]\fP, \fC [pure virtual]\fP"
 Set a the 'rectangle of interest' for the stored series 
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtSeriesData<T>::setRectOfInterest()\fP 
 .RE

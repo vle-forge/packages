@@ -1,8 +1,8 @@
-.TH "QwtPainterCommand" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtPainterCommand" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtPainterCommand \- 
+QwtPainterCommand
 .SH SYNOPSIS
 .br
 .PP
@@ -14,15 +14,15 @@ QwtPainterCommand \-
 .ti -1c
 .RI "struct \fBImageData\fP"
 .br
-.RI "\fIAttributes how to paint a QImage\&. \fP"
+.RI "Attributes how to paint a QImage\&. "
 .ti -1c
 .RI "struct \fBPixmapData\fP"
 .br
-.RI "\fIAttributes how to paint a QPixmap\&. \fP"
+.RI "Attributes how to paint a QPixmap\&. "
 .ti -1c
 .RI "struct \fBStateData\fP"
 .br
-.RI "\fIAttributes of a state change\&. \fP"
+.RI "Attributes of a state change\&. "
 .in -1c
 .SS "Public Types"
 
@@ -30,7 +30,7 @@ QwtPainterCommand \-
 .ti -1c
 .RI "enum \fBType\fP { \fBInvalid\fP = -1, \fBPath\fP, \fBPixmap\fP, \fBImage\fP, \fBState\fP }"
 .br
-.RI "\fIType of the paint command\&. \fP"
+.RI "Type of the paint command\&. "
 .in -1c
 .SS "Public Member Functions"
 
@@ -38,14 +38,14 @@ QwtPainterCommand \-
 .ti -1c
 .RI "\fBQwtPainterCommand\fP ()"
 .br
-.RI "\fIConstruct an invalid command\&. \fP"
+.RI "Construct an invalid command\&. "
 .ti -1c
 .RI "\fBQwtPainterCommand\fP (const \fBQwtPainterCommand\fP &)"
 .br
 .ti -1c
 .RI "\fBQwtPainterCommand\fP (const QPainterPath &)"
 .br
-.RI "\fICopy constructor\&. \fP"
+.RI "Copy constructor\&. "
 .ti -1c
 .RI "\fBQwtPainterCommand\fP (const QRectF &rect, const QPixmap &, const QRectF &subRect)"
 .br
@@ -58,36 +58,36 @@ QwtPainterCommand \-
 .ti -1c
 .RI "\fB~QwtPainterCommand\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "\fBQwtPainterCommand\fP & \fBoperator=\fP (const \fBQwtPainterCommand\fP &)"
 .br
 .ti -1c
-.RI "\fBType\fP \fBtype\fP () const "
+.RI "\fBType\fP \fBtype\fP () const"
 .br
 .ti -1c
 .RI "QPainterPath * \fBpath\fP ()"
 .br
 .ti -1c
-.RI "const QPainterPath * \fBpath\fP () const "
+.RI "const QPainterPath * \fBpath\fP () const"
 .br
 .ti -1c
 .RI "PixmapData * \fBpixmapData\fP ()"
 .br
 .ti -1c
-.RI "const PixmapData * \fBpixmapData\fP () const "
+.RI "const PixmapData * \fBpixmapData\fP () const"
 .br
 .ti -1c
 .RI "ImageData * \fBimageData\fP ()"
 .br
 .ti -1c
-.RI "const ImageData * \fBimageData\fP () const "
+.RI "const ImageData * \fBimageData\fP () const"
 .br
 .ti -1c
 .RI "StateData * \fBstateData\fP ()"
 .br
 .ti -1c
-.RI "const StateData * \fBstateData\fP () const "
+.RI "const StateData * \fBstateData\fP () const"
 .br
 .in -1c
 .SH "Detailed Description"
@@ -96,7 +96,7 @@ QwtPainterCommand \-
 .PP
 It is used by \fBQwtGraphic\fP to record and replay paint operations
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtGraphic::commands()\fP 
 .RE
@@ -128,19 +128,19 @@ Draw a QImage\&.
 QPainter state change\&. 
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "QwtPainterCommand::QwtPainterCommand (const \fBQwtPainterCommand\fP &other)"
+.SS "QwtPainterCommand::QwtPainterCommand (const \fBQwtPainterCommand\fP & other)"
 Copy constructor 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIother\fP Command to be copied 
 .RE
 .PP
 
-.SS "QwtPainterCommand::QwtPainterCommand (const QRectF &rect, const QPixmap &pixmap, const QRectF &subRect)"
+.SS "QwtPainterCommand::QwtPainterCommand (const QRectF & rect, const QPixmap & pixmap, const QRectF & subRect)"
 Constructor for Pixmap paint operation
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIrect\fP Target rectangle 
 .br
@@ -149,16 +149,16 @@ Constructor for Pixmap paint operation
 \fIsubRect\fP Rectangle inside the pixmap
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 QPainter::drawPixmap() 
 .RE
 .PP
 
-.SS "QwtPainterCommand::QwtPainterCommand (const QRectF &rect, const QImage &image, const QRectF &subRect, Qt::ImageConversionFlagsflags)"
+.SS "QwtPainterCommand::QwtPainterCommand (const QRectF & rect, const QImage & image, const QRectF & subRect, Qt::ImageConversionFlags flags)"
 Constructor for Image paint operation
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIrect\fP Target rectangle 
 .br
@@ -169,16 +169,16 @@ Constructor for Image paint operation
 \fIflags\fP Conversion flags
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 QPainter::drawImage() 
 .RE
 .PP
 
-.SS "QwtPainterCommand::QwtPainterCommand (const QPaintEngineState &state)"
+.SS "QwtPainterCommand::QwtPainterCommand (const QPaintEngineState & state)"
 Constructor for State paint operation 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIstate\fP Paint engine state 
 .RE
@@ -189,7 +189,7 @@ Constructor for State paint operation
 .SS "QwtPainterCommand::ImageData * QwtPainterCommand::imageData ()"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Attributes how to paint a QImage 
 .RE
@@ -198,21 +198,21 @@ Attributes how to paint a QImage
 .SS "const QwtPainterCommand::ImageData * QwtPainterCommand::imageData () const\fC [inline]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Attributes how to paint a QImage 
 .RE
 .PP
 
-.SS "\fBQwtPainterCommand\fP & QwtPainterCommand::operator= (const \fBQwtPainterCommand\fP &other)"
+.SS "\fBQwtPainterCommand\fP & QwtPainterCommand::operator= (const \fBQwtPainterCommand\fP & other)"
 Assignment operator
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIother\fP Command to be copied 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Modified command 
 .RE
@@ -221,7 +221,7 @@ Modified command
 .SS "QPainterPath * QwtPainterCommand::path ()"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Painter path to be painted 
 .RE
@@ -230,7 +230,7 @@ Painter path to be painted
 .SS "const QPainterPath * QwtPainterCommand::path () const\fC [inline]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Painter path to be painted 
 .RE
@@ -239,7 +239,7 @@ Painter path to be painted
 .SS "QwtPainterCommand::PixmapData * QwtPainterCommand::pixmapData ()"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Attributes how to paint a QPixmap 
 .RE
@@ -248,7 +248,7 @@ Attributes how to paint a QPixmap
 .SS "const QwtPainterCommand::PixmapData * QwtPainterCommand::pixmapData () const\fC [inline]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Attributes how to paint a QPixmap 
 .RE
@@ -257,7 +257,7 @@ Attributes how to paint a QPixmap
 .SS "QwtPainterCommand::StateData * QwtPainterCommand::stateData ()"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Attributes of a state change 
 .RE
@@ -266,7 +266,7 @@ Attributes of a state change
 .SS "const QwtPainterCommand::StateData * QwtPainterCommand::stateData () const\fC [inline]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Attributes of a state change 
 .RE
@@ -275,7 +275,7 @@ Attributes of a state change
 .SS "\fBQwtPainterCommand::Type\fP QwtPainterCommand::type () const\fC [inline]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Type of the command 
 .RE

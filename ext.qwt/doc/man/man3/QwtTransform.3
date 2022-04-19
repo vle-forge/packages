@@ -1,10 +1,8 @@
-.TH "QwtTransform" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtTransform" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtTransform \- 
-.PP
-A transformation between coordinate systems\&.  
+QwtTransform \- A transformation between coordinate systems\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,13 +17,13 @@ Inherited by \fBQwtLogTransform\fP, \fBQwtNullTransform\fP, and \fBQwtPowerTrans
 .ti -1c
 .RI "\fBQwtTransform\fP ()"
 .br
-.RI "\fIConstructor\&. \fP"
+.RI "Constructor\&. "
 .ti -1c
 .RI "virtual \fB~QwtTransform\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
-.RI "virtual double \fBbounded\fP (double value) const "
+.RI "virtual double \fBbounded\fP (double value) const"
 .br
 .ti -1c
 .RI "virtual double \fBtransform\fP (double value) const =0"
@@ -36,7 +34,7 @@ Inherited by \fBQwtLogTransform\fP, \fBQwtNullTransform\fP, and \fBQwtPowerTrans
 .ti -1c
 .RI "virtual \fBQwtTransform\fP * \fBcopy\fP () const =0"
 .br
-.RI "\fIVirtualized copy operation\&. \fP"
+.RI "Virtualized copy operation\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -64,15 +62,15 @@ s = invT ( T( s1 ) + ( T( s2 ) - T( s1 ) ) * ( p - p1 ) / ( p2 - p1 ) );
 
 .SH "Member Function Documentation"
 .PP 
-.SS "double QwtTransform::bounded (doublevalue) const\fC [virtual]\fP"
+.SS "double QwtTransform::bounded (double value) const\fC [virtual]\fP"
 Modify value to be a valid value for the transformation\&. The default implementation does nothing\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Value to be bounded 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 value unmodified 
 .RE
@@ -80,20 +78,20 @@ value unmodified
 
 .PP
 Reimplemented in \fBQwtLogTransform\fP\&.
-.SS "virtual double QwtTransform::invTransform (doublevalue) const\fC [pure virtual]\fP"
+.SS "virtual double QwtTransform::invTransform (double value) const\fC [pure virtual]\fP"
 Inverse transformation function
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Value 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Modified value
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBtransform()\fP 
 .RE
@@ -101,20 +99,20 @@ Modified value
 
 .PP
 Implemented in \fBQwtPowerTransform\fP, \fBQwtLogTransform\fP, and \fBQwtNullTransform\fP\&.
-.SS "virtual double QwtTransform::transform (doublevalue) const\fC [pure virtual]\fP"
+.SS "virtual double QwtTransform::transform (double value) const\fC [pure virtual]\fP"
 Transformation function
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Value 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Modified value
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBinvTransform()\fP 
 .RE

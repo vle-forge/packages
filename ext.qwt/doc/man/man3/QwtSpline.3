@@ -1,10 +1,8 @@
-.TH "QwtSpline" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtSpline" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtSpline \- 
-.PP
-A class for spline interpolation\&.  
+QwtSpline \- A class for spline interpolation\&.  
 
 .SH SYNOPSIS
 .br
@@ -17,7 +15,7 @@ A class for spline interpolation\&.
 .ti -1c
 .RI "enum \fBSplineType\fP { \fBNatural\fP, \fBPeriodic\fP }"
 .br
-.RI "\fISpline type\&. \fP"
+.RI "Spline type\&. "
 .in -1c
 .SS "Public Member Functions"
 
@@ -25,14 +23,14 @@ A class for spline interpolation\&.
 .ti -1c
 .RI "\fBQwtSpline\fP ()"
 .br
-.RI "\fIConstructor\&. \fP"
+.RI "Constructor\&. "
 .ti -1c
 .RI "\fBQwtSpline\fP (const \fBQwtSpline\fP &)"
 .br
 .ti -1c
 .RI "\fB~QwtSpline\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "\fBQwtSpline\fP & \fBoperator=\fP (const \fBQwtSpline\fP &)"
 .br
@@ -40,34 +38,34 @@ A class for spline interpolation\&.
 .RI "void \fBsetSplineType\fP (\fBSplineType\fP)"
 .br
 .ti -1c
-.RI "\fBSplineType\fP \fBsplineType\fP () const "
+.RI "\fBSplineType\fP \fBsplineType\fP () const"
 .br
 .ti -1c
 .RI "bool \fBsetPoints\fP (const QPolygonF &\fBpoints\fP)"
 .br
-.RI "\fICalculate the spline coefficients\&. \fP"
+.RI "Calculate the spline coefficients\&. "
 .ti -1c
-.RI "QPolygonF \fBpoints\fP () const "
+.RI "QPolygonF \fBpoints\fP () const"
 .br
 .ti -1c
 .RI "void \fBreset\fP ()"
 .br
-.RI "\fIFree allocated memory and set size to 0\&. \fP"
+.RI "Free allocated memory and set size to 0\&. "
 .ti -1c
-.RI "bool \fBisValid\fP () const "
+.RI "bool \fBisValid\fP () const"
 .br
-.RI "\fITrue if valid\&. \fP"
+.RI "True if valid\&. "
 .ti -1c
-.RI "double \fBvalue\fP (double x) const "
-.br
-.ti -1c
-.RI "const QVector< double > & \fBcoefficientsA\fP () const "
+.RI "double \fBvalue\fP (double x) const"
 .br
 .ti -1c
-.RI "const QVector< double > & \fBcoefficientsB\fP () const "
+.RI "const QVector< double > & \fBcoefficientsA\fP () const"
 .br
 .ti -1c
-.RI "const QVector< double > & \fBcoefficientsC\fP () const "
+.RI "const QVector< double > & \fBcoefficientsB\fP () const"
+.br
+.ti -1c
+.RI "const QVector< double > & \fBcoefficientsC\fP () const"
 .br
 .in -1c
 .SS "Protected Member Functions"
@@ -76,11 +74,11 @@ A class for spline interpolation\&.
 .ti -1c
 .RI "bool \fBbuildNaturalSpline\fP (const QPolygonF &)"
 .br
-.RI "\fIDetermines the coefficients for a natural spline\&. \fP"
+.RI "Determines the coefficients for a natural spline\&. "
 .ti -1c
 .RI "bool \fBbuildPeriodicSpline\fP (const QPolygonF &)"
 .br
-.RI "\fIDetermines the coefficients for a periodic spline\&. \fP"
+.RI "Determines the coefficients for a periodic spline\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -149,10 +147,10 @@ A natural spline\&.
 A periodic spline\&. 
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "QwtSpline::QwtSpline (const \fBQwtSpline\fP &other)"
+.SS "QwtSpline::QwtSpline (const \fBQwtSpline\fP & other)"
 Copy constructor 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIother\fP Spline used for initialization 
 .RE
@@ -160,23 +158,23 @@ Copy constructor
 
 .SH "Member Function Documentation"
 .PP 
-.SS "bool QwtSpline::buildNaturalSpline (const QPolygonF &points)\fC [protected]\fP"
+.SS "bool QwtSpline::buildNaturalSpline (const QPolygonF & points)\fC [protected]\fP"
 
 .PP
 Determines the coefficients for a natural spline\&. 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 true if successful 
 .RE
 .PP
 
-.SS "bool QwtSpline::buildPeriodicSpline (const QPolygonF &points)\fC [protected]\fP"
+.SS "bool QwtSpline::buildPeriodicSpline (const QPolygonF & points)\fC [protected]\fP"
 
 .PP
 Determines the coefficients for a periodic spline\&. 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 true if successful 
 .RE
@@ -185,7 +183,7 @@ true if successful
 .SS "const QVector< double > & QwtSpline::coefficientsA () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 A coefficients 
 .RE
@@ -194,7 +192,7 @@ A coefficients
 .SS "const QVector< double > & QwtSpline::coefficientsB () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 B coefficients 
 .RE
@@ -203,21 +201,21 @@ B coefficients
 .SS "const QVector< double > & QwtSpline::coefficientsC () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 C coefficients 
 .RE
 .PP
 
-.SS "\fBQwtSpline\fP & QwtSpline::operator= (const \fBQwtSpline\fP &other)"
+.SS "\fBQwtSpline\fP & QwtSpline::operator= (const \fBQwtSpline\fP & other)"
 Assignment operator 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIother\fP Spline used for initialization 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 *this 
 .RE
@@ -226,42 +224,42 @@ Assignment operator
 .SS "QPolygonF QwtSpline::points () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Points, that have been by \fBsetPoints()\fP 
 .RE
 .PP
 
-.SS "bool QwtSpline::setPoints (const QPolygonF &points)"
+.SS "bool QwtSpline::setPoints (const QPolygonF & points)"
 
 .PP
 Calculate the spline coefficients\&. Depending on the value of \fIperiodic\fP, this function will determine the coefficients for a natural or a periodic spline and store them internally\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpoints\fP Points 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 true if successful 
 .RE
 .PP
-\fBWarning:\fP
+\fBWarning\fP
 .RS 4
 The sequence of x (but not y) values has to be strictly monotone increasing, which means \fCpoints[i]\&.x() < points[i+1]\&.x()\fP\&. If this is not the case, the function will return false 
 .RE
 .PP
 
-.SS "void QwtSpline::setSplineType (\fBSplineType\fPsplineType)"
+.SS "void QwtSpline::setSplineType (\fBSplineType\fP splineType)"
 Select the algorithm used for calculating the spline
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIsplineType\fP Spline type 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsplineType()\fP 
 .RE
@@ -270,26 +268,26 @@ Select the algorithm used for calculating the spline
 .SS "\fBQwtSpline::SplineType\fP QwtSpline::splineType () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 the spline type 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetSplineType()\fP 
 .RE
 .PP
 
-.SS "double QwtSpline::value (doublex) const"
+.SS "double QwtSpline::value (double x) const"
 Calculate the interpolated function value corresponding to a given argument x\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIx\fP Coordinate 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Interpolated coordinate 
 .RE

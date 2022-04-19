@@ -1,10 +1,8 @@
-.TH "QwtPlotSeriesItem" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtPlotSeriesItem" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtPlotSeriesItem \- 
-.PP
-Base class for plot items representing a series of samples\&.  
+QwtPlotSeriesItem \- Base class for plot items representing a series of samples\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,7 +17,7 @@ Inherited by \fBQwtPlotAbstractBarChart\fP, \fBQwtPlotCurve\fP, \fBQwtPlotHistog
 
 .in +1c
 .ti -1c
-.RI "\fBQwtPlotSeriesItem\fP (const QString &\fBtitle\fP=QString::null)"
+.RI "\fBQwtPlotSeriesItem\fP (const QString &\fBtitle\fP=QString())"
 .br
 .ti -1c
 .RI "\fBQwtPlotSeriesItem\fP (const \fBQwtText\fP &\fBtitle\fP)"
@@ -27,27 +25,27 @@ Inherited by \fBQwtPlotAbstractBarChart\fP, \fBQwtPlotCurve\fP, \fBQwtPlotHistog
 .ti -1c
 .RI "virtual \fB~QwtPlotSeriesItem\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "void \fBsetOrientation\fP (Qt::Orientation)"
 .br
 .ti -1c
-.RI "Qt::Orientation \fBorientation\fP () const "
+.RI "Qt::Orientation \fBorientation\fP () const"
 .br
 .ti -1c
-.RI "virtual void \fBdraw\fP (QPainter *p, const \fBQwtScaleMap\fP &xMap, const \fBQwtScaleMap\fP &yMap, const QRectF &) const "
+.RI "virtual void \fBdraw\fP (QPainter *, const \fBQwtScaleMap\fP &xMap, const \fBQwtScaleMap\fP &yMap, const QRectF &) const"
 .br
-.RI "\fIDraw the complete series\&. \fP"
+.RI "Draw the complete series\&. "
 .ti -1c
 .RI "virtual void \fBdrawSeries\fP (QPainter *painter, const \fBQwtScaleMap\fP &xMap, const \fBQwtScaleMap\fP &yMap, const QRectF &canvasRect, int from, int to) const =0"
 .br
 .ti -1c
-.RI "virtual QRectF \fBboundingRect\fP () const "
+.RI "virtual QRectF \fBboundingRect\fP () const"
 .br
 .ti -1c
 .RI "virtual void \fBupdateScaleDiv\fP (const \fBQwtScaleDiv\fP &, const \fBQwtScaleDiv\fP &)"
 .br
-.RI "\fIUpdate the item to changes of the axes scale division\&. \fP"
+.RI "Update the item to changes of the axes scale division\&. "
 .in -1c
 .SS "Protected Member Functions"
 
@@ -55,7 +53,7 @@ Inherited by \fBQwtPlotAbstractBarChart\fP, \fBQwtPlotCurve\fP, \fBQwtPlotHistog
 .ti -1c
 .RI "virtual void \fBdataChanged\fP ()"
 .br
-.RI "\fI\fBdataChanged()\fP indicates, that the series has been changed\&. \fP"
+.RI "\fBdataChanged()\fP indicates, that the series has been changed\&. "
 .in -1c
 .SS "Additional Inherited Members"
 .SH "Detailed Description"
@@ -63,19 +61,19 @@ Inherited by \fBQwtPlotAbstractBarChart\fP, \fBQwtPlotCurve\fP, \fBQwtPlotHistog
 Base class for plot items representing a series of samples\&. 
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "QwtPlotSeriesItem::QwtPlotSeriesItem (const QString &title = \fCQString::null\fP)\fC [explicit]\fP"
+.SS "QwtPlotSeriesItem::QwtPlotSeriesItem (const QString & title = \fCQString()\fP)\fC [explicit]\fP"
 Constructor 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fItitle\fP Title of the curve 
 .RE
 .PP
 
-.SS "QwtPlotSeriesItem::QwtPlotSeriesItem (const \fBQwtText\fP &title)\fC [explicit]\fP"
+.SS "QwtPlotSeriesItem::QwtPlotSeriesItem (const \fBQwtText\fP & title)\fC [explicit]\fP"
 Constructor 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fItitle\fP Title of the curve 
 .RE
@@ -86,12 +84,12 @@ Constructor
 .SS "QRectF QwtPlotSeriesItem::boundingRect () const\fC [virtual]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 An invalid bounding rect: QRectF(1\&.0, 1\&.0, -2\&.0, -2\&.0) 
 .RE
 .PP
-\fBNote:\fP
+\fBNote\fP
 .RS 4
 A width or height < 0\&.0 is ignored by the autoscaler 
 .RE
@@ -100,13 +98,13 @@ A width or height < 0\&.0 is ignored by the autoscaler
 .PP
 Reimplemented from \fBQwtPlotItem\fP\&.
 .PP
-Reimplemented in \fBQwtPlotTradingCurve\fP, \fBQwtPlotIntervalCurve\fP, \fBQwtPlotHistogram\fP, \fBQwtPlotBarChart\fP, and \fBQwtPlotMultiBarChart\fP\&.
-.SS "void QwtPlotSeriesItem::draw (QPainter *painter, const \fBQwtScaleMap\fP &xMap, const \fBQwtScaleMap\fP &yMap, const QRectF &canvasRect) const\fC [virtual]\fP"
+Reimplemented in \fBQwtPlotTradingCurve\fP, \fBQwtPlotMultiBarChart\fP, \fBQwtPlotIntervalCurve\fP, \fBQwtPlotHistogram\fP, and \fBQwtPlotBarChart\fP\&.
+.SS "void QwtPlotSeriesItem::draw (QPainter * painter, const \fBQwtScaleMap\fP & xMap, const \fBQwtScaleMap\fP & yMap, const QRectF & canvasRect) const\fC [virtual]\fP"
 
 .PP
 Draw the complete series\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpainter\fP Painter 
 .br
@@ -120,10 +118,10 @@ Draw the complete series\&.
 
 .PP
 Implements \fBQwtPlotItem\fP\&.
-.SS "virtual void QwtPlotSeriesItem::drawSeries (QPainter *painter, const \fBQwtScaleMap\fP &xMap, const \fBQwtScaleMap\fP &yMap, const QRectF &canvasRect, intfrom, intto) const\fC [pure virtual]\fP"
+.SS "virtual void QwtPlotSeriesItem::drawSeries (QPainter * painter, const \fBQwtScaleMap\fP & xMap, const \fBQwtScaleMap\fP & yMap, const QRectF & canvasRect, int from, int to) const\fC [pure virtual]\fP"
 Draw a subset of the samples
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpainter\fP Painter 
 .br
@@ -140,47 +138,47 @@ Draw a subset of the samples
 .PP
 
 .PP
-Implemented in \fBQwtPlotCurve\fP, \fBQwtPlotTradingCurve\fP, \fBQwtPlotIntervalCurve\fP, \fBQwtPlotHistogram\fP, \fBQwtPlotBarChart\fP, \fBQwtPlotMultiBarChart\fP, and \fBQwtPlotSpectroCurve\fP\&.
+Implemented in \fBQwtPlotTradingCurve\fP, \fBQwtPlotMultiBarChart\fP, \fBQwtPlotBarChart\fP, \fBQwtPlotSpectroCurve\fP, \fBQwtPlotIntervalCurve\fP, \fBQwtPlotHistogram\fP, and \fBQwtPlotCurve\fP\&.
 .SS "Qt::Orientation QwtPlotSeriesItem::orientation () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Orientation of the plot item 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetOrientation()\fP 
 .RE
 .PP
 
-.SS "void QwtPlotSeriesItem::setOrientation (Qt::Orientationorientation)"
+.SS "void QwtPlotSeriesItem::setOrientation (Qt::Orientation orientation)"
 Set the orientation of the item\&.
 .PP
 The \fBorientation()\fP might be used in specific way by a plot item\&. F\&.e\&. a \fBQwtPlotCurve\fP uses it to identify how to display the curve int \fBQwtPlotCurve::Steps\fP or \fBQwtPlotCurve::Sticks\fP style\&.
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBorientation()\fP 
 .RE
 .PP
 
-.SS "void QwtPlotSeriesItem::updateScaleDiv (const \fBQwtScaleDiv\fP &xScaleDiv, const \fBQwtScaleDiv\fP &yScaleDiv)\fC [virtual]\fP"
+.SS "void QwtPlotSeriesItem::updateScaleDiv (const \fBQwtScaleDiv\fP & xScaleDiv, const \fBQwtScaleDiv\fP & yScaleDiv)\fC [virtual]\fP"
 
 .PP
 Update the item to changes of the axes scale division\&. Update the item, when the axes of plot have changed\&. The default implementation does nothing, but items that depend on the scale division (like \fBQwtPlotGrid()\fP) have to reimplement \fBupdateScaleDiv()\fP
 .PP
 \fBupdateScaleDiv()\fP is only called when the ScaleInterest interest is enabled\&. The default implementation does nothing\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIxScaleDiv\fP Scale division of the x-axis 
 .br
 \fIyScaleDiv\fP Scale division of the y-axis
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtPlot::updateAxes()\fP, \fBScaleInterest\fP 
 .RE

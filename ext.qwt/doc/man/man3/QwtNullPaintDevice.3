@@ -1,10 +1,8 @@
-.TH "QwtNullPaintDevice" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtNullPaintDevice" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtNullPaintDevice \- 
-.PP
-A null paint device doing nothing\&.  
+QwtNullPaintDevice \- A null paint device doing nothing\&.  
 
 .SH SYNOPSIS
 .br
@@ -21,7 +19,7 @@ Inherited by \fBQwtGraphic\fP, and QwtStyleSheetRecorder\&.
 .ti -1c
 .RI "enum \fBMode\fP { \fBNormalMode\fP, \fBPolygonPathMode\fP, \fBPathMode\fP }"
 .br
-.RI "\fIRender mode\&. \fP"
+.RI "Render mode\&. "
 .in -1c
 .SS "Public Member Functions"
 
@@ -29,88 +27,88 @@ Inherited by \fBQwtGraphic\fP, and QwtStyleSheetRecorder\&.
 .ti -1c
 .RI "\fBQwtNullPaintDevice\fP ()"
 .br
-.RI "\fIConstructor\&. \fP"
+.RI "Constructor\&. "
 .ti -1c
 .RI "virtual \fB~QwtNullPaintDevice\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "void \fBsetMode\fP (\fBMode\fP)"
 .br
 .ti -1c
-.RI "\fBMode\fP \fBmode\fP () const "
+.RI "\fBMode\fP \fBmode\fP () const"
 .br
 .ti -1c
-.RI "virtual QPaintEngine * \fBpaintEngine\fP () const "
+.RI "virtual QPaintEngine * \fBpaintEngine\fP () const"
 .br
-.RI "\fISee QPaintDevice::paintEngine() \fP"
+.RI "See QPaintDevice::paintEngine() "
 .ti -1c
-.RI "virtual int \fBmetric\fP (PaintDeviceMetric metric) const "
+.RI "virtual int \fBmetric\fP (PaintDeviceMetric) const"
 .br
 .ti -1c
 .RI "virtual void \fBdrawRects\fP (const QRect *, int)"
 .br
-.RI "\fISee QPaintEngine::drawRects() \fP"
+.RI "See QPaintEngine::drawRects() "
 .ti -1c
 .RI "virtual void \fBdrawRects\fP (const QRectF *, int)"
 .br
-.RI "\fISee QPaintEngine::drawRects() \fP"
+.RI "See QPaintEngine::drawRects() "
 .ti -1c
 .RI "virtual void \fBdrawLines\fP (const QLine *, int)"
 .br
-.RI "\fISee QPaintEngine::drawLines() \fP"
+.RI "See QPaintEngine::drawLines() "
 .ti -1c
 .RI "virtual void \fBdrawLines\fP (const QLineF *, int)"
 .br
-.RI "\fISee QPaintEngine::drawLines() \fP"
+.RI "See QPaintEngine::drawLines() "
 .ti -1c
 .RI "virtual void \fBdrawEllipse\fP (const QRectF &)"
 .br
-.RI "\fISee QPaintEngine::drawEllipse() \fP"
+.RI "See QPaintEngine::drawEllipse() "
 .ti -1c
 .RI "virtual void \fBdrawEllipse\fP (const QRect &)"
 .br
-.RI "\fISee QPaintEngine::drawEllipse() \fP"
+.RI "See QPaintEngine::drawEllipse() "
 .ti -1c
 .RI "virtual void \fBdrawPath\fP (const QPainterPath &)"
 .br
-.RI "\fISee QPaintEngine::drawPath() \fP"
+.RI "See QPaintEngine::drawPath() "
 .ti -1c
 .RI "virtual void \fBdrawPoints\fP (const QPointF *, int)"
 .br
-.RI "\fISee QPaintEngine::drawPoints() \fP"
+.RI "See QPaintEngine::drawPoints() "
 .ti -1c
 .RI "virtual void \fBdrawPoints\fP (const QPoint *, int)"
 .br
-.RI "\fISee QPaintEngine::drawPoints() \fP"
+.RI "See QPaintEngine::drawPoints() "
 .ti -1c
 .RI "virtual void \fBdrawPolygon\fP (const QPointF *, int, QPaintEngine::PolygonDrawMode)"
 .br
-.RI "\fISee QPaintEngine::drawPolygon() \fP"
+.RI "See QPaintEngine::drawPolygon() "
 .ti -1c
 .RI "virtual void \fBdrawPolygon\fP (const QPoint *, int, QPaintEngine::PolygonDrawMode)"
 .br
-.RI "\fISee QPaintEngine::drawPolygon() \fP"
+.RI "See QPaintEngine::drawPolygon() "
 .ti -1c
 .RI "virtual void \fBdrawPixmap\fP (const QRectF &, const QPixmap &, const QRectF &)"
 .br
-.RI "\fISee QPaintEngine::drawPixmap() \fP"
+.RI "See QPaintEngine::drawPixmap() "
 .ti -1c
 .RI "virtual void \fBdrawTextItem\fP (const QPointF &, const QTextItem &)"
 .br
-.RI "\fISee QPaintEngine::drawTextItem() \fP"
+.RI "See QPaintEngine::drawTextItem() "
 .ti -1c
-.RI "virtual void \fBdrawTiledPixmap\fP (const QRectF &, const QPixmap &, const QPointF &s)"
+.RI "virtual void \fBdrawTiledPixmap\fP (const QRectF &, const QPixmap &, const QPointF &)"
 .br
-.RI "\fISee QPaintEngine::drawTiledPixmap() \fP"
+.RI "See QPaintEngine::drawTiledPixmap() "
 .ti -1c
 .RI "virtual void \fBdrawImage\fP (const QRectF &, const QImage &, const QRectF &, Qt::ImageConversionFlags)"
 .br
-.RI "\fISee QPaintEngine::drawImage() \fP"
+.RI "See QPaintEngine::drawImage() "
 .ti -1c
-.RI "virtual void \fBupdateState\fP (const QPaintEngineState &state)"
+.RI "virtual void \fBupdateState\fP (const QPaintEngineState &)"
 .br
-.RI "\fISee QPaintEngine::updateState() \fP"
+.RI "See QPaintEngine::updateState() "
 .in -1c
 .SS "Protected Member Functions"
 
@@ -135,7 +133,7 @@ F\&.e\&. \fBQwtNullPaintDevice\fP is used by \fBQwtPlotCanvas\fP to identify sty
 .PP
 Render mode\&. 
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetMode()\fP, \fBmode()\fP 
 .RE
@@ -175,20 +173,20 @@ Vector graphic primitives are mapped to a QPainterPath and are painted by drawPa
 
 .SH "Member Function Documentation"
 .PP 
-.SS "int QwtNullPaintDevice::metric (PaintDeviceMetricdeviceMetric) const\fC [virtual]\fP"
+.SS "int QwtNullPaintDevice::metric (PaintDeviceMetric deviceMetric) const\fC [virtual]\fP"
 See QPaintDevice::metric()
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIdeviceMetric\fP Type of metric 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Metric information for the given paint device metric\&.
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsizeMetrics()\fP 
 .RE
@@ -197,26 +195,26 @@ Metric information for the given paint device metric\&.
 .SS "\fBQwtNullPaintDevice::Mode\fP QwtNullPaintDevice::mode () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Render mode 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetMode()\fP 
 .RE
 .PP
 
-.SS "void QwtNullPaintDevice::setMode (\fBMode\fPmode)"
+.SS "void QwtNullPaintDevice::setMode (\fBMode\fP mode)"
 Set the render mode
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fImode\fP New mode 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBmode()\fP 
 .RE
@@ -225,7 +223,7 @@ Set the render mode
 .SS "virtual QSize QwtNullPaintDevice::sizeMetrics () const\fC [protected]\fP, \fC [pure virtual]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Size needed to implement \fBmetric()\fP 
 .RE

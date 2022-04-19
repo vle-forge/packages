@@ -1,10 +1,8 @@
-.TH "QwtLogTransform" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtLogTransform" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtLogTransform \- 
-.PP
-Logarithmic transformation\&.  
+QwtLogTransform \- Logarithmic transformation\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,35 +17,35 @@ Inherits \fBQwtTransform\fP\&.
 .ti -1c
 .RI "\fBQwtLogTransform\fP ()"
 .br
-.RI "\fIConstructor\&. \fP"
+.RI "Constructor\&. "
 .ti -1c
 .RI "virtual \fB~QwtLogTransform\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
-.RI "virtual double \fBtransform\fP (double value) const "
+.RI "virtual double \fBtransform\fP (double value) const"
 .br
 .ti -1c
-.RI "virtual double \fBinvTransform\fP (double value) const "
+.RI "virtual double \fBinvTransform\fP (double value) const"
 .br
 .ti -1c
-.RI "virtual double \fBbounded\fP (double value) const "
+.RI "virtual double \fBbounded\fP (double value) const"
 .br
 .ti -1c
-.RI "virtual \fBQwtTransform\fP * \fBcopy\fP () const "
+.RI "virtual \fBQwtTransform\fP * \fBcopy\fP () const"
 .br
 .in -1c
 .SS "Public Attributes"
 
 .in +1c
 .ti -1c
-.RI "QT_STATIC_CONST double \fBLogMin\fP = 1\&.0e-150"
+.RI "QT_STATIC_CONST double \fBLogMin\fP = 1\&.0e\-150"
 .br
-.RI "\fISmallest allowed value for logarithmic scales: 1\&.0e-150\&. \fP"
+.RI "Smallest allowed value for logarithmic scales: 1\&.0e-150\&. "
 .ti -1c
 .RI "QT_STATIC_CONST double \fBLogMax\fP = 1\&.0e150"
 .br
-.RI "\fILargest allowed value for logarithmic scales: 1\&.0e150\&. \fP"
+.RI "Largest allowed value for logarithmic scales: 1\&.0e150\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -55,7 +53,7 @@ Logarithmic transformation\&.
 
 \fBQwtLogTransform\fP modifies the values using log() and exp()\&.
 .PP
-\fBNote:\fP
+\fBNote\fP
 .RS 4
 In the calculations of \fBQwtScaleMap\fP the base of the log function has no effect on the mapping\&. So \fBQwtLogTransform\fP can be used for log2(), log10() or any other logarithmic scale\&. 
 .RE
@@ -63,15 +61,15 @@ In the calculations of \fBQwtScaleMap\fP the base of the log function has no eff
 
 .SH "Member Function Documentation"
 .PP 
-.SS "double QwtLogTransform::bounded (doublevalue) const\fC [virtual]\fP"
+.SS "double QwtLogTransform::bounded (double value) const\fC [virtual]\fP"
 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Value to be bounded 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 qBound( LogMin, value, LogMax ) 
 .RE
@@ -82,7 +80,7 @@ Reimplemented from \fBQwtTransform\fP\&.
 .SS "\fBQwtTransform\fP * QwtLogTransform::copy () const\fC [virtual]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Clone of the transformation 
 .RE
@@ -90,15 +88,15 @@ Clone of the transformation
 
 .PP
 Implements \fBQwtTransform\fP\&.
-.SS "double QwtLogTransform::invTransform (doublevalue) const\fC [virtual]\fP"
+.SS "double QwtLogTransform::invTransform (double value) const\fC [virtual]\fP"
 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Value to be transformed 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 exp( value ) 
 .RE
@@ -106,15 +104,15 @@ exp( value )
 
 .PP
 Implements \fBQwtTransform\fP\&.
-.SS "double QwtLogTransform::transform (doublevalue) const\fC [virtual]\fP"
+.SS "double QwtLogTransform::transform (double value) const\fC [virtual]\fP"
 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Value to be transformed 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 log( value ) 
 .RE

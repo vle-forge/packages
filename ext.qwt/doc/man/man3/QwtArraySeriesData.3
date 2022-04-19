@@ -1,10 +1,8 @@
-.TH "QwtArraySeriesData< T >" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtArraySeriesData< T >" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtArraySeriesData< T > \- 
-.PP
-Template class for data, that is organized as QVector\&.  
+QwtArraySeriesData< T > \- Template class for data, that is organized as QVector\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,7 +17,7 @@ Inherits \fBQwtSeriesData< T >\fP\&.
 .ti -1c
 .RI "\fBQwtArraySeriesData\fP ()"
 .br
-.RI "\fIConstructor\&. \fP"
+.RI "Constructor\&. "
 .ti -1c
 .RI "\fBQwtArraySeriesData\fP (const QVector< T > &\fBsamples\fP)"
 .br
@@ -27,13 +25,13 @@ Inherits \fBQwtSeriesData< T >\fP\&.
 .RI "void \fBsetSamples\fP (const QVector< T > &\fBsamples\fP)"
 .br
 .ti -1c
-.RI "const QVector< T > \fBsamples\fP () const "
+.RI "const QVector< T > \fBsamples\fP () const"
 .br
 .ti -1c
-.RI "virtual size_t \fBsize\fP () const "
+.RI "virtual size_t \fBsize\fP () const"
 .br
 .ti -1c
-.RI "virtual T \fBsample\fP (size_t index) const "
+.RI "virtual T \fBsample\fP (size_t index) const"
 .br
 .in -1c
 .SS "Protected Attributes"
@@ -42,21 +40,23 @@ Inherits \fBQwtSeriesData< T >\fP\&.
 .ti -1c
 .RI "QVector< T > \fBd_samples\fP"
 .br
-.RI "\fIVector of samples\&. \fP"
+.RI "Vector of samples\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
 
-.SS "template<typename T>class QwtArraySeriesData< T >"
+.SS "template<typename T>
+.br
+class QwtArraySeriesData< T >"
 Template class for data, that is organized as QVector\&. 
 
 QVector uses implicit data sharing and can be passed around as argument efficiently\&. 
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "template<typename T> \fBQwtArraySeriesData\fP< T >::\fBQwtArraySeriesData\fP (const QVector< T > &samples)"
+.SS "template<typename T > \fBQwtArraySeriesData\fP< T >::\fBQwtArraySeriesData\fP (const QVector< T > & samples)"
 Constructor 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIsamples\fP Array of samples 
 .RE
@@ -64,20 +64,20 @@ Constructor
 
 .SH "Member Function Documentation"
 .PP 
-.SS "template<typename T > T \fBQwtArraySeriesData\fP< T >::sample (size_tindex) const\fC [virtual]\fP"
+.SS "template<typename T > T \fBQwtArraySeriesData\fP< T >::sample (size_t index) const\fC [virtual]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Sample at a specific position
 .RE
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIindex\fP Index 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Sample at position index 
 .RE
@@ -85,28 +85,28 @@ Sample at position index
 
 .PP
 Implements \fBQwtSeriesData< T >\fP\&.
-.SS "template<typename T > const QVector< T > \fBQwtArraySeriesData\fP< T >::samples () const"
+.SS "template<typename T > const QVector< T > \fBQwtArraySeriesData\fP< T >::samples"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Array of samples 
 .RE
 .PP
 
-.SS "template<typename T> void \fBQwtArraySeriesData\fP< T >::setSamples (const QVector< T > &samples)"
+.SS "template<typename T > void \fBQwtArraySeriesData\fP< T >::setSamples (const QVector< T > & samples)"
 Assign an array of samples 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIsamples\fP Array of samples 
 .RE
 .PP
 
-.SS "template<typename T > size_t \fBQwtArraySeriesData\fP< T >::size () const\fC [virtual]\fP"
+.SS "template<typename T > size_t \fBQwtArraySeriesData\fP< T >::size\fC [virtual]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Number of samples 
 .RE

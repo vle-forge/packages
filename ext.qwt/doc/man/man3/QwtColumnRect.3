@@ -1,10 +1,8 @@
-.TH "QwtColumnRect" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtColumnRect" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtColumnRect \- 
-.PP
-Directed rectangle representing bounding rectangle and orientation of a column\&.  
+QwtColumnRect \- Directed rectangle representing bounding rectangle and orientation of a column\&.  
 
 .SH SYNOPSIS
 .br
@@ -17,7 +15,7 @@ Directed rectangle representing bounding rectangle and orientation of a column\&
 .ti -1c
 .RI "enum \fBDirection\fP { \fBLeftToRight\fP, \fBRightToLeft\fP, \fBBottomToTop\fP, \fBTopToBottom\fP }"
 .br
-.RI "\fIDirection of the column\&. \fP"
+.RI "Direction of the column\&. "
 .in -1c
 .SS "Public Member Functions"
 
@@ -25,12 +23,12 @@ Directed rectangle representing bounding rectangle and orientation of a column\&
 .ti -1c
 .RI "\fBQwtColumnRect\fP ()"
 .br
-.RI "\fIBuild an rectangle with invalid intervals directed BottomToTop\&. \fP"
+.RI "Build an rectangle with invalid intervals directed BottomToTop\&. "
 .ti -1c
-.RI "QRectF \fBtoRect\fP () const "
+.RI "QRectF \fBtoRect\fP () const"
 .br
 .ti -1c
-.RI "Qt::Orientation \fBorientation\fP () const "
+.RI "Qt::Orientation \fBorientation\fP () const"
 .br
 .in -1c
 .SS "Public Attributes"
@@ -39,15 +37,15 @@ Directed rectangle representing bounding rectangle and orientation of a column\&
 .ti -1c
 .RI "\fBQwtInterval\fP \fBhInterval\fP"
 .br
-.RI "\fIInterval for the horizontal coordinates\&. \fP"
+.RI "Interval for the horizontal coordinates\&. "
 .ti -1c
 .RI "\fBQwtInterval\fP \fBvInterval\fP"
 .br
-.RI "\fIInterval for the vertical coordinates\&. \fP"
+.RI "Interval for the vertical coordinates\&. "
 .ti -1c
 .RI "\fBDirection\fP \fBdirection\fP"
 .br
-.RI "\fIDirection\&. \fP"
+.RI "Direction\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -78,7 +76,7 @@ From top to bottom\&.
 .SS "Qt::Orientation QwtColumnRect::orientation () const\fC [inline]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Orientation 
 .RE
@@ -87,7 +85,7 @@ Orientation
 .SS "QRectF QwtColumnRect::toRect () const\fC [inline]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 A normalized QRect built from the intervals 
 .RE

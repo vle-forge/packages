@@ -1,10 +1,8 @@
-.TH "QwtLegendLabel" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtLegendLabel" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtLegendLabel \- 
-.PP
-A widget representing something on a \fBQwtLegend\fP\&.  
+QwtLegendLabel \- A widget representing something on a \fBQwtLegend\fP\&.  
 
 .SH SYNOPSIS
 .br
@@ -26,19 +24,19 @@ Inherits \fBQwtTextLabel\fP\&.
 .ti -1c
 .RI "void \fBclicked\fP ()"
 .br
-.RI "\fISignal, when the legend item has been clicked\&. \fP"
+.RI "Signal, when the legend item has been clicked\&. "
 .ti -1c
 .RI "void \fBpressed\fP ()"
 .br
-.RI "\fISignal, when the legend item has been pressed\&. \fP"
+.RI "Signal, when the legend item has been pressed\&. "
 .ti -1c
 .RI "void \fBreleased\fP ()"
 .br
-.RI "\fISignal, when the legend item has been released\&. \fP"
+.RI "Signal, when the legend item has been released\&. "
 .ti -1c
 .RI "void \fBchecked\fP (bool)"
 .br
-.RI "\fISignal, when the legend item has been toggled\&. \fP"
+.RI "Signal, when the legend item has been toggled\&. "
 .in -1c
 .SS "Public Member Functions"
 
@@ -49,25 +47,25 @@ Inherits \fBQwtTextLabel\fP\&.
 .ti -1c
 .RI "virtual \fB~QwtLegendLabel\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "void \fBsetData\fP (const \fBQwtLegendData\fP &)"
 .br
 .ti -1c
-.RI "const \fBQwtLegendData\fP & \fBdata\fP () const "
+.RI "const \fBQwtLegendData\fP & \fBdata\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetItemMode\fP (\fBQwtLegendData::Mode\fP)"
 .br
 .ti -1c
-.RI "\fBQwtLegendData::Mode\fP \fBitemMode\fP () const "
+.RI "\fBQwtLegendData::Mode\fP \fBitemMode\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetSpacing\fP (int \fBspacing\fP)"
 .br
-.RI "\fIChange the spacing between icon and text\&. \fP"
+.RI "Change the spacing between icon and text\&. "
 .ti -1c
-.RI "int \fBspacing\fP () const "
+.RI "int \fBspacing\fP () const"
 .br
 .ti -1c
 .RI "virtual void \fBsetText\fP (const \fBQwtText\fP &)"
@@ -76,16 +74,16 @@ Inherits \fBQwtTextLabel\fP\&.
 .RI "void \fBsetIcon\fP (const QPixmap &)"
 .br
 .ti -1c
-.RI "QPixmap \fBicon\fP () const "
+.RI "QPixmap \fBicon\fP () const"
 .br
 .ti -1c
-.RI "virtual QSize \fBsizeHint\fP () const "
+.RI "virtual QSize \fBsizeHint\fP () const"
 .br
-.RI "\fIReturn a size hint\&. \fP"
+.RI "Return a size hint\&. "
 .ti -1c
-.RI "bool \fBisChecked\fP () const "
+.RI "bool \fBisChecked\fP () const"
 .br
-.RI "\fIReturn true, if the item is checked\&. \fP"
+.RI "Return true, if the item is checked\&. "
 .in -1c
 .SS "Protected Member Functions"
 
@@ -93,41 +91,41 @@ Inherits \fBQwtTextLabel\fP\&.
 .ti -1c
 .RI "void \fBsetDown\fP (bool)"
 .br
-.RI "\fISet the item being down\&. \fP"
+.RI "Set the item being down\&. "
 .ti -1c
-.RI "bool \fBisDown\fP () const "
+.RI "bool \fBisDown\fP () const"
 .br
-.RI "\fIReturn true, if the item is down\&. \fP"
+.RI "Return true, if the item is down\&. "
 .ti -1c
 .RI "virtual void \fBpaintEvent\fP (QPaintEvent *)"
 .br
-.RI "\fIPaint event\&. \fP"
+.RI "Paint event\&. "
 .ti -1c
 .RI "virtual void \fBmousePressEvent\fP (QMouseEvent *)"
 .br
-.RI "\fIHandle mouse press events\&. \fP"
+.RI "Handle mouse press events\&. "
 .ti -1c
 .RI "virtual void \fBmouseReleaseEvent\fP (QMouseEvent *)"
 .br
-.RI "\fIHandle mouse release events\&. \fP"
+.RI "Handle mouse release events\&. "
 .ti -1c
 .RI "virtual void \fBkeyPressEvent\fP (QKeyEvent *)"
 .br
-.RI "\fIHandle key press events\&. \fP"
+.RI "Handle key press events\&. "
 .ti -1c
 .RI "virtual void \fBkeyReleaseEvent\fP (QKeyEvent *)"
 .br
-.RI "\fIHandle key release events\&. \fP"
+.RI "Handle key release events\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
 A widget representing something on a \fBQwtLegend\fP\&. 
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "QwtLegendLabel::QwtLegendLabel (QWidget *parent = \fC0\fP)\fC [explicit]\fP"
+.SS "QwtLegendLabel::QwtLegendLabel (QWidget * parent = \fC0\fP)\fC [explicit]\fP"
 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIparent\fP Parent widget 
 .RE
@@ -138,12 +136,12 @@ A widget representing something on a \fBQwtLegend\fP\&.
 .SS "const \fBQwtLegendData\fP & QwtLegendLabel::data () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Attributes of the label 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetData()\fP, \fBQwtPlotItem::legendData()\fP 
 .RE
@@ -152,12 +150,12 @@ Attributes of the label
 .SS "QPixmap QwtLegendLabel::icon () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Pixmap representing a plot item 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetIcon()\fP 
 .RE
@@ -166,98 +164,98 @@ Pixmap representing a plot item
 .SS "\fBQwtLegendData::Mode\fP QwtLegendLabel::itemMode () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Item mode 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetItemMode()\fP 
 .RE
 .PP
 
-.SS "void QwtLegendLabel::setChecked (boolon)\fC [slot]\fP"
+.SS "void QwtLegendLabel::setChecked (bool on)\fC [slot]\fP"
 Check/Uncheck a the item
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIon\fP check/uncheck 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetItemMode()\fP 
 .RE
 .PP
 
-.SS "void QwtLegendLabel::setData (const \fBQwtLegendData\fP &legendData)"
+.SS "void QwtLegendLabel::setData (const \fBQwtLegendData\fP & legendData)"
 Set the attributes of the legend label
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIlegendData\fP Attributes of the label 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBdata()\fP 
 .RE
 .PP
 
-.SS "void QwtLegendLabel::setIcon (const QPixmap &icon)"
+.SS "void QwtLegendLabel::setIcon (const QPixmap & icon)"
 Assign the icon
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIicon\fP Pixmap representing a plot item
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBicon()\fP, \fBQwtPlotItem::legendIcon()\fP 
 .RE
 .PP
 
-.SS "void QwtLegendLabel::setItemMode (\fBQwtLegendData::Mode\fPmode)"
+.SS "void QwtLegendLabel::setItemMode (\fBQwtLegendData::Mode\fP mode)"
 Set the item mode The default is \fBQwtLegendData::ReadOnly\fP
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fImode\fP Item mode 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBitemMode()\fP 
 .RE
 .PP
 
-.SS "void QwtLegendLabel::setSpacing (intspacing)"
+.SS "void QwtLegendLabel::setSpacing (int spacing)"
 
 .PP
 Change the spacing between icon and text\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIspacing\fP Spacing 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBspacing()\fP, \fBQwtTextLabel::margin()\fP 
 .RE
 .PP
 
-.SS "void QwtLegendLabel::setText (const \fBQwtText\fP &text)\fC [virtual]\fP"
+.SS "void QwtLegendLabel::setText (const \fBQwtText\fP & text)\fC [virtual]\fP"
 Set the text to the legend item
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fItext\fP Text label 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtTextLabel::text()\fP 
 .RE
@@ -268,12 +266,12 @@ Reimplemented from \fBQwtTextLabel\fP\&.
 .SS "int QwtLegendLabel::spacing () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Spacing between icon and text 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetSpacing()\fP, \fBQwtTextLabel::margin()\fP 
 .RE

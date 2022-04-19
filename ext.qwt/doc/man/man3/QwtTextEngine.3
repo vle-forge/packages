@@ -1,10 +1,8 @@
-.TH "QwtTextEngine" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtTextEngine" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtTextEngine \- 
-.PP
-Abstract base class for rendering text strings\&.  
+QwtTextEngine \- Abstract base class for rendering text strings\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,7 +17,7 @@ Inherited by \fBQwtMathMLTextEngine\fP, \fBQwtPlainTextEngine\fP, and \fBQwtRich
 .ti -1c
 .RI "virtual \fB~QwtTextEngine\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "virtual double \fBheightForWidth\fP (const QFont &font, int flags, const QString &text, double width) const =0"
 .br
@@ -42,7 +40,7 @@ Inherited by \fBQwtMathMLTextEngine\fP, \fBQwtPlainTextEngine\fP, and \fBQwtRich
 .ti -1c
 .RI "\fBQwtTextEngine\fP ()"
 .br
-.RI "\fIConstructor\&. \fP"
+.RI "Constructor\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -52,7 +50,7 @@ A text engine is responsible for rendering texts for a specific text format\&. T
 .PP
 \fBQwtPlainTextEngine\fP and \fBQwtRichTextEngine\fP are part of the Qwt library\&. The implementation of \fBQwtMathMLTextEngine\fP uses code from the Qt solution package\&. Because of license implications it is built into a separate library\&.
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtText::setTextEngine()\fP 
 .RE
@@ -60,10 +58,10 @@ A text engine is responsible for rendering texts for a specific text format\&. T
 
 .SH "Member Function Documentation"
 .PP 
-.SS "virtual void QwtTextEngine::draw (QPainter *painter, const QRectF &rect, intflags, const QString &text) const\fC [pure virtual]\fP"
+.SS "virtual void QwtTextEngine::draw (QPainter * painter, const QRectF & rect, int flags, const QString & text) const\fC [pure virtual]\fP"
 Draw the text in a clipping rectangle
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpainter\fP Painter 
 .br
@@ -76,11 +74,11 @@ Draw the text in a clipping rectangle
 .PP
 
 .PP
-Implemented in \fBQwtRichTextEngine\fP, \fBQwtPlainTextEngine\fP, and \fBQwtMathMLTextEngine\fP\&.
-.SS "virtual double QwtTextEngine::heightForWidth (const QFont &font, intflags, const QString &text, doublewidth) const\fC [pure virtual]\fP"
+Implemented in \fBQwtMathMLTextEngine\fP, \fBQwtRichTextEngine\fP, and \fBQwtPlainTextEngine\fP\&.
+.SS "virtual double QwtTextEngine::heightForWidth (const QFont & font, int flags, const QString & text, double width) const\fC [pure virtual]\fP"
 Find the height for a given width
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIfont\fP Font of the text 
 .br
@@ -91,36 +89,36 @@ Find the height for a given width
 \fIwidth\fP Width
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Calculated height 
 .RE
 .PP
 
 .PP
-Implemented in \fBQwtRichTextEngine\fP, \fBQwtPlainTextEngine\fP, and \fBQwtMathMLTextEngine\fP\&.
-.SS "virtual bool QwtTextEngine::mightRender (const QString &text) const\fC [pure virtual]\fP"
+Implemented in \fBQwtMathMLTextEngine\fP, \fBQwtRichTextEngine\fP, and \fBQwtPlainTextEngine\fP\&.
+.SS "virtual bool QwtTextEngine::mightRender (const QString & text) const\fC [pure virtual]\fP"
 Test if a string can be rendered by this text engine
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fItext\fP Text to be tested 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 true, if it can be rendered 
 .RE
 .PP
 
 .PP
-Implemented in \fBQwtRichTextEngine\fP, \fBQwtPlainTextEngine\fP, and \fBQwtMathMLTextEngine\fP\&.
-.SS "virtual void QwtTextEngine::textMargins (const QFont &font, const QString &text, double &left, double &right, double &top, double &bottom) const\fC [pure virtual]\fP"
+Implemented in \fBQwtMathMLTextEngine\fP, \fBQwtRichTextEngine\fP, and \fBQwtPlainTextEngine\fP\&.
+.SS "virtual void QwtTextEngine::textMargins (const QFont & font, const QString & text, double & left, double & right, double & top, double & bottom) const\fC [pure virtual]\fP"
 Return margins around the texts
 .PP
 The textSize might include margins around the text, like QFontMetrics::descent()\&. In situations where texts need to be aligned in detail, knowing these margins might improve the layout calculations\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIfont\fP Font of the text 
 .br
@@ -137,11 +135,11 @@ The textSize might include margins around the text, like QFontMetrics::descent()
 .PP
 
 .PP
-Implemented in \fBQwtRichTextEngine\fP, \fBQwtPlainTextEngine\fP, and \fBQwtMathMLTextEngine\fP\&.
-.SS "virtual QSizeF QwtTextEngine::textSize (const QFont &font, intflags, const QString &text) const\fC [pure virtual]\fP"
+Implemented in \fBQwtMathMLTextEngine\fP, \fBQwtRichTextEngine\fP, and \fBQwtPlainTextEngine\fP\&.
+.SS "virtual QSizeF QwtTextEngine::textSize (const QFont & font, int flags, const QString & text) const\fC [pure virtual]\fP"
 Returns the size, that is needed to render text
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIfont\fP Font of the text 
 .br
@@ -150,14 +148,14 @@ Returns the size, that is needed to render text
 \fItext\fP Text to be rendered
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Calculated size 
 .RE
 .PP
 
 .PP
-Implemented in \fBQwtRichTextEngine\fP, \fBQwtPlainTextEngine\fP, and \fBQwtMathMLTextEngine\fP\&.
+Implemented in \fBQwtMathMLTextEngine\fP, \fBQwtRichTextEngine\fP, and \fBQwtPlainTextEngine\fP\&.
 
 .SH "Author"
 .PP 

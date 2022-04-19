@@ -1,10 +1,8 @@
-.TH "QwtCompassRose" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtCompassRose" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtCompassRose \- 
-.PP
-Abstract base class for a compass rose\&.  
+QwtCompassRose \- Abstract base class for a compass rose\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,13 +17,13 @@ Inherited by \fBQwtSimpleCompassRose\fP\&.
 .ti -1c
 .RI "virtual \fB~QwtCompassRose\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "virtual void \fBsetPalette\fP (const QPalette &p)"
 .br
-.RI "\fIAssign a palette\&. \fP"
+.RI "Assign a palette\&. "
 .ti -1c
-.RI "const QPalette & \fBpalette\fP () const "
+.RI "const QPalette & \fBpalette\fP () const"
 .br
 .ti -1c
 .RI "virtual void \fBdraw\fP (QPainter *painter, const QPointF &center, double radius, double north, QPalette::ColorGroup colorGroup=QPalette::Active) const =0"
@@ -36,10 +34,10 @@ Inherited by \fBQwtSimpleCompassRose\fP\&.
 Abstract base class for a compass rose\&. 
 .SH "Member Function Documentation"
 .PP 
-.SS "virtual void QwtCompassRose::draw (QPainter *painter, const QPointF &center, doubleradius, doublenorth, QPalette::ColorGroupcolorGroup = \fCQPalette::Active\fP) const\fC [pure virtual]\fP"
+.SS "virtual void QwtCompassRose::draw (QPainter * painter, const QPointF & center, double radius, double north, QPalette::ColorGroup colorGroup = \fCQPalette::Active\fP) const\fC [pure virtual]\fP"
 Draw the rose
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpainter\fP Painter 
 .br
@@ -58,7 +56,7 @@ Implemented in \fBQwtSimpleCompassRose\fP\&.
 .SS "const QPalette& QwtCompassRose::palette () const\fC [inline]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Current palette 
 .RE

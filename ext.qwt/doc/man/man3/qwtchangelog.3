@@ -1,4 +1,4 @@
-.TH "qwtchangelog" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "qwtchangelog" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -145,7 +145,7 @@ New symbol types have been introduced:
 .PP
 \fBQwtSymbol\fP autodetect the most performant paint strategy for a paint device what is in most situations using a QPixmap cache\&.
 .PP
-\fBQwtSymbol::setPinPoint()\fP allows to align the symbol individually, f\&.e to the position of the peak of an arrow\&.
+\fBQwtSymbol::setPinPoint()\fP allows one to align the symbol individually, f\&.e to the position of the peak of an arrow\&.
 .SH "QwtPlotCurve"
 .PP
 Some optimizations that got lost with introducing the floating point based render code with Qwt 6\&.0 have been reenabled\&. Other specific optimizations have been added\&.
@@ -160,7 +160,8 @@ New paint attributes:
 \fBQwtPlotCurve::ImageBuffer\fP
 .PP
 .PP
-QwtPlotCurve::CacheSymbols has been removed, as caching is implemented in \fBQwtSymbol\fP now\&.
+QwtPlotCurve::CacheSymbols has been removed, as caching is implemented in \fBQwtSymbol\fP now\&. 
+.br
 .PP
 \fBQwtPlotCurve::drawLines()\fP, \fBQwtPlotCurve::drawDots()\fP, \fBQwtPlotCurve::drawSteps()\fP and \fBQwtPlotCurve::drawSticks()\fP are virtual now\&.
 .SH "QwtPlot"

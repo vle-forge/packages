@@ -1,10 +1,8 @@
-.TH "QwtEventPattern" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtEventPattern" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtEventPattern \- 
-.PP
-A collection of event patterns\&.  
+QwtEventPattern \- A collection of event patterns\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,11 +17,11 @@ Inherited by \fBQwtPicker\fP\&.
 .ti -1c
 .RI "class \fBKeyPattern\fP"
 .br
-.RI "\fIA pattern for key events\&. \fP"
+.RI "A pattern for key events\&. "
 .ti -1c
 .RI "class \fBMousePattern\fP"
 .br
-.RI "\fIA pattern for mouse events\&. \fP"
+.RI "A pattern for mouse events\&. "
 .in -1c
 .SS "Public Types"
 
@@ -31,11 +29,11 @@ Inherited by \fBQwtPicker\fP\&.
 .ti -1c
 .RI "enum \fBMousePatternCode\fP { \fBMouseSelect1\fP, \fBMouseSelect2\fP, \fBMouseSelect3\fP, \fBMouseSelect4\fP, \fBMouseSelect5\fP, \fBMouseSelect6\fP, \fBMousePatternCount\fP }"
 .br
-.RI "\fISymbolic mouse input codes\&. \fP"
+.RI "Symbolic mouse input codes\&. "
 .ti -1c
 .RI "enum \fBKeyPatternCode\fP { \fBKeySelect1\fP, \fBKeySelect2\fP, \fBKeyAbort\fP, \fBKeyLeft\fP, \fBKeyRight\fP, \fBKeyUp\fP, \fBKeyDown\fP, \fBKeyRedo\fP, \fBKeyUndo\fP, \fBKeyHome\fP, \fBKeyPatternCount\fP }"
 .br
-.RI "\fISymbolic keyboard input codes\&. \fP"
+.RI "Symbolic keyboard input codes\&. "
 .in -1c
 .SS "Public Member Functions"
 
@@ -46,7 +44,7 @@ Inherited by \fBQwtPicker\fP\&.
 .ti -1c
 .RI "virtual \fB~QwtEventPattern\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "void \fBinitMousePattern\fP (int numButtons)"
 .br
@@ -57,21 +55,21 @@ Inherited by \fBQwtPicker\fP\&.
 .RI "void \fBsetMousePattern\fP (\fBMousePatternCode\fP, Qt::MouseButton button, Qt::KeyboardModifiers=Qt::NoModifier)"
 .br
 .ti -1c
-.RI "void \fBsetKeyPattern\fP (\fBKeyPatternCode\fP, int keyCode, Qt::KeyboardModifiers modifierCodes=Qt::NoModifier)"
+.RI "void \fBsetKeyPattern\fP (\fBKeyPatternCode\fP, int key, Qt::KeyboardModifiers modifiers=Qt::NoModifier)"
 .br
 .ti -1c
 .RI "void \fBsetMousePattern\fP (const QVector< \fBMousePattern\fP > &)"
 .br
-.RI "\fIChange the mouse event patterns\&. \fP"
+.RI "Change the mouse event patterns\&. "
 .ti -1c
 .RI "void \fBsetKeyPattern\fP (const QVector< \fBKeyPattern\fP > &)"
 .br
-.RI "\fIChange the key event patterns\&. \fP"
+.RI "Change the key event patterns\&. "
 .ti -1c
-.RI "const QVector< \fBMousePattern\fP > & \fBmousePattern\fP () const "
+.RI "const QVector< \fBMousePattern\fP > & \fBmousePattern\fP () const"
 .br
 .ti -1c
-.RI "const QVector< \fBKeyPattern\fP > & \fBkeyPattern\fP () const "
+.RI "const QVector< \fBKeyPattern\fP > & \fBkeyPattern\fP () const"
 .br
 .ti -1c
 .RI "QVector< \fBMousePattern\fP > & \fBmousePattern\fP ()"
@@ -80,25 +78,25 @@ Inherited by \fBQwtPicker\fP\&.
 .RI "QVector< \fBKeyPattern\fP > & \fBkeyPattern\fP ()"
 .br
 .ti -1c
-.RI "bool \fBmouseMatch\fP (\fBMousePatternCode\fP, const QMouseEvent *) const "
+.RI "bool \fBmouseMatch\fP (\fBMousePatternCode\fP, const QMouseEvent *) const"
 .br
-.RI "\fICompare a mouse event with an event pattern\&. \fP"
+.RI "Compare a mouse event with an event pattern\&. "
 .ti -1c
-.RI "bool \fBkeyMatch\fP (\fBKeyPatternCode\fP, const QKeyEvent *) const "
+.RI "bool \fBkeyMatch\fP (\fBKeyPatternCode\fP, const QKeyEvent *) const"
 .br
-.RI "\fICompare a key event with an event pattern\&. \fP"
+.RI "Compare a key event with an event pattern\&. "
 .in -1c
 .SS "Protected Member Functions"
 
 .in +1c
 .ti -1c
-.RI "virtual bool \fBmouseMatch\fP (const \fBMousePattern\fP &, const QMouseEvent *) const "
+.RI "virtual bool \fBmouseMatch\fP (const \fBMousePattern\fP &, const QMouseEvent *) const"
 .br
-.RI "\fICompare a mouse event with an event pattern\&. \fP"
+.RI "Compare a mouse event with an event pattern\&. "
 .ti -1c
-.RI "virtual bool \fBkeyMatch\fP (const \fBKeyPattern\fP &, const QKeyEvent *) const "
+.RI "virtual bool \fBkeyMatch\fP (const \fBKeyPattern\fP &, const QKeyEvent *) const"
 .br
-.RI "\fICompare a key event with an event pattern\&. \fP"
+.RI "Compare a key event with an event pattern\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -106,7 +104,7 @@ A collection of event patterns\&.
 
 \fBQwtEventPattern\fP introduces an level of indirection for mouse and keyboard inputs\&. Those are represented by symbolic names, so the application code can be configured by individual mappings\&.
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtPicker\fP, \fBQwtPickerMachine\fP, \fBQwtPlotZoomer\fP 
 .RE
@@ -119,7 +117,7 @@ A collection of event patterns\&.
 .PP
 Symbolic keyboard input codes\&. Individual settings can be configured using \fBsetKeyPattern()\fP
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetKeyPattern()\fP, \fBsetMousePattern()\fP 
 .RE
@@ -168,7 +166,7 @@ Symbolic mouse input codes\&. \fBQwtEventPattern\fP implements 3 different setti
 .PP
 Individual settings can be configured using \fBsetMousePattern()\fP\&.
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBinitMousePattern()\fP, \fBsetMousePattern()\fP, \fBsetKeyPattern()\fP 
 .RE
@@ -257,7 +255,7 @@ Number of mouse patterns\&.
 .SS "QwtEventPattern::QwtEventPattern ()"
 Constructor
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBMousePatternCode\fP, \fBKeyPatternCode\fP 
 .RE
@@ -268,158 +266,158 @@ Constructor
 .SS "void QwtEventPattern::initKeyPattern ()"
 Set default mouse patterns\&.
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBKeyPatternCode\fP 
 .RE
 .PP
 
-.SS "void QwtEventPattern::initMousePattern (intnumButtons)"
+.SS "void QwtEventPattern::initMousePattern (int numButtons)"
 Set default mouse patterns, depending on the number of mouse buttons
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fInumButtons\fP Number of mouse buttons ( <= 3 ) 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBMousePatternCode\fP 
 .RE
 .PP
 
-.SS "bool QwtEventPattern::keyMatch (\fBKeyPatternCode\fPcode, const QKeyEvent *event) const"
+.SS "bool QwtEventPattern::keyMatch (const \fBKeyPattern\fP & pattern, const QKeyEvent * event) const\fC [protected]\fP, \fC [virtual]\fP"
 
 .PP
 Compare a key event with an event pattern\&. A key event matches the pattern when both have the same key value and in the state value the same key flags (Qt::KeyButtonMask) are set\&.
 .PP
-\fBParameters:\fP
-.RS 4
-\fIcode\fP Index of the event pattern 
-.br
-\fIevent\fP Key event 
-.RE
-.PP
-\fBReturns:\fP
-.RS 4
-true if matches
-.RE
-.PP
-\fBSee Also:\fP
-.RS 4
-\fBmouseMatch()\fP 
-.RE
-.PP
-
-.SS "bool QwtEventPattern::keyMatch (const \fBKeyPattern\fP &pattern, const QKeyEvent *event) const\fC [protected]\fP, \fC [virtual]\fP"
-
-.PP
-Compare a key event with an event pattern\&. A key event matches the pattern when both have the same key value and in the state value the same key flags (Qt::KeyButtonMask) are set\&.
-.PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpattern\fP Key event pattern 
 .br
 \fIevent\fP Key event 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 true if matches
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBmouseMatch()\fP 
 .RE
 .PP
 
-.SS "const QVector< \fBQwtEventPattern::KeyPattern\fP > & QwtEventPattern::keyPattern () const"
+.SS "bool QwtEventPattern::keyMatch (\fBKeyPatternCode\fP code, const QKeyEvent * event) const"
 
 .PP
-\fBReturns:\fP
+Compare a key event with an event pattern\&. A key event matches the pattern when both have the same key value and in the state value the same key flags (Qt::KeyButtonMask) are set\&.
+.PP
+\fBParameters\fP
 .RS 4
-Key pattern 
+\fIcode\fP Index of the event pattern 
+.br
+\fIevent\fP Key event 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+true if matches
+.RE
+.PP
+\fBSee also\fP
+.RS 4
+\fBmouseMatch()\fP 
 .RE
 .PP
 
 .SS "QVector< \fBQwtEventPattern::KeyPattern\fP > & QwtEventPattern::keyPattern ()"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Key pattern 
 .RE
 .PP
 
-.SS "bool QwtEventPattern::mouseMatch (\fBMousePatternCode\fPcode, const QMouseEvent *event) const"
+.SS "const QVector< \fBQwtEventPattern::KeyPattern\fP > & QwtEventPattern::keyPattern () const"
+
+.PP
+\fBReturns\fP
+.RS 4
+Key pattern 
+.RE
+.PP
+
+.SS "bool QwtEventPattern::mouseMatch (const \fBMousePattern\fP & pattern, const QMouseEvent * event) const\fC [protected]\fP, \fC [virtual]\fP"
 
 .PP
 Compare a mouse event with an event pattern\&. A mouse event matches the pattern when both have the same button value and in the state value the same key flags(Qt::KeyButtonMask) are set\&.
 .PP
-\fBParameters:\fP
-.RS 4
-\fIcode\fP Index of the event pattern 
-.br
-\fIevent\fP Mouse event 
-.RE
-.PP
-\fBReturns:\fP
-.RS 4
-true if matches
-.RE
-.PP
-\fBSee Also:\fP
-.RS 4
-\fBkeyMatch()\fP 
-.RE
-.PP
-
-.SS "bool QwtEventPattern::mouseMatch (const \fBMousePattern\fP &pattern, const QMouseEvent *event) const\fC [protected]\fP, \fC [virtual]\fP"
-
-.PP
-Compare a mouse event with an event pattern\&. A mouse event matches the pattern when both have the same button value and in the state value the same key flags(Qt::KeyButtonMask) are set\&.
-.PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpattern\fP Mouse event pattern 
 .br
 \fIevent\fP Mouse event 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 true if matches
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBkeyMatch()\fP 
 .RE
 .PP
 
-.SS "const QVector< \fBQwtEventPattern::MousePattern\fP > & QwtEventPattern::mousePattern () const"
+.SS "bool QwtEventPattern::mouseMatch (\fBMousePatternCode\fP code, const QMouseEvent * event) const"
 
 .PP
-\fBReturns:\fP
+Compare a mouse event with an event pattern\&. A mouse event matches the pattern when both have the same button value and in the state value the same key flags(Qt::KeyButtonMask) are set\&.
+.PP
+\fBParameters\fP
 .RS 4
-Mouse pattern 
+\fIcode\fP Index of the event pattern 
+.br
+\fIevent\fP Mouse event 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+true if matches
+.RE
+.PP
+\fBSee also\fP
+.RS 4
+\fBkeyMatch()\fP 
 .RE
 .PP
 
 .SS "QVector< \fBQwtEventPattern::MousePattern\fP > & QwtEventPattern::mousePattern ()"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Mouse pattern 
 .RE
 .PP
 
-.SS "void QwtEventPattern::setKeyPattern (\fBKeyPatternCode\fPpattern, intkey, Qt::KeyboardModifiersmodifiers = \fCQt::NoModifier\fP)"
+.SS "const QVector< \fBQwtEventPattern::MousePattern\fP > & QwtEventPattern::mousePattern () const"
+
+.PP
+\fBReturns\fP
+.RS 4
+Mouse pattern 
+.RE
+.PP
+
+.SS "void QwtEventPattern::setKeyPattern (\fBKeyPatternCode\fP pattern, int key, Qt::KeyboardModifiers modifiers = \fCQt::NoModifier\fP)"
 Change one key pattern
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpattern\fP Index of the pattern 
 .br
@@ -428,16 +426,16 @@ Change one key pattern
 \fImodifiers\fP Keyboard modifiers
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 QKeyEvent 
 .RE
 .PP
 
-.SS "void QwtEventPattern::setMousePattern (\fBMousePatternCode\fPpattern, Qt::MouseButtonbutton, Qt::KeyboardModifiersmodifiers = \fCQt::NoModifier\fP)"
+.SS "void QwtEventPattern::setMousePattern (\fBMousePatternCode\fP pattern, Qt::MouseButton button, Qt::KeyboardModifiers modifiers = \fCQt::NoModifier\fP)"
 Change one mouse pattern
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpattern\fP Index of the pattern 
 .br
@@ -446,7 +444,7 @@ Change one mouse pattern
 \fImodifiers\fP Keyboard modifiers
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 QMouseEvent 
 .RE

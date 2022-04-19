@@ -1,10 +1,8 @@
-.TH "QwtAbstractScale" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtAbstractScale" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtAbstractScale \- 
-.PP
-An abstract base class for widgets having a scale\&.  
+QwtAbstractScale \- An abstract base class for widgets having a scale\&.  
 
 .SH SYNOPSIS
 .br
@@ -24,82 +22,82 @@ Inherited by \fBQwtAbstractSlider\fP, and \fBQwtThermo\fP\&.
 .ti -1c
 .RI "virtual \fB~QwtAbstractScale\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "void \fBsetScale\fP (double \fBlowerBound\fP, double \fBupperBound\fP)"
 .br
-.RI "\fISpecify a scale\&. \fP"
+.RI "Specify a scale\&. "
 .ti -1c
 .RI "void \fBsetScale\fP (const \fBQwtInterval\fP &)"
 .br
-.RI "\fISpecify a scale\&. \fP"
+.RI "Specify a scale\&. "
 .ti -1c
 .RI "void \fBsetScale\fP (const \fBQwtScaleDiv\fP &)"
 .br
-.RI "\fISpecify a scale\&. \fP"
+.RI "Specify a scale\&. "
 .ti -1c
-.RI "const \fBQwtScaleDiv\fP & \fBscaleDiv\fP () const "
+.RI "const \fBQwtScaleDiv\fP & \fBscaleDiv\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetLowerBound\fP (double value)"
 .br
 .ti -1c
-.RI "double \fBlowerBound\fP () const "
+.RI "double \fBlowerBound\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetUpperBound\fP (double value)"
 .br
 .ti -1c
-.RI "double \fBupperBound\fP () const "
+.RI "double \fBupperBound\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetScaleStepSize\fP (double stepSize)"
 .br
-.RI "\fISet the step size used for calculating a scale division\&. \fP"
+.RI "Set the step size used for calculating a scale division\&. "
 .ti -1c
-.RI "double \fBscaleStepSize\fP () const "
+.RI "double \fBscaleStepSize\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetScaleMaxMajor\fP (int ticks)"
 .br
-.RI "\fISet the maximum number of major tick intervals\&. \fP"
+.RI "Set the maximum number of major tick intervals\&. "
 .ti -1c
-.RI "int \fBscaleMaxMinor\fP () const "
+.RI "int \fBscaleMaxMinor\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetScaleMaxMinor\fP (int ticks)"
 .br
-.RI "\fISet the maximum number of minor tick intervals\&. \fP"
+.RI "Set the maximum number of minor tick intervals\&. "
 .ti -1c
-.RI "int \fBscaleMaxMajor\fP () const "
+.RI "int \fBscaleMaxMajor\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetScaleEngine\fP (\fBQwtScaleEngine\fP *)"
 .br
-.RI "\fISet a scale engine\&. \fP"
+.RI "Set a scale engine\&. "
 .ti -1c
-.RI "const \fBQwtScaleEngine\fP * \fBscaleEngine\fP () const "
+.RI "const \fBQwtScaleEngine\fP * \fBscaleEngine\fP () const"
 .br
 .ti -1c
 .RI "\fBQwtScaleEngine\fP * \fBscaleEngine\fP ()"
 .br
 .ti -1c
-.RI "int \fBtransform\fP (double) const "
+.RI "int \fBtransform\fP (double) const"
 .br
 .ti -1c
-.RI "double \fBinvTransform\fP (int) const "
+.RI "double \fBinvTransform\fP (int) const"
 .br
 .ti -1c
-.RI "bool \fBisInverted\fP () const "
+.RI "bool \fBisInverted\fP () const"
 .br
 .ti -1c
-.RI "double \fBminimum\fP () const "
+.RI "double \fBminimum\fP () const"
 .br
 .ti -1c
-.RI "double \fBmaximum\fP () const "
+.RI "double \fBmaximum\fP () const"
 .br
 .ti -1c
-.RI "const \fBQwtScaleMap\fP & \fBscaleMap\fP () const "
+.RI "const \fBQwtScaleMap\fP & \fBscaleMap\fP () const"
 .br
 .in -1c
 .SS "Protected Member Functions"
@@ -111,9 +109,9 @@ Inherited by \fBQwtAbstractSlider\fP, and \fBQwtThermo\fP\&.
 .ti -1c
 .RI "void \fBsetAbstractScaleDraw\fP (\fBQwtAbstractScaleDraw\fP *)"
 .br
-.RI "\fISet a scale draw\&. \fP"
+.RI "Set a scale draw\&. "
 .ti -1c
-.RI "const \fBQwtAbstractScaleDraw\fP * \fBabstractScaleDraw\fP () const "
+.RI "const \fBQwtAbstractScaleDraw\fP * \fBabstractScaleDraw\fP () const"
 .br
 .ti -1c
 .RI "\fBQwtAbstractScaleDraw\fP * \fBabstractScaleDraw\fP ()"
@@ -121,7 +119,7 @@ Inherited by \fBQwtAbstractSlider\fP, and \fBQwtThermo\fP\&.
 .ti -1c
 .RI "virtual void \fBscaleChange\fP ()"
 .br
-.RI "\fINotify changed scale\&. \fP"
+.RI "Notify changed scale\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -134,10 +132,10 @@ The scale division might be assigned explicitly - but usually it is calculated f
 The scale engine also decides the type of transformation of the scale ( linear, logarithmic \&.\&.\&. )\&. 
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "QwtAbstractScale::QwtAbstractScale (QWidget *parent = \fCNULL\fP)"
+.SS "QwtAbstractScale::QwtAbstractScale (QWidget * parent = \fCNULL\fP)"
 Constructor
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIparent\fP Parent widget
 .RE
@@ -147,48 +145,48 @@ Creates a default \fBQwtScaleDraw\fP and a \fBQwtLinearScaleEngine\fP\&. The ini
 The \fBscaleStepSize()\fP is initialized to 0\&.0, \fBscaleMaxMajor()\fP to 5 and scaleMaxMajor to 3\&. 
 .SH "Member Function Documentation"
 .PP 
-.SS "const \fBQwtAbstractScaleDraw\fP * QwtAbstractScale::abstractScaleDraw () const\fC [protected]\fP"
-
-.PP
-\fBReturns:\fP
-.RS 4
-Scale draw 
-.RE
-.PP
-\fBSee Also:\fP
-.RS 4
-\fBsetAbstractScaleDraw()\fP 
-.RE
-.PP
-
 .SS "\fBQwtAbstractScaleDraw\fP * QwtAbstractScale::abstractScaleDraw ()\fC [protected]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Scale draw 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetAbstractScaleDraw()\fP 
 .RE
 .PP
 
-.SS "double QwtAbstractScale::invTransform (intvalue) const"
+.SS "const \fBQwtAbstractScaleDraw\fP * QwtAbstractScale::abstractScaleDraw () const\fC [protected]\fP"
+
+.PP
+\fBReturns\fP
+.RS 4
+Scale draw 
+.RE
+.PP
+\fBSee also\fP
+.RS 4
+\fBsetAbstractScaleDraw()\fP 
+.RE
+.PP
+
+.SS "double QwtAbstractScale::invTransform (int value) const"
 Translate a widget coordinate into a scale value
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Widget coordinate 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Corresponding scale coordinate for value 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBscaleMap()\fP, \fBtransform()\fP 
 .RE
@@ -197,7 +195,7 @@ Corresponding scale coordinate for value
 .SS "bool QwtAbstractScale::isInverted () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 True, when the scale is increasing in opposite direction to the widget coordinates 
 .RE
@@ -206,12 +204,12 @@ True, when the scale is increasing in opposite direction to the widget coordinat
 .SS "double QwtAbstractScale::lowerBound () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Lower bound of the scale 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetLowerBound()\fP, \fBsetScale()\fP, \fBupperBound()\fP 
 .RE
@@ -220,12 +218,12 @@ Lower bound of the scale
 .SS "double QwtAbstractScale::maximum () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 The boundary with the larger value 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBminimum()\fP, \fBlowerBound()\fP, \fBupperBound()\fP 
 .RE
@@ -234,21 +232,21 @@ The boundary with the larger value
 .SS "double QwtAbstractScale::minimum () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 The boundary with the smaller value 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBmaximum()\fP, \fBlowerBound()\fP, \fBupperBound()\fP 
 .RE
 .PP
 
-.SS "void QwtAbstractScale::rescale (doublelowerBound, doubleupperBound, doublestepSize)\fC [protected]\fP"
+.SS "void QwtAbstractScale::rescale (double lowerBound, double upperBound, double stepSize)\fC [protected]\fP"
 Recalculate the scale division and update the scale\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIlowerBound\fP Lower limit of the scale interval 
 .br
@@ -257,7 +255,7 @@ Recalculate the scale division and update the scale\&.
 \fIstepSize\fP Major step size
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBscaleChange()\fP 
 .RE
@@ -266,35 +264,35 @@ Recalculate the scale division and update the scale\&.
 .SS "const \fBQwtScaleDiv\fP & QwtAbstractScale::scaleDiv () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Scale boundaries and positions of the ticks
 .RE
 .PP
 The scale division might have been assigned explicitly or calculated implicitly by \fBrescale()\fP\&. 
-.SS "const \fBQwtScaleEngine\fP * QwtAbstractScale::scaleEngine () const"
+.SS "\fBQwtScaleEngine\fP * QwtAbstractScale::scaleEngine ()"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Scale engine 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetScaleEngine()\fP 
 .RE
 .PP
 
-.SS "\fBQwtScaleEngine\fP * QwtAbstractScale::scaleEngine ()"
+.SS "const \fBQwtScaleEngine\fP * QwtAbstractScale::scaleEngine () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Scale engine 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetScaleEngine()\fP 
 .RE
@@ -303,7 +301,7 @@ Scale engine
 .SS "const \fBQwtScaleMap\fP & QwtAbstractScale::scaleMap () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Map to translate between scale and widget coordinates 
 .RE
@@ -312,12 +310,12 @@ Map to translate between scale and widget coordinates
 .SS "int QwtAbstractScale::scaleMaxMajor () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Maximal number of major tick intervals 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetScaleMaxMajor()\fP, \fBscaleMaxMinor()\fP 
 .RE
@@ -326,12 +324,12 @@ Maximal number of major tick intervals
 .SS "int QwtAbstractScale::scaleMaxMinor () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Maximal number of minor tick intervals 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetScaleMaxMinor()\fP, \fBscaleMaxMajor()\fP 
 .RE
@@ -340,190 +338,190 @@ Maximal number of minor tick intervals
 .SS "double QwtAbstractScale::scaleStepSize () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Hint for the step size of the scale 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetScaleStepSize()\fP, \fBQwtScaleEngine::divideScale()\fP 
 .RE
 .PP
 
-.SS "void QwtAbstractScale::setAbstractScaleDraw (\fBQwtAbstractScaleDraw\fP *scaleDraw)\fC [protected]\fP"
+.SS "void QwtAbstractScale::setAbstractScaleDraw (\fBQwtAbstractScaleDraw\fP * scaleDraw)\fC [protected]\fP"
 
 .PP
 Set a scale draw\&. scaleDraw has to be created with new and will be deleted in the destructor or the next call of \fBsetAbstractScaleDraw()\fP\&.
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBabstractScaleDraw()\fP 
 .RE
 .PP
 
-.SS "void QwtAbstractScale::setLowerBound (doublevalue)"
+.SS "void QwtAbstractScale::setLowerBound (double value)"
 Set the lower bound of the scale
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Lower bound
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBlowerBound()\fP, \fBsetScale()\fP, \fBsetUpperBound()\fP 
 .RE
 .PP
-\fBNote:\fP
+\fBNote\fP
 .RS 4
 For inverted scales the lower bound is greater than the upper bound 
 .RE
 .PP
 
-.SS "void QwtAbstractScale::setScale (doublelowerBound, doubleupperBound)"
+.SS "void QwtAbstractScale::setScale (const \fBQwtInterval\fP & interval)"
 
 .PP
 Specify a scale\&. Define a scale by an interval
 .PP
 The ticks are calculated using \fBscaleMaxMinor()\fP, \fBscaleMaxMajor()\fP and \fBscaleStepSize()\fP\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
+.RS 4
+\fIinterval\fP Interval 
+.RE
+.PP
+
+.SS "void QwtAbstractScale::setScale (const \fBQwtScaleDiv\fP & scaleDiv)"
+
+.PP
+Specify a scale\&. \fBscaleMaxMinor()\fP, \fBscaleMaxMajor()\fP and \fBscaleStepSize()\fP and have no effect\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIscaleDiv\fP Scale division 
+.RE
+.PP
+\fBSee also\fP
+.RS 4
+setAutoScale() 
+.RE
+.PP
+
+.SS "void QwtAbstractScale::setScale (double lowerBound, double upperBound)"
+
+.PP
+Specify a scale\&. Define a scale by an interval
+.PP
+The ticks are calculated using \fBscaleMaxMinor()\fP, \fBscaleMaxMajor()\fP and \fBscaleStepSize()\fP\&.
+.PP
+\fBParameters\fP
 .RS 4
 \fIlowerBound\fP lower limit of the scale interval 
 .br
 \fIupperBound\fP upper limit of the scale interval
 .RE
 .PP
-\fBNote:\fP
+\fBNote\fP
 .RS 4
 For inverted scales the lower bound is greater than the upper bound 
 .RE
 .PP
 
-.SS "void QwtAbstractScale::setScale (const \fBQwtInterval\fP &interval)"
-
-.PP
-Specify a scale\&. Define a scale by an interval
-.PP
-The ticks are calculated using \fBscaleMaxMinor()\fP, \fBscaleMaxMajor()\fP and \fBscaleStepSize()\fP\&.
-.PP
-\fBParameters:\fP
-.RS 4
-\fIinterval\fP Interval 
-.RE
-.PP
-
-.SS "void QwtAbstractScale::setScale (const \fBQwtScaleDiv\fP &scaleDiv)"
-
-.PP
-Specify a scale\&. \fBscaleMaxMinor()\fP, \fBscaleMaxMajor()\fP and \fBscaleStepSize()\fP and have no effect\&.
-.PP
-\fBParameters:\fP
-.RS 4
-\fIscaleDiv\fP Scale division 
-.RE
-.PP
-\fBSee Also:\fP
-.RS 4
-setAutoScale() 
-.RE
-.PP
-
-.SS "void QwtAbstractScale::setScaleEngine (\fBQwtScaleEngine\fP *scaleEngine)"
+.SS "void QwtAbstractScale::setScaleEngine (\fBQwtScaleEngine\fP * scaleEngine)"
 
 .PP
 Set a scale engine\&. The scale engine is responsible for calculating the scale division and provides a transformation between scale and widget coordinates\&.
 .PP
 scaleEngine has to be created with new and will be deleted in the destructor or the next call of setScaleEngine\&. 
-.SS "void QwtAbstractScale::setScaleMaxMajor (intticks)"
+.SS "void QwtAbstractScale::setScaleMaxMajor (int ticks)"
 
 .PP
 Set the maximum number of major tick intervals\&. The scale's major ticks are calculated automatically such that the number of major intervals does not exceed ticks\&.
 .PP
 The default value is 5\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIticks\fP Maximal number of major ticks\&.
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBscaleMaxMajor()\fP, \fBsetScaleMaxMinor()\fP, \fBsetScaleStepSize()\fP, \fBQwtScaleEngine::divideInterval()\fP 
 .RE
 .PP
 
-.SS "void QwtAbstractScale::setScaleMaxMinor (intticks)"
+.SS "void QwtAbstractScale::setScaleMaxMinor (int ticks)"
 
 .PP
 Set the maximum number of minor tick intervals\&. The scale's minor ticks are calculated automatically such that the number of minor intervals does not exceed ticks\&. The default value is 3\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIticks\fP Maximal number of minor ticks\&.
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBscaleMaxMajor()\fP, \fBsetScaleMaxMinor()\fP, \fBsetScaleStepSize()\fP, \fBQwtScaleEngine::divideInterval()\fP 
 .RE
 .PP
 
-.SS "void QwtAbstractScale::setScaleStepSize (doublestepSize)"
+.SS "void QwtAbstractScale::setScaleStepSize (double stepSize)"
 
 .PP
 Set the step size used for calculating a scale division\&. The step size is hint for calculating the intervals for the major ticks of the scale\&. A value of 0\&.0 is interpreted as no hint\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIstepSize\fP Hint for the step size of the scale
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBscaleStepSize()\fP, \fBQwtScaleEngine::divideScale()\fP
 .RE
 .PP
-\fBNote:\fP
+\fBNote\fP
 .RS 4
 Position and distance between the major ticks also depends on \fBscaleMaxMajor()\fP\&. 
 .RE
 .PP
 
-.SS "void QwtAbstractScale::setUpperBound (doublevalue)"
+.SS "void QwtAbstractScale::setUpperBound (double value)"
 Set the upper bound of the scale
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Upper bound
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBupperBound()\fP, \fBsetScale()\fP, \fBsetLowerBound()\fP 
 .RE
 .PP
-\fBNote:\fP
+\fBNote\fP
 .RS 4
 For inverted scales the lower bound is greater than the upper bound 
 .RE
 .PP
 
-.SS "int QwtAbstractScale::transform (doublevalue) const"
+.SS "int QwtAbstractScale::transform (double value) const"
 Translate a scale value into a widget coordinate
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIvalue\fP Scale value 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Corresponding widget coordinate for value 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBscaleMap()\fP, \fBinvTransform()\fP 
 .RE
@@ -532,12 +530,12 @@ Corresponding widget coordinate for value
 .SS "double QwtAbstractScale::upperBound () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Upper bound of the scale 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetUpperBound()\fP, \fBsetScale()\fP, \fBlowerBound()\fP 
 .RE

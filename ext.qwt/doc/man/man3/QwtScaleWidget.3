@@ -1,10 +1,8 @@
-.TH "QwtScaleWidget" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtScaleWidget" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtScaleWidget \- 
-.PP
-A Widget which contains a scale\&.  
+QwtScaleWidget \- A Widget which contains a scale\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,11 +17,11 @@ Inherits QWidget\&.
 .ti -1c
 .RI "enum \fBLayoutFlag\fP { \fBTitleInverted\fP = 1 }"
 .br
-.RI "\fILayout flags of the title\&. \fP"
+.RI "Layout flags of the title\&. "
 .ti -1c
 .RI "typedef QFlags< \fBLayoutFlag\fP > \fBLayoutFlags\fP"
 .br
-.RI "\fILayout flags of the title\&. \fP"
+.RI "Layout flags of the title\&. "
 .in -1c
 .SS "Signals"
 
@@ -31,7 +29,7 @@ Inherits QWidget\&.
 .ti -1c
 .RI "void \fBscaleDivChanged\fP ()"
 .br
-.RI "\fISignal emitted, whenever the scale division changes\&. \fP"
+.RI "Signal emitted, whenever the scale division changes\&. "
 .in -1c
 .SS "Public Member Functions"
 
@@ -39,15 +37,15 @@ Inherits QWidget\&.
 .ti -1c
 .RI "\fBQwtScaleWidget\fP (QWidget *parent=NULL)"
 .br
-.RI "\fICreate a scale with the position QwtScaleWidget::Left\&. \fP"
+.RI "Create a scale with the position QwtScaleWidget::Left\&. "
 .ti -1c
 .RI "\fBQwtScaleWidget\fP (\fBQwtScaleDraw::Alignment\fP, QWidget *parent=NULL)"
 .br
-.RI "\fIConstructor\&. \fP"
+.RI "Constructor\&. "
 .ti -1c
 .RI "virtual \fB~QwtScaleWidget\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
 .RI "void \fBsetTitle\fP (const QString &\fBtitle\fP)"
 .br
@@ -55,29 +53,29 @@ Inherits QWidget\&.
 .RI "void \fBsetTitle\fP (const \fBQwtText\fP &\fBtitle\fP)"
 .br
 .ti -1c
-.RI "\fBQwtText\fP \fBtitle\fP () const "
+.RI "\fBQwtText\fP \fBtitle\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetLayoutFlag\fP (\fBLayoutFlag\fP, bool on)"
 .br
 .ti -1c
-.RI "bool \fBtestLayoutFlag\fP (\fBLayoutFlag\fP) const "
+.RI "bool \fBtestLayoutFlag\fP (\fBLayoutFlag\fP) const"
 .br
 .ti -1c
-.RI "void \fBsetBorderDist\fP (int start, int end)"
+.RI "void \fBsetBorderDist\fP (int dist1, int dist2)"
 .br
 .ti -1c
-.RI "int \fBstartBorderDist\fP () const "
+.RI "int \fBstartBorderDist\fP () const"
 .br
 .ti -1c
-.RI "int \fBendBorderDist\fP () const "
+.RI "int \fBendBorderDist\fP () const"
 .br
 .ti -1c
-.RI "void \fBgetBorderDistHint\fP (int &start, int &end) const "
+.RI "void \fBgetBorderDistHint\fP (int &start, int &end) const"
 .br
-.RI "\fICalculate a hint for the border distances\&. \fP"
+.RI "Calculate a hint for the border distances\&. "
 .ti -1c
-.RI "void \fBgetMinBorderDist\fP (int &start, int &end) const "
+.RI "void \fBgetMinBorderDist\fP (int &start, int &end) const"
 .br
 .ti -1c
 .RI "void \fBsetMinBorderDist\fP (int start, int end)"
@@ -85,21 +83,21 @@ Inherits QWidget\&.
 .ti -1c
 .RI "void \fBsetMargin\fP (int)"
 .br
-.RI "\fISpecify the margin to the colorBar/base line\&. \fP"
+.RI "Specify the margin to the colorBar/base line\&. "
 .ti -1c
-.RI "int \fBmargin\fP () const "
+.RI "int \fBmargin\fP () const"
 .br
 .ti -1c
-.RI "void \fBsetSpacing\fP (int td)"
+.RI "void \fBsetSpacing\fP (int)"
 .br
-.RI "\fISpecify the distance between color bar, scale and title\&. \fP"
+.RI "Specify the distance between color bar, scale and title\&. "
 .ti -1c
-.RI "int \fBspacing\fP () const "
+.RI "int \fBspacing\fP () const"
 .br
 .ti -1c
-.RI "void \fBsetScaleDiv\fP (const \fBQwtScaleDiv\fP &sd)"
+.RI "void \fBsetScaleDiv\fP (const \fBQwtScaleDiv\fP &)"
 .br
-.RI "\fIAssign a scale division\&. \fP"
+.RI "Assign a scale division\&. "
 .ti -1c
 .RI "void \fBsetTransformation\fP (\fBQwtTransform\fP *)"
 .br
@@ -107,7 +105,7 @@ Inherits QWidget\&.
 .RI "void \fBsetScaleDraw\fP (\fBQwtScaleDraw\fP *)"
 .br
 .ti -1c
-.RI "const \fBQwtScaleDraw\fP * \fBscaleDraw\fP () const "
+.RI "const \fBQwtScaleDraw\fP * \fBscaleDraw\fP () const"
 .br
 .ti -1c
 .RI "\fBQwtScaleDraw\fP * \fBscaleDraw\fP ()"
@@ -115,60 +113,60 @@ Inherits QWidget\&.
 .ti -1c
 .RI "void \fBsetLabelAlignment\fP (Qt::Alignment)"
 .br
-.RI "\fIChange the alignment for the labels\&. \fP"
+.RI "Change the alignment for the labels\&. "
 .ti -1c
 .RI "void \fBsetLabelRotation\fP (double rotation)"
 .br
-.RI "\fIChange the rotation for the labels\&. See \fBQwtScaleDraw::setLabelRotation()\fP\&. \fP"
+.RI "Change the rotation for the labels\&. See \fBQwtScaleDraw::setLabelRotation()\fP\&. "
 .ti -1c
 .RI "void \fBsetColorBarEnabled\fP (bool)"
 .br
 .ti -1c
-.RI "bool \fBisColorBarEnabled\fP () const "
+.RI "bool \fBisColorBarEnabled\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetColorBarWidth\fP (int)"
 .br
 .ti -1c
-.RI "int \fBcolorBarWidth\fP () const "
+.RI "int \fBcolorBarWidth\fP () const"
 .br
 .ti -1c
 .RI "void \fBsetColorMap\fP (const \fBQwtInterval\fP &, \fBQwtColorMap\fP *)"
 .br
 .ti -1c
-.RI "\fBQwtInterval\fP \fBcolorBarInterval\fP () const "
+.RI "\fBQwtInterval\fP \fBcolorBarInterval\fP () const"
 .br
 .ti -1c
-.RI "const \fBQwtColorMap\fP * \fBcolorMap\fP () const "
+.RI "const \fBQwtColorMap\fP * \fBcolorMap\fP () const"
 .br
 .ti -1c
-.RI "virtual QSize \fBsizeHint\fP () const "
+.RI "virtual QSize \fBsizeHint\fP () const"
 .br
 .ti -1c
-.RI "virtual QSize \fBminimumSizeHint\fP () const "
+.RI "virtual QSize \fBminimumSizeHint\fP () const"
 .br
 .ti -1c
-.RI "int \fBtitleHeightForWidth\fP (int width) const "
+.RI "int \fBtitleHeightForWidth\fP (int width) const"
 .br
-.RI "\fIFind the height of the title for a given width\&. \fP"
+.RI "Find the height of the title for a given width\&. "
 .ti -1c
-.RI "int \fBdimForLength\fP (int length, const QFont &scaleFont) const "
+.RI "int \fBdimForLength\fP (int length, const QFont &scaleFont) const"
 .br
-.RI "\fIFind the minimum dimension for a given length\&. dim is the height, length the width seen in direction of the title\&. \fP"
+.RI "Find the minimum dimension for a given length\&. dim is the height, length the width seen in direction of the title\&. "
 .ti -1c
-.RI "void \fBdrawColorBar\fP (QPainter *painter, const QRectF &) const "
+.RI "void \fBdrawColorBar\fP (QPainter *painter, const QRectF &) const"
 .br
 .ti -1c
-.RI "void \fBdrawTitle\fP (QPainter *painter, \fBQwtScaleDraw::Alignment\fP, const QRectF &rect) const "
+.RI "void \fBdrawTitle\fP (QPainter *painter, \fBQwtScaleDraw::Alignment\fP, const QRectF &rect) const"
 .br
 .ti -1c
 .RI "void \fBsetAlignment\fP (\fBQwtScaleDraw::Alignment\fP)"
 .br
 .ti -1c
-.RI "\fBQwtScaleDraw::Alignment\fP \fBalignment\fP () const "
+.RI "\fBQwtScaleDraw::Alignment\fP \fBalignment\fP () const"
 .br
 .ti -1c
-.RI "QRectF \fBcolorBarRect\fP (const QRectF &) const "
+.RI "QRectF \fBcolorBarRect\fP (const QRectF &) const"
 .br
 .in -1c
 .SS "Protected Member Functions"
@@ -177,20 +175,20 @@ Inherits QWidget\&.
 .ti -1c
 .RI "virtual void \fBpaintEvent\fP (QPaintEvent *)"
 .br
-.RI "\fIpaintEvent \fP"
+.RI "paintEvent "
 .ti -1c
 .RI "virtual void \fBresizeEvent\fP (QResizeEvent *)"
 .br
 .ti -1c
-.RI "void \fBdraw\fP (QPainter *p) const "
+.RI "void \fBdraw\fP (QPainter *) const"
 .br
-.RI "\fIdraw the scale \fP"
+.RI "draw the scale "
 .ti -1c
 .RI "void \fBscaleChange\fP ()"
 .br
-.RI "\fINotify a change of the scale\&. \fP"
+.RI "Notify a change of the scale\&. "
 .ti -1c
-.RI "void \fBlayoutScale\fP (bool update=true)"
+.RI "void \fBlayoutScale\fP (bool update_geometry=true)"
 .br
 .in -1c
 .SH "Detailed Description"
@@ -212,23 +210,23 @@ Layout flags of the title\&.
 The title of vertical scales is painted from top to bottom\&. Otherwise it is painted from bottom to top\&. 
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "QwtScaleWidget::QwtScaleWidget (QWidget *parent = \fCNULL\fP)\fC [explicit]\fP"
+.SS "QwtScaleWidget::QwtScaleWidget (QWidget * parent = \fCNULL\fP)\fC [explicit]\fP"
 
 .PP
 Create a scale with the position QwtScaleWidget::Left\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIparent\fP Parent widget 
 .RE
 .PP
 
-.SS "QwtScaleWidget::QwtScaleWidget (\fBQwtScaleDraw::Alignment\fPalign, QWidget *parent = \fCNULL\fP)\fC [explicit]\fP"
+.SS "QwtScaleWidget::QwtScaleWidget (\fBQwtScaleDraw::Alignment\fP align, QWidget * parent = \fCNULL\fP)\fC [explicit]\fP"
 
 .PP
 Constructor\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIalign\fP Alignment\&. 
 .br
@@ -241,12 +239,12 @@ Constructor\&.
 .SS "\fBQwtScaleDraw::Alignment\fP QwtScaleWidget::alignment () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 position 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 setPosition() 
 .RE
@@ -255,26 +253,26 @@ setPosition()
 .SS "\fBQwtInterval\fP QwtScaleWidget::colorBarInterval () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Value interval for the color bar 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetColorMap()\fP, \fBcolorMap()\fP 
 .RE
 .PP
 
-.SS "QRectF QwtScaleWidget::colorBarRect (const QRectF &rect) const"
+.SS "QRectF QwtScaleWidget::colorBarRect (const QRectF & rect) const"
 Calculate the the rectangle for the color bar
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIrect\fP Bounding rectangle for all components of the scale 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Rectangle for the color bar 
 .RE
@@ -283,12 +281,12 @@ Rectangle for the color bar
 .SS "int QwtScaleWidget::colorBarWidth () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Width of the color bar 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetColorBarEnabled()\fP, \fBsetColorBarEnabled()\fP 
 .RE
@@ -297,55 +295,55 @@ Width of the color bar
 .SS "const \fBQwtColorMap\fP * QwtScaleWidget::colorMap () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Color map 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetColorMap()\fP, \fBcolorBarInterval()\fP 
 .RE
 .PP
 
-.SS "int QwtScaleWidget::dimForLength (intlength, const QFont &scaleFont) const"
+.SS "int QwtScaleWidget::dimForLength (int length, const QFont & scaleFont) const"
 
 .PP
 Find the minimum dimension for a given length\&. dim is the height, length the width seen in direction of the title\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIlength\fP width for horizontal, height for vertical scales 
 .br
 \fIscaleFont\fP Font of the scale 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 height for horizontal, width for vertical scales 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::drawColorBar (QPainter *painter, const QRectF &rect) const"
+.SS "void QwtScaleWidget::drawColorBar (QPainter * painter, const QRectF & rect) const"
 Draw the color bar of the scale widget
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpainter\fP Painter 
 .br
 \fIrect\fP Bounding rectangle for the color bar
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetColorBarEnabled()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::drawTitle (QPainter *painter, \fBQwtScaleDraw::Alignment\fPalign, const QRectF &rect) const"
+.SS "void QwtScaleWidget::drawTitle (QPainter * painter, \fBQwtScaleDraw::Alignment\fP align, const QRectF & rect) const"
 Rotate and paint a title according to its position into a given rectangle\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpainter\fP Painter 
 .br
@@ -358,30 +356,30 @@ Rotate and paint a title according to its position into a given rectangle\&.
 .SS "int QwtScaleWidget::endBorderDist () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 end border distance 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetBorderDist()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::getBorderDistHint (int &start, int &end) const"
+.SS "void QwtScaleWidget::getBorderDistHint (int & start, int & end) const"
 
 .PP
 Calculate a hint for the border distances\&. This member function calculates the distance of the scale's endpoints from the widget borders which is required for the mark labels to fit into the widget\&. The maximum of this distance an the minimum border distance is returned\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIstart\fP Return parameter for the border width at the beginning of the scale 
 .br
 \fIend\fP Return parameter for the border width at the end of the scale
 .RE
 .PP
-\fBWarning:\fP
+\fBWarning\fP
 .RS 4
 .PD 0
 .IP "\(bu" 2
@@ -389,23 +387,23 @@ The minimum border distance depends on the font\&.
 .PP
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetMinBorderDist()\fP, \fBgetMinBorderDist()\fP, \fBsetBorderDist()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::getMinBorderDist (int &start, int &end) const"
+.SS "void QwtScaleWidget::getMinBorderDist (int & start, int & end) const"
 Get the minimum value for the distances of the scale's endpoints from the widget borders\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIstart\fP Return parameter for the border width at the beginning of the scale 
 .br
 \fIend\fP Return parameter for the border width at the end of the scale
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetMinBorderDist()\fP, \fBgetBorderDistHint()\fP 
 .RE
@@ -414,21 +412,21 @@ Get the minimum value for the distances of the scale's endpoints from the widget
 .SS "bool QwtScaleWidget::isColorBarEnabled () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 true, when the color bar is enabled 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetColorBarEnabled()\fP, \fBsetColorBarWidth()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::layoutScale (boolupdate_geometry = \fCtrue\fP)\fC [protected]\fP"
+.SS "void QwtScaleWidget::layoutScale (bool update_geometry = \fCtrue\fP)\fC [protected]\fP"
 Recalculate the scale's geometry and layout based on the current geometry and fonts\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIupdate_geometry\fP Notify the layout system and call update to redraw the scale 
 .RE
@@ -437,12 +435,12 @@ Recalculate the scale's geometry and layout based on the current geometry and fo
 .SS "int QwtScaleWidget::margin () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 margin 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetMargin()\fP 
 .RE
@@ -451,16 +449,16 @@ margin
 .SS "QSize QwtScaleWidget::minimumSizeHint () const\fC [virtual]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 a minimum size hint 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::resizeEvent (QResizeEvent *event)\fC [protected]\fP, \fC [virtual]\fP"
+.SS "void QwtScaleWidget::resizeEvent (QResizeEvent * event)\fC [protected]\fP, \fC [virtual]\fP"
 Event handler for resize events 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIevent\fP Resize event 
 .RE
@@ -470,268 +468,268 @@ Event handler for resize events
 
 .PP
 Notify a change of the scale\&. This virtual function can be overloaded by derived classes\&. The default implementation updates the geometry and repaints the widget\&. 
-.SS "const \fBQwtScaleDraw\fP * QwtScaleWidget::scaleDraw () const"
-
-.PP
-\fBReturns:\fP
-.RS 4
-scaleDraw of this scale 
-.RE
-.PP
-\fBSee Also:\fP
-.RS 4
-\fBsetScaleDraw()\fP, QwtScaleDraw::setScaleDraw() 
-.RE
-.PP
-
 .SS "\fBQwtScaleDraw\fP * QwtScaleWidget::scaleDraw ()"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 scaleDraw of this scale 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 QwtScaleDraw::setScaleDraw() 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setAlignment (\fBQwtScaleDraw::Alignment\fPalignment)"
+.SS "const \fBQwtScaleDraw\fP * QwtScaleWidget::scaleDraw () const"
+
+.PP
+\fBReturns\fP
+.RS 4
+scaleDraw of this scale 
+.RE
+.PP
+\fBSee also\fP
+.RS 4
+\fBsetScaleDraw()\fP, QwtScaleDraw::setScaleDraw() 
+.RE
+.PP
+
+.SS "void QwtScaleWidget::setAlignment (\fBQwtScaleDraw::Alignment\fP alignment)"
 Change the alignment
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIalignment\fP New alignment 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBalignment()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setBorderDist (intdist1, intdist2)"
+.SS "void QwtScaleWidget::setBorderDist (int dist1, int dist2)"
 Specify distances of the scale's endpoints from the widget's borders\&. The actual borders will never be less than minimum border distance\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIdist1\fP Left or top Distance 
 .br
 \fIdist2\fP Right or bottom distance 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 borderDist() 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setColorBarEnabled (boolon)"
+.SS "void QwtScaleWidget::setColorBarEnabled (bool on)"
 En/disable a color bar associated to the scale 
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBisColorBarEnabled()\fP, \fBsetColorBarWidth()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setColorBarWidth (intwidth)"
+.SS "void QwtScaleWidget::setColorBarWidth (int width)"
 Set the width of the color bar
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIwidth\fP Width 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBcolorBarWidth()\fP, \fBsetColorBarEnabled()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setColorMap (const \fBQwtInterval\fP &interval, \fBQwtColorMap\fP *colorMap)"
+.SS "void QwtScaleWidget::setColorMap (const \fBQwtInterval\fP & interval, \fBQwtColorMap\fP * colorMap)"
 Set the color map and value interval, that are used for displaying the color bar\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIinterval\fP Value interval 
 .br
 \fIcolorMap\fP Color map
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBcolorMap()\fP, \fBcolorBarInterval()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setLabelAlignment (Qt::Alignmentalignment)"
+.SS "void QwtScaleWidget::setLabelAlignment (Qt::Alignment alignment)"
 
 .PP
 Change the alignment for the labels\&. 
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtScaleDraw::setLabelAlignment()\fP, \fBsetLabelRotation()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setLabelRotation (doublerotation)"
+.SS "void QwtScaleWidget::setLabelRotation (double rotation)"
 
 .PP
 Change the rotation for the labels\&. See \fBQwtScaleDraw::setLabelRotation()\fP\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIrotation\fP Rotation 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtScaleDraw::setLabelRotation()\fP, setLabelFlags() 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setLayoutFlag (\fBLayoutFlag\fPflag, boolon)"
+.SS "void QwtScaleWidget::setLayoutFlag (\fBLayoutFlag\fP flag, bool on)"
 Toggle an layout flag
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIflag\fP Layout flag 
 .br
 \fIon\fP true/false
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBtestLayoutFlag()\fP, \fBLayoutFlag\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setMargin (intmargin)"
+.SS "void QwtScaleWidget::setMargin (int margin)"
 
 .PP
 Specify the margin to the colorBar/base line\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fImargin\fP Margin 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBmargin()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setMinBorderDist (intstart, intend)"
+.SS "void QwtScaleWidget::setMinBorderDist (int start, int end)"
 Set a minimum value for the distances of the scale's endpoints from the widget borders\&. This is useful to avoid that the scales are 'jumping', when the tick labels or their positions change often\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIstart\fP Minimum for the start border 
 .br
 \fIend\fP Minimum for the end border 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBgetMinBorderDist()\fP, \fBgetBorderDistHint()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setScaleDiv (const \fBQwtScaleDiv\fP &scaleDiv)"
+.SS "void QwtScaleWidget::setScaleDiv (const \fBQwtScaleDiv\fP & scaleDiv)"
 
 .PP
 Assign a scale division\&. The scale division determines where to set the tick marks\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIscaleDiv\fP Scale Division 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 For more information about scale divisions, see \fBQwtScaleDiv\fP\&. 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setScaleDraw (\fBQwtScaleDraw\fP *scaleDraw)"
+.SS "void QwtScaleWidget::setScaleDraw (\fBQwtScaleDraw\fP * scaleDraw)"
 Set a scale draw
 .PP
 scaleDraw has to be created with new and will be deleted in \fB~QwtScaleWidget()\fP or the next call of \fBsetScaleDraw()\fP\&. scaleDraw will be initialized with the attributes of the previous scaleDraw object\&.
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIscaleDraw\fP ScaleDraw object 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBscaleDraw()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setSpacing (intspacing)"
+.SS "void QwtScaleWidget::setSpacing (int spacing)"
 
 .PP
 Specify the distance between color bar, scale and title\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIspacing\fP Spacing 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBspacing()\fP 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setTitle (const QString &title)"
+.SS "void QwtScaleWidget::setTitle (const QString & title)"
 Give title new text contents
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fItitle\fP New title 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBtitle()\fP, \fBsetTitle(const QwtText &)\fP; 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setTitle (const \fBQwtText\fP &title)"
+.SS "void QwtScaleWidget::setTitle (const \fBQwtText\fP & title)"
 Give title new text contents
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fItitle\fP New title 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBtitle()\fP 
 .RE
 .PP
-\fBWarning:\fP
+\fBWarning\fP
 .RS 4
 The title flags are interpreted in direction of the label, AlignTop, AlignBottom can't be set as the title will always be aligned to the scale\&. 
 .RE
 .PP
 
-.SS "void QwtScaleWidget::setTransformation (\fBQwtTransform\fP *transformation)"
+.SS "void QwtScaleWidget::setTransformation (\fBQwtTransform\fP * transformation)"
 Set the transformation
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fItransformation\fP Transformation 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 QwtAbstractScaleDraw::scaleDraw(), \fBQwtScaleMap\fP 
 .RE
@@ -740,7 +738,7 @@ QwtAbstractScaleDraw::scaleDraw(), \fBQwtScaleMap\fP
 .SS "QSize QwtScaleWidget::sizeHint () const\fC [virtual]\fP"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 a size hint 
 .RE
@@ -749,12 +747,12 @@ a size hint
 .SS "int QwtScaleWidget::spacing () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 distance between scale and title 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetMargin()\fP 
 .RE
@@ -763,31 +761,31 @@ distance between scale and title
 .SS "int QwtScaleWidget::startBorderDist () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 start border distance 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetBorderDist()\fP 
 .RE
 .PP
 
-.SS "bool QwtScaleWidget::testLayoutFlag (\fBLayoutFlag\fPflag) const"
+.SS "bool QwtScaleWidget::testLayoutFlag (\fBLayoutFlag\fP flag) const"
 Test a layout flag
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIflag\fP Layout flag 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 true/false 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetLayoutFlag()\fP, \fBLayoutFlag\fP 
 .RE
@@ -796,28 +794,28 @@ true/false
 .SS "\fBQwtText\fP QwtScaleWidget::title () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 title 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetTitle()\fP 
 .RE
 .PP
 
-.SS "int QwtScaleWidget::titleHeightForWidth (intwidth) const"
+.SS "int QwtScaleWidget::titleHeightForWidth (int width) const"
 
 .PP
 Find the height of the title for a given width\&. 
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIwidth\fP Width 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 height Height 
 .RE

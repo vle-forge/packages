@@ -1,10 +1,8 @@
-.TH "QwtRichTextEngine" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtRichTextEngine" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtRichTextEngine \- 
-.PP
-A text engine for Qt rich texts\&.  
+QwtRichTextEngine \- A text engine for Qt rich texts\&.  
 
 .SH SYNOPSIS
 .br
@@ -19,21 +17,21 @@ Inherits \fBQwtTextEngine\fP\&.
 .ti -1c
 .RI "\fBQwtRichTextEngine\fP ()"
 .br
-.RI "\fIConstructor\&. \fP"
+.RI "Constructor\&. "
 .ti -1c
-.RI "virtual double \fBheightForWidth\fP (const QFont &font, int flags, const QString &text, double width) const "
+.RI "virtual double \fBheightForWidth\fP (const QFont &font, int flags, const QString &text, double width) const"
 .br
 .ti -1c
-.RI "virtual QSizeF \fBtextSize\fP (const QFont &font, int flags, const QString &text) const "
+.RI "virtual QSizeF \fBtextSize\fP (const QFont &font, int flags, const QString &text) const"
 .br
 .ti -1c
-.RI "virtual void \fBdraw\fP (QPainter *painter, const QRectF &rect, int flags, const QString &text) const "
+.RI "virtual void \fBdraw\fP (QPainter *painter, const QRectF &rect, int flags, const QString &text) const"
 .br
 .ti -1c
-.RI "virtual bool \fBmightRender\fP (const QString &) const "
+.RI "virtual bool \fBmightRender\fP (const QString &) const"
 .br
 .ti -1c
-.RI "virtual void \fBtextMargins\fP (const QFont &, const QString &, double &left, double &right, double &top, double &bottom) const "
+.RI "virtual void \fBtextMargins\fP (const QFont &, const QString &, double &left, double &right, double &top, double &bottom) const"
 .br
 .in -1c
 .SS "Additional Inherited Members"
@@ -44,10 +42,10 @@ A text engine for Qt rich texts\&.
 \fBQwtRichTextEngine\fP renders Qt rich texts using the classes of the Scribe framework of Qt\&. 
 .SH "Member Function Documentation"
 .PP 
-.SS "void QwtRichTextEngine::draw (QPainter *painter, const QRectF &rect, intflags, const QString &text) const\fC [virtual]\fP"
+.SS "void QwtRichTextEngine::draw (QPainter * painter, const QRectF & rect, int flags, const QString & text) const\fC [virtual]\fP"
 Draw the text in a clipping rectangle
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIpainter\fP Painter 
 .br
@@ -61,10 +59,10 @@ Draw the text in a clipping rectangle
 
 .PP
 Implements \fBQwtTextEngine\fP\&.
-.SS "double QwtRichTextEngine::heightForWidth (const QFont &font, intflags, const QString &text, doublewidth) const\fC [virtual]\fP"
+.SS "double QwtRichTextEngine::heightForWidth (const QFont & font, int flags, const QString & text, double width) const\fC [virtual]\fP"
 Find the height for a given width
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIfont\fP Font of the text 
 .br
@@ -75,7 +73,7 @@ Find the height for a given width
 \fIwidth\fP Width
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Calculated height 
 .RE
@@ -83,15 +81,15 @@ Calculated height
 
 .PP
 Implements \fBQwtTextEngine\fP\&.
-.SS "bool QwtRichTextEngine::mightRender (const QString &text) const\fC [virtual]\fP"
+.SS "bool QwtRichTextEngine::mightRender (const QString & text) const\fC [virtual]\fP"
 Test if a string can be rendered by this text engine
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fItext\fP Text to be tested 
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Qt::mightBeRichText(text); 
 .RE
@@ -99,10 +97,10 @@ Qt::mightBeRichText(text);
 
 .PP
 Implements \fBQwtTextEngine\fP\&.
-.SS "void QwtRichTextEngine::textMargins (const QFont &, const QString &, double &left, double &right, double &top, double &bottom) const\fC [virtual]\fP"
+.SS "void QwtRichTextEngine::textMargins (const QFont &, const QString &, double & left, double & right, double & top, double & bottom) const\fC [virtual]\fP"
 Return margins around the texts
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIleft\fP Return 0 
 .br
@@ -116,10 +114,10 @@ Return margins around the texts
 
 .PP
 Implements \fBQwtTextEngine\fP\&.
-.SS "QSizeF QwtRichTextEngine::textSize (const QFont &font, intflags, const QString &text) const\fC [virtual]\fP"
+.SS "QSizeF QwtRichTextEngine::textSize (const QFont & font, int flags, const QString & text) const\fC [virtual]\fP"
 Returns the size, that is needed to render text
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIfont\fP Font of the text 
 .br
@@ -128,9 +126,9 @@ Returns the size, that is needed to render text
 \fItext\fP Text to be rendered
 .RE
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
-Caluclated size 
+Calculated size 
 .RE
 .PP
 

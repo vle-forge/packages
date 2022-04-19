@@ -1,10 +1,8 @@
-.TH "QwtSamplingThread" 3 "Thu Dec 11 2014" "Version 6.1.2" "Qwt User's Guide" \" -*- nroff -*-
+.TH "QwtSamplingThread" 3 "Mon Dec 28 2020" "Version 6.1.6" "Qwt User's Guide" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-QwtSamplingThread \- 
-.PP
-A thread collecting samples at regular intervals\&.  
+QwtSamplingThread \- A thread collecting samples at regular intervals\&.  
 
 .SH SYNOPSIS
 .br
@@ -29,12 +27,12 @@ Inherits QThread\&.
 .ti -1c
 .RI "virtual \fB~QwtSamplingThread\fP ()"
 .br
-.RI "\fIDestructor\&. \fP"
+.RI "Destructor\&. "
 .ti -1c
-.RI "double \fBinterval\fP () const "
+.RI "double \fBinterval\fP () const"
 .br
 .ti -1c
-.RI "double \fBelapsed\fP () const "
+.RI "double \fBelapsed\fP () const"
 .br
 .in -1c
 .SS "Protected Member Functions"
@@ -43,7 +41,7 @@ Inherits QThread\&.
 .ti -1c
 .RI "\fBQwtSamplingThread\fP (QObject *parent=NULL)"
 .br
-.RI "\fIConstructor\&. \fP"
+.RI "Constructor\&. "
 .ti -1c
 .RI "virtual void \fBrun\fP ()"
 .br
@@ -59,7 +57,7 @@ Continuous signals are converted into a discrete signal by collecting samples at
 .PP
 \fBQwtSamplingThread\fP starts a thread calling periodically \fBsample()\fP, to collect and store ( or emit ) a single sample\&.
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBQwtPlotCurve\fP, \fBQwtPlotSeriesItem\fP 
 .RE
@@ -70,12 +68,12 @@ Continuous signals are converted into a discrete signal by collecting samples at
 .SS "double QwtSamplingThread::elapsed () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Time (in ms) since the thread was started 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 QThread::start(), \fBrun()\fP 
 .RE
@@ -84,12 +82,12 @@ QThread::start(), \fBrun()\fP
 .SS "double QwtSamplingThread::interval () const"
 
 .PP
-\fBReturns:\fP
+\fBReturns\fP
 .RS 4
 Interval (in ms), between 2 calls of \fBsample()\fP 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBsetInterval()\fP 
 .RE
@@ -98,30 +96,30 @@ Interval (in ms), between 2 calls of \fBsample()\fP
 .SS "void QwtSamplingThread::run ()\fC [protected]\fP, \fC [virtual]\fP"
 Loop collecting samples started from QThread::start() 
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBstop()\fP 
 .RE
 .PP
 
-.SS "virtual void QwtSamplingThread::sample (doubleelapsed)\fC [protected]\fP, \fC [pure virtual]\fP"
+.SS "virtual void QwtSamplingThread::sample (double elapsed)\fC [protected]\fP, \fC [pure virtual]\fP"
 Collect a sample
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIelapsed\fP Time since the thread was started in milliseconds 
 .RE
 .PP
 
-.SS "void QwtSamplingThread::setInterval (doubleinterval)\fC [slot]\fP"
+.SS "void QwtSamplingThread::setInterval (double interval)\fC [slot]\fP"
 Change the interval (in ms), when \fBsample()\fP is called\&. The default interval is 1000\&.0 ( = 1s )
 .PP
-\fBParameters:\fP
+\fBParameters\fP
 .RS 4
 \fIinterval\fP Interval 
 .RE
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 \fBinterval()\fP 
 .RE
@@ -130,7 +128,7 @@ Change the interval (in ms), when \fBsample()\fP is called\&. The default interv
 .SS "void QwtSamplingThread::stop ()\fC [slot]\fP"
 Terminate the collecting thread 
 .PP
-\fBSee Also:\fP
+\fBSee also\fP
 .RS 4
 QThread::start(), \fBrun()\fP 
 .RE
