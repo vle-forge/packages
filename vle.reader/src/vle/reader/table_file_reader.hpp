@@ -73,14 +73,16 @@ public:
 
     bool readLine(std::string& lineStr)
     {
+        bool ret = true;
         if (filestream == 0) {
             openFileStream();
         }
         std::getline(*filestream, lineStr);
         if (filestream->eof() or not filestream->good()) {
             clearFileStream();
+            ret = false;
         }
-        return true;
+        return ret;
     }
 
     bool readLine(vv::Set& lineToFill, const std::string& sep)
@@ -110,9 +112,7 @@ public:
         if (filestream == 0) {
             openFileStream();
         }
-
         std::string line;
-
         lineToFill.clear();
         stream_place = filestream->tellg();
         std::getline(*filestream, line);
