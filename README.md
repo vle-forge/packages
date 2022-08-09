@@ -7,6 +7,7 @@ See AUTHORS and COPYRIGHT files for the list of contributors.
 
 ## Requirements
 
+* VLE (≥ 2.1)
 * expat (≥ 2.0)
 * boost (≥ 1.47)
 * cmake (≥ 3.5)
